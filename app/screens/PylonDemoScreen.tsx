@@ -49,14 +49,18 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
       />
       <Text
         text={status === "loading" ? "Loading..." : apiResponse}
+        style={status === "error" && $errorText}
       />
     </Screen>
   )
 })
 
-
 const $contentContainer: ViewStyle = {
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
+}
+
+const $errorText: TextStyle = {
+  color: colors.error,
 }
