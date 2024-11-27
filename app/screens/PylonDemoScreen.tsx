@@ -106,7 +106,7 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
 
 const $contentContainer: ViewStyle = {
   flex: 1,
-  backgroundColor: colors.background,
+  backgroundColor: colors.palette.neutral100, // Dark background
 }
 
 const $headerText: TextStyle = {
@@ -114,13 +114,13 @@ const $headerText: TextStyle = {
   fontWeight: "bold",
   textAlign: "center",
   marginVertical: 16,
-  color: colors.text,
+  color: colors.palette.neutral800, // Light text
 }
 
 const $centerText: TextStyle = {
   textAlign: "center",
   marginTop: 20,
-  color: colors.text,
+  color: colors.palette.neutral800, // Light text
 }
 
 const $errorText: TextStyle = {
@@ -137,7 +137,7 @@ const $listContentContainer: ViewStyle = {
 }
 
 const $threadContainer: ViewStyle = {
-  backgroundColor: colors.palette.neutral200,
+  backgroundColor: colors.palette.neutral200, // Slightly lighter than background
   borderRadius: 8,
   padding: 16,
   marginBottom: 12,
@@ -154,21 +154,21 @@ const $threadHeader: ViewStyle = {
 const $threadId: TextStyle = {
   fontSize: 16,
   fontWeight: "bold",
-  color: colors.text,
+  color: colors.palette.neutral800, // Light text
 }
 
 const $threadDate: TextStyle = {
   fontSize: 14,
-  color: colors.textDim,
+  color: colors.palette.neutral600, // Dimmed text
 }
 
 const $threadContent: TextStyle = {
   fontSize: 14,
-  color: colors.text,
+  color: colors.palette.neutral800, // Light text
   marginBottom: 8,
 }
 
 const $messageCount: TextStyle = {
   fontSize: 12,
-  color: colors.textDim,
+  color: colors.palette.neutral600, // Dimmed text
 }
