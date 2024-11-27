@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC, useEffect, useState } from "react"
-import { TextStyle, View, ViewStyle, FlatList } from "react-native"
+import { FlatList, TextStyle, View, ViewStyle } from "react-native"
 import { Screen, Text } from "@/components"
 import { AppStackScreenProps } from "@/navigators"
 import { Api } from "@/services/api"
@@ -35,7 +35,7 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
       try {
         const response = await api.apisauce.get("/api/threads", {}, {
           headers: {
-            "x-app-secret": "test123" // Replace with actual secret from env
+            "x-app-secret": "temporary-secret-ijoi8j98j2" // Replace with actual secret from env
           }
         })
 
@@ -69,9 +69,9 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
           <Text text={date} style={$threadDate} />
         </View>
         {lastMessage && (
-          <Text 
-            text={`${lastMessage.role}: ${lastMessage.text.slice(0, 100)}${lastMessage.text.length > 100 ? '...' : ''}`} 
-            style={$threadContent} 
+          <Text
+            text={`${lastMessage.role}: ${lastMessage.text.slice(0, 100)}${lastMessage.text.length > 100 ? '...' : ''}`}
+            style={$threadContent}
           />
         )}
         <Text text={`${item.messages?.length || 0} messages`} style={$messageCount} />
