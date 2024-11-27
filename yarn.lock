@@ -1239,6 +1239,11 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.1.tgz#de633db3ec2ef6a3c89e2f19038063e8a122e2c2"
   integrity sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==
 
+"@expo-google-fonts/jetbrains-mono@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/jetbrains-mono/-/jetbrains-mono-0.2.3.tgz#792308dcf5abac363c16bc067bb71f09c87daeee"
+  integrity sha512-TlAlQzlDYT/cwg3kjME54P/iOl5dxv+EZ0iYSMZ6+3Jhw0oImBI/BVPVKLP+KT+sAs8ze1FvGTYXrtfiYolxtw==
+
 "@expo-google-fonts/space-grotesk@^0.2.2":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@expo-google-fonts/space-grotesk/-/space-grotesk-0.2.3.tgz#f2d4fdc167d4d659b2a0d91d608e27ef9a7602f3"
