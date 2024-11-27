@@ -6,7 +6,6 @@
     "slug": "onyx",
     "scheme": "onyx",
     "version": "0.0.1",
-    "buildNumber": "12",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "icon": "./assets/images/app-icon-all.png",

@@ -18,7 +18,7 @@
     "bundle:visualize:dev": "npx react-native-bundle-visualizer --dev",
     "build:ios:sim": "eas build --profile development --platform ios --local",
     "build:ios:dev": "eas build --profile development:device --platform ios --local",
-    "build:ios:prod": "eas build --profile production --platform ios --local",
+    "build:ios:prod": "eas build --profile production --platform ios",
     "build:android:sim": "eas build --profile development --platform android --local",
     "build:android:dev": "eas build --profile development:device --platform android --local",
     "build:android:prod": "eas build --profile production --platform android --local",
@@ -28,7 +28,8 @@
     "web": "npx expo start --web",
     "bundle:web": "npx expo export --platform web",
     "serve:web": "npx server dist",
-    "prebuild:clean": "npx expo prebuild --clean"
+    "prebuild:clean": "npx expo prebuild --clean",
+    "submit:ios": "eas submit -p ios"
   },
   "dependencies": {
     "@expo-google-fonts/space-grotesk": "^0.2.2",
