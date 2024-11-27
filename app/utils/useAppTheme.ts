@@ -1,5 +1,5 @@
 // Set this to true to force dark mode for all users
-const FORCE_DARK_MODE = false
+const FORCE_DARK_MODE = true
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { StyleProp, useColorScheme } from "react-native"
