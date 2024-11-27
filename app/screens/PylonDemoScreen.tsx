@@ -97,6 +97,7 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
           renderItem={renderThread}
           keyExtractor={(item) => item._id}
           style={$listContainer}
+          contentContainerStyle={$listContentContainer}
         />
       )}
     </Screen>
@@ -105,6 +106,7 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
 
 const $contentContainer: ViewStyle = {
   flex: 1,
+  backgroundColor: colors.background,
 }
 
 const $headerText: TextStyle = {
@@ -112,11 +114,13 @@ const $headerText: TextStyle = {
   fontWeight: "bold",
   textAlign: "center",
   marginVertical: 16,
+  color: colors.text,
 }
 
 const $centerText: TextStyle = {
   textAlign: "center",
   marginTop: 20,
+  color: colors.text,
 }
 
 const $errorText: TextStyle = {
@@ -125,16 +129,20 @@ const $errorText: TextStyle = {
 
 const $listContainer: ViewStyle = {
   flex: 1,
+}
+
+const $listContentContainer: ViewStyle = {
   padding: 16,
+  paddingBottom: 32,
 }
 
 const $threadContainer: ViewStyle = {
-  backgroundColor: colors.background,
+  backgroundColor: colors.palette.neutral200,
   borderRadius: 8,
   padding: 16,
   marginBottom: 12,
   borderWidth: 1,
-  borderColor: colors.border,
+  borderColor: colors.palette.neutral300,
 }
 
 const $threadHeader: ViewStyle = {
@@ -146,6 +154,7 @@ const $threadHeader: ViewStyle = {
 const $threadId: TextStyle = {
   fontSize: 16,
   fontWeight: "bold",
+  color: colors.text,
 }
 
 const $threadDate: TextStyle = {
