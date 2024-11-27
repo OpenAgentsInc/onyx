@@ -1,31 +1,31 @@
+import { observer } from "mobx-react-lite"
 import { FC, useEffect, useState } from "react"
-import { observer } from "mobx-react-lite" 
-import { ViewStyle, TextStyle, View } from "react-native"
-import { AppStackScreenProps } from "@/navigators"
+import { TextStyle, View, ViewStyle } from "react-native"
 import { Screen, Text } from "@/components"
+import { AppStackScreenProps } from "@/navigators"
 import { Api } from "@/services/api"
 import { colors } from "@/theme"
 
-interface PylonDemoScreenProps extends AppStackScreenProps<"PylonDemo"> {}
+interface PylonDemoScreenProps extends AppStackScreenProps<"PylonDemo"> { }
 
 export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function PylonDemoScreen() {
   const [status, setStatus] = useState<"loading" | "error" | "success">("loading")
   const [apiResponse, setApiResponse] = useState<string>("")
-  
+
   useEffect(() => {
     const testApi = async () => {
       const testApiInstance = new Api({
         url: "https://pro.openagents.com",
         timeout: 10000,
       })
-      
+
       try {
         const response = await testApiInstance.apisauce.get("/api/tester")
-        
+
         if (response.ok) {
           setStatus("success")
           setApiResponse(
-            typeof response.data === "object" 
+            typeof response.data === "object"
               ? JSON.stringify(response.data, null, 2)
               : String(response.data)
           )
@@ -43,47 +43,20 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
   }, [])
 
   return (
-    <Screen style={$root} preset="fixed">
-      <View style={$contentContainer}>
-        <Text 
-          text="Pylon API Demo" 
-          style={$header}
-        />
-        <Text 
-          text={status === "loading" ? "Loading..." : apiResponse} 
-          style={[
-            $responseText,
-            status === "error" && $errorText
-          ]}
-        />
-      </View>
+    <Screen style={$contentContainer} preset="fixed">
+      <Text
+        text="Pylon API Demo"
+      />
+      <Text
+        text={status === "loading" ? "Loading..." : apiResponse}
+      />
     </Screen>
   )
 })
 
-const $root: ViewStyle = {
-  flex: 1,
-}
 
 const $contentContainer: ViewStyle = {
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
-}
-
-const $header: TextStyle = {
-  fontSize: 24,
-  fontWeight: "bold",
-  marginBottom: 20,
-  color: colors.palette.neutral100,
-}
-
-const $responseText: TextStyle = {
-  fontSize: 16,
-  textAlign: "center",
-  color: colors.palette.neutral100,
-}
-
-const $errorText: TextStyle = {
-  color: colors.error,
 }
