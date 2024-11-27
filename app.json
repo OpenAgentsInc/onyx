@@ -6,6 +6,7 @@
     "slug": "onyx",
     "scheme": "onyx",
     "version": "0.0.1",
+    "buildNumber": "12",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "icon": "./assets/images/app-icon-all.png",
@@ -15,7 +16,8 @@
       "backgroundColor": "#191015"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/69b52e85-13c8-439b-be19-8d2580e481fc"
     },
     "jsEngine": "hermes",
     "assetBundlePatterns": [
@@ -71,6 +73,15 @@
     ],
     "experiments": {
       "tsconfigPaths": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "69b52e85-13c8-439b-be19-8d2580e481fc"
+      }
+    },
+    "owner": "openagents",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   },
   "ignite": {
