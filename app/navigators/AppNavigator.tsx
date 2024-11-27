@@ -1,19 +1,23 @@
+import { observer } from "mobx-react-lite"
+import { ComponentProps } from "react"
+import * as Screens from "@/screens"
+import { useAppTheme, useThemeProvider } from "@/utils/useAppTheme"
 /**
  * The app navigator (formerly "AppNavigator" and "MainNavigator") is used for the primary
  * navigation flows of your app.
  * Generally speaking, it will contain an auth flow (registration, login, forgot password)
  * and a "main" flow which the user will use once logged in.
  */
-import { NavigationContainer, NavigatorScreenParams } from "@react-navigation/native"
-import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
-import { observer } from "mobx-react-lite"
-import * as Screens from "@/screens"
+import {
+    NavigationContainer, NavigatorScreenParams
+} from "@react-navigation/native"
+import {
+    createNativeStackNavigator, NativeStackScreenProps
+} from "@react-navigation/native-stack"
 import Config from "../config"
 import { useStores } from "../models"
 import { DemoNavigator, DemoTabParamList } from "./DemoNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
-import { useAppTheme, useThemeProvider } from "@/utils/useAppTheme"
-import { ComponentProps } from "react"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -34,7 +38,7 @@ export type AppStackParamList = {
   Demo: NavigatorScreenParams<DemoTabParamList>
   // 🔥 Your screens go here
   PylonDemo: undefined
-	// IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
+  // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
 /**
@@ -69,13 +73,14 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={isAuthenticated ? "Welcome" : "Login"}
+      initialRouteName={isAuthenticated ? "PylonDemo" : "Login"}
     >
       {isAuthenticated ? (
         <>
-          <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
+          <Stack.Screen name="PylonDemo" component={Screens.PylonDemoScreen} />
+          {/* <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
 
-          <Stack.Screen name="Demo" component={DemoNavigator} />
+          {/* <Stack.Screen name="Demo" component={DemoNavigator} /> */}
         </>
       ) : (
         <>
@@ -84,13 +89,13 @@ const AppStack = observer(function AppStack() {
       )}
 
       {/** 🔥 Your screens go here */}
-      <Stack.Screen name="PylonDemo" component={Screens.PylonDemoScreen} />
-			{/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
+      {/* <Stack.Screen name="PylonDemo" component={Screens.PylonDemoScreen} /> */}
+      {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>
   )
 })
 
-export interface NavigationProps extends Partial<ComponentProps<typeof NavigationContainer>> {}
+export interface NavigationProps extends Partial<ComponentProps<typeof NavigationContainer>> { }
 
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
   const { themeScheme, navigationTheme, setThemeContextOverride, ThemeProvider } =
