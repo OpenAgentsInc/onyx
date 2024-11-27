@@ -1,11 +1,11 @@
 {
   "name": "onyx",
-  "displayName": "onyx",
+  "displayName": "Onyx",
   "expo": {
-    "name": "onyx",
+    "name": "Onyx",
     "slug": "onyx",
     "scheme": "onyx",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "icon": "./assets/images/app-icon-all.png",
