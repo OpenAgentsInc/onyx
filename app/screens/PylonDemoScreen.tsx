@@ -35,11 +35,9 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
       try {
         const response = await api.apisauce.get("/api/threads", {}, {
           headers: {
-            "x-app-secret": "temporary-secret-ijoi8j98j2" // Replace with actual secret from env
+            "x-app-secret": "temporary-secret-ijoi8j98j2"
           }
         })
-
-        console.log("API Response:", response.data)
 
         if (response.ok && response.data?.threads) {
           console.log("Setting threads:", response.data.threads.length)
@@ -61,7 +59,6 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
   }, [])
 
   const renderThread = ({ item }: { item: Thread }) => {
-    console.log("Rendering thread:", item._id)
     const lastMessage = item.messages?.[item.messages.length - 1]
     const date = new Date(item._creationTime).toLocaleDateString()
 
@@ -82,36 +79,50 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
     )
   }
 
-  console.log("Current status:", status, "Thread count:", threads.length)
-
   return (
-    <Screen style={$contentContainer} preset="fixed">
-      <Text
-        text="Team Threads"
-        style={$headerText}
-      />
-      {status === "loading" ? (
-        <Text text="Loading..." style={$centerText} />
-      ) : status === "error" ? (
-        <Text text={errorMessage} style={[$centerText, $errorText]} />
-      ) : threads.length === 0 ? (
-        <Text text="No threads found" style={$centerText} />
-      ) : (
-        <FlatList
-          data={threads}
-          renderItem={renderThread}
-          keyExtractor={(item) => item._id}
-          style={$listContainer}
-          contentContainerStyle={$listContentContainer}
+    <Screen
+      style={$screenContainer}
+      contentContainerStyle={$contentContainer}
+      preset="scroll"
+    >
+      <View style={$mainContainer}>
+        <Text
+          text="Team Threads"
+          style={$headerText}
         />
-      )}
+        {status === "loading" ? (
+          <Text text="Loading..." style={$centerText} />
+        ) : status === "error" ? (
+          <Text text={errorMessage} style={[$centerText, $errorText]} />
+        ) : threads.length === 0 ? (
+          <Text text="No threads found" style={$centerText} />
+        ) : (
+          <FlatList
+            data={threads}
+            renderItem={renderThread}
+            keyExtractor={(item) => item._id}
+            style={$listContainer}
+            contentContainerStyle={$listContentContainer}
+          />
+        )}
+      </View>
     </Screen>
   )
 })
 
+const $screenContainer: ViewStyle = {
+  flex: 1,
+  backgroundColor: "#09090b",
+}
+
 const $contentContainer: ViewStyle = {
   flex: 1,
-  backgroundColor: "#09090b", // Hardcoded dark background
+  backgroundColor: "#09090b",
+}
+
+const $mainContainer: ViewStyle = {
+  flex: 1,
+  backgroundColor: "#09090b",
 }
 
 const $headerText: TextStyle = {
@@ -119,13 +130,13 @@ const $headerText: TextStyle = {
   fontWeight: "bold",
   textAlign: "center",
   marginVertical: 16,
-  color: "#e4e4e7", // Light gray
+  color: "#e4e4e7",
 }
 
 const $centerText: TextStyle = {
   textAlign: "center",
   marginTop: 20,
-  color: "#e4e4e7", // Light gray
+  color: "#e4e4e7",
 }
 
 const $errorText: TextStyle = {
@@ -134,7 +145,8 @@ const $errorText: TextStyle = {
 
 const $listContainer: ViewStyle = {
   flex: 1,
-  backgroundColor: "#09090b", // Ensure list background is also dark
+  backgroundColor: "#09090b",
+  minHeight: 1, // Force FlatList to take space
 }
 
 const $listContentContainer: ViewStyle = {
@@ -143,12 +155,12 @@ const $listContentContainer: ViewStyle = {
 }
 
 const $threadContainer: ViewStyle = {
-  backgroundColor: "#27272a", // Dark gray for thread containers
+  backgroundColor: "#27272a",
   borderRadius: 8,
   padding: 16,
   marginBottom: 12,
   borderWidth: 1,
-  borderColor: "#52525b", // Border color
+  borderColor: "#52525b",
 }
 
 const $threadHeader: ViewStyle = {
@@ -160,21 +172,21 @@ const $threadHeader: ViewStyle = {
 const $threadId: TextStyle = {
   fontSize: 16,
   fontWeight: "bold",
-  color: "#e4e4e7", // Light gray
+  color: "#e4e4e7",
 }
 
 const $threadDate: TextStyle = {
   fontSize: 14,
-  color: "#a1a1aa", // Medium gray
+  color: "#a1a1aa",
 }
 
 const $threadContent: TextStyle = {
   fontSize: 14,
-  color: "#e4e4e7", // Light gray
+  color: "#e4e4e7",
   marginBottom: 8,
 }
 
 const $messageCount: TextStyle = {
   fontSize: 12,
-  color: "#a1a1aa", // Medium gray
+  color: "#a1a1aa",
 }
