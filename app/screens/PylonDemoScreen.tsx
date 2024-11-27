@@ -10,10 +10,14 @@ interface PylonDemoScreenProps extends AppStackScreenProps<"PylonDemo"> { }
 
 interface Thread {
   _id: string
-  title?: string
-  content?: string
-  messages?: any[]
-  // Add other thread properties as needed
+  _creationTime: number
+  user_id: string
+  team_id: string
+  messages: {
+    _id: string
+    text: string
+    role: string
+  }[]
 }
 
 export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function PylonDemoScreen() {
@@ -54,14 +58,26 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
     fetchThreads()
   }, [])
 
-  const renderThread = ({ item }: { item: Thread }) => (
-    <View style={$threadContainer}>
-      <Text text={`Thread ID: ${item._id}`} style={$threadTitle} />
-      {item.title && <Text text={item.title} style={$threadTitle} />}
-      {item.content && <Text text={item.content} style={$threadContent} />}
-      <Text text={`Messages: ${item.messages?.length || 0}`} style={$threadContent} />
-    </View>
-  )
+  const renderThread = ({ item }: { item: Thread }) => {
+    const lastMessage = item.messages?.[item.messages.length - 1]
+    const date = new Date(item._creationTime).toLocaleDateString()
+
+    return (
+      <View style={$threadContainer}>
+        <View style={$threadHeader}>
+          <Text text={`Thread ${item._id.slice(0, 8)}...`} style={$threadId} />
+          <Text text={date} style={$threadDate} />
+        </View>
+        {lastMessage && (
+          <Text 
+            text={`${lastMessage.role}: ${lastMessage.text.slice(0, 100)}${lastMessage.text.length > 100 ? '...' : ''}`} 
+            style={$threadContent} 
+          />
+        )}
+        <Text text={`${item.messages?.length || 0} messages`} style={$messageCount} />
+      </View>
+    )
+  }
 
   return (
     <Screen style={$contentContainer} preset="fixed">
@@ -70,9 +86,9 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
         style={$headerText}
       />
       {status === "loading" ? (
-        <Text text="Loading..." />
+        <Text text="Loading..." style={$centerText} />
       ) : status === "error" ? (
-        <Text text={errorMessage} style={$errorText} />
+        <Text text={errorMessage} style={[$centerText, $errorText]} />
       ) : threads.length === 0 ? (
         <Text text="No threads found" style={$centerText} />
       ) : (
@@ -98,14 +114,13 @@ const $headerText: TextStyle = {
   marginVertical: 16,
 }
 
-const $errorText: TextStyle = {
-  color: colors.error,
-  textAlign: "center",
-}
-
 const $centerText: TextStyle = {
   textAlign: "center",
   marginTop: 20,
+}
+
+const $errorText: TextStyle = {
+  color: colors.error,
 }
 
 const $listContainer: ViewStyle = {
@@ -122,13 +137,29 @@ const $threadContainer: ViewStyle = {
   borderColor: colors.border,
 }
 
-const $threadTitle: TextStyle = {
-  fontSize: 18,
-  fontWeight: "bold",
+const $threadHeader: ViewStyle = {
+  flexDirection: "row",
+  justifyContent: "space-between",
   marginBottom: 8,
+}
+
+const $threadId: TextStyle = {
+  fontSize: 16,
+  fontWeight: "bold",
+}
+
+const $threadDate: TextStyle = {
+  fontSize: 14,
+  color: colors.textDim,
 }
 
 const $threadContent: TextStyle = {
   fontSize: 14,
   color: colors.text,
+  marginBottom: 8,
+}
+
+const $messageCount: TextStyle = {
+  fontSize: 12,
+  color: colors.textDim,
 }
