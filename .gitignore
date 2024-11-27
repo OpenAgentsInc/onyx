@@ -89,3 +89,5 @@ web-build/
 
 # Yarn
 .yarn/*
+
+dist/
