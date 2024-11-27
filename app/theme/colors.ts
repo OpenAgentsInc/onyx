@@ -1,38 +1,38 @@
 const palette = {
-  neutral100: "#FFFFFF",
-  neutral200: "#F4F2F1",
-  neutral300: "#D7CEC9",
-  neutral400: "#B6ACA6",
-  neutral500: "#978F8A",
-  neutral600: "#564E4A",
-  neutral700: "#3C3836",
-  neutral800: "#191015",
-  neutral900: "#000000",
+  neutral100: "#fafafa", // zinc-50
+  neutral200: "#f4f4f5", // zinc-100
+  neutral300: "#e4e4e7", // zinc-200
+  neutral400: "#d4d4d8", // zinc-300
+  neutral500: "#a1a1aa", // zinc-400
+  neutral600: "#71717a", // zinc-500
+  neutral700: "#52525b", // zinc-600
+  neutral800: "#27272a", // zinc-800
+  neutral900: "#09090b", // zinc-950
 
-  primary100: "#F4E0D9",
-  primary200: "#E8C1B4",
-  primary300: "#DDA28E",
-  primary400: "#D28468",
-  primary500: "#C76542",
-  primary600: "#A54F31",
+  primary100: "#f4f4f5", // zinc-100
+  primary200: "#e4e4e7", // zinc-200
+  primary300: "#d4d4d8", // zinc-300
+  primary400: "#a1a1aa", // zinc-400
+  primary500: "#71717a", // zinc-500
+  primary600: "#52525b", // zinc-600
 
-  secondary100: "#DCDDE9",
-  secondary200: "#BCC0D6",
-  secondary300: "#9196B9",
-  secondary400: "#626894",
-  secondary500: "#41476E",
+  secondary100: "#f4f4f5", // zinc-100
+  secondary200: "#e4e4e7", // zinc-200
+  secondary300: "#d4d4d8", // zinc-300
+  secondary400: "#a1a1aa", // zinc-400
+  secondary500: "#71717a", // zinc-500
 
-  accent100: "#FFEED4",
-  accent200: "#FFE1B2",
-  accent300: "#FDD495",
-  accent400: "#FBC878",
-  accent500: "#FFBB50",
+  accent100: "#f4f4f5", // zinc-100
+  accent200: "#e4e4e7", // zinc-200
+  accent300: "#d4d4d8", // zinc-300
+  accent400: "#a1a1aa", // zinc-400
+  accent500: "#71717a", // zinc-500
 
-  angry100: "#F2D6CD",
-  angry500: "#C03403",
+  angry100: "#e4e4e7", // zinc-200
+  angry500: "#18181b", // zinc-900
 
-  overlay20: "rgba(25, 16, 21, 0.2)",
-  overlay50: "rgba(25, 16, 21, 0.5)",
+  overlay20: "rgba(39, 39, 42, 0.2)", // zinc-800
+  overlay50: "rgba(39, 39, 42, 0.5)", // zinc-800
 } as const
 
 export const colors = {
