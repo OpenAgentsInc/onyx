@@ -42,9 +42,11 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
         console.log("API Response:", response.data)
 
         if (response.ok && response.data?.threads) {
-          setStatus("success")
+          console.log("Setting threads:", response.data.threads.length)
           setThreads(response.data.threads)
+          setStatus("success")
         } else {
+          console.log("API error:", response.data)
           setStatus("error")
           setErrorMessage(response.data?.error || "Failed to fetch threads")
         }
@@ -59,6 +61,7 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
   }, [])
 
   const renderThread = ({ item }: { item: Thread }) => {
+    console.log("Rendering thread:", item._id)
     const lastMessage = item.messages?.[item.messages.length - 1]
     const date = new Date(item._creationTime).toLocaleDateString()
 
@@ -78,6 +81,8 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
       </View>
     )
   }
+
+  console.log("Current status:", status, "Thread count:", threads.length)
 
   return (
     <Screen style={$contentContainer} preset="fixed">
@@ -106,7 +111,7 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
 
 const $contentContainer: ViewStyle = {
   flex: 1,
-  backgroundColor: colors.palette.neutral100, // Almost black
+  backgroundColor: "#09090b", // Hardcoded dark background
 }
 
 const $headerText: TextStyle = {
@@ -114,13 +119,13 @@ const $headerText: TextStyle = {
   fontWeight: "bold",
   textAlign: "center",
   marginVertical: 16,
-  color: colors.palette.neutral700, // Light gray
+  color: "#e4e4e7", // Light gray
 }
 
 const $centerText: TextStyle = {
   textAlign: "center",
   marginTop: 20,
-  color: colors.palette.neutral700, // Light gray
+  color: "#e4e4e7", // Light gray
 }
 
 const $errorText: TextStyle = {
@@ -129,6 +134,7 @@ const $errorText: TextStyle = {
 
 const $listContainer: ViewStyle = {
   flex: 1,
+  backgroundColor: "#09090b", // Ensure list background is also dark
 }
 
 const $listContentContainer: ViewStyle = {
@@ -137,12 +143,12 @@ const $listContentContainer: ViewStyle = {
 }
 
 const $threadContainer: ViewStyle = {
-  backgroundColor: colors.palette.neutral200, // Dark gray
+  backgroundColor: "#27272a", // Dark gray for thread containers
   borderRadius: 8,
   padding: 16,
   marginBottom: 12,
   borderWidth: 1,
-  borderColor: colors.palette.neutral300,
+  borderColor: "#52525b", // Border color
 }
 
 const $threadHeader: ViewStyle = {
@@ -154,21 +160,21 @@ const $threadHeader: ViewStyle = {
 const $threadId: TextStyle = {
   fontSize: 16,
   fontWeight: "bold",
-  color: colors.palette.neutral700, // Light gray
+  color: "#e4e4e7", // Light gray
 }
 
 const $threadDate: TextStyle = {
   fontSize: 14,
-  color: colors.palette.neutral500, // Medium gray
+  color: "#a1a1aa", // Medium gray
 }
 
 const $threadContent: TextStyle = {
   fontSize: 14,
-  color: colors.palette.neutral700, // Light gray
+  color: "#e4e4e7", // Light gray
   marginBottom: 8,
 }
 
 const $messageCount: TextStyle = {
   fontSize: 12,
-  color: colors.palette.neutral500, // Medium gray
+  color: "#a1a1aa", // Medium gray
 }
