@@ -43,19 +43,21 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
   }, [])
 
   return (
-    <Screen style={$root} preset="scroll">
-      <Text 
-        text="Pylon API Demo" 
-        style={$header}
-      />
-      <View style={$container}>
+    <Screen style={$root} preset="fixed">
+      <View style={$contentContainer}>
         <Text 
-          text={status === "loading" ? "Loading..." : apiResponse} 
-          style={[
-            $responseText,
-            status === "error" && $errorText
-          ]}
+          text="Pylon API Demo" 
+          style={$header}
         />
+        <View style={$responseContainer}>
+          <Text 
+            text={status === "loading" ? "Loading..." : apiResponse} 
+            style={[
+              $responseText,
+              status === "error" && $errorText
+            ]}
+          />
+        </View>
       </View>
     </Screen>
   )
@@ -65,18 +67,36 @@ const $root: ViewStyle = {
   flex: 1,
 }
 
-const $header: ViewStyle = {
-  fontSize: 24,
-  fontWeight: "bold",
+const $contentContainer: ViewStyle = {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
   padding: 16,
 }
 
-const $container: ViewStyle = {
+const $header: ViewStyle = {
+  fontSize: 24,
+  fontWeight: "bold",
+  marginBottom: 20,
+  textAlign: "center",
+}
+
+const $responseContainer: ViewStyle = {
   padding: 16,
+  backgroundColor: colors.background,
+  borderRadius: 8,
+  maxWidth: "100%",
+  minWidth: "80%",
+  shadowColor: colors.palette.neutral800,
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  elevation: 5,
 }
 
 const $responseText: ViewStyle = {
   fontSize: 16,
+  textAlign: "center",
 }
 
 const $errorText: ViewStyle = {
