@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite" 
-import { ViewStyle, TextStyle } from "react-native"
+import { ViewStyle, TextStyle, View } from "react-native"
 import { AppStackScreenProps } from "@/navigators"
 import { Screen, Text } from "@/components"
 import { Api } from "@/services/api"
@@ -44,7 +44,7 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
 
   return (
     <Screen style={$root} preset="fixed">
-      <Screen.Content style={$contentContainer}>
+      <View style={$contentContainer}>
         <Text 
           text="Pylon API Demo" 
           style={$header}
@@ -56,7 +56,7 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
             status === "error" && $errorText
           ]}
         />
-      </Screen.Content>
+      </View>
     </Screen>
   )
 })
@@ -75,13 +75,13 @@ const $header: TextStyle = {
   fontSize: 24,
   fontWeight: "bold",
   marginBottom: 20,
-  color: colors.palette.neutral100, // white
+  color: colors.palette.neutral100,
 }
 
 const $responseText: TextStyle = {
   fontSize: 16,
   textAlign: "center",
-  color: colors.palette.neutral100, // white
+  color: colors.palette.neutral100,
 }
 
 const $errorText: TextStyle = {
