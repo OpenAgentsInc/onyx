@@ -10,8 +10,9 @@ interface PylonDemoScreenProps extends AppStackScreenProps<"PylonDemo"> { }
 
 interface Thread {
   _id: string
-  title: string
-  content: string
+  title?: string
+  content?: string
+  messages?: any[]
   // Add other thread properties as needed
 }
 
@@ -30,9 +31,11 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
       try {
         const response = await api.apisauce.get("/api/threads", {}, {
           headers: {
-            "x-app-secret": "your-app-secret-here" // Replace with actual secret from env
+            "x-app-secret": "test123" // Replace with actual secret from env
           }
         })
+
+        console.log("API Response:", response.data)
 
         if (response.ok && response.data?.threads) {
           setStatus("success")
@@ -42,6 +45,7 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
           setErrorMessage(response.data?.error || "Failed to fetch threads")
         }
       } catch (error) {
+        console.error("API Error:", error)
         setStatus("error")
         setErrorMessage("Network error - Could not reach the API")
       }
@@ -52,8 +56,10 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
 
   const renderThread = ({ item }: { item: Thread }) => (
     <View style={$threadContainer}>
-      <Text text={item.title} style={$threadTitle} />
-      <Text text={item.content} style={$threadContent} />
+      <Text text={`Thread ID: ${item._id}`} style={$threadTitle} />
+      {item.title && <Text text={item.title} style={$threadTitle} />}
+      {item.content && <Text text={item.content} style={$threadContent} />}
+      <Text text={`Messages: ${item.messages?.length || 0}`} style={$threadContent} />
     </View>
   )
 
@@ -67,6 +73,8 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
         <Text text="Loading..." />
       ) : status === "error" ? (
         <Text text={errorMessage} style={$errorText} />
+      ) : threads.length === 0 ? (
+        <Text text="No threads found" style={$centerText} />
       ) : (
         <FlatList
           data={threads}
@@ -93,6 +101,11 @@ const $headerText: TextStyle = {
 const $errorText: TextStyle = {
   color: colors.error,
   textAlign: "center",
+}
+
+const $centerText: TextStyle = {
+  textAlign: "center",
+  marginTop: 20,
 }
 
 const $listContainer: ViewStyle = {
