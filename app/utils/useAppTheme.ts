@@ -1,3 +1,6 @@
+// Set this to true to force dark mode for all users
+const FORCE_DARK_MODE = false
+
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { StyleProp, useColorScheme } from "react-native"
 import { DarkTheme, DefaultTheme, useTheme as useNavTheme } from "@react-navigation/native"
@@ -39,7 +42,7 @@ export const useThemeProvider = (initialTheme: ThemeContexts = undefined) => {
     setTheme(newTheme)
   }, [])
 
-  const themeScheme = overrideTheme || colorScheme || "light"
+  const themeScheme = FORCE_DARK_MODE ? "dark" : (overrideTheme || colorScheme || "light")
   const navigationTheme = themeScheme === "dark" ? DarkTheme : DefaultTheme
 
   useEffect(() => {
@@ -85,7 +88,7 @@ export const useAppTheme = (): UseAppThemeValue => {
   const { themeScheme: overrideTheme, setThemeContextOverride } = context
 
   const themeContext: ThemeContexts = useMemo(
-    () => overrideTheme || (navTheme.dark ? "dark" : "light"),
+    () => FORCE_DARK_MODE ? "dark" : (overrideTheme || (navTheme.dark ? "dark" : "light")),
     [overrideTheme, navTheme],
   )
 
