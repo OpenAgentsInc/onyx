@@ -39,7 +39,10 @@
         "simulator": false
       }
     },
-    "production": {}
+    "production": {
+      "autoIncrement": true,
+      "channel": "production"
+    }
   },
   "submit": {
     "production": {}
