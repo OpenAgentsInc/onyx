@@ -29,7 +29,8 @@
     "bundle:web": "npx expo export --platform web",
     "serve:web": "npx server dist",
     "prebuild:clean": "npx expo prebuild --clean",
-    "submit:ios": "eas submit -p ios"
+    "submit:ios": "eas submit -p ios",
+    "update:prod": "eas update --channel production --message"
   },
   "dependencies": {
     "@expo-google-fonts/jetbrains-mono": "^0.2.3",
