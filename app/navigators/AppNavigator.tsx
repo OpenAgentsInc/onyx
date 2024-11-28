@@ -38,7 +38,8 @@ export type AppStackParamList = {
   Demo: NavigatorScreenParams<DemoTabParamList>
   // 🔥 Your screens go here
   PylonDemo: undefined
-  // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
+  Onyx: undefined
+	// IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
 /**
@@ -90,7 +91,8 @@ const AppStack = observer(function AppStack() {
 
       {/** 🔥 Your screens go here */}
       {/* <Stack.Screen name="PylonDemo" component={Screens.PylonDemoScreen} /> */}
-      {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
+      <Stack.Screen name="Onyx" component={Screens.OnyxScreen} />
+			{/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>
   )
 })
