@@ -1,6 +1,6 @@
 import { FC } from "react"
 import { observer } from "mobx-react-lite" 
-import { ViewStyle, TouchableOpacity, View } from "react-native"
+import { ViewStyle, TouchableOpacity } from "react-native"
 import { AppStackScreenProps } from "@/navigators"
 import { Screen, Text } from "@/components"
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -11,15 +11,14 @@ export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
   return (
     <Screen 
       style={$root} 
+      contentContainerStyle={$contentContainer}
       preset="fixed"
-      safeAreaEdges={["top"]}
+      safeAreaEdges={["bottom"]}
     >
       <Text text="Awaiting instruction" style={$headerText} />
-      <View style={$bottomContainer}>
-        <TouchableOpacity style={$recordButton} onPress={() => console.log('Record pressed')}>
-          <MaterialCommunityIcons name="record-circle-outline" size={64} color="white" />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={$recordButton} onPress={() => console.log('Record pressed')}>
+        <MaterialCommunityIcons name="record-circle-outline" size={64} color="white" />
+      </TouchableOpacity>
     </Screen>
   )
 })
@@ -29,19 +28,19 @@ const $root: ViewStyle = {
   backgroundColor: 'black',
 }
 
+const $contentContainer: ViewStyle = {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  paddingBottom: 30,
+}
+
 const $headerText: ViewStyle = {
+  position: 'absolute',
+  top: 40,
   color: 'white',
   fontSize: 18,
   textAlign: 'center',
-  marginTop: 40,
-}
-
-const $bottomContainer: ViewStyle = {
-  position: 'absolute',
-  bottom: 50,
-  left: 0,
-  right: 0,
-  alignItems: 'center',
 }
 
 const $recordButton: ViewStyle = {
