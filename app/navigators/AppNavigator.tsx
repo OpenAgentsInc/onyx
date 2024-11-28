@@ -39,7 +39,7 @@ export type AppStackParamList = {
   // 🔥 Your screens go here
   PylonDemo: undefined
   Onyx: undefined
-	// IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
+  // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
 /**
@@ -74,25 +74,25 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={isAuthenticated ? "PylonDemo" : "Login"}
+      initialRouteName="Onyx"
+    // initialRouteName={isAuthenticated ? "PylonDemo" : "Login"}
     >
-      {isAuthenticated ? (
+      {/* {isAuthenticated ? (
         <>
           <Stack.Screen name="PylonDemo" component={Screens.PylonDemoScreen} />
-          {/* <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
-
-          {/* <Stack.Screen name="Demo" component={DemoNavigator} /> */}
+          <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
+          <Stack.Screen name="Demo" component={DemoNavigator} />
         </>
       ) : (
         <>
           <Stack.Screen name="Login" component={Screens.LoginScreen} />
         </>
-      )}
+      )} */}
 
       {/** 🔥 Your screens go here */}
       {/* <Stack.Screen name="PylonDemo" component={Screens.PylonDemoScreen} /> */}
       <Stack.Screen name="Onyx" component={Screens.OnyxScreen} />
-			{/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
+      {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>
   )
 })
