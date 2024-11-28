@@ -1,30 +1,41 @@
 import { FC } from "react"
 import { observer } from "mobx-react-lite" 
-import { ViewStyle } from "react-native"
+import { ViewStyle, TouchableOpacity } from "react-native"
 import { AppStackScreenProps } from "@/navigators"
 import { Screen, Text } from "@/components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "@/models" 
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 interface OnyxScreenProps extends AppStackScreenProps<"Onyx"> {}
 
-
 export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
-  
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
-  
-
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
   return (
-    <Screen style={$root} preset="scroll">
-      <Text text="onyx" />
+    <Screen style={$root} preset="fixed">
+      <Text text="Awaiting instruction" style={$headerText} />
+      <TouchableOpacity style={$recordButton} onPress={() => console.log('Record pressed')}>
+        <MaterialCommunityIcons name="record-circle-outline" size={64} color="white" />
+      </TouchableOpacity>
     </Screen>
   )
-
 })
 
 const $root: ViewStyle = {
   flex: 1,
+  backgroundColor: 'black',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 40,
+}
+
+const $headerText: ViewStyle = {
+  color: 'white',
+  fontSize: 18,
+}
+
+const $recordButton: ViewStyle = {
+  width: 80,
+  height: 80,
+  borderRadius: 40,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'transparent',
 }
