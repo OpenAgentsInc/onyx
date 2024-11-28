@@ -37,9 +37,11 @@ const $contentContainer: ViewStyle = {
 
 const $headerText: ViewStyle = {
   position: 'absolute',
-  top: 40,
+  top: '50%',
+  left: '50%',
+  transform: [{ translateX: -50 }, { translateY: -50 }],
   color: 'white',
-  fontSize: 18,
+  fontSize: 14,
   textAlign: 'center',
 }
 
