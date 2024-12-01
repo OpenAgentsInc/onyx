@@ -18,6 +18,7 @@
       "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/69b52e85-13c8-439b-be19-8d2580e481fc"
     },
+    "newArchEnabled": true,
     "jsEngine": "hermes",
     "assetBundlePatterns": [
       "**/*"
@@ -57,17 +58,6 @@
     },
     "plugins": [
       "expo-localization",
-      [
-        "expo-build-properties",
-        {
-          "ios": {
-            "newArchEnabled": false
-          },
-          "android": {
-            "newArchEnabled": false
-          }
-        }
-      ],
       "expo-font"
     ],
     "experiments": {
