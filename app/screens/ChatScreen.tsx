@@ -1,3 +1,4 @@
+import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { ScrollView, TextInput, View, ViewStyle } from "react-native"
@@ -13,6 +14,7 @@ interface ChatScreenProps extends AppStackScreenProps<"Chat"> { }
 
 export const ChatScreen: FC<ChatScreenProps> = observer(function ChatScreen() {
   const { messages, error, handleInputChange, input, handleSubmit } = useChat({
+    fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: 'https://pro.openagents.com/api/chat-app',
     onError: error => console.error(error, 'ERROR'),
   });
