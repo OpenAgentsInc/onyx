@@ -53,10 +53,10 @@ export function MainNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: themed([$tabBar, { height: bottom + 70 }]),
+        tabBarStyle: themed([$tabBar, { height: bottom + 50 }]),
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.text,
-        tabBarLabelStyle: themed($tabBarLabel),
+        tabBarShowLabel: false,
         tabBarItemStyle: themed($tabBarItem),
       }}
     >
@@ -64,9 +64,8 @@ export function MainNavigator() {
         name="Onyx"
         component={OnyxScreen}
         options={{
-          tabBarLabel: "Onyx",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="home" color={focused ? colors.tint : colors.tintInactive} size={30} />
+            <Icon icon="home" color={focused ? colors.tint : colors.tintInactive} size={28} />
           ),
         }}
       />
@@ -75,9 +74,8 @@ export function MainNavigator() {
         name="DemoCommunity"
         component={DemoCommunityScreen}
         options={{
-          tabBarLabel: translate("demoNavigator:communityTab"),
           tabBarIcon: ({ focused }) => (
-            <Icon icon="people" color={focused ? colors.tint : colors.tintInactive} size={30} />
+            <Icon icon="people" color={focused ? colors.tint : colors.tintInactive} size={28} />
           ),
         }}
       />
@@ -86,9 +84,8 @@ export function MainNavigator() {
         name="DemoDebug"
         component={DemoDebugScreen}
         options={{
-          tabBarLabel: translate("demoNavigator:debugTab"),
           tabBarIcon: ({ focused }) => (
-            <Icon icon="bug-report" color={focused ? colors.tint : colors.tintInactive} size={30} />
+            <Icon icon="bug-report" color={focused ? colors.tint : colors.tintInactive} size={28} />
           ),
         }}
       />
@@ -99,15 +96,9 @@ export function MainNavigator() {
 const $tabBar: ThemedStyle<ViewStyle> = ({ colors }) => ({
   backgroundColor: colors.background,
   borderTopColor: colors.separator,
+  paddingVertical: 8,
 })
 
-const $tabBarItem: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  paddingTop: spacing.md,
-})
-
-const $tabBarLabel: ThemedStyle<TextStyle> = ({ colors, typography }) => ({
-  fontSize: 12,
-  fontFamily: typography.primary.medium,
-  lineHeight: 16,
-  color: colors.text,
+const $tabBarItem: ThemedStyle<ViewStyle> = () => ({
+  padding: 0,
 })
