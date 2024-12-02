@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { TouchableOpacity, ViewStyle, TextStyle } from "react-native"
+import { TextStyle, TouchableOpacity, ViewStyle } from "react-native"
 import { Screen, Text } from "@/components"
 import { MainTabScreenProps } from "@/navigators"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
@@ -14,10 +14,10 @@ export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
       contentContainerStyle={$contentContainer}
       preset="fixed"
     >
-      <Text text="Awaiting instruction" style={$headerText} />
-      <TouchableOpacity style={$recordButton} onPress={() => console.log('Record pressed')} activeOpacity={0.8}>
+      <Text text="Ready" style={$headerText} />
+      {/* <TouchableOpacity style={$recordButton} onPress={() => console.log('Record pressed')} activeOpacity={0.8}>
         <MaterialCommunityIcons name="record-circle-outline" size={64} color="white" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </Screen>
   )
 })
