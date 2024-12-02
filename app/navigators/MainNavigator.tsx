@@ -66,7 +66,7 @@ export function MainNavigator() {
         options={{
           tabBarLabel: "Onyx",
           tabBarIcon: ({ focused }) => (
-            <Icon icon="community" color={focused ? colors.tint : colors.tintInactive} size={30} />
+            <Icon icon="home" color={focused ? colors.tint : colors.tintInactive} size={30} />
           ),
         }}
       />
@@ -77,7 +77,7 @@ export function MainNavigator() {
         options={{
           tabBarLabel: translate("demoNavigator:communityTab"),
           tabBarIcon: ({ focused }) => (
-            <Icon icon="community" color={focused ? colors.tint : colors.tintInactive} size={30} />
+            <Icon icon="people" color={focused ? colors.tint : colors.tintInactive} size={30} />
           ),
         }}
       />
@@ -88,7 +88,7 @@ export function MainNavigator() {
         options={{
           tabBarLabel: translate("demoNavigator:debugTab"),
           tabBarIcon: ({ focused }) => (
-            <Icon icon="debug" color={focused ? colors.tint : colors.tintInactive} size={30} />
+            <Icon icon="bug-report" color={focused ? colors.tint : colors.tintInactive} size={30} />
           ),
         }}
       />
