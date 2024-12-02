@@ -1,32 +1,31 @@
-import { TextStyle, ViewStyle } from "react-native"
+import { ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useAppTheme } from "@/utils/useAppTheme"
 import {
-  BottomTabScreenProps, createBottomTabNavigator
+  BottomTabScreenProps,
+  createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs"
 import { CompositeScreenProps } from "@react-navigation/native"
 import { Icon } from "../components"
-import { translate } from "../i18n"
 import {
-  DemoCommunityScreen, DemoDebugScreen, DemoShowroomScreen, OnyxScreen
+  HomeScreen,
+  CommunityScreen,
+  OnyxScreen,
+  WalletScreen,
+  ProfileScreen,
 } from "../screens"
-import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 
 import type { ThemedStyle } from "@/theme"
+
 export type MainTabParamList = {
+  Home: undefined
+  Community: undefined
   Onyx: undefined
-  DemoCommunity: undefined
-  DemoShowroom: { queryIndex?: string; itemIndex?: string }
-  DemoDebug: undefined
-  DemoPodcastList: undefined
+  Wallet: undefined
+  Profile: undefined
 }
 
-/**
- * Helper for automatically generating navigation prop types for each route.
- *
- * More info: https://reactnavigation.org/docs/typescript/#organizing-types
- */
 export type MainTabScreenProps<T extends keyof MainTabParamList> = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, T>,
   AppStackScreenProps<keyof AppStackParamList>
@@ -34,13 +33,6 @@ export type MainTabScreenProps<T extends keyof MainTabParamList> = CompositeScre
 
 const Tab = createBottomTabNavigator<MainTabParamList>()
 
-/**
- * This is the main navigator for the demo screens with a bottom tab bar.
- * Each tab is a stack navigator with its own set of screens.
- *
- * More info: https://reactnavigation.org/docs/bottom-tab-navigator/
- * @returns {JSX.Element} The rendered `DemoNavigator`.
- */
 export function MainNavigator() {
   const { bottom } = useSafeAreaInsets()
   const {
@@ -61,8 +53,8 @@ export function MainNavigator() {
       }}
     >
       <Tab.Screen
-        name="Onyx"
-        component={OnyxScreen}
+        name="Home"
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <Icon icon="home" color={focused ? colors.tint : colors.tintInactive} size={28} />
@@ -71,21 +63,41 @@ export function MainNavigator() {
       />
 
       <Tab.Screen
-        name="DemoCommunity"
-        component={DemoCommunityScreen}
+        name="Community"
+        component={CommunityScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Icon icon="people" color={focused ? colors.tint : colors.tintInactive} size={28} />
+            <Icon icon="groups" color={focused ? colors.tint : colors.tintInactive} size={28} />
           ),
         }}
       />
 
       <Tab.Screen
-        name="DemoDebug"
-        component={DemoDebugScreen}
+        name="Onyx"
+        component={OnyxScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Icon icon="bug-report" color={focused ? colors.tint : colors.tintInactive} size={28} />
+            <Icon icon="mic" color={focused ? colors.tint : colors.tintInactive} size={28} />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Wallet"
+        component={WalletScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Icon icon="account-balance-wallet" color={focused ? colors.tint : colors.tintInactive} size={28} />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Icon icon="person" color={focused ? colors.tint : colors.tintInactive} size={28} />
           ),
         }}
       />
