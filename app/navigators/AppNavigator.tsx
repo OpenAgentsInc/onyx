@@ -36,6 +36,10 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 export type AppStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>
   Onyx: NavigatorScreenParams<DemoTabParamList>
+  Login: undefined
+  Welcome: undefined
+  Chat: undefined
+  PylonDemo: undefined
 }
 
 /**
@@ -73,6 +77,10 @@ const AppStack = observer(function AppStack() {
       initialRouteName="Main"
     >
       <Stack.Screen name="Main" component={MainNavigator} />
+      <Stack.Screen name="Login" component={Screens.LoginScreen} />
+      <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
+      <Stack.Screen name="Chat" component={Screens.ChatScreen} />
+      <Stack.Screen name="PylonDemo" component={Screens.PylonDemoScreen} />
     </Stack.Navigator>
   )
 })
