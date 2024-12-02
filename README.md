@@ -1,14 +1,22 @@
 # Onyx - Your AI Agent
 
-A personal AI agent that helps you get things done. Onyx can interact with other people's agents, make transactions, and earn you bitcoin.
+A personal AI agent that can connect to any API, service, or data source through an extensible plugin system. Your agent can automate workflows, manage your digital life, and even earn you bitcoin.
+
+Imagine your agent:
+- Trading crypto based on your parameters
+- Managing your calendar and email
+- Monitoring and analyzing your data
+- Running your business operations
+- Coordinating with other agents in your network
+- Executing complex workflows across multiple services
 
 ## Features
 
 - Built-in Bitcoin wallet
 - Nostr client for decentralized social networking
 - AI-powered chat interface using the Vercel AI SDK
-- Tools system for executing real-world actions
-- Agent-to-agent communication capabilities
+- Extensible plugin system for unlimited capabilities
+- Agent-to-agent communication protocol
 - Secure transaction handling
 
 ## Technology Stack
