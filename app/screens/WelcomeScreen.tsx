@@ -15,7 +15,7 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
   const { navigation } = _props
 
   function goNext() {
-    navigation.navigate("Demo", { screen: "DemoShowroom", params: {} })
+    navigation.navigate("Main", { screen: "Onyx" })
   }
 
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
