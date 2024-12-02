@@ -30,7 +30,8 @@
     "serve:web": "npx server dist",
     "prebuild:clean": "npx expo prebuild --clean",
     "submit:ios": "eas submit -p ios",
-    "update:prod": "eas update --channel production --message"
+    "update:prod": "eas update --channel production --message",
+    "tsc": "tsc --noEmit"
   },
   "dependencies": {
     "@ai-sdk/react": "^1.0.3",

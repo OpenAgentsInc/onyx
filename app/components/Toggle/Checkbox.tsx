@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react"
 import { Image, ImageStyle, Animated, StyleProp, View, ViewStyle } from "react-native"
 import { $styles } from "../../theme"
-import { iconRegistry, IconTypes } from "../Icon"
+import { iconRegistry } from "../Icon"
 import { $inputOuterBase, BaseToggleInputProps, ToggleProps, Toggle } from "./Toggle"
 import { useAppTheme } from "@/utils/useAppTheme"
 
@@ -13,7 +13,7 @@ export interface CheckboxToggleProps extends Omit<ToggleProps<CheckboxInputProps
   /**
    * Checkbox-only prop that changes the icon used for the "on" state.
    */
-  icon?: IconTypes
+  icon?: keyof typeof iconRegistry
 }
 
 interface CheckboxInputProps extends BaseToggleInputProps<CheckboxToggleProps> {
@@ -100,7 +100,7 @@ function CheckboxInput(props: CheckboxInputProps) {
         ]}
       >
         <Image
-          source={icon ? iconRegistry[icon] : iconRegistry.check}
+          source={iconRegistry[icon]}
           style={[
             $checkboxDetail,
             !!iconTintColor && { tintColor: iconTintColor },

@@ -20,6 +20,11 @@ interface Thread {
   }[]
 }
 
+interface ApiResponse {
+  threads?: Thread[]
+  error?: string
+}
+
 export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function PylonDemoScreen() {
   const [status, setStatus] = useState<"loading" | "error" | "success">("loading")
   const [threads, setThreads] = useState<Thread[]>([])
@@ -33,7 +38,7 @@ export const PylonDemoScreen: FC<PylonDemoScreenProps> = observer(function Pylon
       })
 
       try {
-        const response = await api.apisauce.get("/api/threads", {}, {
+        const response = await api.apisauce.get<ApiResponse>("/api/threads", {}, {
           headers: {
             "x-app-secret": "temporary-secret-ijoi8j98j2"
           }
