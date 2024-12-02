@@ -1,11 +1,11 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { TouchableOpacity, ViewStyle } from "react-native"
+import { TouchableOpacity, ViewStyle, TextStyle } from "react-native"
 import { Screen, Text } from "@/components"
-import { AppStackScreenProps } from "@/navigators"
+import { MainTabScreenProps } from "@/navigators"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 
-interface OnyxScreenProps extends AppStackScreenProps<"Main"> { }
+interface OnyxScreenProps extends MainTabScreenProps<"Onyx"> { }
 
 export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
   return (
@@ -34,9 +34,11 @@ const $contentContainer: ViewStyle = {
   paddingBottom: 40,
 }
 
-const $headerText: ViewStyle = {
+const $headerText: TextStyle = {
   position: 'absolute',
   top: '50%',
+  color: 'white',
+  fontSize: 18,
 }
 
 const $recordButton: ViewStyle = {
