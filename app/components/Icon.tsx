@@ -9,9 +9,10 @@ import {
   ViewProps,
   ViewStyle,
 } from "react-native"
+import { MaterialIcons } from "@expo/vector-icons"
 import { useAppTheme } from "@/utils/useAppTheme"
 
-export type IconTypes = keyof typeof iconRegistry
+export type IconTypes = keyof typeof iconRegistry | keyof typeof MaterialIcons.glyphMap
 
 interface IconProps extends TouchableOpacityProps {
   /**
@@ -46,11 +47,8 @@ interface IconProps extends TouchableOpacityProps {
 }
 
 /**
- * A component to render a registered icon.
+ * A component to render either a registered image icon or a vector icon.
  * It is wrapped in a <TouchableOpacity /> if `onPress` is provided, otherwise a <View />.
- * @see [Documentation and Examples]{@link https://docs.infinite.red/ignite-cli/boilerplate/app/components/Icon/}
- * @param {IconProps} props - The props for the `Icon` component.
- * @returns {JSX.Element} The rendered `Icon` component.
  */
 export function Icon(props: IconProps) {
   const {
@@ -68,10 +66,31 @@ export function Icon(props: IconProps) {
   >
 
   const { theme } = useAppTheme()
+  const iconColor = color ?? theme.colors.text
 
+  // Check if the icon is a vector icon (MaterialIcons)
+  const isVectorIcon = icon in MaterialIcons.glyphMap
+
+  if (isVectorIcon) {
+    return (
+      <Wrapper
+        accessibilityRole={isPressable ? "button" : undefined}
+        {...WrapperProps}
+        style={$containerStyleOverride}
+      >
+        <MaterialIcons
+          name={icon as keyof typeof MaterialIcons.glyphMap}
+          size={size ?? 24}
+          color={iconColor}
+        />
+      </Wrapper>
+    )
+  }
+
+  // Handle image icons
   const $imageStyle: StyleProp<ImageStyle> = [
     $imageStyleBase,
-    { tintColor: color ?? theme.colors.text },
+    { tintColor: iconColor },
     size !== undefined && { width: size, height: size },
     $imageStyleOverride,
   ]
@@ -82,7 +101,7 @@ export function Icon(props: IconProps) {
       {...WrapperProps}
       style={$containerStyleOverride}
     >
-      <Image style={$imageStyle} source={iconRegistry[icon]} />
+      <Image style={$imageStyle} source={iconRegistry[icon as keyof typeof iconRegistry]} />
     </Wrapper>
   )
 }
