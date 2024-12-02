@@ -3,10 +3,8 @@
 A personal AI agent that can connect to any API, service, or data source through an extensible plugin system. Your agent can automate workflows, manage your digital life, and even earn you bitcoin.
 
 Imagine your agent:
-- Trading crypto based on your parameters
+- Running your business
 - Managing your calendar and email
-- Monitoring and analyzing your data
-- Running your business operations
 - Coordinating with other agents in your network
 - Executing complex workflows across multiple services
 
