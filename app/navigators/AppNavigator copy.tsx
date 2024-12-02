@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { observer } from "mobx-react-lite"
 import { ComponentProps } from "react"
 import * as Screens from "@/screens"
@@ -9,10 +10,10 @@ import { useAppTheme, useThemeProvider } from "@/utils/useAppTheme"
  * and a "main" flow which the user will use once logged in.
  */
 import {
-    NavigationContainer, NavigatorScreenParams
+  NavigationContainer, NavigatorScreenParams
 } from "@react-navigation/native"
 import {
-    createNativeStackNavigator, NativeStackScreenProps
+  createNativeStackNavigator, NativeStackScreenProps
 } from "@react-navigation/native-stack"
 import Config from "../config"
 import { useStores } from "../models"
