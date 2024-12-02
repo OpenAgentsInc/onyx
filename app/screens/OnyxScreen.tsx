@@ -5,7 +5,7 @@ import { Screen, Text } from "@/components"
 import { AppStackScreenProps } from "@/navigators"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 
-interface OnyxScreenProps extends AppStackScreenProps<"Onyx"> { }
+interface OnyxScreenProps extends AppStackScreenProps<"Main"> { }
 
 export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
   return (

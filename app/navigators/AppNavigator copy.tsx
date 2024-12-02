@@ -9,15 +9,14 @@ import { useAppTheme, useThemeProvider } from "@/utils/useAppTheme"
  * and a "main" flow which the user will use once logged in.
  */
 import {
-  NavigationContainer, NavigatorScreenParams
+    NavigationContainer, NavigatorScreenParams
 } from "@react-navigation/native"
 import {
-  createNativeStackNavigator, NativeStackScreenProps
+    createNativeStackNavigator, NativeStackScreenProps
 } from "@react-navigation/native-stack"
 import Config from "../config"
 import { useStores } from "../models"
 import { DemoNavigator, DemoTabParamList } from "./DemoNavigator"
-import { MainNavigator, MainTabParamList } from "./MainNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 
 /**
@@ -34,8 +33,14 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  *   https://reactnavigation.org/docs/typescript/#organizing-types
  */
 export type AppStackParamList = {
-  Main: NavigatorScreenParams<MainTabParamList>
-  Onyx: NavigatorScreenParams<DemoTabParamList>
+  Welcome: undefined
+  Login: undefined
+  Demo: NavigatorScreenParams<DemoTabParamList>
+  // 🔥 Your screens go here
+  PylonDemo: undefined
+  Onyx: undefined
+  Chat: undefined
+  // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
 /**
@@ -70,9 +75,26 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName="Main"
+      initialRouteName="Chat"
+    // initialRouteName={isAuthenticated ? "PylonDemo" : "Login"}
     >
-      <Stack.Screen name="Main" component={MainNavigator} />
+      {/* {isAuthenticated ? (
+        <>
+          <Stack.Screen name="PylonDemo" component={Screens.PylonDemoScreen} />
+          <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
+          <Stack.Screen name="Demo" component={DemoNavigator} />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="Login" component={Screens.LoginScreen} />
+        </>
+      )} */}
+
+      {/** 🔥 Your screens go here */}
+      {/* <Stack.Screen name="PylonDemo" component={Screens.PylonDemoScreen} /> */}
+      <Stack.Screen name="Onyx" component={Screens.OnyxScreen} />
+      <Stack.Screen name="Chat" component={Screens.ChatScreen} />
+      {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>
   )
 })
