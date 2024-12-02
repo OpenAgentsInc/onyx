@@ -1,6 +1,8 @@
 # Onyx - Your AI Agent
 
-A personal AI agent that can connect to any API, service, or data source through an extensible plugin system.
+The OpenAgents mobile app!
+
+Onyx is your personal AI agent that can connect to any API, service, or data source through an extensible plugin system.
 
 Your agent can automate workflows, manage your digital life, and earn you bitcoin.
 
@@ -16,6 +18,6 @@ Your agent can automate workflows, manage your digital life, and earn you bitcoi
 ## Technology Stack
 
 - React Native + Expo
-- Vercel AI SDK
 - Nostr Protocol
-- Bitcoin Lightning Network
+- Vercel AI SDK
+- Bitcoin & Lightning via Breez SDK
