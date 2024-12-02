@@ -54,16 +54,19 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
         if (isOnyxTab) {
           return (
             <View key={route.key} style={$onyxContainer}>
-              <TouchableOpacity
-                onPress={onPress}
-                style={$onyxButton}
-              >
-                <Icon
-                  icon={getIconName()}
-                  color={isFocused ? colors.tint : colors.tintInactive}
-                  size={32}
-                />
-              </TouchableOpacity>
+              <View style={$onyxButtonBorder}>
+                <TouchableOpacity
+                  onPress={onPress}
+                  style={$onyxButton}
+                  activeOpacity={0.8}
+                >
+                  <Icon
+                    icon={getIconName()}
+                    color={isFocused ? colors.tint : colors.tintInactive}
+                    size={32}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
           )
         }
@@ -73,6 +76,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             key={route.key}
             onPress={onPress}
             style={$tabButton}
+            activeOpacity={0.8}
           >
             <Icon
               icon={getIconName()}
@@ -107,16 +111,14 @@ const $onyxContainer: ViewStyle = {
   justifyContent: 'flex-start',
 }
 
-const $onyxButton: ViewStyle = {
-  backgroundColor: '#000',
+const $onyxButtonBorder: ViewStyle = {
   width: ONYX_BUTTON_SIZE,
   height: ONYX_BUTTON_SIZE,
-  borderRadius: ONYX_BUTTON_SIZE / 2, // This ensures a perfect circle
+  borderRadius: ONYX_BUTTON_SIZE / 2,
   marginTop: -20,
-  justifyContent: 'center',
-  alignItems: 'center',
   borderWidth: 1,
   borderColor: '#333',
+  backgroundColor: 'black',
   shadowColor: "#fff",
   shadowOffset: {
     width: 0,
@@ -125,4 +127,13 @@ const $onyxButton: ViewStyle = {
   shadowOpacity: 0.2,
   shadowRadius: 5,
   elevation: 5,
+}
+
+const $onyxButton: ViewStyle = {
+  width: '100%',
+  height: '100%',
+  borderRadius: ONYX_BUTTON_SIZE / 2,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'black',
 }
