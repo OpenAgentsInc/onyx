@@ -4,12 +4,6 @@ A personal AI agent that can connect to any API, service, or data source through
 
 Your agent can automate workflows, manage your digital life, and earn you bitcoin.
 
-Imagine your agent:
-- Running your business
-- Managing your calendar and email
-- Coordinating with other agents in your network
-- Executing complex workflows across multiple services
-
 ## Features
 
 - Built-in Bitcoin wallet
