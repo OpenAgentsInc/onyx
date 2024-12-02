@@ -4,6 +4,8 @@ import { Icon } from "./Icon"
 import { useAppTheme } from "@/utils/useAppTheme"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
+const ONYX_BUTTON_SIZE = 65
+
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const {
     theme: { colors },
@@ -49,19 +51,33 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
           }
         }
 
+        if (isOnyxTab) {
+          return (
+            <View key={route.key} style={$onyxContainer}>
+              <TouchableOpacity
+                onPress={onPress}
+                style={$onyxButton}
+              >
+                <Icon
+                  icon={getIconName()}
+                  color={isFocused ? colors.tint : colors.tintInactive}
+                  size={32}
+                />
+              </TouchableOpacity>
+            </View>
+          )
+        }
+
         return (
           <TouchableOpacity
             key={route.key}
             onPress={onPress}
-            style={[
-              $tabButton,
-              isOnyxTab && $onyxButton,
-            ]}
+            style={$tabButton}
           >
             <Icon
               icon={getIconName()}
               color={isFocused ? colors.tint : colors.tintInactive}
-              size={isOnyxTab ? 32 : 28}
+              size={28}
             />
           </TouchableOpacity>
         )
@@ -85,12 +101,20 @@ const $tabButton: ViewStyle = {
   paddingVertical: 8,
 }
 
+const $onyxContainer: ViewStyle = {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'flex-start',
+}
+
 const $onyxButton: ViewStyle = {
   backgroundColor: '#000',
-  width: 65,
-  height: 65,
-  borderRadius: 32.5,
+  width: ONYX_BUTTON_SIZE,
+  height: ONYX_BUTTON_SIZE,
+  borderRadius: ONYX_BUTTON_SIZE / 2, // This ensures a perfect circle
   marginTop: -20,
+  justifyContent: 'center',
+  alignItems: 'center',
   borderWidth: 1,
   borderColor: '#333',
   shadowColor: "#fff",
