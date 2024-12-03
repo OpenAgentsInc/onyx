@@ -1,8 +1,8 @@
-import { View, TouchableOpacity, ViewStyle } from "react-native"
+import { TouchableOpacity, View, ViewStyle } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useAppTheme } from "@/utils/useAppTheme"
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs"
 import { Icon } from "./Icon"
-import { useAppTheme } from "@/utils/useAppTheme"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const ONYX_BUTTON_SIZE = 65
 
