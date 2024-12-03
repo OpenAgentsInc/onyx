@@ -1,20 +1,15 @@
 import { ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { CustomTabBar } from "@/components/CustomTabBar"
 import { useAppTheme } from "@/utils/useAppTheme"
 import {
-  BottomTabScreenProps,
-  createBottomTabNavigator,
+  BottomTabScreenProps, createBottomTabNavigator
 } from "@react-navigation/bottom-tabs"
 import { CompositeScreenProps } from "@react-navigation/native"
 import {
-  HomeScreen,
-  CommunityScreen,
-  OnyxScreen,
-  WalletScreen,
-  ProfileScreen,
+  CommunityScreen, HomeScreen, OnyxScreen, ProfileScreen, WalletScreen
 } from "../screens"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
-import { CustomTabBar } from "@/components/CustomTabBar"
 
 import type { ThemedStyle } from "@/theme"
 
@@ -49,6 +44,7 @@ export function MainNavigator() {
         unmountOnBlur: false, // Keep screens mounted
         freezeOnBlur: false, // Don't freeze screens when not focused
       }}
+      initialRouteName="Onyx"
     >
       <Tab.Screen
         name="Home"
