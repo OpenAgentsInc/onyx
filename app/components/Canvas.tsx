@@ -14,6 +14,7 @@ export function Canvas() {
   const gemRef = useRef<THREE.Group>();
   const glowRef = useRef<THREE.PointLight>();
   const pulseRef = useRef<THREE.PointLight>();
+  const rimLightRef = useRef<THREE.SpotLight>();
   const animationFrameRef = useRef<number>();
 
   const animate = useCallback(() => {
@@ -28,6 +29,7 @@ export function Canvas() {
     const gem = gemRef.current;
     const glow = glowRef.current;
     const pulse = pulseRef.current;
+    const rimLight = rimLightRef.current;
 
     if (gem) {
       // Gentle floating motion
@@ -37,9 +39,17 @@ export function Canvas() {
 
     if (glow && pulse) {
       // Pulsing light effect
-      const intensity = 1 + Math.sin(Date.now() * 0.003) * 0.5;
+      const time = Date.now() * 0.002;
+      const intensity = 1.5 + Math.sin(time) * 0.5;
       glow.intensity = intensity;
-      pulse.intensity = intensity * 0.5;
+      pulse.intensity = intensity * 0.7;
+      
+      // Move rim light for dynamic reflections
+      if (rimLight) {
+        rimLight.position.x = Math.sin(time) * 3;
+        rimLight.position.z = Math.cos(time) * 3;
+        rimLight.intensity = 2 + Math.sin(time * 1.5) * 0.5;
+      }
     }
 
     try {
@@ -84,17 +94,18 @@ export function Canvas() {
     cameraRef.current = undefined;
     glowRef.current = undefined;
     pulseRef.current = undefined;
+    rimLightRef.current = undefined;
   }, []);
 
   const createGemGeometry = () => {
-    const geometry = new THREE.IcosahedronGeometry(1, 1);
+    const geometry = new THREE.IcosahedronGeometry(1, 2); // Increased detail level
     // Distort vertices slightly for more crystalline look
     const positions = geometry.attributes.position;
     for (let i = 0; i < positions.count; i++) {
       const x = positions.getX(i);
       const y = positions.getY(i);
       const z = positions.getZ(i);
-      const noise = (Math.random() - 0.5) * 0.2;
+      const noise = (Math.random() - 0.5) * 0.15; // Reduced distortion
       positions.setXYZ(i, x + noise, y + noise, z + noise);
     }
     geometry.computeVertexNormals();
@@ -119,10 +130,12 @@ export function Canvas() {
     renderer.setPixelRatio(1);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.5;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('black');
-    scene.fog = new THREE.FogExp2(0x000000, 0.1);
+    scene.fog = new THREE.FogExp2(0x000000, 0.15);
 
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -130,8 +143,8 @@ export function Canvas() {
       0.1,
       1000
     );
-    camera.position.z = 4;
-    camera.position.y = 2;
+    camera.position.z = 3.5;
+    camera.position.y = 1.5;
     camera.lookAt(0, 0, 0);
 
     // Create gem group
@@ -141,47 +154,73 @@ export function Canvas() {
     const gemGeometry = createGemGeometry();
     const gemMaterial = new THREE.MeshPhysicalMaterial({ 
       color: 0x000000,
-      metalness: 0.9,
-      roughness: 0.1,
-      reflectivity: 1,
-      clearcoat: 1,
-      clearcoatRoughness: 0.1,
-      envMapIntensity: 1
+      metalness: 1.0,
+      roughness: 0.0,
+      reflectivity: 1.0,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.0,
+      envMapIntensity: 3.0,
+      ior: 2.5,
     });
     const gem = new THREE.Mesh(gemGeometry, gemMaterial);
     gem.castShadow = true;
     gem.receiveShadow = true;
     gemGroup.add(gem);
 
-    // Add subtle white edges
+    // Add brighter white edges
     const edgeGeometry = new THREE.EdgesGeometry(gemGeometry);
     const edgeMaterial = new THREE.LineBasicMaterial({ 
       color: 0xffffff,
       transparent: true,
-      opacity: 0.2
+      opacity: 0.4
     });
     const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
     gemGroup.add(edges);
 
+    // Inner glow mesh
+    const innerGlowMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.1,
+      side: THREE.BackSide
+    });
+    const innerGlow = new THREE.Mesh(gemGeometry.clone(), innerGlowMaterial);
+    innerGlow.scale.multiplyScalar(0.98);
+    gemGroup.add(innerGlow);
+
     // Ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
     scene.add(ambientLight);
 
     // Main directional light
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
     dirLight.position.set(5, 5, 5);
     dirLight.castShadow = true;
     scene.add(dirLight);
 
-    // Glow light
-    const glowLight = new THREE.PointLight(0xffffff, 1, 10);
+    // Glow light (front)
+    const glowLight = new THREE.PointLight(0xffffff, 1.5, 10);
     glowLight.position.set(0, 0, 2);
     scene.add(glowLight);
 
-    // Pulse light
-    const pulseLight = new THREE.PointLight(0xffffff, 0.5, 5);
+    // Pulse light (back)
+    const pulseLight = new THREE.PointLight(0xffffff, 1.0, 8);
     pulseLight.position.set(0, 0, -2);
     scene.add(pulseLight);
+
+    // Rim light (moving spotlight)
+    const rimLight = new THREE.SpotLight(0xffffff, 2, 10, Math.PI / 4, 0.5, 1);
+    rimLight.position.set(3, 2, 0);
+    scene.add(rimLight);
+
+    // Additional fill lights
+    const fillLight1 = new THREE.PointLight(0xffffff, 0.5, 10);
+    fillLight1.position.set(-2, 1, 2);
+    scene.add(fillLight1);
+
+    const fillLight2 = new THREE.PointLight(0xffffff, 0.5, 10);
+    fillLight2.position.set(2, -1, -2);
+    scene.add(fillLight2);
 
     // Add everything to scene
     scene.add(gemGroup);
@@ -194,6 +233,7 @@ export function Canvas() {
     gemRef.current = gemGroup;
     glowRef.current = glowLight;
     pulseRef.current = pulseLight;
+    rimLightRef.current = rimLight;
 
     return true;
   }, [cleanupGL]);
