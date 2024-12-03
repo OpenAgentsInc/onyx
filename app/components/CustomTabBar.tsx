@@ -41,7 +41,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             case 'Community':
               return 'groups'
             case 'Onyx':
-              return 'mic'
+              return 'appIcon'
             case 'Wallet':
               return 'account-balance-wallet'
             case 'Profile':
