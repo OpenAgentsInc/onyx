@@ -1,6 +1,6 @@
 import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
 import React, { useCallback, useEffect, useRef } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import * as THREE from "three";
 
 export function Canvas() {
@@ -13,20 +13,40 @@ export function Canvas() {
   const pointLight1Ref = useRef<THREE.PointLight>();
   const pointLight2Ref = useRef<THREE.PointLight>();
   const animationFrameRef = useRef<number>();
+  const debugRef = useRef({
+    frameCount: 0,
+    lastTime: Date.now(),
+  });
+
+  const logDebug = (message: string) => {
+    const now = Date.now();
+    const state = {
+      message,
+      time: now,
+      timeSinceLastLog: now - debugRef.current.lastTime,
+      frameCount: debugRef.current.frameCount,
+      mounted: mountedRef.current,
+      hasGL: !!glRef.current,
+      hasRenderer: !!rendererRef.current,
+      hasScene: !!sceneRef.current,
+      hasCamera: !!cameraRef.current,
+      hasCube: !!cubeRef.current,
+      hasAnimFrame: !!animationFrameRef.current,
+    };
+    debugRef.current.lastTime = now;
+    Alert.alert("Debug", JSON.stringify(state, null, 2));
+  };
 
   const animate = useCallback(() => {
+    debugRef.current.frameCount++;
+    
     if (!mountedRef.current) {
-      console.log("Animation stopped - component unmounted");
+      logDebug("Animation stopped - unmounted");
       return;
     }
 
     if (!glRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) {
-      console.log("Missing required refs:", {
-        gl: !!glRef.current,
-        renderer: !!rendererRef.current,
-        scene: !!sceneRef.current,
-        camera: !!cameraRef.current
-      });
+      logDebug("Missing refs in animate");
       return;
     }
 
@@ -52,12 +72,12 @@ export function Canvas() {
       glRef.current.endFrameEXP();
       animationFrameRef.current = requestAnimationFrame(animate);
     } catch (error) {
-      console.error("Error in animation loop:", error);
+      logDebug("Error in animate: " + error.message);
     }
   }, []);
 
   const setupScene = useCallback((gl: ExpoWebGLRenderingContext) => {
-    console.log("Setting up scene...");
+    logDebug("Setting up scene");
     
     const renderer = new THREE.WebGLRenderer({
       canvas: {
@@ -101,7 +121,6 @@ export function Canvas() {
     const cube = new THREE.Mesh(geometry, material);
     cube.castShadow = true;
     cube.receiveShadow = true;
-    scene.add(cube);
 
     const planeGeometry = new THREE.PlaneGeometry(10, 10);
     const planeMaterial = new THREE.MeshStandardMaterial({ 
@@ -113,24 +132,26 @@ export function Canvas() {
     plane.rotation.x = -Math.PI / 2;
     plane.position.y = -1;
     plane.receiveShadow = true;
-    scene.add(plane);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-    scene.add(ambientLight);
-
     const dirLight = new THREE.DirectionalLight(0xffffff, 1);
     dirLight.position.set(5, 5, 5);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 1024;
     dirLight.shadow.mapSize.height = 1024;
-    scene.add(dirLight);
 
     const pointLight1 = new THREE.PointLight(0x0088ff, 1, 10);
     pointLight1.position.set(2, 2, 2);
-    scene.add(pointLight1);
 
     const pointLight2 = new THREE.PointLight(0xff8800, 1, 10);
     pointLight2.position.set(-2, 1, -2);
+
+    // Add everything to scene
+    scene.add(cube);
+    scene.add(plane);
+    scene.add(ambientLight);
+    scene.add(dirLight);
+    scene.add(pointLight1);
     scene.add(pointLight2);
 
     // Store refs
@@ -142,12 +163,12 @@ export function Canvas() {
     pointLight1Ref.current = pointLight1;
     pointLight2Ref.current = pointLight2;
 
-    console.log("Scene setup complete");
+    logDebug("Scene setup complete");
     return true;
   }, []);
 
   const onContextCreate = useCallback(async (gl: ExpoWebGLRenderingContext) => {
-    console.log("Context created");
+    logDebug("Context created");
     
     // Cancel any existing animation frame
     if (animationFrameRef.current) {
@@ -157,20 +178,22 @@ export function Canvas() {
     // Setup scene
     const success = setupScene(gl);
     if (!success) {
-      console.error("Failed to setup scene");
+      logDebug("Failed to setup scene");
       return;
     }
 
     // Start animation
-    console.log("Starting animation");
     mountedRef.current = true;
+    debugRef.current.frameCount = 0;
     animationFrameRef.current = requestAnimationFrame(animate);
+    logDebug("Animation started");
   }, [animate, setupScene]);
 
-  // Cleanup function
   useEffect(() => {
+    logDebug("Component mounted");
+    
     return () => {
-      console.log("Component unmounting - cleaning up");
+      logDebug("Component unmounting");
       mountedRef.current = false;
 
       if (animationFrameRef.current) {
