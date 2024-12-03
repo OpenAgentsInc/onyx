@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native"
+import { View, StyleSheet, Text } from "react-native"
 import { VectorIcon } from "./VectorIcon"
 import { colors } from "@/theme/colorsDark"
 import { useAudioRecorder } from "../hooks/useAudioRecorder"
@@ -9,7 +9,7 @@ export interface HudButtonsProps {
 }
 
 export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
-  const { isRecording, toggleRecording } = useAudioRecorder()
+  const { isRecording, recordingUri, toggleRecording } = useAudioRecorder()
 
   return (
     <View style={styles.container}>
@@ -32,6 +32,18 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
           onPress={onChatPress}
         />
       </View>
+      
+      {/* Status Display */}
+      <View style={styles.statusContainer}>
+        <Text style={styles.statusText}>
+          Status: {isRecording ? "Recording..." : "Not Recording"}
+        </Text>
+        {recordingUri && (
+          <Text style={styles.uriText} numberOfLines={1} ellipsizeMode="middle">
+            Last Recording: {recordingUri}
+          </Text>
+        )}
+      </View>
     </View>
   )
 })
@@ -48,6 +60,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     gap: 20,
+    marginBottom: 10,
   },
   button: {
     width: 60,
@@ -62,5 +75,23 @@ const styles = StyleSheet.create({
   recordingButton: {
     borderColor: colors.palette.angry500,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
+  },
+  statusContainer: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 10,
+    borderRadius: 8,
+    width: "90%",
+    alignItems: "center",
+  },
+  statusText: {
+    color: "white",
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  uriText: {
+    color: colors.palette.neutral400,
+    fontSize: 12,
+    width: "100%",
+    textAlign: "center",
   },
 })
