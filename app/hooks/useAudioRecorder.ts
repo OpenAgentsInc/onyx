@@ -2,11 +2,16 @@ import { Audio } from 'expo-av'
 import { useEffect, useRef } from 'react'
 import { Alert } from 'react-native'
 import { useStores } from '../models'
-import { useChat } from '@/hooks/useChat'
+import { useChat } from '@ai-sdk/react'
+import { fetch as expoFetch } from 'expo/fetch'
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
-  const { submitMessage } = useChat()
+  const { handleSubmit } = useChat({
+    fetch: expoFetch as unknown as typeof globalThis.fetch,
+    api: 'https://pro.openagents.com/api/chat-app',
+    onError: error => console.error(error, 'ERROR'),
+  })
   const recordingRef = useRef<Audio.Recording | null>(null)
 
   useEffect(() => {
@@ -90,7 +95,9 @@ export function useAudioRecorder() {
         recordingStore.setIsTranscribing(true)
         const transcription = await recordingStore.transcribeRecording()
         if (transcription) {
-          await submitMessage(transcription)
+          // Use the SDK's handleSubmit
+          const event = { preventDefault: () => {} } as unknown as React.FormEvent<HTMLFormElement>
+          await handleSubmit(event, transcription)
         }
       } catch (err) {
         console.error('Failed to process recording:', err)
