@@ -105,6 +105,7 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
           setSelectedMessage(null)
         }}
         onDelete={handleDeleteMessage}
+        messageContent={selectedMessage?.content || ''}
       />
     </View>
   )
