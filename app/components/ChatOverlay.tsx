@@ -1,6 +1,6 @@
 import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
-import { FC, useState } from "react"
+import { FC, useState, useCallback } from "react"
 import { ScrollView, View, ViewStyle, Pressable } from "react-native"
 import { Text } from "@/components"
 import { useChat } from "@ai-sdk/react"
@@ -18,31 +18,48 @@ interface Message {
 }
 
 export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({ visible = true }) {
-  const { messages, error, setMessages } = useChat({
+  const [localMessages, setLocalMessages] = useState<Message[]>([])
+  const { messages, error } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: 'https://pro.openagents.com/api/chat-app',
     onError: error => console.error(error, 'ERROR'),
+    onFinish: (message) => {
+      setLocalMessages(prev => [...prev, message])
+    },
   })
 
   const { recordingStore } = useStores()
-  const { transcription } = recordingStore
+  const { transcription, setTranscription } = recordingStore
 
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const [menuVisible, setMenuVisible] = useState(false)
 
-  const handleLongPress = (message: Message) => {
+  // Update local messages when messages prop changes
+  useState(() => {
+    setLocalMessages(messages)
+  }, [messages])
+
+  const handleLongPress = useCallback((message: Message) => {
+    console.log("Long press on message:", message)
     setSelectedMessage(message)
     setMenuVisible(true)
-  }
+  }, [])
 
-  const handleDeleteMessage = () => {
+  const handleDeleteMessage = useCallback(() => {
     if (!selectedMessage) return
     
-    // Filter out the selected message
-    const newMessages = messages.filter(m => m.id !== selectedMessage.id)
-    setMessages(newMessages)
+    console.log("Deleting message:", selectedMessage)
+    
+    // If it's a transcription message, clear it from the store
+    if (selectedMessage.id === 'transcription') {
+      setTranscription(null)
+    } else {
+      // Filter out the selected message from local messages
+      setLocalMessages(prev => prev.filter(m => m.id !== selectedMessage.id))
+    }
+    
     setSelectedMessage(null)
-  }
+  }, [selectedMessage, setTranscription])
 
   if (!visible) return null
   if (error) return <Text style={$errorText}>{error.message}</Text>
@@ -50,7 +67,7 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
   return (
     <View style={$overlay}>
       <ScrollView style={$scrollView} contentContainerStyle={$scrollContent}>
-        {messages.map(m => (
+        {localMessages.map(m => (
           <Pressable
             key={m.id}
             style={$messageContainer}
