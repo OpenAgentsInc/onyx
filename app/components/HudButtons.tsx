@@ -1,22 +1,28 @@
 import { View, StyleSheet } from "react-native"
 import { VectorIcon } from "./VectorIcon"
 import { colors } from "@/theme/colorsDark"
+import { useAudioRecorder } from "../hooks/useAudioRecorder"
+import { observer } from "mobx-react-lite"
 
 export interface HudButtonsProps {
-  onMicPress?: () => void
   onChatPress?: () => void
 }
 
-export function HudButtons({ onMicPress, onChatPress }: HudButtonsProps) {
+export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
+  const { isRecording, toggleRecording } = useAudioRecorder()
+
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
         <VectorIcon
           name="mic"
           size={28}
-          color="white"
-          containerStyle={styles.button}
-          onPress={onMicPress}
+          color={isRecording ? colors.palette.angry500 : "white"}
+          containerStyle={[
+            styles.button,
+            isRecording && styles.recordingButton
+          ]}
+          onPress={toggleRecording}
         />
         <VectorIcon
           name="chat"
@@ -28,7 +34,7 @@ export function HudButtons({ onMicPress, onChatPress }: HudButtonsProps) {
       </View>
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {
@@ -52,5 +58,9 @@ const styles = StyleSheet.create({
     borderColor: colors.palette.neutral300,
     justifyContent: "center",
     alignItems: "center",
+  },
+  recordingButton: {
+    borderColor: colors.palette.angry500,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
 })
