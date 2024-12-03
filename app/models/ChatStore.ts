@@ -2,13 +2,13 @@ import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 
 export interface Message {
   id: string
-  role: string
+  role: 'user' | 'assistant'
   content: string
 }
 
 export const MessageModel = types.model("Message", {
   id: types.identifier,
-  role: types.string,
+  role: types.enumeration('Role', ['user', 'assistant']),
   content: types.string,
 })
 
