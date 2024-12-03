@@ -48,7 +48,7 @@ export function TranscriptionModal({
               onPress={onClose}
               style={styles.closeButton}
             >
-              <VectorIcon name="close" size={24} color={colors.palette.neutral100} />
+              <VectorIcon name="close" size={24} color="white" />
             </TouchableOpacity>
           </View>
           <Text style={styles.transcriptionText}>
@@ -58,7 +58,7 @@ export function TranscriptionModal({
             style={styles.copyButton}
             onPress={copyToClipboard}
           >
-            <VectorIcon name="content-copy" size={20} color={colors.palette.neutral100} />
+            <VectorIcon name="content-copy" size={20} color="white" />
             <Text style={styles.copyButtonText}>Copy to Clipboard</Text>
           </TouchableOpacity>
         </Pressable>
@@ -75,13 +75,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: colors.palette.neutral900,
+    backgroundColor: "rgba(0, 0, 0, 0.95)",
     borderRadius: 12,
     padding: 20,
     width: "90%",
     maxHeight: "80%",
     borderWidth: 1,
-    borderColor: colors.palette.neutral700,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   modalHeader: {
     flexDirection: "row",
@@ -89,11 +89,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 15,
     borderBottomWidth: 1,
-    borderBottomColor: colors.palette.neutral800,
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
     paddingBottom: 10,
   },
   modalTitle: {
-    color: colors.palette.neutral100,
+    color: "white",
     fontSize: 18,
     fontWeight: "600",
   },
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   transcriptionText: {
-    color: colors.palette.neutral100,
+    color: "white",
     fontSize: 16,
     marginBottom: 20,
     lineHeight: 24,
@@ -110,15 +110,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.palette.neutral800,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     padding: 12,
     borderRadius: 8,
     marginTop: "auto",
     borderWidth: 1,
-    borderColor: colors.palette.neutral700,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   copyButtonText: {
-    color: colors.palette.neutral100,
+    color: "white",
     marginLeft: 8,
     fontSize: 16,
   },
