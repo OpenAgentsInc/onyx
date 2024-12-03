@@ -48,9 +48,6 @@
         "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
         "resizeMode": "contain",
         "backgroundColor": "#191015"
-      },
-      "infoPlist": {
-        "NSMicrophoneUsageDescription": "Allow Onyx to access your microphone for voice recording."
       }
     },
     "web": {
