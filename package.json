@@ -41,7 +41,6 @@
     "@react-navigation/bottom-tabs": "^6.3.2",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/native-stack": "^6.0.2",
-    "@react-three/fiber": "^8.17.10",
     "@shopify/flash-list": "1.7.1",
     "ai": "^4.0.9",
     "apisauce": "3.0.1",
