@@ -5,6 +5,8 @@ import { useAudioRecorder } from "../hooks/useAudioRecorder"
 import { observer } from "mobx-react-lite"
 import { Audio } from "expo-av"
 import { useState } from "react"
+import { useStores } from "../models"
+import { TranscriptionModal } from "./TranscriptionModal"
 
 export interface HudButtonsProps {
   onChatPress?: () => void
@@ -14,6 +16,7 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
   const { isRecording, recordingUri, toggleRecording } = useAudioRecorder()
   const [isPlaying, setIsPlaying] = useState(false)
   const [sound, setSound] = useState<Audio.Sound | null>(null)
+  const { recordingStore } = useStores()
 
   const playLastRecording = async () => {
     if (!recordingUri) return
@@ -24,7 +27,7 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
         await sound.unloadAsync()
       }
 
-      console.log('Loading sound...')
+      console.log("Loading sound...")
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: recordingUri },
         { shouldPlay: true }
@@ -34,14 +37,14 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
 
       // Handle playback finished
       newSound.setOnPlaybackStatusUpdate((status) => {
-        if (status && 'didJustFinish' in status && status.didJustFinish) {
+        if (status && "didJustFinish" in status && status.didJustFinish) {
           setIsPlaying(false)
         }
       })
 
       await newSound.playAsync()
     } catch (err) {
-      console.error('Failed to play recording:', err)
+      console.error("Failed to play recording:", err)
       setIsPlaying(false)
     }
   }
@@ -53,6 +56,10 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
       setSound(null)
       setIsPlaying(false)
     }
+  }
+
+  const handleTranscribePress = async () => {
+    await recordingStore.transcribeRecording()
   }
 
   return (
@@ -69,16 +76,28 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
           onPress={toggleRecording}
         />
         {recordingUri && (
-          <VectorIcon
-            name={isPlaying ? "stop" : "play-arrow"}
-            size={28}
-            color="white"
-            containerStyle={[
-              styles.button,
-              isPlaying && styles.playingButton
-            ]}
-            onPress={isPlaying ? stopPlaying : playLastRecording}
-          />
+          <>
+            <VectorIcon
+              name={isPlaying ? "stop" : "play-arrow"}
+              size={28}
+              color="white"
+              containerStyle={[
+                styles.button,
+                isPlaying && styles.playingButton
+              ]}
+              onPress={isPlaying ? stopPlaying : playLastRecording}
+            />
+            <VectorIcon
+              name="text-fields"
+              size={28}
+              color="white"
+              containerStyle={[
+                styles.button,
+                recordingStore.isTranscribing && styles.transcribingButton
+              ]}
+              onPress={handleTranscribePress}
+            />
+          </>
         )}
         <VectorIcon
           name="chat"
@@ -88,6 +107,14 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
           onPress={onChatPress}
         />
       </View>
+
+      {recordingStore.transcription && (
+        <TranscriptionModal
+          visible={recordingStore.showTranscription}
+          text={recordingStore.transcription}
+          onClose={() => recordingStore.setShowTranscription(false)}
+        />
+      )}
     </View>
   )
 })
@@ -121,6 +148,10 @@ const styles = StyleSheet.create({
   },
   playingButton: {
     borderColor: colors.palette.accent300,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+  },
+  transcribingButton: {
+    borderColor: colors.palette.secondary300,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
 })

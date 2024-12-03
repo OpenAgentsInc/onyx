@@ -1,8 +1,9 @@
-import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
-import React, { useCallback, useEffect, useRef } from "react";
-import { View, StyleSheet } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
-import * as THREE from "three";
+import { ExpoWebGLRenderingContext, GLView } from "expo-gl"
+import React, { useCallback, useEffect, useRef } from "react"
+import { StyleSheet, View } from "react-native"
+import * as THREE from "three"
+import { isEmulator } from "@/utils/isEmulator"
+import { useIsFocused } from "@react-navigation/native"
 
 export function Canvas() {
   const isFocused = useIsFocused();
@@ -16,6 +17,10 @@ export function Canvas() {
   const pulseRef = useRef<THREE.PointLight>();
   const rimLightRef = useRef<THREE.SpotLight>();
   const animationFrameRef = useRef<number>();
+
+  if (isEmulator()) {
+    return null;
+  }
 
   const animate = useCallback(() => {
     if (!mountedRef.current || !isFocused) {
@@ -43,7 +48,7 @@ export function Canvas() {
       const intensity = 1.5 + Math.sin(time) * 0.5;
       glow.intensity = intensity;
       pulse.intensity = intensity * 0.7;
-      
+
       // Move rim light for dynamic reflections
       if (rimLight) {
         rimLight.position.x = Math.sin(time) * 3;
@@ -55,7 +60,7 @@ export function Canvas() {
     try {
       rendererRef.current.render(sceneRef.current, cameraRef.current);
       glRef.current.endFrameEXP();
-      
+
       if (mountedRef.current && isFocused) {
         animationFrameRef.current = requestAnimationFrame(animate);
       }
@@ -114,14 +119,14 @@ export function Canvas() {
 
   const setupScene = useCallback((gl: ExpoWebGLRenderingContext) => {
     cleanupGL();
-    
+
     const renderer = new THREE.WebGLRenderer({
       canvas: {
         width: gl.drawingBufferWidth,
         height: gl.drawingBufferHeight,
         style: {},
-        addEventListener: (() => {}) as any,
-        removeEventListener: (() => {}) as any,
+        addEventListener: (() => { }) as any,
+        removeEventListener: (() => { }) as any,
         clientHeight: gl.drawingBufferHeight,
       },
       context: gl,
@@ -149,10 +154,10 @@ export function Canvas() {
 
     // Create gem group
     const gemGroup = new THREE.Group();
-    
+
     // Main gem body
     const gemGeometry = createGemGeometry();
-    const gemMaterial = new THREE.MeshPhysicalMaterial({ 
+    const gemMaterial = new THREE.MeshPhysicalMaterial({
       color: 0x000000,
       metalness: 1.0,
       roughness: 0.0,
@@ -169,7 +174,7 @@ export function Canvas() {
 
     // Add brighter white edges
     const edgeGeometry = new THREE.EdgesGeometry(gemGeometry);
-    const edgeMaterial = new THREE.LineBasicMaterial({ 
+    const edgeMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
       opacity: 0.4

@@ -1,11 +1,15 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { withSetPropAction } from "./helpers/withSetPropAction"
+import { transcribeAudio } from "../services/transcriptionService"
 
 export const RecordingStoreModel = types
   .model("RecordingStore")
   .props({
     isRecording: false,
     recordingUri: types.maybeNull(types.string),
+    transcription: types.maybeNull(types.string),
+    isTranscribing: false,
+    showTranscription: false,
   })
   .actions(withSetPropAction)
   .actions((store) => ({
@@ -17,6 +21,31 @@ export const RecordingStoreModel = types
     },
     clearRecording() {
       store.setProp("recordingUri", null)
+      store.setProp("transcription", null)
+    },
+    setTranscription(text: string | null) {
+      store.setProp("transcription", text)
+    },
+    setIsTranscribing(value: boolean) {
+      store.setProp("isTranscribing", value)
+    },
+    setShowTranscription(value: boolean) {
+      store.setProp("showTranscription", value)
+    },
+    async transcribeRecording() {
+      if (!store.recordingUri) return
+
+      try {
+        store.setIsTranscribing(true)
+        const text = await transcribeAudio(store.recordingUri)
+        store.setTranscription(text)
+        store.setShowTranscription(true)
+      } catch (error) {
+        console.error("Failed to transcribe:", error)
+        store.setTranscription(null)
+      } finally {
+        store.setIsTranscribing(false)
+      }
     },
   }))
   .views((store) => ({
