@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite"
-import { FC, useState, useCallback } from "react"
+import { FC, useState, useCallback, useEffect } from "react"
 import { ScrollView, View, ViewStyle, Pressable } from "react-native"
 import { Text } from "@/components"
 import { MessageMenu } from "./MessageMenu"
@@ -14,7 +14,15 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const [menuVisible, setMenuVisible] = useState(false)
 
-  console.log('ChatOverlay rendering with messages:', messages)
+  // Debug logging
+  useEffect(() => {
+    console.log('ChatOverlay messages changed:', {
+      messagesExists: !!messages,
+      isArray: Array.isArray(messages),
+      length: messages?.length,
+      messages
+    })
+  }, [messages])
 
   const handleLongPress = useCallback((message: Message) => {
     console.log("Long press on message:", message)
@@ -28,8 +36,17 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
     setSelectedMessage(null)
   }, [selectedMessage])
 
-  if (!visible) return null
-  if (error) return <Text style={$errorText}>{error.message}</Text>
+  if (!visible) {
+    console.log('ChatOverlay not visible')
+    return null
+  }
+  if (error) {
+    console.log('ChatOverlay error:', error)
+    return <Text style={$errorText}>{error.message}</Text>
+  }
+
+  const hasMessages = Array.isArray(messages) && messages.length > 0
+  console.log('ChatOverlay rendering, hasMessages:', hasMessages)
 
   return (
     <View style={$overlay}>
@@ -37,7 +54,7 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
         style={$scrollView} 
         contentContainerStyle={$scrollContent}
       >
-        {Array.isArray(messages) && messages.length > 0 ? (
+        {hasMessages ? (
           messages.map((message) => {
             console.log('Rendering message:', message)
             return (
@@ -55,7 +72,9 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
             )
           })
         ) : (
-          <Text style={$messageText}>No messages yet</Text>
+          <View style={$messageContainer}>
+            <Text style={$messageText}>No messages yet</Text>
+          </View>
         )}
       </ScrollView>
 
@@ -80,6 +99,7 @@ const $overlay: ViewStyle = {
   bottom: 100, // Leave space for HudButtons
   backgroundColor: "rgba(0,0,0,0.5)",
   padding: 16,
+  zIndex: 1000, // Make sure overlay is on top
 }
 
 const $scrollView: ViewStyle = {
@@ -93,6 +113,9 @@ const $scrollContent: ViewStyle = {
 
 const $messageContainer: ViewStyle = {
   marginVertical: 8,
+  backgroundColor: "rgba(0,0,0,0.3)", // Add some contrast
+  padding: 12,
+  borderRadius: 8,
 }
 
 const $roleText = {
