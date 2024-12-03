@@ -6,7 +6,6 @@ import { observer } from "mobx-react-lite"
 import { Audio } from "expo-av"
 import { useState } from "react"
 import { useStores } from "../models"
-import { TranscriptionModal } from "./TranscriptionModal"
 
 export interface HudButtonsProps {
   onChatPress?: () => void
@@ -58,10 +57,6 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
     }
   }
 
-  const handleTranscribePress = async () => {
-    await recordingStore.transcribeRecording()
-  }
-
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
@@ -76,28 +71,16 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
           onPress={toggleRecording}
         />
         {recordingUri && (
-          <>
-            <VectorIcon
-              name={isPlaying ? "stop" : "play-arrow"}
-              size={28}
-              color="white"
-              containerStyle={[
-                styles.button,
-                isPlaying && styles.playingButton
-              ]}
-              onPress={isPlaying ? stopPlaying : playLastRecording}
-            />
-            <VectorIcon
-              name="text-fields"
-              size={28}
-              color="white"
-              containerStyle={[
-                styles.button,
-                recordingStore.isTranscribing && styles.transcribingButton
-              ]}
-              onPress={handleTranscribePress}
-            />
-          </>
+          <VectorIcon
+            name={isPlaying ? "stop" : "play-arrow"}
+            size={28}
+            color="white"
+            containerStyle={[
+              styles.button,
+              isPlaying && styles.playingButton
+            ]}
+            onPress={isPlaying ? stopPlaying : playLastRecording}
+          />
         )}
         <VectorIcon
           name="chat"
@@ -107,14 +90,6 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
           onPress={onChatPress}
         />
       </View>
-
-      {recordingStore.transcription && (
-        <TranscriptionModal
-          visible={recordingStore.showTranscription}
-          text={recordingStore.transcription}
-          onClose={() => recordingStore.setShowTranscription(false)}
-        />
-      )}
     </View>
   )
 })
@@ -148,10 +123,6 @@ const styles = StyleSheet.create({
   },
   playingButton: {
     borderColor: colors.palette.accent300,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-  },
-  transcribingButton: {
-    borderColor: colors.palette.secondary300,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
 })
