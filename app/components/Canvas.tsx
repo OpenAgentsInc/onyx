@@ -5,14 +5,14 @@ import * as THREE from "three";
 
 export function Canvas() {
   // Use refs to store animation-related values that need to persist between renders
-  const requestRef = useRef&lt;number>();
-  const glRef = useRef&lt;ExpoWebGLRenderingContext>();
-  const rendererRef = useRef&lt;THREE.WebGLRenderer>();
-  const sceneRef = useRef&lt;THREE.Scene>();
-  const cameraRef = useRef&lt;THREE.PerspectiveCamera>();
-  const cubeRef = useRef&lt;THREE.Mesh>();
-  const pointLight1Ref = useRef&lt;THREE.PointLight>();
-  const pointLight2Ref = useRef&lt;THREE.PointLight>();
+  const requestRef = useRef<number>();
+  const glRef = useRef<ExpoWebGLRenderingContext>();
+  const rendererRef = useRef<THREE.WebGLRenderer>();
+  const sceneRef = useRef<THREE.Scene>();
+  const cameraRef = useRef<THREE.PerspectiveCamera>();
+  const cubeRef = useRef<THREE.Mesh>();
+  const pointLight1Ref = useRef<THREE.PointLight>();
+  const pointLight2Ref = useRef<THREE.PointLight>();
 
   const animate = useCallback(() => {
     if (!glRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) return;
