@@ -1,4 +1,4 @@
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native"
+import { View, StyleSheet } from "react-native"
 import { VectorIcon } from "./VectorIcon"
 import { colors } from "@/theme/colorsDark"
 import { useAudioRecorder } from "../hooks/useAudioRecorder"
@@ -88,20 +88,6 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
           onPress={onChatPress}
         />
       </View>
-      
-      {/* Status Display */}
-      <View style={styles.statusContainer}>
-        <Text style={styles.statusText}>
-          Status: {isRecording ? "Recording..." : isPlaying ? "Playing..." : "Ready"}
-        </Text>
-        {recordingUri && (
-          <TouchableOpacity onPress={isPlaying ? stopPlaying : playLastRecording}>
-            <Text style={styles.uriText} numberOfLines={1} ellipsizeMode="middle">
-              Last Recording: {recordingUri}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
     </View>
   )
 })
@@ -118,7 +104,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     gap: 20,
-    marginBottom: 10,
   },
   button: {
     width: 60,
@@ -137,23 +122,5 @@ const styles = StyleSheet.create({
   playingButton: {
     borderColor: colors.palette.accent300,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
-  },
-  statusContainer: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    padding: 10,
-    borderRadius: 8,
-    width: "90%",
-    alignItems: "center",
-  },
-  statusText: {
-    color: "white",
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  uriText: {
-    color: colors.palette.neutral400,
-    fontSize: 12,
-    width: "100%",
-    textAlign: "center",
   },
 })
