@@ -48,7 +48,7 @@ export function TranscriptionModal({
               onPress={onClose}
               style={styles.closeButton}
             >
-              <VectorIcon name="close" size={24} color="white" />
+              <VectorIcon name="close" size={24} color={colors.palette.neutral100} />
             </TouchableOpacity>
           </View>
           <Text style={styles.transcriptionText}>
@@ -58,7 +58,7 @@ export function TranscriptionModal({
             style={styles.copyButton}
             onPress={copyToClipboard}
           >
-            <VectorIcon name="content-copy" size={20} color="white" />
+            <VectorIcon name="content-copy" size={20} color={colors.palette.neutral100} />
             <Text style={styles.copyButtonText}>Copy to Clipboard</Text>
           </TouchableOpacity>
         </Pressable>
@@ -70,12 +70,12 @@ export function TranscriptionModal({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: colors.palette.neutral800,
+    backgroundColor: colors.palette.neutral900,
     borderRadius: 12,
     padding: 20,
     width: "90%",
@@ -88,9 +88,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.palette.neutral800,
+    paddingBottom: 10,
   },
   modalTitle: {
-    color: "white",
+    color: colors.palette.neutral100,
     fontSize: 18,
     fontWeight: "600",
   },
@@ -98,21 +101,24 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   transcriptionText: {
-    color: "white",
+    color: colors.palette.neutral100,
     fontSize: 16,
     marginBottom: 20,
+    lineHeight: 24,
   },
   copyButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.palette.neutral700,
+    backgroundColor: colors.palette.neutral800,
     padding: 12,
     borderRadius: 8,
     marginTop: "auto",
+    borderWidth: 1,
+    borderColor: colors.palette.neutral700,
   },
   copyButtonText: {
-    color: "white",
+    color: colors.palette.neutral100,
     marginLeft: 8,
     fontSize: 16,
   },
