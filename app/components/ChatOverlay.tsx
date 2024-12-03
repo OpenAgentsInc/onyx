@@ -2,18 +2,11 @@ import { observer } from "mobx-react-lite"
 import { FC, useState, useCallback } from "react"
 import { ScrollView, View, ViewStyle, Pressable } from "react-native"
 import { Text } from "@/components"
-import { useStores } from "@/models"
 import { MessageMenu } from "./MessageMenu"
-import { useSharedChat } from "@/hooks/useSharedChat"
+import { useSharedChat, Message } from "@/hooks/useSharedChat"
 
 interface ChatOverlayProps {
   visible?: boolean
-}
-
-interface Message {
-  id: string
-  role: string
-  content: string
 }
 
 export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({ visible = true }) {
@@ -22,7 +15,6 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
   const [menuVisible, setMenuVisible] = useState(false)
 
   const handleLongPress = useCallback((message: Message) => {
-    console.log("Long press on message:", message)
     setSelectedMessage(message)
     setMenuVisible(true)
   }, [])
@@ -41,16 +33,16 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
         style={$scrollView} 
         contentContainerStyle={$scrollContent}
       >
-        {messages?.map((m: any) => (
+        {messages.map((message) => (
           <Pressable
-            key={m.id}
+            key={message.id}
             style={$messageContainer}
-            onLongPress={() => handleLongPress(m)}
+            onLongPress={() => handleLongPress(message)}
             delayLongPress={500}
           >
             <View>
-              <Text style={$roleText}>{m.role}</Text>
-              <Text style={$messageText}>{m.content}</Text>
+              <Text style={$roleText}>{message.role}</Text>
+              <Text style={$messageText}>{message.content}</Text>
             </View>
           </Pressable>
         ))}
