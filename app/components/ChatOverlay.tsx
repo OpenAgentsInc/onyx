@@ -14,6 +14,12 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const [menuVisible, setMenuVisible] = useState(false)
 
+  // Component mount check
+  useEffect(() => {
+    console.log('ChatOverlay mounted')
+    return () => console.log('ChatOverlay unmounted')
+  }, [])
+
   // Debug logging
   useEffect(() => {
     console.log('ChatOverlay messages changed:', {
@@ -49,7 +55,13 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
   console.log('ChatOverlay rendering, hasMessages:', hasMessages)
 
   return (
-    <View style={$overlay}>
+    <View 
+      style={$overlay}
+      pointerEvents="box-none"
+    >
+      <View style={$debug}>
+        <Text style={$debugText}>Messages: {messages?.length || 0}</Text>
+      </View>
       <ScrollView 
         style={$scrollView} 
         contentContainerStyle={$scrollContent}
@@ -102,8 +114,25 @@ const $overlay: ViewStyle = {
   zIndex: 1000, // Make sure overlay is on top
 }
 
+const $debug: ViewStyle = {
+  position: 'absolute',
+  top: 50,
+  left: 16,
+  right: 16,
+  backgroundColor: 'rgba(255,255,255,0.1)',
+  padding: 8,
+  borderRadius: 4,
+  zIndex: 1001,
+}
+
+const $debugText = {
+  color: '#fff',
+  fontSize: 12,
+}
+
 const $scrollView: ViewStyle = {
   flex: 1,
+  marginTop: 80, // Space for debug info
 }
 
 const $scrollContent: ViewStyle = {
