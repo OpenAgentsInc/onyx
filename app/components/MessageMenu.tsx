@@ -1,7 +1,7 @@
+import * as Clipboard from "expo-clipboard"
 import { FC } from "react"
 import { Modal, Pressable, StyleSheet, View } from "react-native"
 import { Text } from "./Text"
-import * as Clipboard from 'expo-clipboard'
 
 interface MessageMenuProps {
   visible: boolean
