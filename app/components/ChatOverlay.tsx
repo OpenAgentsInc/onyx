@@ -3,15 +3,17 @@ import { FC, useState, useCallback, useEffect } from "react"
 import { ScrollView, View, ViewStyle, Pressable } from "react-native"
 import { Text } from "@/components"
 import { MessageMenu } from "./MessageMenu"
-import { useSharedChat, Message } from "@/hooks/useSharedChat"
+import { useStores } from "@/models"
+import { useSharedChat } from "@/hooks/useSharedChat"
 
 interface ChatOverlayProps {
   visible?: boolean
 }
 
 export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({ visible = true }) {
-  const { messages, error } = useSharedChat()
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const { chatStore } = useStores()
+  const { error } = useSharedChat()
+  const [selectedMessage, setSelectedMessage] = useState<any>(null)
   const [menuVisible, setMenuVisible] = useState(false)
 
   // Component mount check
@@ -22,15 +24,14 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
 
   // Debug logging
   useEffect(() => {
-    console.log('ChatOverlay messages changed:', {
-      messagesExists: !!messages,
-      isArray: Array.isArray(messages),
-      length: messages?.length,
-      messages
+    console.log('ChatOverlay store messages changed:', {
+      messagesExists: !!chatStore.messages,
+      length: chatStore.messages.length,
+      messages: chatStore.messages.toJSON()
     })
-  }, [messages])
+  }, [chatStore.messages])
 
-  const handleLongPress = useCallback((message: Message) => {
+  const handleLongPress = useCallback((message: any) => {
     console.log("Long press on message:", message)
     setSelectedMessage(message)
     setMenuVisible(true)
@@ -51,7 +52,7 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
     return <Text style={$errorText}>{error.message}</Text>
   }
 
-  const hasMessages = Array.isArray(messages) && messages.length > 0
+  const hasMessages = chatStore.messages.length > 0
   console.log('ChatOverlay rendering, hasMessages:', hasMessages)
 
   return (
@@ -60,14 +61,14 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
       pointerEvents="box-none"
     >
       <View style={$debug}>
-        <Text style={$debugText}>Messages: {messages?.length || 0}</Text>
+        <Text style={$debugText}>Messages: {chatStore.messages.length}</Text>
       </View>
       <ScrollView 
         style={$scrollView} 
         contentContainerStyle={$scrollContent}
       >
         {hasMessages ? (
-          messages.map((message) => {
+          chatStore.messages.map((message) => {
             console.log('Rendering message:', message)
             return (
               <Pressable
