@@ -85,6 +85,7 @@
     "@testing-library/react-native": "^12.5.2",
     "@types/jest": "^29.2.1",
     "@types/react": "~18.3.12",
+    "@types/three": "^0.170.0",
     "babel-jest": "^29.2.1",
     "eslint": "^8.57.0",
     "eslint-config-expo": "~8.0.1",
