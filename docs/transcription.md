@@ -1,15 +1,14 @@
 # Transcription System Documentation
 
-The Onyx transcription system provides speech-to-text capabilities for recorded audio. It integrates with the recording system and maintains the app's futuristic black-and-white HUD theme.
+The Onyx transcription system provides speech-to-text capabilities for recorded audio. It integrates with the recording system and chat system for a seamless voice-to-text-to-chat experience.
 
 ## Architecture
 
-The transcription system consists of four main parts:
+The transcription system consists of three main parts:
 
 1. **TranscriptionService** - API integration for audio transcription
 2. **RecordingStore** - State management for transcription
-3. **TranscriptionModal** - UI component for displaying results
-4. **HudButtons** - UI integration and controls
+3. **useAudioRecorder** - Hook that manages transcription flow
 
 ### TranscriptionService (app/services/transcriptionService.ts)
 
@@ -41,62 +40,17 @@ export const RecordingStoreModel = types
     recordingUri: types.maybeNull(types.string),
     transcription: types.maybeNull(types.string),
     isTranscribing: false,
-    showTranscription: false,
   })
 ```
 
 Properties:
 - `transcription`: The transcribed text
 - `isTranscribing`: Loading state flag
-- `showTranscription`: Modal visibility control
 
 Actions:
 - `transcribeRecording()`: Initiates transcription
 - `setTranscription()`: Updates transcription text
 - `setIsTranscribing()`: Updates loading state
-- `setShowTranscription()`: Controls modal visibility
-
-### TranscriptionModal (app/components/TranscriptionModal.tsx)
-
-Displays transcription results in a modal overlay:
-
-```typescript
-interface TranscriptionModalProps {
-  visible: boolean
-  text: string
-  onClose: () => void
-}
-```
-
-Features:
-- Clean, minimal design
-- Copy to clipboard functionality
-- Responsive layout
-- Smooth animations
-- Close on overlay click
-- Styled to match app theme
-
-### HudButtons Integration (app/components/HudButtons.tsx)
-
-Provides user interface for transcription:
-
-```typescript
-const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
-  // ... existing recording logic ...
-
-  const handleTranscribePress = async () => {
-    await recordingStore.transcribeRecording()
-  }
-
-  // ... render buttons including transcribe button ...
-})
-```
-
-Features:
-- Transcribe button with icon
-- Visual feedback during transcription
-- Integration with recording system
-- Modal trigger handling
 
 ## Usage Flow
 
@@ -105,44 +59,20 @@ Features:
    - Press again to stop recording
    - Recording is saved locally
 
-2. **Transcribe Audio**
-   - Press text button (appears after recording)
-   - Button shows processing state
-   - Transcription is processed server-side
+2. **Automatic Transcription**
+   - Transcription starts automatically after recording stops
+   - Loading state is shown during transcription
+   - Transcribed text is stored in state
 
-3. **View Results**
-   - Modal appears with transcribed text
-   - Copy text using copy button
-   - Close modal when done
+3. **Chat Integration**
+   - Transcribed text is automatically sent to chat
+   - Appears as user message
+   - Triggers AI response
 
 4. **Error Handling**
    - User-friendly error messages
    - Automatic state recovery
    - Detailed error logging
-
-## Styling
-
-The system maintains the app's futuristic HUD theme:
-
-```typescript
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderColor: colors.palette.neutral300,
-    // ... other button styles
-  },
-  transcribingButton: {
-    borderColor: colors.palette.secondary300,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-  },
-})
-```
-
-Features:
-- Consistent with app theme
-- Clear visual states
-- Smooth transitions
-- High contrast for readability
 
 ## API Integration
 
@@ -175,8 +105,8 @@ The system handles various error cases:
 
 3. **UI Errors**
    - State management issues
-   - Modal display problems
-   - Clipboard errors
+   - Loading state handling
+   - Error recovery
 
 All errors are:
 - Logged for debugging
@@ -193,13 +123,7 @@ Potential enhancements:
    - Transcription history
    - Export options
 
-2. **UI/UX**
-   - Progress indicators
-   - Word highlighting
-   - Editing capabilities
-   - Voice command triggers
-
-3. **Performance**
+2. **Performance**
    - Caching
    - Offline support
    - Batch processing
