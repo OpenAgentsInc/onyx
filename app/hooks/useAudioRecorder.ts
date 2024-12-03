@@ -1,31 +1,45 @@
 import { Audio } from 'expo-av'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Alert } from 'react-native'
 import { useStores } from '../models'
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
-  let recording: Audio.Recording | null = null
+  // Use ref to persist recording instance between renders
+  const recordingRef = useRef<Audio.Recording | null>(null)
 
   // Reset recording state on mount and cleanup
   useEffect(() => {
-    // Reset state when component mounts
-    recordingStore.setIsRecording(false)
-    recordingStore.setRecordingUri(null)
-
-    // Cleanup function
-    return () => {
-      if (recording) {
-        stopRecording()
+    const cleanup = async () => {
+      if (recordingRef.current) {
+        try {
+          await recordingRef.current.stopAndUnloadAsync()
+        } catch (err) {
+          console.error('Cleanup error:', err)
+        }
+        recordingRef.current = null
       }
-      // Reset state when component unmounts
       recordingStore.setIsRecording(false)
       recordingStore.setRecordingUri(null)
+    }
+
+    // Reset state when component mounts
+    cleanup()
+
+    // Cleanup function for unmount
+    return () => {
+      cleanup()
     }
   }, [])
 
   const startRecording = async () => {
     try {
+      // Safety check - ensure no existing recording
+      if (recordingRef.current) {
+        console.log('Existing recording found, stopping first...')
+        await stopRecording()
+      }
+
       // Request permissions
       const permission = await Audio.requestPermissionsAsync()
       if (permission.status !== 'granted') {
@@ -41,31 +55,36 @@ export function useAudioRecorder() {
       })
 
       // Start recording
-      recording = new Audio.Recording()
-      await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY)
-      await recording.startAsync()
+      const newRecording = new Audio.Recording()
+      await newRecording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY)
+      recordingRef.current = newRecording
+      await newRecording.startAsync()
       
       recordingStore.setIsRecording(true)
       console.log('Started recording')
     } catch (err) {
-      console.error('Failed to start recording', err)
+      console.error('Failed to start recording:', err)
       Alert.alert('Error', 'Failed to start recording')
       recordingStore.setIsRecording(false)
-      recording = null
+      recordingRef.current = null
     }
   }
 
   const stopRecording = async () => {
     try {
-      if (!recording) {
+      if (!recordingRef.current) {
+        console.log('No recording to stop')
         recordingStore.setIsRecording(false)
         return
       }
 
-      await recording.stopAndUnloadAsync()
-      const uri = recording.getURI()
+      console.log('Stopping recording...')
+      await recordingRef.current.stopAndUnloadAsync()
+      const uri = recordingRef.current.getURI()
+      console.log('Recording stopped, uri:', uri)
+      
       recordingStore.setRecordingUri(uri)
-      recording = null
+      recordingRef.current = null
       recordingStore.setIsRecording(false)
 
       // Reset audio mode
@@ -74,20 +93,20 @@ export function useAudioRecorder() {
         playsInSilentModeIOS: false,
       })
 
-      console.log('Stopped recording, uri:', uri)
       // TODO: Send recording to server
       console.log('Would send recording to server here')
 
       return uri
     } catch (err) {
-      console.error('Failed to stop recording', err)
+      console.error('Failed to stop recording:', err)
       Alert.alert('Error', 'Failed to stop recording')
       recordingStore.setIsRecording(false)
-      recording = null
+      recordingRef.current = null
     }
   }
 
   const toggleRecording = async () => {
+    console.log('Toggle recording, current state:', recordingStore.isRecording)
     if (recordingStore.isRecording) {
       return await stopRecording()
     } else {
