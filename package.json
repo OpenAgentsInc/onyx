@@ -16,6 +16,7 @@
     "postinstall": "patch-package",
     "bundle:visualize": "npx react-native-bundle-visualizer",
     "bundle:visualize:dev": "npx react-native-bundle-visualizer --dev",
+    "build": "yarn build:ios:prod",
     "build:ios:sim": "eas build --profile development --platform ios --local",
     "build:ios:dev": "eas build --profile development:device --platform ios --local",
     "build:ios:prod": "eas build --profile production --platform ios",
