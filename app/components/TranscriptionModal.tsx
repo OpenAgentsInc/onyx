@@ -1,16 +1,10 @@
 import React from "react"
-import { 
-  View, 
-  Text, 
-  Modal, 
-  TouchableOpacity, 
-  Pressable,
-  StyleSheet,
+import {
+  Clipboard, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View
 } from "react-native"
-import * as Clipboard from "@react-native-clipboard/clipboard"
-import { VectorIcon } from "./VectorIcon"
 import { colors } from "@/theme/colorsDark"
 import { typography } from "@/theme/typography"
+import { VectorIcon } from "./VectorIcon"
 
 interface TranscriptionModalProps {
   visible: boolean
@@ -18,14 +12,14 @@ interface TranscriptionModalProps {
   onClose: () => void
 }
 
-export function TranscriptionModal({ 
-  visible, 
-  text, 
-  onClose 
+export function TranscriptionModal({
+  visible,
+  text,
+  onClose
 }: TranscriptionModalProps) {
   const copyToClipboard = async () => {
     try {
-      Clipboard.setString(text)
+      await Clipboard.setString(text)
     } catch (error) {
       console.error("Failed to copy to clipboard:", error)
     }
@@ -38,14 +32,14 @@ export function TranscriptionModal({
       visible={visible}
       onRequestClose={onClose}
     >
-      <Pressable 
+      <Pressable
         style={styles.modalOverlay}
         onPress={onClose}
       >
         <Pressable style={styles.modalContent} onPress={e => e.stopPropagation()}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Transcription</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={onClose}
               style={styles.closeButton}
             >
@@ -55,7 +49,7 @@ export function TranscriptionModal({
           <Text style={styles.transcriptionText}>
             {text}
           </Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.copyButton}
             onPress={copyToClipboard}
           >
