@@ -62,7 +62,6 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                 >
                   <Icon
                     icon={getIconName()}
-                    color={isFocused ? colors.tint : colors.tintInactive}
                     size={32}
                   />
                 </TouchableOpacity>
