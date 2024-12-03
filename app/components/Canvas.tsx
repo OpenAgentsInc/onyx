@@ -1,6 +1,6 @@
 import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
 import React, { useCallback, useEffect, useRef } from "react";
-import { View, StyleSheet, Alert } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import * as THREE from "three";
 
@@ -15,46 +15,13 @@ export function Canvas() {
   const pointLight1Ref = useRef<THREE.PointLight>();
   const pointLight2Ref = useRef<THREE.PointLight>();
   const animationFrameRef = useRef<number>();
-  const debugRef = useRef({
-    frameCount: 0,
-    lastTime: Date.now(),
-  });
-
-  const logDebug = (message: string) => {
-    const now = Date.now();
-    const state = {
-      message,
-      time: now,
-      timeSinceLastLog: now - debugRef.current.lastTime,
-      frameCount: debugRef.current.frameCount,
-      mounted: mountedRef.current,
-      focused: isFocused,
-      hasGL: !!glRef.current,
-      hasRenderer: !!rendererRef.current,
-      hasScene: !!sceneRef.current,
-      hasCamera: !!cameraRef.current,
-      hasCube: !!cubeRef.current,
-      hasAnimFrame: !!animationFrameRef.current,
-    };
-    debugRef.current.lastTime = now;
-    Alert.alert("Debug", JSON.stringify(state, null, 2));
-  };
 
   const animate = useCallback(() => {
-    if (!mountedRef.current) {
-      logDebug("Not mounted, stopping animation");
+    if (!mountedRef.current || !isFocused) {
       return;
     }
-
-    if (!isFocused) {
-      logDebug("Not focused, pausing animation");
-      return;
-    }
-
-    debugRef.current.frameCount++;
 
     if (!glRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) {
-      logDebug("Missing refs in animate");
       return;
     }
 
@@ -84,13 +51,11 @@ export function Canvas() {
         animationFrameRef.current = requestAnimationFrame(animate);
       }
     } catch (error) {
-      logDebug("Error in animate: " + error.message);
+      console.error("Error in animation loop:", error);
     }
   }, [isFocused]);
 
   const cleanupGL = useCallback(() => {
-    logDebug("Cleaning up GL resources");
-    
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = undefined;
@@ -120,8 +85,6 @@ export function Canvas() {
   }, []);
 
   const setupScene = useCallback((gl: ExpoWebGLRenderingContext) => {
-    logDebug("Setting up scene");
-    
     // Clean up any existing GL resources first
     cleanupGL();
     
@@ -209,36 +172,28 @@ export function Canvas() {
     pointLight1Ref.current = pointLight1;
     pointLight2Ref.current = pointLight2;
 
-    logDebug("Scene setup complete");
     return true;
   }, [cleanupGL]);
 
   const onContextCreate = useCallback((gl: ExpoWebGLRenderingContext) => {
-    logDebug("Context created");
-    
     // Setup scene
     const success = setupScene(gl);
     if (!success) {
-      logDebug("Failed to setup scene");
       return;
     }
 
     // Start animation if focused
     if (isFocused && mountedRef.current) {
       animationFrameRef.current = requestAnimationFrame(animate);
-      logDebug("Animation started");
     }
   }, [isFocused, setupScene, animate]);
 
   // Handle focus changes
   useEffect(() => {
     if (isFocused) {
-      logDebug("Screen focused - requesting new context");
-      // Force a new context when focusing
       cleanupGL();
-      // The GLView will automatically create a new context
+      // GLView will create new context due to key change
     } else {
-      logDebug("Screen unfocused - cleaning up");
       cleanupGL();
     }
   }, [isFocused, cleanupGL]);
@@ -246,7 +201,6 @@ export function Canvas() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      logDebug("Component unmounting");
       mountedRef.current = false;
       cleanupGL();
     };
