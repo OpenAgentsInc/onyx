@@ -1,10 +1,10 @@
 import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
-import { FC, useState, useCallback } from "react"
-import { ScrollView, View, ViewStyle, Pressable } from "react-native"
+import { FC, useCallback, useState } from "react"
+import { Pressable, ScrollView, View, ViewStyle } from "react-native"
 import { Text } from "@/components"
-import { useChat } from "@ai-sdk/react"
 import { useStores } from "@/models"
+import { useChat } from "@ai-sdk/react"
 import { MessageMenu } from "./MessageMenu"
 
 interface ChatOverlayProps {
@@ -24,6 +24,8 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
     onError: error => console.error(error, 'ERROR'),
   })
 
+  console.log('messages:', messages)
+
   const { recordingStore } = useStores()
   const { transcription, setTranscription } = recordingStore
 
@@ -38,14 +40,14 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
 
   const handleDeleteMessage = useCallback(() => {
     if (!selectedMessage) return
-    
+
     console.log("Deleting message:", selectedMessage)
-    
+
     // If it's a transcription message, clear it from the store
     if (selectedMessage.id === 'transcription') {
       setTranscription(null)
     }
-    
+
     setSelectedMessage(null)
   }, [selectedMessage, setTranscription])
 
