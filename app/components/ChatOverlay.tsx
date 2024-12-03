@@ -14,13 +14,17 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const [menuVisible, setMenuVisible] = useState(false)
 
+  console.log('ChatOverlay rendering with messages:', messages)
+
   const handleLongPress = useCallback((message: Message) => {
+    console.log("Long press on message:", message)
     setSelectedMessage(message)
     setMenuVisible(true)
   }, [])
 
   const handleDeleteMessage = useCallback(() => {
     if (!selectedMessage) return
+    console.log("Deleting message:", selectedMessage)
     setSelectedMessage(null)
   }, [selectedMessage])
 
@@ -33,19 +37,26 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
         style={$scrollView} 
         contentContainerStyle={$scrollContent}
       >
-        {messages.map((message) => (
-          <Pressable
-            key={message.id}
-            style={$messageContainer}
-            onLongPress={() => handleLongPress(message)}
-            delayLongPress={500}
-          >
-            <View>
-              <Text style={$roleText}>{message.role}</Text>
-              <Text style={$messageText}>{message.content}</Text>
-            </View>
-          </Pressable>
-        ))}
+        {Array.isArray(messages) && messages.length > 0 ? (
+          messages.map((message) => {
+            console.log('Rendering message:', message)
+            return (
+              <Pressable
+                key={message.id}
+                style={$messageContainer}
+                onLongPress={() => handleLongPress(message)}
+                delayLongPress={500}
+              >
+                <View>
+                  <Text style={$roleText}>{message.role}</Text>
+                  <Text style={$messageText}>{message.content}</Text>
+                </View>
+              </Pressable>
+            )
+          })
+        ) : (
+          <Text style={$messageText}>No messages yet</Text>
+        )}
       </ScrollView>
 
       <MessageMenu
