@@ -1,5 +1,6 @@
 import { View, StyleSheet } from "react-native"
 import { VectorIcon } from "./VectorIcon"
+import { colors } from "@/theme/colorsDark"
 
 export interface HudButtonsProps {
   onMicPress?: () => void
@@ -47,6 +48,8 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    borderWidth: 1,
+    borderColor: colors.palette.neutral600,
     justifyContent: "center",
     alignItems: "center",
   },
