@@ -1,13 +1,13 @@
-import { Audio } from 'expo-av'
-import { useEffect, useRef } from 'react'
-import { Alert } from 'react-native'
-import { useStores } from '../models'
-import { useChat } from '@ai-sdk/react'
-import { fetch as expoFetch } from 'expo/fetch'
+import { Audio } from "expo-av"
+import { fetch as expoFetch } from "expo/fetch"
+import { useEffect, useRef } from "react"
+import { Alert } from "react-native"
+import { useChat } from "@ai-sdk/react"
+import { useStores } from "../models"
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
-  const { handleSubmit } = useChat({
+  const { append } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: 'https://pro.openagents.com/api/chat-app',
     onError: error => console.error(error, 'ERROR'),
@@ -58,7 +58,7 @@ export function useAudioRecorder() {
       await newRecording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY)
       recordingRef.current = newRecording
       await newRecording.startAsync()
-      
+
       recordingStore.setIsRecording(true)
       console.log('Started recording')
     } catch (err) {
@@ -81,7 +81,7 @@ export function useAudioRecorder() {
       await recordingRef.current.stopAndUnloadAsync()
       const uri = recordingRef.current.getURI()
       console.log('Recording stopped, uri:', uri)
-      
+
       recordingStore.setRecordingUri(uri)
       recordingRef.current = null
       recordingStore.setIsRecording(false)
@@ -95,9 +95,7 @@ export function useAudioRecorder() {
         recordingStore.setIsTranscribing(true)
         const transcription = await recordingStore.transcribeRecording()
         if (transcription) {
-          // Use the SDK's handleSubmit
-          const event = { preventDefault: () => {} } as unknown as React.FormEvent<HTMLFormElement>
-          await handleSubmit(event, transcription)
+          await append({ role: 'user', content: transcription })
         }
       } catch (err) {
         console.error('Failed to process recording:', err)
