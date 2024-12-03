@@ -4,12 +4,13 @@ The Onyx chat system provides a voice-first chat interface that overlays the mai
 
 ## Architecture
 
-The chat system consists of four main parts:
+The chat system consists of five main parts:
 
 1. **ChatOverlay** - React component for displaying messages
-2. **RecordingStore** - MobX State Tree model for managing recording and transcription state
-3. **useAudioRecorder** - React hook for audio recording logic
-4. **useChat** - AI SDK hook for chat functionality
+2. **MessageMenu** - Modal menu for message actions
+3. **RecordingStore** - MobX State Tree model for managing recording and transcription state
+4. **useAudioRecorder** - React hook for audio recording logic
+5. **useChat** - AI SDK hook for chat functionality
 
 ### Component Structure
 
@@ -17,6 +18,7 @@ The chat system consists of four main parts:
 OnyxScreen
 ├── Canvas (3D view)
 ├── ChatOverlay (message display)
+│   └── MessageMenu (message actions)
 └── HudButtons (recording controls)
 ```
 
@@ -30,6 +32,12 @@ Located in `app/components/ChatOverlay.tsx`, this component manages the chat int
 interface ChatOverlayProps {
   visible?: boolean
 }
+
+interface Message {
+  id: string
+  role: string
+  content: string
+}
 ```
 
 Features:
@@ -39,17 +47,42 @@ Features:
 - Automatic transcription display
 - Scrollable message list
 - No text input (voice only)
+- Long-press message actions
 
-### Recording Integration
+### MessageMenu
 
-The chat system integrates with the recording system through the RecordingStore:
+Located in `app/components/MessageMenu.tsx`, provides message action options:
 
-1. User presses mic button
-2. Audio recording starts
-3. User releases mic button
-4. Recording is transcribed
-5. Transcription appears in chat
-6. AI response is generated
+```typescript
+interface MessageMenuProps {
+  visible: boolean
+  onClose: () => void
+  onDelete: () => void
+}
+```
+
+Features:
+- Modal presentation
+- Delete message action
+- Semi-transparent backdrop
+- Futuristic styling
+- Touch outside to dismiss
+
+### Message Actions
+
+Messages can be managed through long-press interactions:
+
+1. **Long Press**
+   - Hold message for 500ms to trigger menu
+   - Works on both AI responses and transcriptions
+
+2. **Delete Message**
+   ```typescript
+   const handleDeleteMessage = () => {
+     const newMessages = messages.filter(m => m.id !== selectedMessage.id)
+     setMessages(newMessages)
+   }
+   ```
 
 ## State Management
 
@@ -78,6 +111,7 @@ Managed by useChat hook from AI SDK:
 const {
   messages,
   error,
+  setMessages
 } = useChat({
   api: 'https://pro.openagents.com/api/chat-app'
 })
@@ -103,6 +137,11 @@ const {
    - Transcription appears as user message
    - AI response is generated
    - Both display in chat overlay
+
+4. **Message Management**
+   - Long press to open action menu
+   - Select action (e.g., delete)
+   - Message is removed from chat
 
 ## Styling
 
@@ -142,6 +181,10 @@ const styles = {
 6. Support for rich content in messages
 7. Add error recovery for failed transcriptions
 8. Implement message retry functionality
+9. Add more message actions (copy, share, etc.)
+10. Add message editing capability
+11. Implement message reactions
+12. Add message threading support
 
 ## Error Handling
 
@@ -171,9 +214,11 @@ The system handles several types of errors:
 5. Implement retry logic for failed operations
 6. Cache messages for offline access
 7. Handle long transcriptions appropriately
+8. Confirm destructive actions (e.g., message deletion)
 
 ## Related Components
 
 - `app/components/HudButtons.tsx` - Recording controls
+- `app/components/MessageMenu.tsx` - Message actions menu
 - `app/hooks/useAudioRecorder.ts` - Recording logic
 - `app/services/transcriptionService.ts` - Transcription handling
