@@ -1,8 +1,7 @@
 {
-  "name": "onyx",
-  "displayName": "Onyx",
   "expo": {
     "name": "Onyx",
+    "displayName": "Onyx",
     "slug": "onyx",
     "scheme": "onyx",
     "version": "0.0.1",
@@ -80,9 +79,9 @@
     "owner": "openagents",
     "runtimeVersion": {
       "policy": "sdkVersion"
+    },
+    "ignite": {
+      "version": "10.0.5"
     }
-  },
-  "ignite": {
-    "version": "10.0.5"
   }
 }
