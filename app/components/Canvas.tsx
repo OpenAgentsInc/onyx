@@ -41,7 +41,13 @@ export function Canvas() {
   };
 
   const animate = useCallback(() => {
-    if (!mountedRef.current || !isFocused) {
+    if (!mountedRef.current) {
+      logDebug("Not mounted, stopping animation");
+      return;
+    }
+
+    if (!isFocused) {
+      logDebug("Not focused, pausing animation");
       return;
     }
 
@@ -72,42 +78,52 @@ export function Canvas() {
     try {
       rendererRef.current.render(sceneRef.current, cameraRef.current);
       glRef.current.endFrameEXP();
-      animationFrameRef.current = requestAnimationFrame(animate);
+      
+      // Only request next frame if still mounted and focused
+      if (mountedRef.current && isFocused) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
     } catch (error) {
       logDebug("Error in animate: " + error.message);
     }
   }, [isFocused]);
 
-  const startAnimation = useCallback(() => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-    debugRef.current.frameCount = 0;
-    animationFrameRef.current = requestAnimationFrame(animate);
-    logDebug("Animation started/resumed");
-  }, [animate]);
-
-  const stopAnimation = useCallback(() => {
+  const cleanupGL = useCallback(() => {
+    logDebug("Cleaning up GL resources");
+    
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = undefined;
     }
-    logDebug("Animation stopped");
-  }, []);
 
-  // Handle focus changes
-  useEffect(() => {
-    if (isFocused) {
-      logDebug("Screen focused");
-      startAnimation();
-    } else {
-      logDebug("Screen unfocused");
-      stopAnimation();
+    // Cleanup Three.js resources
+    if (rendererRef.current) {
+      rendererRef.current.dispose();
+      rendererRef.current = undefined;
     }
-  }, [isFocused, startAnimation, stopAnimation]);
+
+    if (cubeRef.current) {
+      cubeRef.current.geometry.dispose();
+      (cubeRef.current.material as THREE.Material).dispose();
+      cubeRef.current = undefined;
+    }
+
+    if (sceneRef.current) {
+      sceneRef.current.clear();
+      sceneRef.current = undefined;
+    }
+
+    glRef.current = undefined;
+    cameraRef.current = undefined;
+    pointLight1Ref.current = undefined;
+    pointLight2Ref.current = undefined;
+  }, []);
 
   const setupScene = useCallback((gl: ExpoWebGLRenderingContext) => {
     logDebug("Setting up scene");
+    
+    // Clean up any existing GL resources first
+    cleanupGL();
     
     const renderer = new THREE.WebGLRenderer({
       canvas: {
@@ -195,9 +211,9 @@ export function Canvas() {
 
     logDebug("Scene setup complete");
     return true;
-  }, []);
+  }, [cleanupGL]);
 
-  const onContextCreate = useCallback(async (gl: ExpoWebGLRenderingContext) => {
+  const onContextCreate = useCallback((gl: ExpoWebGLRenderingContext) => {
     logDebug("Context created");
     
     // Setup scene
@@ -208,46 +224,38 @@ export function Canvas() {
     }
 
     // Start animation if focused
-    if (isFocused) {
-      startAnimation();
+    if (isFocused && mountedRef.current) {
+      animationFrameRef.current = requestAnimationFrame(animate);
+      logDebug("Animation started");
     }
-  }, [isFocused, setupScene, startAnimation]);
+  }, [isFocused, setupScene, animate]);
+
+  // Handle focus changes
+  useEffect(() => {
+    if (isFocused) {
+      logDebug("Screen focused - requesting new context");
+      // Force a new context when focusing
+      cleanupGL();
+      // The GLView will automatically create a new context
+    } else {
+      logDebug("Screen unfocused - cleaning up");
+      cleanupGL();
+    }
+  }, [isFocused, cleanupGL]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       logDebug("Component unmounting");
       mountedRef.current = false;
-      stopAnimation();
-
-      // Cleanup Three.js resources
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
-      }
-
-      if (cubeRef.current) {
-        cubeRef.current.geometry.dispose();
-        (cubeRef.current.material as THREE.Material).dispose();
-      }
-
-      if (sceneRef.current) {
-        sceneRef.current.clear();
-      }
-
-      // Clear all refs
-      glRef.current = undefined;
-      rendererRef.current = undefined;
-      sceneRef.current = undefined;
-      cameraRef.current = undefined;
-      cubeRef.current = undefined;
-      pointLight1Ref.current = undefined;
-      pointLight2Ref.current = undefined;
+      cleanupGL();
     };
-  }, [stopAnimation]);
+  }, [cleanupGL]);
 
   return (
     <View style={styles.container}>
       <GLView
+        key={isFocused ? "focused" : "unfocused"} // Force new context on focus change
         msaaSamples={0}
         style={styles.canvas}
         onContextCreate={onContextCreate}
