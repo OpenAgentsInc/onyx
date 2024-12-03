@@ -11,9 +11,9 @@ export function Canvas() {
   const rendererRef = useRef<THREE.WebGLRenderer>();
   const sceneRef = useRef<THREE.Scene>();
   const cameraRef = useRef<THREE.PerspectiveCamera>();
-  const cubeRef = useRef<THREE.Mesh>();
-  const pointLight1Ref = useRef<THREE.PointLight>();
-  const pointLight2Ref = useRef<THREE.PointLight>();
+  const gemRef = useRef<THREE.Group>();
+  const glowRef = useRef<THREE.PointLight>();
+  const pulseRef = useRef<THREE.PointLight>();
   const animationFrameRef = useRef<number>();
 
   const animate = useCallback(() => {
@@ -25,28 +25,27 @@ export function Canvas() {
       return;
     }
 
-    const cube = cubeRef.current;
-    const pointLight1 = pointLight1Ref.current;
-    const pointLight2 = pointLight2Ref.current;
+    const gem = gemRef.current;
+    const glow = glowRef.current;
+    const pulse = pulseRef.current;
 
-    if (cube) {
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+    if (gem) {
+      // Gentle floating motion
+      gem.position.y = Math.sin(Date.now() * 0.001) * 0.1;
+      gem.rotation.y += 0.005;
     }
 
-    if (pointLight1 && pointLight2) {
-      const time = Date.now() * 0.001;
-      pointLight1.position.x = Math.sin(time) * 3;
-      pointLight1.position.z = Math.cos(time) * 3;
-      pointLight2.position.x = Math.sin(time + Math.PI) * 3;
-      pointLight2.position.z = Math.cos(time + Math.PI) * 3;
+    if (glow && pulse) {
+      // Pulsing light effect
+      const intensity = 1 + Math.sin(Date.now() * 0.003) * 0.5;
+      glow.intensity = intensity;
+      pulse.intensity = intensity * 0.5;
     }
 
     try {
       rendererRef.current.render(sceneRef.current, cameraRef.current);
       glRef.current.endFrameEXP();
       
-      // Only request next frame if still mounted and focused
       if (mountedRef.current && isFocused) {
         animationFrameRef.current = requestAnimationFrame(animate);
       }
@@ -61,16 +60,19 @@ export function Canvas() {
       animationFrameRef.current = undefined;
     }
 
-    // Cleanup Three.js resources
     if (rendererRef.current) {
       rendererRef.current.dispose();
       rendererRef.current = undefined;
     }
 
-    if (cubeRef.current) {
-      cubeRef.current.geometry.dispose();
-      (cubeRef.current.material as THREE.Material).dispose();
-      cubeRef.current = undefined;
+    if (gemRef.current) {
+      gemRef.current.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.geometry.dispose();
+          (child.material as THREE.Material).dispose();
+        }
+      });
+      gemRef.current = undefined;
     }
 
     if (sceneRef.current) {
@@ -80,12 +82,26 @@ export function Canvas() {
 
     glRef.current = undefined;
     cameraRef.current = undefined;
-    pointLight1Ref.current = undefined;
-    pointLight2Ref.current = undefined;
+    glowRef.current = undefined;
+    pulseRef.current = undefined;
   }, []);
 
+  const createGemGeometry = () => {
+    const geometry = new THREE.IcosahedronGeometry(1, 1);
+    // Distort vertices slightly for more crystalline look
+    const positions = geometry.attributes.position;
+    for (let i = 0; i < positions.count; i++) {
+      const x = positions.getX(i);
+      const y = positions.getY(i);
+      const z = positions.getZ(i);
+      const noise = (Math.random() - 0.5) * 0.2;
+      positions.setXYZ(i, x + noise, y + noise, z + noise);
+    }
+    geometry.computeVertexNormals();
+    return geometry;
+  };
+
   const setupScene = useCallback((gl: ExpoWebGLRenderingContext) => {
-    // Clean up any existing GL resources first
     cleanupGL();
     
     const renderer = new THREE.WebGLRenderer({
@@ -106,6 +122,7 @@ export function Canvas() {
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('black');
+    scene.fog = new THREE.FogExp2(0x000000, 0.1);
 
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -113,92 +130,93 @@ export function Canvas() {
       0.1,
       1000
     );
-    camera.position.z = 3;
+    camera.position.z = 4;
     camera.position.y = 2;
-    camera.position.x = 2;
     camera.lookAt(0, 0, 0);
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshPhysicalMaterial({ 
-      color: 0x888888,
-      metalness: 0.5,
+    // Create gem group
+    const gemGroup = new THREE.Group();
+    
+    // Main gem body
+    const gemGeometry = createGemGeometry();
+    const gemMaterial = new THREE.MeshPhysicalMaterial({ 
+      color: 0x000000,
+      metalness: 0.9,
       roughness: 0.1,
       reflectivity: 1,
-      clearcoat: 0.5,
-      clearcoatRoughness: 0.1
+      clearcoat: 1,
+      clearcoatRoughness: 0.1,
+      envMapIntensity: 1
     });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.castShadow = true;
-    cube.receiveShadow = true;
+    const gem = new THREE.Mesh(gemGeometry, gemMaterial);
+    gem.castShadow = true;
+    gem.receiveShadow = true;
+    gemGroup.add(gem);
 
-    const planeGeometry = new THREE.PlaneGeometry(10, 10);
-    const planeMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x222222,
-      roughness: 0.8,
-      metalness: 0.2
+    // Add subtle white edges
+    const edgeGeometry = new THREE.EdgesGeometry(gemGeometry);
+    const edgeMaterial = new THREE.LineBasicMaterial({ 
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.2
     });
-    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.rotation.x = -Math.PI / 2;
-    plane.position.y = -1;
-    plane.receiveShadow = true;
+    const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+    gemGroup.add(edges);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    // Ambient light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+    scene.add(ambientLight);
+
+    // Main directional light
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
     dirLight.position.set(5, 5, 5);
     dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
+    scene.add(dirLight);
 
-    const pointLight1 = new THREE.PointLight(0x0088ff, 1, 10);
-    pointLight1.position.set(2, 2, 2);
+    // Glow light
+    const glowLight = new THREE.PointLight(0xffffff, 1, 10);
+    glowLight.position.set(0, 0, 2);
+    scene.add(glowLight);
 
-    const pointLight2 = new THREE.PointLight(0xff8800, 1, 10);
-    pointLight2.position.set(-2, 1, -2);
+    // Pulse light
+    const pulseLight = new THREE.PointLight(0xffffff, 0.5, 5);
+    pulseLight.position.set(0, 0, -2);
+    scene.add(pulseLight);
 
     // Add everything to scene
-    scene.add(cube);
-    scene.add(plane);
-    scene.add(ambientLight);
-    scene.add(dirLight);
-    scene.add(pointLight1);
-    scene.add(pointLight2);
+    scene.add(gemGroup);
 
     // Store refs
     glRef.current = gl;
     rendererRef.current = renderer;
     sceneRef.current = scene;
     cameraRef.current = camera;
-    cubeRef.current = cube;
-    pointLight1Ref.current = pointLight1;
-    pointLight2Ref.current = pointLight2;
+    gemRef.current = gemGroup;
+    glowRef.current = glowLight;
+    pulseRef.current = pulseLight;
 
     return true;
   }, [cleanupGL]);
 
   const onContextCreate = useCallback((gl: ExpoWebGLRenderingContext) => {
-    // Setup scene
     const success = setupScene(gl);
     if (!success) {
       return;
     }
 
-    // Start animation if focused
     if (isFocused && mountedRef.current) {
       animationFrameRef.current = requestAnimationFrame(animate);
     }
   }, [isFocused, setupScene, animate]);
 
-  // Handle focus changes
   useEffect(() => {
     if (isFocused) {
       cleanupGL();
-      // GLView will create new context due to key change
     } else {
       cleanupGL();
     }
   }, [isFocused, cleanupGL]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       mountedRef.current = false;
@@ -209,7 +227,7 @@ export function Canvas() {
   return (
     <View style={styles.container}>
       <GLView
-        key={isFocused ? "focused" : "unfocused"} // Force new context on focus change
+        key={isFocused ? "focused" : "unfocused"}
         msaaSamples={0}
         style={styles.canvas}
         onContextCreate={onContextCreate}
