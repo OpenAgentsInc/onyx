@@ -46,6 +46,8 @@ export function MainNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
+        unmountOnBlur: false, // Keep screens mounted
+        freezeOnBlur: false, // Don't freeze screens when not focused
       }}
     >
       <Tab.Screen
@@ -61,6 +63,10 @@ export function MainNavigator() {
       <Tab.Screen
         name="Onyx"
         component={OnyxScreen}
+        options={{
+          unmountOnBlur: false, // Explicitly set for Onyx screen
+          freezeOnBlur: false,
+        }}
       />
 
       <Tab.Screen
