@@ -10,6 +10,7 @@ import {
 } from "react-native"
 import { VectorIcon } from "./VectorIcon"
 import { colors } from "@/theme/colorsDark"
+import { typography } from "@/theme/typography"
 
 interface TranscriptionModalProps {
   visible: boolean
@@ -96,6 +97,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "600",
+    fontFamily: typography.primary.semiBold,
   },
   closeButton: {
     padding: 5,
@@ -105,6 +107,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     lineHeight: 24,
+    fontFamily: typography.primary.normal,
   },
   copyButton: {
     flexDirection: "row",
@@ -121,5 +124,6 @@ const styles = StyleSheet.create({
     color: "white",
     marginLeft: 8,
     fontSize: 16,
+    fontFamily: typography.primary.medium,
   },
 })
