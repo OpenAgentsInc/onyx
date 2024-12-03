@@ -1,6 +1,8 @@
 import { fetch as expoFetch } from "expo/fetch"
 import { useChat as useVercelChat } from "@ai-sdk/react"
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
+import { useStores } from "../models"
+import { runInAction } from "mobx"
 
 export interface Message {
   id: string
@@ -11,8 +13,10 @@ export interface Message {
 
 // Create a shared hook that wraps the Vercel AI SDK's useChat
 export function useSharedChat() {
+  const { chatStore } = useStores()
+  
   const {
-    messages,
+    messages: vercelMessages,
     error,
     handleSubmit,
     handleInputChange,
@@ -25,26 +29,25 @@ export function useSharedChat() {
     onError: error => console.error(error, 'ERROR'),
   })
 
-  console.log('Raw messages from Vercel:', messages)
+  // Sync Vercel messages to MobX store
+  useEffect(() => {
+    if (vercelMessages) {
+      console.log('Syncing messages to store:', vercelMessages)
+      runInAction(() => {
+        chatStore.setMessages(vercelMessages)
+      })
+    }
+  }, [vercelMessages, chatStore])
 
-  // Ensure messages are in the correct format
-  const formattedMessages = messages?.map((m: any) => ({
-    id: m.id,
-    role: m.role,
-    content: m.content,
-    createdAt: m.createdAt ? new Date(m.createdAt) : undefined
-  })) || []
-
-  console.log('Formatted messages:', formattedMessages)
-
-  // Wrap append to ensure correct typing
+  // Wrap append to ensure correct typing and store sync
   const appendMessage = useCallback(async (message: { role: 'user' | 'assistant', content: string }) => {
     console.log('Appending message:', message)
-    return append(message)
+    const result = await append(message)
+    return result
   }, [append])
 
   return {
-    messages: formattedMessages,
+    messages: chatStore.messages,
     error,
     handleSubmit,
     handleInputChange,
