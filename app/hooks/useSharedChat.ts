@@ -25,6 +25,8 @@ export function useSharedChat() {
     onError: error => console.error(error, 'ERROR'),
   })
 
+  console.log('Raw messages from Vercel:', messages)
+
   // Ensure messages are in the correct format
   const formattedMessages = messages?.map((m: any) => ({
     id: m.id,
@@ -33,8 +35,11 @@ export function useSharedChat() {
     createdAt: m.createdAt ? new Date(m.createdAt) : undefined
   })) || []
 
+  console.log('Formatted messages:', formattedMessages)
+
   // Wrap append to ensure correct typing
   const appendMessage = useCallback(async (message: { role: 'user' | 'assistant', content: string }) => {
+    console.log('Appending message:', message)
     return append(message)
   }, [append])
 
