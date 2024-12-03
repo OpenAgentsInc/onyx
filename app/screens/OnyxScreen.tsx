@@ -5,21 +5,15 @@ import { MainTabScreenProps } from "@/navigators"
 import { Canvas } from "@/components/Canvas"
 import { HudButtons } from "@/components/HudButtons"
 import { ChatOverlay } from "@/components/ChatOverlay"
-import { useStores } from "@/models"
 import { useAudioRecorder } from "@/hooks/useAudioRecorder"
 
 interface OnyxScreenProps extends MainTabScreenProps<"Onyx"> { }
 
 export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
-  const { recordingStore } = useStores()
   const { isRecording, toggleRecording } = useAudioRecorder()
 
   const handleMicPress = async () => {
     await toggleRecording()
-    if (isRecording) {
-      // When stopping recording, trigger transcription
-      await recordingStore.transcribeRecording()
-    }
   }
 
   const handleChatPress = () => {
