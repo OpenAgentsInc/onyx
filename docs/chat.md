@@ -6,11 +6,11 @@ The Onyx chat system provides a voice-first chat interface that overlays the mai
 
 The chat system consists of five main parts:
 
-1. **ChatOverlay** - React component for displaying messages
-2. **MessageMenu** - Modal menu for message actions
-3. **RecordingStore** - MobX State Tree model for managing recording and transcription state
-4. **useAudioRecorder** - React hook for audio recording and transcription logic
-5. **useChat** - AI SDK hook for chat functionality
+1. **ChatStore** - MobX State Tree model for message state
+2. **useSharedChat** - Hook that bridges Vercel AI SDK with MobX
+3. **ChatOverlay** - React component for displaying messages
+4. **MessageMenu** - Modal menu for message actions
+5. **useAudioRecorder** - Hook for voice input and transcription
 
 ### Component Structure
 
@@ -22,205 +22,140 @@ OnyxScreen
 └── HudButtons (recording controls)
 ```
 
-## Components
-
-### ChatOverlay
-
-Located in `app/components/ChatOverlay.tsx`, this component manages the chat interface:
-
-```typescript
-interface ChatOverlayProps {
-  visible?: boolean
-}
-
-interface Message {
-  id: string
-  role: string
-  content: string
-}
-```
-
-Features:
-- Semi-transparent black background
-- White text for contrast
-- Messages aligned to bottom
-- Automatic transcription display
-- Scrollable message list
-- No text input (voice only)
-- Long-press message actions
-
-### MessageMenu
-
-Located in `app/components/MessageMenu.tsx`, provides message action options:
-
-```typescript
-interface MessageMenuProps {
-  visible: boolean
-  onClose: () => void
-  onDelete: () => void
-  messageContent: string
-}
-```
-
-Features:
-- Modal presentation
-- Copy message action
-- Delete message action
-- Semi-transparent backdrop
-- Futuristic styling
-- Touch outside to dismiss
-
-### Message Actions
-
-Messages can be managed through long-press interactions:
-
-1. **Long Press**
-   - Hold message for 500ms to trigger menu
-   - Works on both AI responses and transcriptions
-
-2. **Copy Message**
-   ```typescript
-   const handleCopy = async () => {
-     await Clipboard.setStringAsync(messageContent)
-   }
-   ```
-
-3. **Delete Message**
-   ```typescript
-   const handleDeleteMessage = () => {
-     const newMessages = messages.filter(m => m.id !== selectedMessage.id)
-     setMessages(newMessages)
-   }
-   ```
-
 ## State Management
 
-### RecordingStore
+### ChatStore
 
-Located in `app/models/RecordingStore.ts`, manages:
-- Recording state
-- Transcription state
-- Recording URIs
+Located in `app/models/RootStore.ts`, manages chat state:
 
 ```typescript
-interface RecordingStore {
-  isRecording: boolean
-  recordingUri: string | null
-  transcription: string | null
-  isTranscribing: boolean
+const ChatStoreModel = types
+  .model("ChatStore")
+  .props({
+    messages: types.array(MessageModel),
+  })
+  .actions((store) => ({
+    setMessages(messages: any[]),
+    addMessage(message: any),
+    clearMessages(),
+  }))
+```
+
+### useSharedChat Hook
+
+Located in `app/hooks/useSharedChat.ts`, bridges Vercel AI SDK with MobX:
+
+```typescript
+export function useSharedChat() {
+  const { chatStore } = useStores()
+  const vercelChat = useVercelChat({...})
+
+  // Sync Vercel messages to MobX store
+  useEffect(() => {
+    if (vercelMessages) {
+      runInAction(() => {
+        chatStore.setMessages(vercelMessages)
+      })
+    }
+  }, [vercelMessages])
+
+  return {
+    messages: chatStore.messages,
+    error,
+    append,
+    // ...other methods
+  }
 }
 ```
 
-### Chat State
+## Message Flow
 
-Managed by useChat hook from AI SDK:
-```typescript
-const {
-  messages,
-  error,
-  setMessages
-} = useChat({
-  api: 'https://pro.openagents.com/api/chat-app'
-})
-```
+1. **Voice Input**
+   - User starts recording via mic button
+   - Audio is recorded using expo-av
+   - Recording is stopped on second press
 
-## Usage Flow
-
-1. **Start Recording**
-   ```typescript
-   const handleMicPress = async () => {
-     await toggleRecording()
-   }
-   ```
-
-2. **Stop & Auto-Process**
-   - Recording stops
-   - Automatic transcription
-   - Automatic chat submission
-   - AI response generation
+2. **Transcription & Chat**
+   - Recording is automatically transcribed
+   - Transcription is sent to chat via append
+   - Message appears in chat overlay
+   - AI responds through Vercel SDK
+   - Response appears in chat overlay
 
 3. **Message Management**
    - Long press to open action menu
-   - Copy or delete message
-   - Message updates in real-time
+   - Copy message content
+   - Delete message (UI only)
+   - Messages scroll automatically
+
+## UI Components
+
+### ChatOverlay
+
+Main chat interface component:
+- Semi-transparent black background
+- Messages aligned to bottom
+- Scrollable message list
+- Long-press message actions
+- MobX integration via observer
+
+### MessageMenu
+
+Message action modal:
+- Copy message action
+- Delete message action
+- Semi-transparent backdrop
+- Touch outside to dismiss
 
 ## Styling
 
-The chat overlay uses a futuristic HUD style:
+The chat interface uses a futuristic HUD style:
 
 ```typescript
 const styles = {
   overlay: {
     position: "absolute",
     backgroundColor: "rgba(0,0,0,0.5)",
-    padding: 16,
+    zIndex: 1000,
   },
-  messageText: {
-    color: "#fff",
+  messageContainer: {
+    backgroundColor: "rgba(0,0,0,0.3)",
+    borderRadius: 8,
+    padding: 12,
   },
-  roleText: {
-    color: "#fff",
-    fontWeight: "700",
-  }
 }
 ```
 
 ## Dependencies
 
-- expo-av: Audio recording
 - mobx-state-tree: State management
 - @ai-sdk/react: Chat functionality
-- expo/fetch: Network requests
+- expo-av: Audio recording
 - expo-clipboard: Message copying
 
-## Future Improvements
+## Recent Changes
 
-1. Add message persistence
-2. Implement chat history
-3. Add visual feedback during transcription
-4. Support for different chat modes
-5. Add message animations
-6. Support for rich content in messages
-7. Add error recovery for failed transcriptions
-8. Implement message retry functionality
-9. Add more message actions
-10. Add message editing capability
-11. Implement message reactions
-12. Add message threading support
+1. **State Management**
+   - Moved to MobX for centralized state
+   - Added ChatStore model
+   - Integrated with Vercel AI SDK
 
-## Error Handling
+2. **Message Flow**
+   - Automated transcription and chat flow
+   - Removed manual transcription modal
+   - Added copy functionality
 
-The system handles several types of errors:
-
-1. Recording errors
-   - Permission denied
-   - Hardware issues
-   - Storage full
-
-2. Transcription errors
-   - Network issues
-   - Service unavailable
-   - Invalid audio format
-
-3. Chat errors
-   - API connection issues
-   - Rate limiting
-   - Invalid responses
+3. **UI Improvements**
+   - Enhanced message visibility
+   - Added message containers
+   - Improved scroll behavior
 
 ## Best Practices
 
-1. Always check recording permissions before starting
-2. Handle network errors gracefully
-3. Provide visual feedback during recording
-4. Clean up resources when component unmounts
-5. Implement retry logic for failed operations
-6. Cache messages for offline access
-7. Handle long transcriptions appropriately
-8. Confirm destructive actions (e.g., message deletion)
-
-## Related Components
-
-- `app/components/HudButtons.tsx` - Recording controls
-- `app/components/MessageMenu.tsx` - Message actions menu
-- `app/hooks/useAudioRecorder.ts` - Recording logic
-- `app/services/transcriptionService.ts` - Transcription handling
+1. Use MobX for state management
+2. Handle errors gracefully
+3. Provide visual feedback
+4. Clean up resources
+5. Use proper typing
+6. Follow HUD styling
+7. Keep components focused
