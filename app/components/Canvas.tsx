@@ -1,7 +1,6 @@
-import React, { useRef } from 'react'
-import { Canvas as ThreeCanvas } from '@react-three/fiber/native'
-import { useFrame } from '@react-three/fiber/native'
-import { View } from 'react-native'
+import React, { useRef } from "react"
+import { View } from "react-native"
+import { Canvas as ThreeCanvas, useFrame } from "@react-three/fiber/native"
 
 function Box() {
   const meshRef = useRef(null)
