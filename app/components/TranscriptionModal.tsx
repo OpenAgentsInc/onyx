@@ -6,8 +6,8 @@ import {
   TouchableOpacity, 
   Pressable,
   StyleSheet,
-  Clipboard
 } from "react-native"
+import * as Clipboard from "@react-native-clipboard/clipboard"
 import { VectorIcon } from "./VectorIcon"
 import { colors } from "@/theme/colorsDark"
 import { typography } from "@/theme/typography"
@@ -25,7 +25,7 @@ export function TranscriptionModal({
 }: TranscriptionModalProps) {
   const copyToClipboard = async () => {
     try {
-      await Clipboard.setString(text)
+      Clipboard.setString(text)
     } catch (error) {
       console.error("Failed to copy to clipboard:", error)
     }
