@@ -90,7 +90,8 @@ export function Icon(props: IconProps) {
   // Handle image icons
   const $imageStyle: StyleProp<ImageStyle> = [
     $imageStyleBase,
-    { tintColor: iconColor },
+    // Only apply tint color if it's not the app icon
+    icon !== 'appIcon' && { tintColor: iconColor },
     size !== undefined && { width: size, height: size },
     $imageStyleOverride,
   ]
