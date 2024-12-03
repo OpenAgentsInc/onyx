@@ -1,17 +1,12 @@
-import { Audio } from "expo-av"
-import { fetch as expoFetch } from "expo/fetch"
-import { useEffect, useRef } from "react"
-import { Alert } from "react-native"
-import { useChat } from "@ai-sdk/react"
-import { useStores } from "../models"
+import { Audio } from 'expo-av'
+import { useEffect, useRef } from 'react'
+import { Alert } from 'react-native'
+import { useStores } from '../models'
+import { useSharedChat } from './useSharedChat'
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
-  const { append } = useChat({
-    fetch: expoFetch as unknown as typeof globalThis.fetch,
-    api: 'https://pro.openagents.com/api/chat-app',
-    onError: error => console.error(error, 'ERROR'),
-  })
+  const { append } = useSharedChat()
   const recordingRef = useRef<Audio.Recording | null>(null)
 
   useEffect(() => {
@@ -58,7 +53,7 @@ export function useAudioRecorder() {
       await newRecording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY)
       recordingRef.current = newRecording
       await newRecording.startAsync()
-
+      
       recordingStore.setIsRecording(true)
       console.log('Started recording')
     } catch (err) {
@@ -81,7 +76,7 @@ export function useAudioRecorder() {
       await recordingRef.current.stopAndUnloadAsync()
       const uri = recordingRef.current.getURI()
       console.log('Recording stopped, uri:', uri)
-
+      
       recordingStore.setRecordingUri(uri)
       recordingRef.current = null
       recordingStore.setIsRecording(false)
@@ -95,7 +90,11 @@ export function useAudioRecorder() {
         recordingStore.setIsTranscribing(true)
         const transcription = await recordingStore.transcribeRecording()
         if (transcription) {
-          await append({ role: 'user', content: transcription })
+          // Use append from shared hook
+          await append({
+            role: 'user',
+            content: transcription,
+          })
         }
       } catch (err) {
         console.error('Failed to process recording:', err)
