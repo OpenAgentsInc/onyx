@@ -62,7 +62,8 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                 >
                   <Icon
                     icon={getIconName()}
-                    size={32}
+                    size={48}
+                    style={{ borderRadius: 12 }}
                   />
                 </TouchableOpacity>
               </View>
