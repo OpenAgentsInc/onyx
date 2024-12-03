@@ -7,11 +7,20 @@ export function useAudioRecorder() {
   const { recordingStore } = useStores()
   let recording: Audio.Recording | null = null
 
+  // Reset recording state on mount and cleanup
   useEffect(() => {
+    // Reset state when component mounts
+    recordingStore.setIsRecording(false)
+    recordingStore.setRecordingUri(null)
+
+    // Cleanup function
     return () => {
       if (recording) {
         stopRecording()
       }
+      // Reset state when component unmounts
+      recordingStore.setIsRecording(false)
+      recordingStore.setRecordingUri(null)
     }
   }, [])
 
@@ -21,6 +30,7 @@ export function useAudioRecorder() {
       const permission = await Audio.requestPermissionsAsync()
       if (permission.status !== 'granted') {
         Alert.alert('Permission required', 'Please grant microphone access to record audio.')
+        recordingStore.setIsRecording(false)
         return
       }
 
@@ -40,12 +50,17 @@ export function useAudioRecorder() {
     } catch (err) {
       console.error('Failed to start recording', err)
       Alert.alert('Error', 'Failed to start recording')
+      recordingStore.setIsRecording(false)
+      recording = null
     }
   }
 
   const stopRecording = async () => {
     try {
-      if (!recording) return
+      if (!recording) {
+        recordingStore.setIsRecording(false)
+        return
+      }
 
       await recording.stopAndUnloadAsync()
       const uri = recording.getURI()
@@ -67,6 +82,8 @@ export function useAudioRecorder() {
     } catch (err) {
       console.error('Failed to stop recording', err)
       Alert.alert('Error', 'Failed to stop recording')
+      recordingStore.setIsRecording(false)
+      recording = null
     }
   }
 
