@@ -1,17 +1,24 @@
 import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
-import { FC } from "react"
-import { ScrollView, View, ViewStyle } from "react-native"
+import { FC, useState } from "react"
+import { ScrollView, View, ViewStyle, Pressable } from "react-native"
 import { Text } from "@/components"
 import { useChat } from "@ai-sdk/react"
 import { useStores } from "@/models"
+import { MessageMenu } from "./MessageMenu"
 
 interface ChatOverlayProps {
   visible?: boolean
 }
 
+interface Message {
+  id: string
+  role: string
+  content: string
+}
+
 export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({ visible = true }) {
-  const { messages, error } = useChat({
+  const { messages, error, setMessages } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: 'https://pro.openagents.com/api/chat-app',
     onError: error => console.error(error, 'ERROR'),
@@ -20,8 +27,22 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
   const { recordingStore } = useStores()
   const { transcription } = recordingStore
 
-  // When transcription changes, we could send it to the chat API here
-  // This would require modifying the useChat hook to expose a method to add messages
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const [menuVisible, setMenuVisible] = useState(false)
+
+  const handleLongPress = (message: Message) => {
+    setSelectedMessage(message)
+    setMenuVisible(true)
+  }
+
+  const handleDeleteMessage = () => {
+    if (!selectedMessage) return
+    
+    // Filter out the selected message
+    const newMessages = messages.filter(m => m.id !== selectedMessage.id)
+    setMessages(newMessages)
+    setSelectedMessage(null)
+  }
 
   if (!visible) return null
   if (error) return <Text style={$errorText}>{error.message}</Text>
@@ -30,22 +51,44 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
     <View style={$overlay}>
       <ScrollView style={$scrollView} contentContainerStyle={$scrollContent}>
         {messages.map(m => (
-          <View key={m.id} style={$messageContainer}>
+          <Pressable
+            key={m.id}
+            style={$messageContainer}
+            onLongPress={() => handleLongPress(m)}
+            delayLongPress={500}
+          >
             <View>
               <Text style={$roleText}>{m.role}</Text>
               <Text style={$messageText}>{m.content}</Text>
             </View>
-          </View>
+          </Pressable>
         ))}
         {transcription && (
-          <View style={$messageContainer}>
+          <Pressable
+            style={$messageContainer}
+            onLongPress={() => handleLongPress({
+              id: 'transcription',
+              role: 'user',
+              content: transcription
+            })}
+            delayLongPress={500}
+          >
             <View>
               <Text style={$roleText}>user</Text>
               <Text style={$messageText}>{transcription}</Text>
             </View>
-          </View>
+          </Pressable>
         )}
       </ScrollView>
+
+      <MessageMenu
+        visible={menuVisible}
+        onClose={() => {
+          setMenuVisible(false)
+          setSelectedMessage(null)
+        }}
+        onDelete={handleDeleteMessage}
+      />
     </View>
   )
 })
