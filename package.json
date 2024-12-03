@@ -40,6 +40,7 @@
     "@expo-google-fonts/jetbrains-mono": "^0.2.3",
     "@expo-google-fonts/space-grotesk": "^0.2.2",
     "@expo/metro-runtime": "~4.0.0",
+    "@react-native-clipboard/clipboard": "^1.15.0",
     "@react-navigation/bottom-tabs": "^6.3.2",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/native-stack": "^6.0.2",
