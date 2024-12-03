@@ -1,7 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { StyleSheet } from "react-native"
-import { Screen } from "@/components"
+import { View, StyleSheet } from "react-native"
 import { MainTabScreenProps } from "@/navigators"
 import { Canvas } from "@/components/Canvas"
 
@@ -9,25 +8,15 @@ interface OnyxScreenProps extends MainTabScreenProps<"Onyx"> { }
 
 export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
   return (
-    <Screen
-      style={styles.root}
-      contentContainerStyle={styles.content}
-      preset="fixed"
-      safeAreaEdges={[]}
-    >
+    <View style={styles.container}>
       <Canvas />
-    </Screen>
+    </View>
   )
 })
 
 const styles = StyleSheet.create({
-  root: {
+  container: {
     flex: 1,
     backgroundColor: 'black',
-  },
-  content: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
   },
 })
