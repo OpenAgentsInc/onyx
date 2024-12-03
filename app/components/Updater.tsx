@@ -21,6 +21,11 @@ export const Updater = () => {
   } = useUpdates();
 
   const handleCheckUpdate = async () => {
+    if (__DEV__) {
+      console.log('Update checking disabled in development');
+      return;
+    }
+
     try {
       const result = await Updates.checkForUpdateAsync();
       console.log('Update check result:', result);
@@ -41,6 +46,11 @@ export const Updater = () => {
   };
 
   useEffect(() => {
+    if (__DEV__) {
+      console.log('Update checking disabled in development');
+      return;
+    }
+
     const interval = setInterval(handleCheckUpdate, 5000);
     // Run check immediately on mount
     handleCheckUpdate();
@@ -48,6 +58,11 @@ export const Updater = () => {
   }, []);
 
   const handleManualDownload = async () => {
+    if (__DEV__) {
+      console.log('Update downloading disabled in development');
+      return;
+    }
+
     try {
       const result = await Updates.fetchUpdateAsync();
       console.log('Update download result:', result);
@@ -89,6 +104,16 @@ export const Updater = () => {
       </View>
     );
   };
+
+  if (__DEV__) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.devMessage}>
+          <Text text="Updates are disabled in development mode" style={styles.devMessageText} />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -191,5 +216,17 @@ const styles = StyleSheet.create({
   copyButton: {
     padding: 4,
     marginLeft: 8,
+  },
+  devMessage: {
+    padding: 16,
+    backgroundColor: '#333',
+    margin: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  devMessageText: {
+    color: '#fff',
+    fontFamily: 'JetBrainsMono',
+    fontSize: 14,
   },
 });
