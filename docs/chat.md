@@ -9,7 +9,7 @@ The chat system consists of five main parts:
 1. **ChatOverlay** - React component for displaying messages
 2. **MessageMenu** - Modal menu for message actions
 3. **RecordingStore** - MobX State Tree model for managing recording and transcription state
-4. **useAudioRecorder** - React hook for audio recording logic
+4. **useAudioRecorder** - React hook for audio recording and transcription logic
 5. **useChat** - AI SDK hook for chat functionality
 
 ### Component Structure
@@ -58,11 +58,13 @@ interface MessageMenuProps {
   visible: boolean
   onClose: () => void
   onDelete: () => void
+  messageContent: string
 }
 ```
 
 Features:
 - Modal presentation
+- Copy message action
 - Delete message action
 - Semi-transparent backdrop
 - Futuristic styling
@@ -76,7 +78,14 @@ Messages can be managed through long-press interactions:
    - Hold message for 500ms to trigger menu
    - Works on both AI responses and transcriptions
 
-2. **Delete Message**
+2. **Copy Message**
+   ```typescript
+   const handleCopy = async () => {
+     await Clipboard.setStringAsync(messageContent)
+   }
+   ```
+
+3. **Delete Message**
    ```typescript
    const handleDeleteMessage = () => {
      const newMessages = messages.filter(m => m.id !== selectedMessage.id)
@@ -92,7 +101,6 @@ Located in `app/models/RecordingStore.ts`, manages:
 - Recording state
 - Transcription state
 - Recording URIs
-- Transcription visibility
 
 ```typescript
 interface RecordingStore {
@@ -100,7 +108,6 @@ interface RecordingStore {
   recordingUri: string | null
   transcription: string | null
   isTranscribing: boolean
-  showTranscription: boolean
 }
 ```
 
@@ -126,22 +133,16 @@ const {
    }
    ```
 
-2. **Stop & Transcribe**
-   ```typescript
-   if (isRecording) {
-     await recordingStore.transcribeRecording()
-   }
-   ```
+2. **Stop & Auto-Process**
+   - Recording stops
+   - Automatic transcription
+   - Automatic chat submission
+   - AI response generation
 
-3. **Display in Chat**
-   - Transcription appears as user message
-   - AI response is generated
-   - Both display in chat overlay
-
-4. **Message Management**
+3. **Message Management**
    - Long press to open action menu
-   - Select action (e.g., delete)
-   - Message is removed from chat
+   - Copy or delete message
+   - Message updates in real-time
 
 ## Styling
 
@@ -170,6 +171,7 @@ const styles = {
 - mobx-state-tree: State management
 - @ai-sdk/react: Chat functionality
 - expo/fetch: Network requests
+- expo-clipboard: Message copying
 
 ## Future Improvements
 
@@ -181,7 +183,7 @@ const styles = {
 6. Support for rich content in messages
 7. Add error recovery for failed transcriptions
 8. Implement message retry functionality
-9. Add more message actions (copy, share, etc.)
+9. Add more message actions
 10. Add message editing capability
 11. Implement message reactions
 12. Add message threading support
