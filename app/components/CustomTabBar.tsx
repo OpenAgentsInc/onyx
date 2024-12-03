@@ -1,8 +1,8 @@
-import { View, TouchableOpacity, ViewStyle } from "react-native"
+import { TouchableOpacity, View, ViewStyle } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useAppTheme } from "@/utils/useAppTheme"
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs"
 import { Icon } from "./Icon"
-import { useAppTheme } from "@/utils/useAppTheme"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const ONYX_BUTTON_SIZE = 65
 
@@ -41,7 +41,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             case 'Community':
               return 'groups'
             case 'Onyx':
-              return 'mic'
+              return 'appIcon'
             case 'Wallet':
               return 'account-balance-wallet'
             case 'Profile':
@@ -54,7 +54,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
         if (isOnyxTab) {
           return (
             <View key={route.key} style={$onyxContainer}>
-              <View style={$onyxButtonBorder}>
+              <View style={[$onyxButtonBorder, isFocused && $onyxButtonBorderActive]}>
                 <TouchableOpacity
                   onPress={onPress}
                   style={$onyxButton}
@@ -62,8 +62,8 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                 >
                   <Icon
                     icon={getIconName()}
-                    color={isFocused ? colors.tint : colors.tintInactive}
-                    size={32}
+                    size={48}
+                    style={{ borderRadius: 12 }}
                   />
                 </TouchableOpacity>
               </View>
@@ -127,6 +127,18 @@ const $onyxButtonBorder: ViewStyle = {
   shadowOpacity: 0.2,
   shadowRadius: 5,
   elevation: 5,
+}
+
+const $onyxButtonBorderActive: ViewStyle = {
+  borderColor: '#666',
+  shadowColor: "#fff",
+  shadowOffset: {
+    width: 0,
+    height: 0,
+  },
+  shadowOpacity: 0.4,
+  shadowRadius: 8,
+  elevation: 8,
 }
 
 const $onyxButton: ViewStyle = {

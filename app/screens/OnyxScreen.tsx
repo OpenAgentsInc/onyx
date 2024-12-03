@@ -1,51 +1,22 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { TextStyle, TouchableOpacity, ViewStyle } from "react-native"
-import { Screen, Text } from "@/components"
+import { View, StyleSheet } from "react-native"
 import { MainTabScreenProps } from "@/navigators"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
+import { Canvas } from "@/components/Canvas"
 
 interface OnyxScreenProps extends MainTabScreenProps<"Onyx"> { }
 
 export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
   return (
-    <Screen
-      style={$root}
-      contentContainerStyle={$contentContainer}
-      preset="fixed"
-    >
-      <Text text="Ready" style={$headerText} />
-      {/* <TouchableOpacity style={$recordButton} onPress={() => console.log('Record pressed')} activeOpacity={0.8}>
-        <MaterialCommunityIcons name="record-circle-outline" size={64} color="white" />
-      </TouchableOpacity> */}
-    </Screen>
+    <View style={styles.container}>
+      <Canvas />
+    </View>
   )
 })
 
-const $root: ViewStyle = {
-  flex: 1,
-  backgroundColor: 'black',
-}
-
-const $contentContainer: ViewStyle = {
-  flex: 1,
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  paddingBottom: 40,
-}
-
-const $headerText: TextStyle = {
-  position: 'absolute',
-  top: '50%',
-  color: 'white',
-  fontSize: 18,
-}
-
-const $recordButton: ViewStyle = {
-  width: 80,
-  height: 80,
-  borderRadius: 40,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: 'transparent',
-}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+})

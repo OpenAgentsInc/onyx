@@ -90,7 +90,7 @@ export function Icon(props: IconProps) {
   // Handle image icons
   const $imageStyle: StyleProp<ImageStyle> = [
     $imageStyleBase,
-    { tintColor: iconColor },
+    icon !== 'appIcon' && { tintColor: iconColor },
     size !== undefined && { width: size, height: size },
     $imageStyleOverride,
   ]
@@ -129,6 +129,7 @@ export const iconRegistry = {
   slack: require("../../assets/icons/demo/slack.png"),
   view: require("../../assets/icons/view.png"),
   x: require("../../assets/icons/x.png"),
+  appIcon: require("../../assets/images/app-icon-ios.png"),
 }
 
 const $imageStyleBase: ImageStyle = {
