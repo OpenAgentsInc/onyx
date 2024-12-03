@@ -4,26 +4,37 @@ import { View, StyleSheet } from "react-native"
 import { MainTabScreenProps } from "@/navigators"
 import { Canvas } from "@/components/Canvas"
 import { HudButtons } from "@/components/HudButtons"
+import { ChatOverlay } from "@/components/ChatOverlay"
+import { useStores } from "@/models"
+import { useAudioRecorder } from "@/hooks/useAudioRecorder"
 
 interface OnyxScreenProps extends MainTabScreenProps<"Onyx"> { }
 
 export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
-  const handleMicPress = () => {
-    // TODO: Implement mic functionality
-    console.log("Mic pressed")
+  const { recordingStore } = useStores()
+  const { isRecording, toggleRecording } = useAudioRecorder()
+
+  const handleMicPress = async () => {
+    await toggleRecording()
+    if (isRecording) {
+      // When stopping recording, trigger transcription
+      await recordingStore.transcribeRecording()
+    }
   }
 
   const handleChatPress = () => {
-    // TODO: Implement chat functionality
+    // Toggle chat visibility if needed
     console.log("Chat pressed")
   }
 
   return (
     <View style={styles.container}>
       <Canvas />
+      <ChatOverlay />
       <HudButtons
         onMicPress={handleMicPress}
         onChatPress={handleChatPress}
+        isRecording={isRecording}
       />
     </View>
   )
