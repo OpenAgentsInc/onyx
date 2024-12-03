@@ -54,7 +54,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
         if (isOnyxTab) {
           return (
             <View key={route.key} style={$onyxContainer}>
-              <View style={$onyxButtonBorder}>
+              <View style={[$onyxButtonBorder, isFocused && $onyxButtonBorderActive]}>
                 <TouchableOpacity
                   onPress={onPress}
                   style={$onyxButton}
@@ -127,6 +127,18 @@ const $onyxButtonBorder: ViewStyle = {
   shadowOpacity: 0.2,
   shadowRadius: 5,
   elevation: 5,
+}
+
+const $onyxButtonBorderActive: ViewStyle = {
+  borderColor: '#666',
+  shadowColor: "#fff",
+  shadowOffset: {
+    width: 0,
+    height: 0,
+  },
+  shadowOpacity: 0.4,
+  shadowRadius: 8,
+  elevation: 8,
 }
 
 const $onyxButton: ViewStyle = {
