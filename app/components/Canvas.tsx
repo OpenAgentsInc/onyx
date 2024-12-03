@@ -1,11 +1,10 @@
 import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
 import * as THREE from "three";
 
 export function Canvas() {
-  // Use refs to store animation-related values that need to persist between renders
-  const requestRef = useRef<number>();
+  const mountedRef = useRef(true);
   const glRef = useRef<ExpoWebGLRenderingContext>();
   const rendererRef = useRef<THREE.WebGLRenderer>();
   const sceneRef = useRef<THREE.Scene>();
@@ -13,9 +12,23 @@ export function Canvas() {
   const cubeRef = useRef<THREE.Mesh>();
   const pointLight1Ref = useRef<THREE.PointLight>();
   const pointLight2Ref = useRef<THREE.PointLight>();
+  const animationFrameRef = useRef<number>();
 
   const animate = useCallback(() => {
-    if (!glRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) return;
+    if (!mountedRef.current) {
+      console.log("Animation stopped - component unmounted");
+      return;
+    }
+
+    if (!glRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) {
+      console.log("Missing required refs:", {
+        gl: !!glRef.current,
+        renderer: !!rendererRef.current,
+        scene: !!sceneRef.current,
+        camera: !!cameraRef.current
+      });
+      return;
+    }
 
     const cube = cubeRef.current;
     const pointLight1 = pointLight1Ref.current;
@@ -34,14 +47,18 @@ export function Canvas() {
       pointLight2.position.z = Math.cos(time + Math.PI) * 3;
     }
 
-    rendererRef.current.render(sceneRef.current, cameraRef.current);
-    glRef.current.endFrameEXP();
-    requestRef.current = requestAnimationFrame(animate);
+    try {
+      rendererRef.current.render(sceneRef.current, cameraRef.current);
+      glRef.current.endFrameEXP();
+      animationFrameRef.current = requestAnimationFrame(animate);
+    } catch (error) {
+      console.error("Error in animation loop:", error);
+    }
   }, []);
 
-  const onContextCreate = useCallback(async (gl: ExpoWebGLRenderingContext) => {
-    glRef.current = gl;
-
+  const setupScene = useCallback((gl: ExpoWebGLRenderingContext) => {
+    console.log("Setting up scene...");
+    
     const renderer = new THREE.WebGLRenderer({
       canvas: {
         width: gl.drawingBufferWidth,
@@ -57,11 +74,9 @@ export function Canvas() {
     renderer.setPixelRatio(1);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    rendererRef.current = renderer;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('black');
-    sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -73,7 +88,6 @@ export function Canvas() {
     camera.position.y = 2;
     camera.position.x = 2;
     camera.lookAt(0, 0, 0);
-    cameraRef.current = camera;
 
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshPhysicalMaterial({ 
@@ -88,7 +102,6 @@ export function Canvas() {
     cube.castShadow = true;
     cube.receiveShadow = true;
     scene.add(cube);
-    cubeRef.current = cube;
 
     const planeGeometry = new THREE.PlaneGeometry(10, 10);
     const planeMaterial = new THREE.MeshStandardMaterial({ 
@@ -115,35 +128,78 @@ export function Canvas() {
     const pointLight1 = new THREE.PointLight(0x0088ff, 1, 10);
     pointLight1.position.set(2, 2, 2);
     scene.add(pointLight1);
-    pointLight1Ref.current = pointLight1;
 
     const pointLight2 = new THREE.PointLight(0xff8800, 1, 10);
     pointLight2.position.set(-2, 1, -2);
     scene.add(pointLight2);
+
+    // Store refs
+    glRef.current = gl;
+    rendererRef.current = renderer;
+    sceneRef.current = scene;
+    cameraRef.current = camera;
+    cubeRef.current = cube;
+    pointLight1Ref.current = pointLight1;
     pointLight2Ref.current = pointLight2;
 
+    console.log("Scene setup complete");
+    return true;
+  }, []);
+
+  const onContextCreate = useCallback(async (gl: ExpoWebGLRenderingContext) => {
+    console.log("Context created");
+    
+    // Cancel any existing animation frame
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+
+    // Setup scene
+    const success = setupScene(gl);
+    if (!success) {
+      console.error("Failed to setup scene");
+      return;
+    }
+
     // Start animation
-    requestRef.current = requestAnimationFrame(animate);
-  }, [animate]);
+    console.log("Starting animation");
+    mountedRef.current = true;
+    animationFrameRef.current = requestAnimationFrame(animate);
+  }, [animate, setupScene]);
 
   // Cleanup function
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
-      if (requestRef.current) {
-        cancelAnimationFrame(requestRef.current);
+      console.log("Component unmounting - cleaning up");
+      mountedRef.current = false;
+
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
       }
-      
+
       // Cleanup Three.js resources
       if (rendererRef.current) {
         rendererRef.current.dispose();
       }
+
       if (cubeRef.current) {
         cubeRef.current.geometry.dispose();
         (cubeRef.current.material as THREE.Material).dispose();
       }
+
       if (sceneRef.current) {
         sceneRef.current.clear();
       }
+
+      // Clear all refs
+      glRef.current = undefined;
+      rendererRef.current = undefined;
+      sceneRef.current = undefined;
+      cameraRef.current = undefined;
+      cubeRef.current = undefined;
+      pointLight1Ref.current = undefined;
+      pointLight2Ref.current = undefined;
     };
   }, []);
 
