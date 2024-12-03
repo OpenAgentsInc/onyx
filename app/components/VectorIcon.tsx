@@ -1,11 +1,7 @@
 import { ComponentType } from "react"
 import {
-  StyleProp,
-  TouchableOpacity,
-  TouchableOpacityProps,
-  View,
-  ViewProps,
-  ViewStyle,
+  StyleProp, TouchableOpacity, TouchableOpacityProps, View, ViewProps,
+  ViewStyle
 } from "react-native"
 import { MaterialIcons } from "@expo/vector-icons"
 
@@ -55,6 +51,7 @@ export function VectorIcon(props: VectorIconProps) {
       accessibilityRole={isPressable ? "button" : undefined}
       {...WrapperProps}
       style={$containerStyleOverride}
+      activeOpacity={0.8}
     >
       <MaterialIcons name={name} size={size} color={color} />
     </Wrapper>
