@@ -34,7 +34,10 @@
         "image": "./assets/images/splash-logo-android-universal.png",
         "resizeMode": "contain",
         "backgroundColor": "#191015"
-      }
+      },
+      "permissions": [
+        "RECORD_AUDIO"
+      ]
     },
     "ios": {
       "icon": "./assets/images/app-icon-ios.png",
@@ -45,6 +48,9 @@
         "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
         "resizeMode": "contain",
         "backgroundColor": "#191015"
+      },
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Allow Onyx to access your microphone for voice recording."
       }
     },
     "web": {
@@ -58,7 +64,13 @@
     },
     "plugins": [
       "expo-localization",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow Onyx to access your microphone for voice recording."
+        }
+      ]
     ],
     "experiments": {
       "tsconfigPaths": true
