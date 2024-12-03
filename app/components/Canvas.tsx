@@ -1,9 +1,11 @@
 import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
 import React, { useCallback, useEffect, useRef } from "react";
 import { View, StyleSheet, Alert } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
 import * as THREE from "three";
 
 export function Canvas() {
+  const isFocused = useIsFocused();
   const mountedRef = useRef(true);
   const glRef = useRef<ExpoWebGLRenderingContext>();
   const rendererRef = useRef<THREE.WebGLRenderer>();
@@ -26,6 +28,7 @@ export function Canvas() {
       timeSinceLastLog: now - debugRef.current.lastTime,
       frameCount: debugRef.current.frameCount,
       mounted: mountedRef.current,
+      focused: isFocused,
       hasGL: !!glRef.current,
       hasRenderer: !!rendererRef.current,
       hasScene: !!sceneRef.current,
@@ -38,12 +41,11 @@ export function Canvas() {
   };
 
   const animate = useCallback(() => {
-    debugRef.current.frameCount++;
-    
-    if (!mountedRef.current) {
-      logDebug("Animation stopped - unmounted");
+    if (!mountedRef.current || !isFocused) {
       return;
     }
+
+    debugRef.current.frameCount++;
 
     if (!glRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) {
       logDebug("Missing refs in animate");
@@ -74,7 +76,35 @@ export function Canvas() {
     } catch (error) {
       logDebug("Error in animate: " + error.message);
     }
+  }, [isFocused]);
+
+  const startAnimation = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    debugRef.current.frameCount = 0;
+    animationFrameRef.current = requestAnimationFrame(animate);
+    logDebug("Animation started/resumed");
+  }, [animate]);
+
+  const stopAnimation = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = undefined;
+    }
+    logDebug("Animation stopped");
   }, []);
+
+  // Handle focus changes
+  useEffect(() => {
+    if (isFocused) {
+      logDebug("Screen focused");
+      startAnimation();
+    } else {
+      logDebug("Screen unfocused");
+      stopAnimation();
+    }
+  }, [isFocused, startAnimation, stopAnimation]);
 
   const setupScene = useCallback((gl: ExpoWebGLRenderingContext) => {
     logDebug("Setting up scene");
@@ -170,11 +200,6 @@ export function Canvas() {
   const onContextCreate = useCallback(async (gl: ExpoWebGLRenderingContext) => {
     logDebug("Context created");
     
-    // Cancel any existing animation frame
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-
     // Setup scene
     const success = setupScene(gl);
     if (!success) {
@@ -182,24 +207,18 @@ export function Canvas() {
       return;
     }
 
-    // Start animation
-    mountedRef.current = true;
-    debugRef.current.frameCount = 0;
-    animationFrameRef.current = requestAnimationFrame(animate);
-    logDebug("Animation started");
-  }, [animate, setupScene]);
+    // Start animation if focused
+    if (isFocused) {
+      startAnimation();
+    }
+  }, [isFocused, setupScene, startAnimation]);
 
+  // Cleanup on unmount
   useEffect(() => {
-    logDebug("Component mounted");
-    
     return () => {
       logDebug("Component unmounting");
       mountedRef.current = false;
-
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = undefined;
-      }
+      stopAnimation();
 
       // Cleanup Three.js resources
       if (rendererRef.current) {
@@ -224,7 +243,7 @@ export function Canvas() {
       pointLight1Ref.current = undefined;
       pointLight2Ref.current = undefined;
     };
-  }, []);
+  }, [stopAnimation]);
 
   return (
     <View style={styles.container}>
