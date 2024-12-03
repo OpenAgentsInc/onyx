@@ -1,8 +1,8 @@
-import { Audio } from 'expo-av'
-import { useEffect, useRef } from 'react'
-import { Alert } from 'react-native'
-import { useStores } from '../models'
-import { useSharedChat } from './useSharedChat'
+import { Audio } from "expo-av"
+import { useEffect, useRef } from "react"
+import { Alert } from "react-native"
+import { useStores } from "../models"
+import { useSharedChat } from "./useSharedChat"
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
@@ -53,7 +53,7 @@ export function useAudioRecorder() {
       await newRecording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY)
       recordingRef.current = newRecording
       await newRecording.startAsync()
-      
+
       recordingStore.setIsRecording(true)
       console.log('Started recording')
     } catch (err) {
@@ -76,7 +76,7 @@ export function useAudioRecorder() {
       await recordingRef.current.stopAndUnloadAsync()
       const uri = recordingRef.current.getURI()
       console.log('Recording stopped, uri:', uri)
-      
+
       recordingStore.setRecordingUri(uri)
       recordingRef.current = null
       recordingStore.setIsRecording(false)
@@ -91,6 +91,7 @@ export function useAudioRecorder() {
         const transcription = await recordingStore.transcribeRecording()
         if (transcription) {
           // Use append from shared hook
+          console.log("Appending transcription:", transcription)
           await append({
             role: 'user',
             content: transcription,

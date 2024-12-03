@@ -1,10 +1,10 @@
 import { observer } from "mobx-react-lite"
-import { FC, useState, useCallback } from "react"
-import { ScrollView, View, ViewStyle, Pressable } from "react-native"
+import { FC, useCallback, useState } from "react"
+import { Pressable, ScrollView, View, ViewStyle } from "react-native"
 import { Text } from "@/components"
+import { useSharedChat } from "@/hooks/useSharedChat"
 import { useStores } from "@/models"
 import { MessageMenu } from "./MessageMenu"
-import { useSharedChat } from "@/hooks/useSharedChat"
 
 interface ChatOverlayProps {
   visible?: boolean
@@ -18,6 +18,8 @@ interface Message {
 
 export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({ visible = true }) {
   const { messages, error } = useSharedChat()
+
+  console.log(messages)
 
   const { recordingStore } = useStores()
   const { transcription, setTranscription } = recordingStore
@@ -33,14 +35,14 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
 
   const handleDeleteMessage = useCallback(() => {
     if (!selectedMessage) return
-    
+
     console.log("Deleting message:", selectedMessage)
-    
+
     // If it's a transcription message, clear it from the store
     if (selectedMessage.id === 'transcription') {
       setTranscription(null)
     }
-    
+
     setSelectedMessage(null)
   }, [selectedMessage, setTranscription])
 
@@ -63,22 +65,7 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
             </View>
           </Pressable>
         ))}
-        {transcription && (
-          <Pressable
-            style={$messageContainer}
-            onLongPress={() => handleLongPress({
-              id: 'transcription',
-              role: 'user',
-              content: transcription
-            })}
-            delayLongPress={500}
-          >
-            <View>
-              <Text style={$roleText}>user</Text>
-              <Text style={$messageText}>{transcription}</Text>
-            </View>
-          </Pressable>
-        )}
+
       </ScrollView>
 
       <MessageMenu
