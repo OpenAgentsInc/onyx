@@ -43,13 +43,71 @@ Key features:
 - Health monitoring
 - Load balancing
 
-### 4. ArcadeListing
+### 4. EncChannel
+Located in `src/encchannel.ts`, provides encrypted group chat functionality:
+
+```typescript
+export class EncChannel {
+  public pool: NostrPool;
+  private _knownChannels: EncChannelInfo[] = [];
+
+  constructor(pool: NostrPool) {
+    this.pool = pool;
+  }
+}
+```
+
+Key features:
+1. **Channel Management**
+   - Create private channels with member lists
+   - Invite new members
+   - Update channel metadata
+   - List available channels
+
+2. **Message Security**
+   - Per-message temporary identities
+   - NIP-04 encryption
+   - Forward secrecy
+   - Access control via channel keys
+
+3. **Event Types**
+   - 99: Channel discovery
+   - 400: Channel creation/invitation
+   - 402: Encrypted messages
+   - 403: Metadata updates
+
+Usage example:
+```typescript
+// Create channel
+const channel = await encChannel.createPrivate(
+  { name: "OTC Trading", about: "Private OTC trades" },
+  [trader1_pubkey, trader2_pubkey]
+);
+
+// Send message
+await encChannel.send(
+  channel.id,
+  "Offer: 1 BTC @ $40,000",
+  undefined,
+  [["t", "trade"]]
+);
+
+// Subscribe to messages
+encChannel.sub(
+  channel,
+  (event) => {
+    console.log("New trade message:", event.content);
+  }
+);
+```
+
+### 5. ArcadeListing
 - Manages marketplace listings
 - Handles "maker" listings in group chat channels
 - Maintains current listing set
 - Integrates with Onyx's UI components
 
-### 5. ArcadeOffer
+### 6. ArcadeOffer
 - Manages trading offers
 - Handles "taker" offers in private chats
 - Tracks incoming and outgoing offers
