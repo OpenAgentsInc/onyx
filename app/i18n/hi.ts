@@ -1,4 +1,3 @@
-import demoHi from "./demo-hi"
 import { Translations } from "./en"
 
 const hi: Translations = {
@@ -122,8 +121,6 @@ const hi: Translations = {
         "अभी तक कोई पसंदीदा नहीं जोड़ा गया है। इसे अपने पसंदीदा में जोड़ने के लिए किसी एपिसोड पर दिल पर टैप करें!",
     },
   },
-
-  ...demoHi,
 }
 
 export default hi

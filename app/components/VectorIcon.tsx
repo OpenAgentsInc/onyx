@@ -1,7 +1,7 @@
-import { ComponentType } from "react"
+import { ComponentType, useEffect } from "react"
 import {
   StyleProp, TouchableOpacity, TouchableOpacityProps, View, ViewProps,
-  ViewStyle
+  ViewStyle, Animated
 } from "react-native"
 import { MaterialIcons } from "@expo/vector-icons"
 
@@ -30,6 +30,11 @@ interface VectorIconProps extends TouchableOpacityProps {
    * An optional function to be called when the icon is pressed
    */
   onPress?: TouchableOpacityProps["onPress"]
+
+  /**
+   * Whether the icon should pulse
+   */
+  pulse?: boolean
 }
 
 export function VectorIcon(props: VectorIconProps) {
@@ -38,6 +43,7 @@ export function VectorIcon(props: VectorIconProps) {
     color,
     size = 24,
     containerStyle: $containerStyleOverride,
+    pulse = false,
     ...WrapperProps
   } = props
 
@@ -46,11 +52,40 @@ export function VectorIcon(props: VectorIconProps) {
     TouchableOpacityProps | ViewProps
   >
 
+  // Animation setup
+  const pulseAnim = new Animated.Value(1)
+
+  useEffect(() => {
+    if (pulse) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.2,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start()
+    } else {
+      pulseAnim.setValue(1)
+    }
+  }, [pulse])
+
   return (
     <Wrapper
       accessibilityRole={isPressable ? "button" : undefined}
       {...WrapperProps}
-      style={$containerStyleOverride}
+      style={[
+        $containerStyleOverride,
+        pulse && {
+          transform: [{ scale: pulseAnim }],
+        },
+      ]}
       activeOpacity={0.8}
     >
       <MaterialIcons name={name} size={size} color={color} />

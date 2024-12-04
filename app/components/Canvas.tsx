@@ -2,6 +2,7 @@ import { ExpoWebGLRenderingContext, GLView } from "expo-gl"
 import React, { useCallback, useEffect, useRef } from "react"
 import { StyleSheet, View } from "react-native"
 import * as THREE from "three"
+import { MinimalCanvas } from "@/types/canvas"
 import { isEmulator } from "@/utils/isEmulator"
 import { useIsFocused } from "@react-navigation/native"
 
@@ -121,14 +122,19 @@ export function Canvas() {
     cleanupGL();
 
     const renderer = new THREE.WebGLRenderer({
+      // @ts-ignore
       canvas: {
         width: gl.drawingBufferWidth,
         height: gl.drawingBufferHeight,
         style: {},
-        addEventListener: (() => { }) as any,
-        removeEventListener: (() => { }) as any,
+        addEventListener: () => { },
+        removeEventListener: () => { },
         clientHeight: gl.drawingBufferHeight,
-      },
+        getContext: () => gl,
+        toDataURL: () => "",
+        toBlob: () => { },
+        captureStream: () => new MediaStream(),
+      } as MinimalCanvas,
       context: gl,
     });
     renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);

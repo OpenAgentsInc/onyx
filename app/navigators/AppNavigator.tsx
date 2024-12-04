@@ -16,7 +16,6 @@ import {
 } from "@react-navigation/native-stack"
 import Config from "../config"
 import { useStores } from "../models"
-import { DemoNavigator, DemoTabParamList } from "./DemoNavigator"
 import { MainNavigator, MainTabParamList } from "./MainNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 
@@ -35,11 +34,9 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  */
 export type AppStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>
-  Onyx: NavigatorScreenParams<DemoTabParamList>
   Login: undefined
   Welcome: undefined
   Chat: undefined
-  PylonDemo: undefined
 }
 
 /**
@@ -80,7 +77,6 @@ const AppStack = observer(function AppStack() {
       <Stack.Screen name="Login" component={Screens.LoginScreen} />
       <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
       <Stack.Screen name="Chat" component={Screens.ChatScreen} />
-      <Stack.Screen name="PylonDemo" component={Screens.PylonDemoScreen} />
     </Stack.Navigator>
   )
 })

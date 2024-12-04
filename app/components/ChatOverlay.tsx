@@ -1,10 +1,12 @@
 import { observer } from "mobx-react-lite"
 import { FC, useState, useCallback } from "react"
-import { ScrollView, View, ViewStyle, Pressable } from "react-native"
+import { ScrollView, View, ViewStyle, Pressable, Dimensions } from "react-native"
 import { Text } from "@/components"
 import { MessageMenu } from "./MessageMenu"
 import { useStores } from "@/models"
 import { useSharedChat } from "@/hooks/useSharedChat"
+import { SingleMessageDisplay } from "./SingleMessageDisplay"
+import { Message } from "@/models/ChatStore"
 
 interface ChatOverlayProps {
   visible?: boolean
@@ -13,10 +15,10 @@ interface ChatOverlayProps {
 export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({ visible = true }) {
   const { chatStore } = useStores()
   const { error } = useSharedChat()
-  const [selectedMessage, setSelectedMessage] = useState<any>(null)
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const [menuVisible, setMenuVisible] = useState(false)
 
-  const handleLongPress = useCallback((message: any) => {
+  const handleLongPress = useCallback((message: Message) => {
     setSelectedMessage(message)
     setMenuVisible(true)
   }, [])
@@ -30,6 +32,24 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
   if (error) return <Text style={$errorText}>{error.message}</Text>
 
   const hasMessages = chatStore.messages.length > 0
+  const latestMessage = hasMessages ? chatStore.messages[chatStore.messages.length - 1] : null
+
+  if (!chatStore.showFullChat) {
+    if (latestMessage) {
+      return <SingleMessageDisplay message={latestMessage as Message} />
+    } else {
+      const windowHeight = Dimensions.get('window').height
+      const tabBarHeight = 100 // Height reserved for bottom tab bar
+      const containerHeight = 60 // Approximate height of the ready container
+      const canvasHeight = windowHeight - tabBarHeight
+      const topPosition = (canvasHeight / 2) - (containerHeight / 2)
+      return (
+        <View style={[$readyContainer, { top: topPosition }]}>
+          <Text style={$readyText}>Ready</Text>
+        </View>
+      )
+    }
+  }
 
   return (
     <View style={$overlay}>
@@ -42,7 +62,7 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
             <Pressable
               key={message.id}
               style={$messageContainer}
-              onLongPress={() => handleLongPress(message)}
+              onLongPress={() => handleLongPress(message as Message)}
               delayLongPress={500}
             >
               <View>
@@ -52,8 +72,8 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
             </Pressable>
           ))
         ) : (
-          <View style={$messageContainer}>
-            <Text style={$messageText}>No messages yet</Text>
+          <View style={$readyContainer}>
+            <Text style={$readyText}>Ready</Text>
           </View>
         )}
       </ScrollView>
@@ -98,6 +118,17 @@ const $messageContainer: ViewStyle = {
   borderRadius: 8,
 }
 
+const $readyContainer: ViewStyle = {
+  position: "absolute",
+  left: 20,
+  right: 20,
+  maxHeight: "60%",
+  backgroundColor: "rgba(0,0,0,0.3)",
+  padding: 20,
+  borderRadius: 8,
+  alignItems: "center",
+}
+
 const $roleText = {
   color: "#fff",
   fontWeight: "700" as const,
@@ -106,6 +137,12 @@ const $roleText = {
 
 const $messageText = {
   color: "#fff",
+}
+
+const $readyText = {
+  color: "#fff",
+  textAlign: "center" as const,
+  fontSize: 18,
 }
 
 const $errorText = {

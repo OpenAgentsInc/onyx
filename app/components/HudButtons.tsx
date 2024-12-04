@@ -1,18 +1,20 @@
-import { View, StyleSheet } from "react-native"
-import { VectorIcon } from "./VectorIcon"
+import { Audio } from "expo-av"
+import { observer } from "mobx-react-lite"
+import { useState } from "react"
+import { StyleSheet, View } from "react-native"
 import { colors } from "@/theme/colorsDark"
 import { useAudioRecorder } from "../hooks/useAudioRecorder"
-import { observer } from "mobx-react-lite"
-import { Audio } from "expo-av"
-import { useState } from "react"
 import { useStores } from "../models"
+import { VectorIcon } from "./VectorIcon"
 
 export interface HudButtonsProps {
   onChatPress?: () => void
+  onMicPress?: () => Promise<void>
+  isRecording?: boolean
 }
 
-export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
-  const { isRecording, recordingUri, toggleRecording } = useAudioRecorder()
+export const HudButtons = observer(({ onChatPress, onMicPress, isRecording }: HudButtonsProps) => {
+  const { recordingUri } = useAudioRecorder()
   const [isPlaying, setIsPlaying] = useState(false)
   const [sound, setSound] = useState<Audio.Sound | null>(null)
   const { recordingStore } = useStores()
@@ -62,14 +64,16 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
       <View style={styles.buttonContainer}>
         <VectorIcon
           name="mic"
-          size={28}
-          color={isRecording ? colors.palette.angry500 : "white"}
+          size={24}
+          color={isRecording ? "#ff0000" : "white"}
           containerStyle={[
             styles.button,
             isRecording && styles.recordingButton
           ]}
-          onPress={toggleRecording}
+          onPress={onMicPress}
+          pulse={isRecording}
         />
+        {/* Playback button temporarily disabled
         {recordingUri && (
           <VectorIcon
             name={isPlaying ? "stop" : "play-arrow"}
@@ -82,6 +86,8 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
             onPress={isPlaying ? stopPlaying : playLastRecording}
           />
         )}
+        */}
+        {/* Chat button temporarily disabled
         <VectorIcon
           name="chat"
           size={28}
@@ -89,6 +95,7 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
           containerStyle={styles.button}
           onPress={onChatPress}
         />
+        */}
       </View>
     </View>
   )
@@ -100,7 +107,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: 40,
+    paddingBottom: 50,
     alignItems: "center",
   },
   buttonContainer: {
@@ -108,8 +115,8 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   button: {
-    width: 60,
-    height: 60,
+    width: 56,
+    height: 56,
     borderRadius: 30,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     borderWidth: 1,
@@ -118,8 +125,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   recordingButton: {
-    borderColor: colors.palette.angry500,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    borderColor: "#ff0000",
+    borderWidth: 2,
+    shadowColor: "#ff0000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 10, // for Android
   },
   playingButton: {
     borderColor: colors.palette.accent300,

@@ -1,5 +1,3 @@
-import demoEn from "./demo-en"
-
 const en = {
   common: {
     ok: "OK!",
@@ -121,8 +119,6 @@ const en = {
         "No favorites have been added yet. Tap the heart on an episode to add it to your favorites!",
     },
   },
-
-  ...demoEn,
 }
 
 export default en

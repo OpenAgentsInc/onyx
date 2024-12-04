@@ -64,12 +64,12 @@ export function useAudioRecorder() {
     }
   }
 
-  const stopRecording = async () => {
+  const stopRecording = async (): Promise<string | undefined> => {
     try {
       if (!recordingRef.current) {
         console.log('No recording to stop')
         recordingStore.setIsRecording(false)
-        return
+        return undefined
       }
 
       console.log('Stopping recording...')
@@ -87,7 +87,7 @@ export function useAudioRecorder() {
       })
 
       try {
-        recordingStore.setIsTranscribing(true)
+        recordingStore.setProp("isTranscribing", true)
         const transcription = await recordingStore.transcribeRecording()
         if (transcription) {
           // Use append from shared hook
@@ -101,15 +101,16 @@ export function useAudioRecorder() {
         console.error('Failed to process recording:', err)
         Alert.alert('Error', 'Failed to process recording')
       } finally {
-        recordingStore.setIsTranscribing(false)
+        recordingStore.setProp("isTranscribing", false)
       }
 
-      return uri
+      return uri || undefined
     } catch (err) {
       console.error('Failed to stop recording:', err)
       Alert.alert('Error', 'Failed to stop recording')
       recordingStore.setIsRecording(false)
       recordingRef.current = null
+      return undefined
     }
   }
 
