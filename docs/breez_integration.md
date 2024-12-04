@@ -1,24 +1,17 @@
-# Breez SDK Integration Guide
+# Breez SDK Integration in Onyx
 
 ## Overview
 
-This document describes the integration of the Breez SDK into the Onyx mobile app, providing Lightning Network payment capabilities.
+This document describes the integration of the Breez SDK into the Onyx mobile app, providing Lightning Network payment capabilities through a self-custodial solution.
 
-## Architecture
+## Components
 
-The integration consists of several key components:
+### 1. BreezProvider (`app/providers/BreezProvider.tsx`)
 
-### 1. BreezProvider (app/providers/BreezProvider.tsx)
+Manages the Breez SDK lifecycle and provides global access to the SDK instance.
 
-A React Context provider that initializes and manages the Breez SDK instance. It handles:
-- SDK initialization
-- Working directory setup
-- Mnemonic management
-- Connection state
-
-Usage:
-```tsx
-import { useBreez } from '../providers/BreezProvider'
+```typescript
+import { useBreez } from '@/providers/BreezProvider'
 
 function MyComponent() {
   const { sdk, isInitialized, error } = useBreez()
@@ -26,111 +19,144 @@ function MyComponent() {
 }
 ```
 
-### 2. WalletStore (app/models/WalletStore.ts)
+Key features:
+- Automatic SDK initialization
+- Mnemonic generation and management
+- Working directory setup
+- Connection state management
+- Error handling
 
-A MobX State Tree store that manages the wallet state:
-- Balance tracking
-- Pending transactions
-- Transaction history
+### 2. WalletStore (`app/models/WalletStore.ts`)
+
+MobX State Tree store for wallet state management.
+
+```typescript
+import { useStores } from '@/models'
+
+function MyComponent() {
+  const { walletStore } = useStores()
+  const { balanceSat, pendingSendSat, pendingReceiveSat } = walletStore
+}
+```
+
+Properties:
+- `balanceSat`: Current balance in satoshis
+- `pendingSendSat`: Pending outgoing transactions
+- `pendingReceiveSat`: Pending incoming transactions
+- `transactions`: Transaction history
+
+Actions:
+- `setBalance(balance: number)`
+- `setPendingSend(amount: number)`
+- `setPendingReceive(amount: number)`
+- `setTransactions(txs: any[])`
+- `fetchBalanceInfo()`
+
+### 3. BalanceDisplay (`app/components/BalanceDisplay.tsx`)
+
+React component for displaying wallet balance information.
 
 Features:
 - Real-time balance updates
-- Pending transaction tracking
-- Transaction history management
+- Pending transaction indicators
+- Auto-refresh every 30 seconds
+- Error handling
 
-### 3. BalanceDisplay (app/components/BalanceDisplay.tsx)
+### 4. WalletScreen (`app/screens/WalletScreen.tsx`)
 
-A React component that displays:
-- Current balance in sats
-- Pending send amounts
-- Pending receive amounts
+Main wallet interface screen.
 
-## Setup
+Features:
+- Balance display
+- Loading state handling
+- Error state handling
+
+## Installation
 
 1. Install required packages:
 ```bash
 yarn add @breeztech/react-native-breez-sdk-liquid @react-native-async-storage/async-storage expo-file-system expo-crypto buffer bip39
 ```
 
-2. Initialize the providers in app.tsx:
-```tsx
-<SafeAreaProvider>
-  <ErrorBoundary>
-    <BreezProvider>
-      <App />
-    </BreezProvider>
-  </ErrorBoundary>
-</SafeAreaProvider>
-```
+2. Add BreezProvider to app.tsx:
+```typescript
+import { BreezProvider } from '@/providers/BreezProvider'
 
-## Usage
-
-### Accessing Breez SDK
-
-```tsx
-import { useBreez } from '../providers/BreezProvider'
-
-function MyComponent() {
-  const { sdk, isInitialized } = useBreez()
-  
-  useEffect(() => {
-    if (isInitialized && sdk) {
-      // Perform SDK operations
-    }
-  }, [isInitialized, sdk])
+function App() {
+  return (
+    <SafeAreaProvider>
+      <ErrorBoundary>
+        <KeyboardProvider>
+          <BreezProvider>
+            <AppNavigator />
+          </BreezProvider>
+        </KeyboardProvider>
+      </ErrorBoundary>
+    </SafeAreaProvider>
+  )
 }
 ```
 
-### Managing Wallet State
+## Implementation Details
 
-```tsx
-import { useStores } from '../models'
+### Initialization Flow
 
-function MyComponent() {
-  const { walletStore } = useStores()
-  const { balanceSat, pendingSendSat } = walletStore
-  
-  // Access wallet state and actions
-}
-```
+1. BreezProvider mounts
+2. Checks for existing mnemonic
+3. Generates new mnemonic if needed
+4. Sets up working directory
+5. Initializes Breez SDK
+6. Makes SDK instance available via context
+
+### Balance Updates
+
+1. BalanceDisplay component mounts
+2. Checks for SDK initialization
+3. Fetches initial balance
+4. Sets up 30-second refresh interval
+5. Updates MobX store with new values
+6. Cleans up interval on unmount
+
+### Error Handling
+
+The integration includes error handling for:
+- SDK initialization failures
+- Network connectivity issues
+- Invalid mnemonic
+- Working directory problems
+- Balance fetch failures
 
 ## Security Considerations
 
-1. Mnemonic Storage
-   - Stored securely using AsyncStorage
-   - Generated only once per installation
-   - Validated before use
+### Mnemonic Management
+- Generated using bip39
+- Stored in AsyncStorage
+- Validated before use
+- Never exposed to external services
 
-2. Working Directory
-   - Uses Expo's secure document directory
-   - Permissions verified on startup
-   - Write access tested before use
+### Working Directory
+- Uses Expo's secure document directory
+- Permissions verified on startup
+- Write access tested
+- Cleanup on unmount
 
-3. Network Security
-   - SSL/TLS for all communications
-   - Mainnet/Testnet configuration managed via SDK
-   - API keys stored securely
-
-## Error Handling
-
-The integration includes comprehensive error handling:
-- SDK initialization errors
-- Network connectivity issues
-- Balance fetch failures
-- Transaction errors
+### Network Security
+- SSL/TLS for all communications
+- API key stored securely
+- No sensitive data in logs
 
 ## Testing
 
-To test the integration:
-1. Run in development mode
-2. Check SDK initialization
-3. Verify balance display
-4. Test send/receive functionality
-5. Verify error handling
+### Manual Testing Steps
+1. Install dependencies
+2. Run app in development
+3. Navigate to WalletScreen
+4. Verify initialization
+5. Check balance display
+6. Test error states
 
-## Troubleshooting
+### Common Issues
 
-Common issues and solutions:
 1. SDK Initialization Failures
    - Check working directory permissions
    - Verify mnemonic storage
@@ -143,10 +169,34 @@ Common issues and solutions:
 
 ## Future Improvements
 
-Planned enhancements:
-1. Transaction history UI
-2. Payment request generation
-3. QR code scanning
-4. Fiat conversion display
-5. Enhanced error reporting
-6. Automated backups
+1. UI/UX Enhancements
+   - Transaction history view
+   - QR code generation/scanning
+   - Send/receive screens
+   - Fiat conversion display
+
+2. Technical Improvements
+   - Offline support
+   - Background balance updates
+   - Enhanced error reporting
+   - Automated backups
+   - Multi-device sync
+
+3. Security Enhancements
+   - Biometric authentication
+   - Transaction signing confirmation
+   - Enhanced key storage
+   - Backup encryption
+
+## Support
+
+For issues or questions:
+1. Check error logs
+2. Review documentation
+3. Contact development team
+4. Submit GitHub issue
+
+## References
+
+- [Breez SDK Documentation](https://sdk-doc.breez.technology/)
+- [MobX State Tree Documentation](https://mobx-state-tree.js.org/)
