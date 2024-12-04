@@ -69,7 +69,7 @@ export function useAudioRecorder() {
       if (!recordingRef.current) {
         console.log('No recording to stop')
         recordingStore.setIsRecording(false)
-        return
+        return undefined
       }
 
       console.log('Stopping recording...')
@@ -104,12 +104,13 @@ export function useAudioRecorder() {
         recordingStore.setProp("isTranscribing", false)
       }
 
-      return uri
+      return uri || undefined
     } catch (err) {
       console.error('Failed to stop recording:', err)
       Alert.alert('Error', 'Failed to stop recording')
       recordingStore.setIsRecording(false)
       recordingRef.current = null
+      return undefined
     }
   }
 
