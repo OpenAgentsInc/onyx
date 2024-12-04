@@ -6,10 +6,11 @@ import { Text } from "./Text"
 interface MessageMenuProps {
   visible: boolean
   onClose: () => void
+  onDelete: () => void
   messageContent: string
 }
 
-export const MessageMenu: FC<MessageMenuProps> = ({ visible, onClose, messageContent }) => {
+export const MessageMenu: FC<MessageMenuProps> = ({ visible, onClose, onDelete, messageContent }) => {
   const handleCopy = async () => {
     try {
       await Clipboard.setStringAsync(messageContent)
@@ -41,6 +42,13 @@ export const MessageMenu: FC<MessageMenuProps> = ({ visible, onClose, messageCon
             onPress={handleCopy}
           >
             <Text style={styles.menuText}>Copy Message</Text>
+          </Pressable>
+          <View style={styles.divider} />
+          <Pressable
+            style={[styles.menuItem, styles.deleteItem]}
+            onPress={onDelete}
+          >
+            <Text style={[styles.menuText, styles.deleteText]}>Delete Message</Text>
           </Pressable>
         </View>
       </Pressable>
@@ -81,9 +89,15 @@ const styles = StyleSheet.create({
   menuItem: {
     padding: 16,
   },
+  deleteItem: {
+    backgroundColor: "rgba(255,0,0,0.1)",
+  },
   menuText: {
     color: "#fff",
     textAlign: "center",
     fontSize: 16,
+  },
+  deleteText: {
+    color: "#ff4444",
   },
 })
