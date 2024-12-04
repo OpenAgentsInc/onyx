@@ -5,6 +5,7 @@ import { Text } from "@/components"
 import { MessageMenu } from "./MessageMenu"
 import { useStores } from "@/models"
 import { useSharedChat } from "@/hooks/useSharedChat"
+import { SingleMessageDisplay } from "./SingleMessageDisplay"
 
 interface ChatOverlayProps {
   visible?: boolean
@@ -30,6 +31,11 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
   if (error) return <Text style={$errorText}>{error.message}</Text>
 
   const hasMessages = chatStore.messages.length > 0
+  const latestMessage = hasMessages ? chatStore.messages[chatStore.messages.length - 1] : null
+
+  if (!chatStore.showFullChat && latestMessage) {
+    return <SingleMessageDisplay message={latestMessage} />
+  }
 
   return (
     <View style={$overlay}>
