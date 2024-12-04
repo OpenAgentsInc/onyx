@@ -90,7 +90,6 @@
     "react-native-screens": "~4.1.0",
     "react-native-web": "~0.19.6",
     "three": "^0.171.0",
-    "tiny-secp256k1": "^2.2.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
