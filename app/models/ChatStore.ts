@@ -16,6 +16,7 @@ export const ChatStoreModel = types
   .model("ChatStore")
   .props({
     messages: types.array(MessageModel),
+    showFullChat: types.optional(types.boolean, false),
   })
   .actions((store) => ({
     addMessage(message: Message) {
@@ -23,6 +24,9 @@ export const ChatStoreModel = types
     },
     clearMessages() {
       store.messages.clear()
+    },
+    toggleFullChat() {
+      store.showFullChat = !store.showFullChat
     },
   }))
 
