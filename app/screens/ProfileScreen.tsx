@@ -1,11 +1,13 @@
 import { observer } from "mobx-react-lite"
 import { FC, useEffect, useState } from "react"
-import { ViewStyle, TextStyle, View, TouchableOpacity, ActivityIndicator } from "react-native"
-import { Screen, Text } from "@/components"
-import { ProfileMenuScreenProps } from "@/navigators/ProfileMenuNavigator"
+import {
+  ActivityIndicator, TextStyle, TouchableOpacity, View, ViewStyle
+} from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { nostrService } from "@/services/nostr/nostr.service"
+import { Screen, Text } from "@/components"
+// import { nostrService } from "@/services/nostr/nostr.service"
 import { useStores } from "@/models"
+import { ProfileMenuScreenProps } from "@/navigators/ProfileMenuNavigator"
 import { breezService } from "@/services/breez"
 
 interface ProfileScreenProps extends ProfileMenuScreenProps<"ProfileHome"> { }
@@ -17,29 +19,29 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
   const [npub, setNpub] = useState<string>("Loading...")
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    async function deriveNostrKeys() {
-      try {
-        if (!isInitialized) return
+  // useEffect(() => {
+  //   async function deriveNostrKeys() {
+  //     try {
+  //       if (!isInitialized) return
 
-        // Get mnemonic from Breez service
-        const mnemonic = await breezService.getMnemonic()
-        
-        // Derive Nostr keys
-        const keys = await nostrService.deriveKeys(mnemonic)
-        
-        // Update state with npub
-        setNpub(keys.npub)
-      } catch (error) {
-        console.error("Failed to derive Nostr keys:", error)
-        setNpub("Error loading npub")
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  //       // Get mnemonic from Breez service
+  //       const mnemonic = await breezService.getMnemonic()
 
-    deriveNostrKeys()
-  }, [isInitialized])
+  //       // Derive Nostr keys
+  //       const keys = await nostrService.deriveKeys(mnemonic)
+
+  //       // Update state with npub
+  //       setNpub(keys.npub)
+  //     } catch (error) {
+  //       console.error("Failed to derive Nostr keys:", error)
+  //       setNpub("Error loading npub")
+  //     } finally {
+  //       setIsLoading(false)
+  //     }
+  //   }
+
+  //   deriveNostrKeys()
+  // }, [isInitialized])
 
   const handlePressUpdater = () => {
     navigation.navigate("Updater")
@@ -69,7 +71,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
           <View style={$placeholder} />
         </View>
       </View>
-      
+
       <View style={$content}>
         <View style={$profileInfo}>
           <Text text="Nostr Public Key" style={$labelText} />
@@ -85,8 +87,8 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
             <Text text="App Updates" style={$menuButtonText} />
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[$menuButton, $dangerButton]} 
+          <TouchableOpacity
+            style={[$menuButton, $dangerButton]}
             onPress={handlePressDisconnect}
           >
             <Text text="Disconnect Wallet" style={$menuButtonText} />
@@ -95,9 +97,9 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
 
         <View style={$infoContainer}>
           <Text text="Wallet Status" style={$labelText} />
-          <Text 
-            text={isInitialized ? "Connected" : "Disconnected"} 
-            style={[$valueText, isInitialized ? $successText : $errorText]} 
+          <Text
+            text={isInitialized ? "Connected" : "Disconnected"}
+            style={[$valueText, isInitialized ? $successText : $errorText]}
           />
         </View>
       </View>
