@@ -138,7 +138,6 @@ const styles = StyleSheet.create({
   },
   recordingButton: {
     borderColor: colors.palette.angry500,
-    backgroundColor: "rgba(180, 0, 0, 0.3)", // Slight red tint
     borderWidth: 2,
   },
   playingButton: {
