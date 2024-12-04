@@ -1,6 +1,6 @@
 import { mnemonicToSeedSync } from 'bip39'
-import { fromSeed } from 'bip32'
-import { schnorr } from '@noble/secp256k1'
+import * as bip32 from 'bip32'
+import * as secp256k1 from '@noble/secp256k1'
 import { bech32 } from 'bech32'
 import type { NostrKeys, NostrEvent, NostrAuthEvent, NostrConfig, NostrAuthState } from './nostr.types'
 
@@ -31,12 +31,12 @@ export class NostrService {
     const seed = mnemonicToSeedSync(breezMnemonic)
     
     // Derive private key using BIP32
-    const node = fromSeed(seed)
+    const node = bip32.fromSeed(seed)
     const child = node.derivePath("m/44'/1237'/0'/0/0")
     if (!child.privateKey) throw new Error('Failed to derive private key')
     
     const privateKeyHex = child.privateKey.toString('hex')
-    const publicKeyHex = schnorr.getPublicKey(privateKeyHex).toString('hex')
+    const publicKeyHex = Buffer.from(secp256k1.schnorrGetPublicKey(privateKeyHex)).toString('hex')
 
     this.keys = {
       privateKey: privateKeyHex,
@@ -92,10 +92,12 @@ export class NostrService {
       event.tags,
       event.content
     ])
-    event.id = schnorr.utils.sha256(serialized).toString('hex')
+    const hash = await secp256k1.utils.sha256(Buffer.from(serialized))
+    event.id = Buffer.from(hash).toString('hex')
 
     // Sign the event
-    event.sig = schnorr.sign(event.id, this.keys.privateKey).toString('hex')
+    const signature = await secp256k1.schnorr.sign(hash, this.keys.privateKey)
+    event.sig = Buffer.from(signature).toString('hex')
 
     return event
   }
