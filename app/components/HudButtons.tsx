@@ -9,10 +9,12 @@ import { useStores } from "../models"
 
 export interface HudButtonsProps {
   onChatPress?: () => void
+  onMicPress?: () => Promise<void>
+  isRecording?: boolean
 }
 
-export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
-  const { isRecording, recordingUri, toggleRecording } = useAudioRecorder()
+export const HudButtons = observer(({ onChatPress, onMicPress, isRecording }: HudButtonsProps) => {
+  const { recordingUri } = useAudioRecorder()
   const [isPlaying, setIsPlaying] = useState(false)
   const [sound, setSound] = useState<Audio.Sound | null>(null)
   const { recordingStore } = useStores()
@@ -68,7 +70,7 @@ export const HudButtons = observer(({ onChatPress }: HudButtonsProps) => {
             styles.button,
             isRecording && styles.recordingButton
           ]}
-          onPress={toggleRecording}
+          onPress={onMicPress}
         />
         {recordingUri && (
           <VectorIcon
