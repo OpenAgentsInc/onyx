@@ -1,6 +1,6 @@
 import * as Clipboard from "expo-clipboard"
 import { FC } from "react"
-import { Modal, Pressable, StyleSheet, View } from "react-native"
+import { Modal, Pressable, StyleSheet, View, ScrollView, Dimensions } from "react-native"
 import { Text } from "./Text"
 
 interface MessageMenuProps {
@@ -19,6 +19,8 @@ export const MessageMenu: FC<MessageMenuProps> = ({ visible, onClose, messageCon
     }
   }
 
+  const windowHeight = Dimensions.get('window').height
+
   return (
     <Modal
       visible={visible}
@@ -27,7 +29,13 @@ export const MessageMenu: FC<MessageMenuProps> = ({ visible, onClose, messageCon
       onRequestClose={onClose}
     >
       <Pressable style={styles.overlay} onPress={onClose}>
-        <View style={styles.menu}>
+        <View style={[styles.menu, { maxHeight: windowHeight * 0.7 }]}>
+          <ScrollView style={styles.scrollView}>
+            <Text style={styles.previewText} numberOfLines={10}>
+              {messageContent}
+            </Text>
+          </ScrollView>
+          <View style={styles.divider} />
           <Pressable
             style={styles.menuItem}
             onPress={handleCopy}
@@ -46,14 +54,29 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
   menu: {
     backgroundColor: "#1a1a1a",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#333",
-    minWidth: 200,
+    width: "100%",
     overflow: "hidden",
+  },
+  scrollView: {
+    maxHeight: 200,
+    padding: 16,
+  },
+  previewText: {
+    color: "#999",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#333",
+    width: "100%",
   },
   menuItem: {
     padding: 16,
@@ -61,5 +84,6 @@ const styles = StyleSheet.create({
   menuText: {
     color: "#fff",
     textAlign: "center",
+    fontSize: 16,
   },
 })
