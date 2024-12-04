@@ -21,23 +21,27 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
       preset="scroll"
       safeAreaEdges={["bottom"]}
     >
-      <View style={[$header, { paddingTop: top }]}>
-        <View style={$placeholder} />
-        <Text text="Profile" style={$headerText} />
-        <View style={$placeholder} />
+      <View style={[$headerContainer, { paddingTop: top }]}>
+        <View style={$header}>
+          <View style={$placeholder} />
+          <Text text="Profile" style={$headerText} />
+          <View style={$placeholder} />
+        </View>
       </View>
       
-      <View style={$profileInfo}>
-        <Text text="Nostr Public Key" style={$labelText} />
-        <Text text="npub1..." style={$valueText} />
-      </View>
+      <View style={$content}>
+        <View style={$profileInfo}>
+          <Text text="Nostr Public Key" style={$labelText} />
+          <Text text="npub1..." style={$valueText} />
+        </View>
 
-      <View style={$menuContainer}>
-        <TouchableOpacity style={$menuButton} onPress={handlePressUpdater}>
-          <Text text="App Updates" style={$menuButtonText} />
-        </TouchableOpacity>
-        
-        {/* Add more menu buttons here as needed */}
+        <View style={$menuContainer}>
+          <TouchableOpacity style={$menuButton} onPress={handlePressUpdater}>
+            <Text text="App Updates" style={$menuButtonText} />
+          </TouchableOpacity>
+          
+          {/* Add more menu buttons here as needed */}
+        </View>
       </View>
     </Screen>
   )
@@ -52,14 +56,18 @@ const $contentContainer: ViewStyle = {
   flex: 1,
 }
 
+const $headerContainer: ViewStyle = {
+  backgroundColor: 'black',
+  borderBottomWidth: 1,
+  borderBottomColor: "#333",
+}
+
 const $header: ViewStyle = {
+  height: 44,
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "space-between",
-  borderBottomWidth: 1,
-  borderBottomColor: "#333",
   paddingHorizontal: 16,
-  height: 44,
 }
 
 const $headerText: TextStyle = {
@@ -70,11 +78,16 @@ const $headerText: TextStyle = {
   textAlign: "center",
 }
 
-const $profileInfo: ViewStyle = {
+const $content: ViewStyle = {
+  flex: 1,
   padding: 16,
+}
+
+const $profileInfo: ViewStyle = {
   marginBottom: 24,
   borderBottomWidth: 1,
   borderBottomColor: '#333',
+  paddingBottom: 16,
 }
 
 const $labelText: TextStyle = {
@@ -89,7 +102,7 @@ const $valueText: TextStyle = {
 }
 
 const $menuContainer: ViewStyle = {
-  padding: 16,
+  marginTop: 8,
 }
 
 const $menuButton: ViewStyle = {
