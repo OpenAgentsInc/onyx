@@ -2,7 +2,7 @@
 
 Onyx is a Nostr client that connects to a Nexus relay on the backend.
 
-This is a Rust server exposing a websocket.
+Nexus is an opinionated Nostr relay written in Rust that implements a subset of the Nostr protocol plus additional functionality specific to the OpenAgents network.
 
 ## Authentication
 
