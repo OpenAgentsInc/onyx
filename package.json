@@ -33,7 +33,8 @@
     "prebuild:clean": "npx expo prebuild --clean",
     "submit:ios": "eas submit -p ios",
     "update:prod": "eas update --channel production --message",
-    "t": "tsc --noEmit"
+    "t": "tsc --noEmit",
+    "doctor": "npx expo-doctor"
   },
   "dependencies": {
     "@ai-sdk/react": "1.0.4",
