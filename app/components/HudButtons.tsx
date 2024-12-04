@@ -72,6 +72,7 @@ export const HudButtons = observer(({ onChatPress, onMicPress, isRecording }: Hu
           ]}
           onPress={onMicPress}
         />
+        {/* Playback button temporarily disabled
         {recordingUri && (
           <VectorIcon
             name={isPlaying ? "stop" : "play-arrow"}
@@ -84,6 +85,8 @@ export const HudButtons = observer(({ onChatPress, onMicPress, isRecording }: Hu
             onPress={isPlaying ? stopPlaying : playLastRecording}
           />
         )}
+        */}
+        {/* Chat button temporarily disabled
         <VectorIcon
           name="chat"
           size={28}
@@ -91,6 +94,7 @@ export const HudButtons = observer(({ onChatPress, onMicPress, isRecording }: Hu
           containerStyle={styles.button}
           onPress={onChatPress}
         />
+        */}
       </View>
     </View>
   )
