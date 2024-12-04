@@ -3,10 +3,13 @@ import { FC } from "react"
 import { ViewStyle, TextStyle, View, TouchableOpacity } from "react-native"
 import { Screen, Text } from "@/components"
 import { ProfileMenuScreenProps } from "@/navigators/ProfileMenuNavigator"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 interface ProfileScreenProps extends ProfileMenuScreenProps<"ProfileHome"> { }
 
 export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileScreen({ navigation }) {
+  const { top } = useSafeAreaInsets()
+
   const handlePressUpdater = () => {
     navigation.navigate("Updater")
   }
@@ -16,8 +19,13 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
       style={$root}
       contentContainerStyle={$contentContainer}
       preset="scroll"
+      safeAreaEdges={["bottom"]}
     >
-      <Text text="Profile" style={$headerText} />
+      <View style={[$header, { paddingTop: top }]}>
+        <View style={$placeholder} />
+        <Text text="Profile" style={$headerText} />
+        <View style={$placeholder} />
+      </View>
       
       <View style={$profileInfo}>
         <Text text="Nostr Public Key" style={$labelText} />
@@ -44,11 +52,22 @@ const $contentContainer: ViewStyle = {
   flex: 1,
 }
 
+const $header: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  borderBottomWidth: 1,
+  borderBottomColor: "#333",
+  paddingHorizontal: 16,
+  height: 44,
+}
+
 const $headerText: TextStyle = {
   color: 'white',
-  fontSize: 24,
-  textAlign: 'center',
-  marginVertical: 16,
+  fontSize: 18,
+  fontWeight: "600",
+  flex: 1,
+  textAlign: "center",
 }
 
 const $profileInfo: ViewStyle = {
@@ -84,4 +103,8 @@ const $menuButtonText: TextStyle = {
   color: 'white',
   fontSize: 16,
   textAlign: 'left',
+}
+
+const $placeholder: ViewStyle = {
+  width: 40,
 }
