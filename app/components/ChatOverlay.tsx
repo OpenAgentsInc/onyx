@@ -39,7 +39,8 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
       return <SingleMessageDisplay message={latestMessage as Message} />
     } else {
       const windowHeight = Dimensions.get('window').height
-      const topPosition = Math.max(windowHeight * 0.3, 100)
+      const containerHeight = 60 // Approximate height of the ready container
+      const topPosition = (windowHeight / 2) - (containerHeight / 2)
       return (
         <View style={[$readyContainer, { top: topPosition }]}>
           <Text style={$readyText}>Ready</Text>
