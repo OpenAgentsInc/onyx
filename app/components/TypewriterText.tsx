@@ -1,7 +1,8 @@
 import { FC, useEffect, useState, useRef } from "react"
-import { Text, TextStyle } from "react-native"
+import { Text, TextStyle, Pressable } from "react-native"
 import { observer } from "mobx-react-lite"
 import { typography } from "@/theme/typography"
+import { MessageMenu } from "./MessageMenu"
 
 interface TypewriterTextProps {
   text: string
@@ -15,6 +16,7 @@ export const TypewriterText: FC<TypewriterTextProps> = observer(function Typewri
   onComplete,
 }) {
   const [displayText, setDisplayText] = useState("")
+  const [menuVisible, setMenuVisible] = useState(false)
   const fullTextRef = useRef("")
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -43,7 +45,7 @@ export const TypewriterText: FC<TypewriterTextProps> = observer(function Typewri
         const nextText = fullTextRef.current.slice(0, prev.length + 1)
         
         // Schedule next update
-        timeoutRef.current = setTimeout(revealText, 25) // Reduced from 50ms to 25ms
+        timeoutRef.current = setTimeout(revealText, 25)
         
         return nextText
       })
@@ -51,7 +53,7 @@ export const TypewriterText: FC<TypewriterTextProps> = observer(function Typewri
 
     // If we have more text to show, schedule an update
     if (displayText.length < fullTextRef.current.length) {
-      timeoutRef.current = setTimeout(revealText, 25) // Reduced from 50ms to 25ms
+      timeoutRef.current = setTimeout(revealText, 25)
     }
 
     return () => {
@@ -62,16 +64,29 @@ export const TypewriterText: FC<TypewriterTextProps> = observer(function Typewri
   }, [text])
 
   return (
-    <Text 
-      style={[
-        { 
-          opacity: displayText ? 1 : 0,
-          fontFamily: typography.primary.normal,
-        },
-        style,
-      ]}
-    >
-      {displayText}
-    </Text>
+    <>
+      <Pressable 
+        onLongPress={() => setMenuVisible(true)}
+        delayLongPress={500}
+      >
+        <Text 
+          style={[
+            { 
+              opacity: displayText ? 1 : 0,
+              fontFamily: typography.primary.normal,
+            },
+            style,
+          ]}
+        >
+          {displayText}
+        </Text>
+      </Pressable>
+
+      <MessageMenu
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+        messageContent={displayText}
+      />
+    </>
   )
 })
