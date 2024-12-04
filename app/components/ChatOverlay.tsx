@@ -114,7 +114,7 @@ const $messageContainer: ViewStyle = {
 
 const $readyContainer: ViewStyle = {
   position: "absolute",
-  top: "45%",
+  top: "48%", // Moved down to match SingleMessageDisplay
   left: 20,
   right: 20,
   transform: [{ translateY: -50 }],
