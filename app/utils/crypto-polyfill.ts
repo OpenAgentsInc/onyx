@@ -2,7 +2,7 @@ import * as Crypto from 'expo-crypto';
 
 // Define the types for the crypto polyfill
 interface CryptoPolyfill {
-  getRandomValues: <T extends ArrayBufferView>(array: T) => T;
+  getRandomValues: (array: ArrayBufferView) => ArrayBufferView;
   subtle?: SubtleCrypto;
   randomUUID?: () => string;
 }
@@ -10,9 +10,9 @@ interface CryptoPolyfill {
 // Polyfill crypto.getRandomValues
 if (typeof crypto === 'undefined') {
   const cryptoPolyfill: CryptoPolyfill = {
-    getRandomValues: <T extends Uint8Array | Uint16Array | Uint32Array | Int8Array | Int16Array | Int32Array>(array: T): T => {
+    getRandomValues: (array: ArrayBufferView): ArrayBufferView => {
       const randomBytes = Crypto.getRandomValues(array);
-      if (randomBytes && 'set' in array) {
+      if (randomBytes && 'set' in array && typeof array.set === 'function') {
         array.set(randomBytes as Uint8Array);
       }
       return array;
