@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC, useState, useCallback } from "react"
-import { ScrollView, View, ViewStyle, Pressable } from "react-native"
+import { ScrollView, View, ViewStyle, Pressable, Dimensions } from "react-native"
 import { Text } from "@/components"
 import { MessageMenu } from "./MessageMenu"
 import { useStores } from "@/models"
@@ -37,8 +37,10 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
     if (latestMessage) {
       return <SingleMessageDisplay message={latestMessage} />
     } else {
+      const windowHeight = Dimensions.get('window').height
+      const topPosition = Math.max(windowHeight * 0.3, 100)
       return (
-        <View style={$readyContainer}>
+        <View style={[$readyContainer, { top: topPosition }]}>
           <Text style={$readyText}>Ready</Text>
         </View>
       )
@@ -114,10 +116,9 @@ const $messageContainer: ViewStyle = {
 
 const $readyContainer: ViewStyle = {
   position: "absolute",
-  top: "48%", // Moved down to match SingleMessageDisplay
   left: 20,
   right: 20,
-  transform: [{ translateY: -50 }],
+  maxHeight: "60%",
   backgroundColor: "rgba(0,0,0,0.3)",
   padding: 20,
   borderRadius: 8,
