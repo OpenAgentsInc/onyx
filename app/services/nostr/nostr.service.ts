@@ -4,6 +4,7 @@ import * as ecc from 'tiny-secp256k1'
 import { schnorr } from '@noble/curves/secp256k1'
 import { bech32 } from 'bech32'
 import { sha256 } from '@noble/hashes/sha256'
+import { bytesToHex } from '@noble/hashes/utils'
 import type { NostrKeys, NostrEvent, NostrAuthEvent, NostrConfig, NostrAuthState } from './nostr.types'
 
 const bip32 = BIP32Factory(ecc)
@@ -39,8 +40,8 @@ export class NostrService {
     const child = node.derivePath("m/44'/1237'/0'/0/0")
     if (!child.privateKey) throw new Error('Failed to derive private key')
     
-    const privateKeyHex = Buffer.from(child.privateKey).toString('hex')
-    const publicKeyHex = Buffer.from(schnorr.getPublicKey(privateKeyHex)).toString('hex')
+    const privateKeyHex = bytesToHex(child.privateKey)
+    const publicKeyHex = bytesToHex(schnorr.getPublicKey(privateKeyHex))
 
     this.keys = {
       privateKey: privateKeyHex,
@@ -97,11 +98,11 @@ export class NostrService {
       event.content
     ])
     const hash = sha256(Buffer.from(serialized))
-    event.id = Buffer.from(hash).toString('hex')
+    event.id = bytesToHex(hash)
 
     // Sign the event
     const signature = schnorr.sign(hash, this.keys.privateKey)
-    event.sig = Buffer.from(signature).toString('hex')
+    event.sig = bytesToHex(signature)
 
     return event
   }
