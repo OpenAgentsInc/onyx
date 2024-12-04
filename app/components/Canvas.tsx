@@ -1,6 +1,6 @@
 import { ExpoWebGLRenderingContext, GLView } from "expo-gl"
 import React, { useCallback, useEffect, useRef } from "react"
-import { StyleSheet, View, ViewStyle } from "react-native"
+import { StyleSheet, View } from "react-native"
 import * as THREE from "three"
 import { isEmulator } from "@/utils/isEmulator"
 import { useIsFocused } from "@react-navigation/native"
@@ -124,7 +124,7 @@ export function Canvas() {
       canvas: {
         width: gl.drawingBufferWidth,
         height: gl.drawingBufferHeight,
-        style: {} as ViewStyle,
+        style: {} as any, // Using any here since we don't need the full CSS type
         addEventListener: (() => { }) as any,
         removeEventListener: (() => { }) as any,
         clientHeight: gl.drawingBufferHeight,
