@@ -39,7 +39,7 @@ export class NostrService {
     const child = node.derivePath("m/44'/1237'/0'/0/0")
     if (!child.privateKey) throw new Error('Failed to derive private key')
     
-    const privateKeyHex = child.privateKey.toString('hex')
+    const privateKeyHex = Buffer.from(child.privateKey).toString('hex')
     const publicKeyHex = Buffer.from(schnorr.getPublicKey(privateKeyHex)).toString('hex')
 
     this.keys = {
