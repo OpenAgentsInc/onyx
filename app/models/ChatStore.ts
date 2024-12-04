@@ -14,7 +14,7 @@ export const MessageModel = types.model("Message", {
   createdAt: types.maybe(types.Date),
 })
 
-const ChatStoreBase = types
+export const ChatStoreModel = types
   .model("ChatStore")
   .props({
     messages: types.array(MessageModel),
@@ -35,11 +35,6 @@ const ChatStoreBase = types
       store.showFullChat = value
     }
   }))
-
-export const ChatStoreModel = types.compose(
-  "ChatStoreModel",
-  ChatStoreBase
-)
 
 export interface ChatStore extends Instance<typeof ChatStoreModel> {}
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> {}
