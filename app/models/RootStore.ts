@@ -3,6 +3,7 @@ import { AuthenticationStoreModel } from "./AuthenticationStore"
 import { EpisodeStoreModel } from "./EpisodeStore"
 import { RecordingStoreModel } from "./RecordingStore"
 import { ChatStoreModel } from "./ChatStore"
+import { WalletStoreModel } from "./WalletStore"
 
 /**
  * A RootStore model.
@@ -12,6 +13,12 @@ export const RootStoreModel = types.model("RootStore").props({
   episodeStore: types.optional(EpisodeStoreModel, {}),
   recordingStore: types.optional(RecordingStoreModel, {}),
   chatStore: types.optional(ChatStoreModel, { messages: [], showFullChat: false }),
+  walletStore: types.optional(WalletStoreModel, {
+    balanceSat: 0,
+    pendingSendSat: 0,
+    pendingReceiveSat: 0,
+    transactions: [],
+  }),
 })
 
 /**

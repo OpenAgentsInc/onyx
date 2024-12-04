@@ -33,6 +33,7 @@ import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import { customFontsToLoad } from "./theme"
 import { loadDateFnsLocale } from "./utils/formatDate"
 import * as storage from "./utils/storage"
+import { BreezProvider } from "./providers/BreezProvider"
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
@@ -118,11 +119,13 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <KeyboardProvider>
-          <AppNavigator
-            linking={linking}
-            initialState={initialNavigationState}
-            onStateChange={onNavigationStateChange}
-          />
+          <BreezProvider>
+            <AppNavigator
+              linking={linking}
+              initialState={initialNavigationState}
+              onStateChange={onNavigationStateChange}
+            />
+          </BreezProvider>
         </KeyboardProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
