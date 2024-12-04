@@ -1,4 +1,4 @@
-import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
+import { Instance, SnapshotIn, SnapshotOut, types, cast } from "mobx-state-tree"
 
 export interface Message {
   id: string
@@ -22,14 +22,22 @@ export const ChatStoreModel = types
   })
   .actions((store) => ({
     addMessage(message: Message) {
-      store.messages.push(message)
+      store.messages.push(cast({
+        ...message,
+        createdAt: message.createdAt || undefined
+      }))
     },
     setMessages(messages: Array<{ id: string; role: string; content: string; createdAt?: Date | number }>) {
-      // Filter out any messages with invalid roles
-      const validMessages = messages.filter(msg => 
-        ['user', 'assistant', 'system', 'data'].includes(msg.role)
-      )
-      store.messages.replace(validMessages)
+      // Filter out any messages with invalid roles and cast them to the correct type
+      const validMessages = messages
+        .filter(msg => ['user', 'assistant', 'system', 'data'].includes(msg.role))
+        .map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          createdAt: msg.createdAt || undefined
+        }))
+      store.messages.replace(cast(validMessages))
     },
     clearMessages() {
       store.messages.clear()
