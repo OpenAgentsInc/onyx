@@ -1,3 +1,5 @@
+import { ExpoWebGLRenderingContext } from "expo-gl"
+
 export interface MinimalCanvas {
   width: number
   height: number
