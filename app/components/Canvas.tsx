@@ -5,6 +5,15 @@ import * as THREE from "three"
 import { isEmulator } from "@/utils/isEmulator"
 import { useIsFocused } from "@react-navigation/native"
 
+interface MinimalCanvas {
+  width: number
+  height: number
+  clientHeight: number
+  style: Record<string, unknown>
+  addEventListener: () => void
+  removeEventListener: () => void
+}
+
 export function Canvas() {
   const isFocused = useIsFocused();
   const mountedRef = useRef(true);
@@ -124,11 +133,11 @@ export function Canvas() {
       canvas: {
         width: gl.drawingBufferWidth,
         height: gl.drawingBufferHeight,
-        style: {} as any, // Using any here since we don't need the full CSS type
-        addEventListener: (() => { }) as any,
-        removeEventListener: (() => { }) as any,
+        style: {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
         clientHeight: gl.drawingBufferHeight,
-      },
+      } as MinimalCanvas,
       context: gl,
     });
     renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
