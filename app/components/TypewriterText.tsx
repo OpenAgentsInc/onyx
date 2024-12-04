@@ -63,6 +63,11 @@ export const TypewriterText: FC<TypewriterTextProps> = observer(function Typewri
     }
   }, [text])
 
+  const handleDelete = () => {
+    // No-op for now since we don't need deletion in TypewriterText
+    setMenuVisible(false)
+  }
+
   return (
     <>
       <Pressable 
@@ -85,6 +90,7 @@ export const TypewriterText: FC<TypewriterTextProps> = observer(function Typewri
       <MessageMenu
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
+        onDelete={handleDelete}
         messageContent={displayText}
       />
     </>
