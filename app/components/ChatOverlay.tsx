@@ -33,8 +33,16 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
   const hasMessages = chatStore.messages.length > 0
   const latestMessage = hasMessages ? chatStore.messages[chatStore.messages.length - 1] : null
 
-  if (!chatStore.showFullChat && latestMessage) {
-    return <SingleMessageDisplay message={latestMessage} />
+  if (!chatStore.showFullChat) {
+    if (latestMessage) {
+      return <SingleMessageDisplay message={latestMessage} />
+    } else {
+      return (
+        <View style={$readyContainer}>
+          <Text style={$readyText}>Ready</Text>
+        </View>
+      )
+    }
   }
 
   return (
@@ -58,8 +66,8 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
             </Pressable>
           ))
         ) : (
-          <View style={$messageContainer}>
-            <Text style={$messageText}>No messages yet</Text>
+          <View style={$readyContainer}>
+            <Text style={$readyText}>Ready</Text>
           </View>
         )}
       </ScrollView>
@@ -104,6 +112,18 @@ const $messageContainer: ViewStyle = {
   borderRadius: 8,
 }
 
+const $readyContainer: ViewStyle = {
+  position: "absolute",
+  top: "45%",
+  left: 20,
+  right: 20,
+  transform: [{ translateY: -50 }],
+  backgroundColor: "rgba(0,0,0,0.3)",
+  padding: 20,
+  borderRadius: 8,
+  alignItems: "center",
+}
+
 const $roleText = {
   color: "#fff",
   fontWeight: "700" as const,
@@ -112,6 +132,12 @@ const $roleText = {
 
 const $messageText = {
   color: "#fff",
+}
+
+const $readyText = {
+  color: "#fff",
+  textAlign: "center" as const,
+  fontSize: 18,
 }
 
 const $errorText = {
