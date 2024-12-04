@@ -36,7 +36,7 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
 
   if (!chatStore.showFullChat) {
     if (latestMessage) {
-      return <SingleMessageDisplay message={latestMessage} />
+      return <SingleMessageDisplay message={latestMessage as Message} />
     } else {
       const windowHeight = Dimensions.get('window').height
       const topPosition = Math.max(windowHeight * 0.3, 100)
@@ -59,7 +59,7 @@ export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({
             <Pressable
               key={message.id}
               style={$messageContainer}
-              onLongPress={() => handleLongPress(message)}
+              onLongPress={() => handleLongPress(message as Message)}
               delayLongPress={500}
             >
               <View>
