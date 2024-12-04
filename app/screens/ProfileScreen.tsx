@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { ViewStyle } from "react-native"
+import { ViewStyle, TextStyle } from "react-native"
 import { Screen, Text } from "@/components"
 import { MainTabScreenProps } from "@/navigators"
 import { Updater } from "@/components/Updater"
@@ -29,7 +29,7 @@ const $contentContainer: ViewStyle = {
   flex: 1,
 }
 
-const $headerText = {
+const $headerText: TextStyle = {
   color: 'white',
   fontSize: 24,
   textAlign: 'center',
