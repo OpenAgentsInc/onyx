@@ -3,13 +3,7 @@ import { useChat as useVercelChat } from "@ai-sdk/react"
 import { useCallback, useEffect } from "react"
 import { useStores } from "../models"
 import { runInAction } from "mobx"
-
-export interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  createdAt?: Date
-}
+import { Message } from "../models/ChatStore"
 
 // Create a shared hook that wraps the Vercel AI SDK's useChat
 export function useSharedChat() {
@@ -40,7 +34,7 @@ export function useSharedChat() {
   }, [vercelMessages, chatStore])
 
   // Wrap append to ensure correct typing and store sync
-  const appendMessage = useCallback(async (message: { role: 'user' | 'assistant', content: string }) => {
+  const appendMessage = useCallback(async (message: { role: Message['role'], content: string }) => {
     console.log('Appending message:', message)
     const result = await append(message)
     return result
