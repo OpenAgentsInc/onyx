@@ -4,15 +4,7 @@ import { StyleSheet, View } from "react-native"
 import * as THREE from "three"
 import { isEmulator } from "@/utils/isEmulator"
 import { useIsFocused } from "@react-navigation/native"
-
-interface MinimalCanvas {
-  width: number
-  height: number
-  clientHeight: number
-  style: Record<string, unknown>
-  addEventListener: () => void
-  removeEventListener: () => void
-}
+import { MinimalCanvas } from "@/types/canvas"
 
 export function Canvas() {
   const isFocused = useIsFocused();
@@ -137,6 +129,10 @@ export function Canvas() {
         addEventListener: () => {},
         removeEventListener: () => {},
         clientHeight: gl.drawingBufferHeight,
+        getContext: () => gl,
+        toDataURL: () => "",
+        toBlob: () => {},
+        captureStream: () => new MediaStream(),
       } as MinimalCanvas,
       context: gl,
     });
