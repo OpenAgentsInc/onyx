@@ -4,7 +4,7 @@ export interface Message {
   id: string
   role: 'user' | 'assistant' | 'system' | 'data'
   content: string
-  createdAt?: Date | number
+  createdAt?: Date | number | string
 }
 
 export const MessageModel = types.model("Message", {
@@ -26,11 +26,11 @@ export const ChatStoreModel = types
     addMessage(message: Message) {
       const modelMessage = {
         ...message,
-        createdAt: message.createdAt || undefined
+        createdAt: message.createdAt ? new Date(message.createdAt) : undefined
       }
       store.messages.push(cast(modelMessage))
     },
-    setMessages(messages: Array<{ id: string; role: string; content: string; createdAt?: Date | number }>) {
+    setMessages(messages: Array<{ id: string; role: string; content: string; createdAt?: Date | number | string }>) {
       // Filter out any messages with invalid roles and cast them to the correct type
       const validMessages = messages
         .filter(msg => ['user', 'assistant', 'system', 'data'].includes(msg.role))
@@ -38,7 +38,7 @@ export const ChatStoreModel = types
           id: msg.id,
           role: msg.role,
           content: msg.content,
-          createdAt: msg.createdAt || undefined
+          createdAt: msg.createdAt ? new Date(msg.createdAt) : undefined
         }))
       
       // Create a new array with the properly typed messages
