@@ -1,12 +1,12 @@
-export interface MinimalCanvas extends HTMLCanvasElement {
+export interface MinimalCanvas {
   width: number
   height: number
   clientHeight: number
   style: Record<string, unknown>
   addEventListener: () => void
   removeEventListener: () => void
-  getContext(contextId: string): RenderingContext | null
-  toDataURL(type?: string, quality?: any): string
-  toBlob(callback: BlobCallback, type?: string, quality?: any): void
+  getContext(contextId: string): any
+  toDataURL(type?: string): string
+  toBlob(callback: BlobCallback): void
   captureStream(frameRate?: number): MediaStream
 }
