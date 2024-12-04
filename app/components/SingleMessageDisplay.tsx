@@ -1,5 +1,5 @@
 import { FC } from "react"
-import { View, ViewStyle } from "react-native"
+import { View, ViewStyle, Dimensions } from "react-native"
 import { Text } from "@/components"
 import { Message } from "@/models/ChatStore"
 import { TypewriterText } from "./TypewriterText"
@@ -10,9 +10,11 @@ interface SingleMessageDisplayProps {
 
 export const SingleMessageDisplay: FC<SingleMessageDisplayProps> = ({ message }) => {
   const isAssistant = message.role === 'assistant'
+  const windowHeight = Dimensions.get('window').height
+  const topPosition = Math.max(windowHeight * 0.3, 100) // At least 100px from top, or 30% of screen height
 
   return (
-    <View style={$container}>
+    <View style={[$container, { top: topPosition }]}>
       {isAssistant ? (
         <TypewriterText text={message.content} style={$messageText} />
       ) : (
@@ -24,14 +26,12 @@ export const SingleMessageDisplay: FC<SingleMessageDisplayProps> = ({ message })
 
 const $container: ViewStyle = {
   position: "absolute",
-  top: "48%", // Moved down from 45% to 48%
   left: 20,
   right: 20,
-  transform: [{ translateY: -50 }],
+  maxHeight: "60%", // Maximum height constraint
   backgroundColor: "rgba(0,0,0,0.3)",
   padding: 20,
   borderRadius: 8,
-  alignItems: "center",
 }
 
 const $messageText = {
