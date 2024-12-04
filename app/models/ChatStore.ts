@@ -1,4 +1,4 @@
-import { Instance, SnapshotIn, SnapshotOut, types, cast } from "mobx-state-tree"
+import { Instance, SnapshotIn, SnapshotOut, types, cast, IAnyModelType } from "mobx-state-tree"
 
 export interface Message {
   id: string
@@ -14,6 +14,8 @@ export const MessageModel = types.model("Message", {
   createdAt: types.maybe(types.union(types.Date, types.number)),
 })
 
+type MessageModelType = Instance<typeof MessageModel>
+
 export const ChatStoreModel = types
   .model("ChatStore")
   .props({
@@ -22,10 +24,11 @@ export const ChatStoreModel = types
   })
   .actions((store) => ({
     addMessage(message: Message) {
-      store.messages.push(cast({
+      const modelMessage = {
         ...message,
         createdAt: message.createdAt || undefined
-      }))
+      }
+      store.messages.push(cast(modelMessage))
     },
     setMessages(messages: Array<{ id: string; role: string; content: string; createdAt?: Date | number }>) {
       // Filter out any messages with invalid roles and cast them to the correct type
@@ -37,7 +40,13 @@ export const ChatStoreModel = types
           content: msg.content,
           createdAt: msg.createdAt || undefined
         }))
-      store.messages.replace(cast(validMessages))
+      
+      // Create a new array with the properly typed messages
+      const modelMessages: MessageModelType[] = validMessages.map(msg => 
+        MessageModel.create(msg)
+      )
+      
+      store.messages.replace(modelMessages)
     },
     clearMessages() {
       store.messages.clear()
