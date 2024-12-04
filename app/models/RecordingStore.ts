@@ -22,26 +22,20 @@ export const RecordingStoreModel = types
       store.setProp("recordingUri", null)
       store.setProp("transcription", null)
     },
-    setTranscription(text: string | null) {
-      store.setProp("transcription", text)
-    },
-    setIsTranscribing(value: boolean) {
-      store.setProp("isTranscribing", value)
-    },
     async transcribeRecording() {
       if (!store.recordingUri) return
 
       try {
-        store.setIsTranscribing(true)
+        store.setProp("isTranscribing", true)
         const text = await transcribeAudio(store.recordingUri)
-        store.setTranscription(text)
+        store.setProp("transcription", text)
         return text
       } catch (error) {
         console.error("Failed to transcribe:", error)
-        store.setTranscription(null)
+        store.setProp("transcription", null)
         return null
       } finally {
-        store.setIsTranscribing(false)
+        store.setProp("isTranscribing", false)
       }
     },
   }))
