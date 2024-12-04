@@ -1,16 +1,16 @@
-import { StackScreenProps, createStackNavigator } from "@react-navigation/stack"
+import { NativeStackScreenProps, createNativeStackNavigator } from "@react-navigation/native-stack"
 import { CommunityScreen } from "../screens"
 
 export type DemoTabParamList = {
   Community: undefined
 }
 
-export type DemoTabScreenProps<T extends keyof DemoTabParamList> = StackScreenProps<
+export type DemoTabScreenProps<T extends keyof DemoTabParamList> = NativeStackScreenProps<
   DemoTabParamList,
   T
 >
 
-const Stack = createStackNavigator<DemoTabParamList>()
+const Stack = createNativeStackNavigator<DemoTabParamList>()
 
 export function DemoNavigator() {
   return (
