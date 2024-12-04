@@ -1,6 +1,8 @@
 # ArcLib Integration
 
-[Previous content remains the same until Core Components section]
+## Overview
+
+ArcLib is a TypeScript utility library for interacting with ArcSpec trading chat channels and marketplace listings in the Nostr ecosystem. It provides essential functionality for the Onyx mobile app's trading and marketplace features.
 
 ## Core Components
 
@@ -152,4 +154,193 @@ async delete(event_id: string)
 - Message deletion
 - Event filtering
 
-[Rest of the document remains the same]
+### 4. NostrPool
+Located in `src/pool.ts`, provides relay connection management:
+
+```typescript
+export class NostrPool {
+  private pool: ReconnPool;
+  private lruSub: LRUCache<string, SubInfo>;
+  private filters: Map<string, SubInfo>;
+  
+  constructor(ident: ArcadeIdentity, db?: ArcadeDb, subopts: SubscriptionOptions = {}) {
+    this.pool = new ReconnPool();
+    this.lruSub = new LRUCache({ 
+      max: 3, 
+      dispose: (dat: SubInfo) => { dat.sub.unsub() } 
+    });
+    this.filters = new Map<string, SubInfo>();
+  }
+}
+```
+
+Key features:
+- Automatic reconnection handling
+- Subscription management with LRU caching
+- Filter-based event routing
+- Health monitoring
+- Load balancing
+
+### 5. EncChannel
+Located in `src/encchannel.ts`, provides encrypted group chat functionality:
+
+```typescript
+export class EncChannel {
+  public pool: NostrPool;
+  private _knownChannels: EncChannelInfo[] = [];
+
+  constructor(pool: NostrPool) {
+    this.pool = pool;
+  }
+}
+```
+
+Key features:
+1. **Channel Management**
+   - Create private channels with member lists
+   - Invite new members
+   - Update channel metadata
+   - List available channels
+
+2. **Message Security**
+   - Per-message temporary identities
+   - NIP-04 encryption
+   - Forward secrecy
+   - Access control via channel keys
+
+3. **Event Types**
+   - 99: Channel discovery
+   - 400: Channel creation/invitation
+   - 402: Encrypted messages
+   - 403: Metadata updates
+
+Usage example:
+```typescript
+// Create channel
+const channel = await encChannel.createPrivate(
+  { name: "OTC Trading", about: "Private OTC trades" },
+  [trader1_pubkey, trader2_pubkey]
+);
+
+// Send message
+await encChannel.send(
+  channel.id,
+  "Offer: 1 BTC @ $40,000",
+  undefined,
+  [["t", "trade"]]
+);
+
+// Subscribe to messages
+encChannel.sub(
+  channel,
+  (event) => {
+    console.log("New trade message:", event.content);
+  }
+);
+```
+
+## Storage Architecture
+
+### SQLite Integration
+Located in `src/db/base.ts`, implements persistent storage:
+
+```typescript
+export class ArcadeDb implements ArcadeDbInterface {
+  queue: Map<string, NostrEvent>;
+  timer: NodeJS.Timeout | null;
+  db: Database;
+
+  async open() {
+    if (!this.db) {
+      this.db = await open("arcade.1");
+      await this.db.execute(`
+        CREATE TABLE IF NOT EXISTS posts (
+          id STRING NOT NULL PRIMARY KEY,
+          content STRING,
+          kind INTEGER,
+          pubkey STRING,
+          sig STRING,
+          tags STRING,
+          p1 STRING,
+          e1 STRING,
+          created_at INTEGER,
+          verified BOOLEAN
+        );
+      `);
+    }
+  }
+}
+```
+
+Features:
+- Event queueing with batched writes
+- Efficient filtering and querying
+- Tag indexing (p1, e1)
+- Automatic schema creation
+- Transaction support
+
+### Event Caching
+The NostrPool implements a tiered caching system:
+
+1. In-Memory Queue
+```typescript
+queue: Map<string, NostrEvent>
+```
+- Buffers recent events
+- Batch writes every 500ms
+- Prevents duplicate processing
+
+2. LRU Subscription Cache
+```typescript
+lruSub: LRUCache<string, SubInfo>
+```
+- Caches active subscriptions
+- Maximum 3 concurrent subscriptions
+- Automatic cleanup of unused subscriptions
+
+## Security Considerations
+
+1. Key Management
+- Private keys never exposed
+- Secure storage implementation
+- Memory clearing after use
+- Key rotation support
+
+2. Authentication
+- NIP-42 compliance
+- Challenge verification
+- Timeout handling
+- Replay attack prevention
+
+3. Data Validation
+- Event signature verification
+- Timestamp validation
+- Relay authentication
+- Input sanitization
+
+## Performance
+
+- Bundle size limits:
+  - CJS: 10KB
+  - ESM: 10KB
+- Efficient event batching
+- Connection pooling
+- LRU caching
+- Optimized SQLite queries
+
+## Testing
+
+- Jest test environment
+- High coverage requirements:
+  - Functions: 84%
+  - Lines: 84%
+  - Statements: 84%
+  - Branches: 45%
+
+## Development
+
+- TypeScript for type safety
+- ESLint + Prettier for code quality
+- Husky for git hooks
+- Rollup for bundling
+- Development mode optimizations
