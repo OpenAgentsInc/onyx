@@ -17,7 +17,7 @@ export const WalletStoreModel = types
   .model("WalletStore")
   .props({
     isInitialized: types.optional(types.boolean, false),
-    error: types.maybe(types.string),
+    error: types.maybeNull(types.string),
     balanceSat: types.number,
     pendingSendSat: types.number,
     pendingReceiveSat: types.number,
@@ -41,7 +41,7 @@ export const WalletStoreModel = types
         yield store.fetchBalanceInfo()
       } catch (error) {
         console.error("Failed to initialize wallet:", error)
-        store.setError(error.message)
+        store.setError(error instanceof Error ? error.message : "Failed to initialize wallet")
       }
     }),
 
@@ -52,7 +52,7 @@ export const WalletStoreModel = types
         store.setError(null)
       } catch (error) {
         console.error("Failed to disconnect wallet:", error)
-        store.setError(error.message)
+        store.setError(error instanceof Error ? error.message : "Failed to disconnect wallet")
       }
     }),
 
@@ -65,7 +65,7 @@ export const WalletStoreModel = types
         store.setError(null)
       } catch (error) {
         console.error("Error fetching balance info:", error)
-        store.setError(error.message)
+        store.setError(error instanceof Error ? error.message : "Failed to fetch balance info")
       }
     }),
 
@@ -76,7 +76,7 @@ export const WalletStoreModel = types
         store.setError(null)
       } catch (error) {
         console.error("Error fetching transactions:", error)
-        store.setError(error.message)
+        store.setError(error instanceof Error ? error.message : "Failed to fetch transactions")
       }
     }),
 
@@ -89,7 +89,7 @@ export const WalletStoreModel = types
         return tx
       } catch (error) {
         console.error("Error sending payment:", error)
-        store.setError(error.message)
+        store.setError(error instanceof Error ? error.message : "Failed to send payment")
         throw error
       }
     }),
@@ -101,7 +101,7 @@ export const WalletStoreModel = types
         return bolt11
       } catch (error) {
         console.error("Error creating invoice:", error)
-        store.setError(error.message)
+        store.setError(error instanceof Error ? error.message : "Failed to create invoice")
         throw error
       }
     }),
