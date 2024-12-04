@@ -1,5 +1,5 @@
-import { FC, useEffect, useState } from "react"
-import { Text, TextStyle, Animated } from "react-native"
+import { FC, useEffect, useState, useRef } from "react"
+import { Text, TextStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 
 interface TypewriterTextProps {
@@ -14,27 +14,51 @@ export const TypewriterText: FC<TypewriterTextProps> = observer(function Typewri
   onComplete,
 }) {
   const [displayText, setDisplayText] = useState("")
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const fullTextRef = useRef("")
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    // Reset when text changes
-    setDisplayText("")
-    setCurrentIndex(0)
+    // Update the full text reference
+    fullTextRef.current = text
 
-    if (!text) return
-
-    const interval = setInterval(() => {
-      if (currentIndex < text.length) {
-        setDisplayText(prev => prev + text[currentIndex])
-        setCurrentIndex(prev => prev + 1)
-      } else {
-        clearInterval(interval)
-        onComplete?.()
+    // If we're getting a shorter text, reset everything
+    if (text.length < displayText.length) {
+      setDisplayText("")
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
       }
-    }, 50) // Adjust timing as needed
+    }
 
-    return () => clearInterval(interval)
-  }, [text, onComplete])
+    // Function to gradually reveal text
+    const revealText = () => {
+      setDisplayText(prev => {
+        // If we've shown everything, stop
+        if (prev.length >= fullTextRef.current.length) {
+          onComplete?.()
+          return prev
+        }
+
+        // Show next character
+        const nextText = fullTextRef.current.slice(0, prev.length + 1)
+        
+        // Schedule next update
+        timeoutRef.current = setTimeout(revealText, 50)
+        
+        return nextText
+      })
+    }
+
+    // If we have more text to show, schedule an update
+    if (displayText.length < fullTextRef.current.length) {
+      timeoutRef.current = setTimeout(revealText, 50)
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [text])
 
   return (
     <Text style={[style, { opacity: displayText ? 1 : 0 }]}>
