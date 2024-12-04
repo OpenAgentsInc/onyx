@@ -26,8 +26,12 @@ export const ChatStoreModel = types
       store.messages.clear()
     },
     toggleFullChat() {
+      console.log("Toggling chat visibility")
       store.showFullChat = !store.showFullChat
     },
+    setShowFullChat(value: boolean) {
+      store.showFullChat = value
+    }
   }))
 
 export interface ChatStore extends Instance<typeof ChatStoreModel> {}
