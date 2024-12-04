@@ -1,14 +1,40 @@
 import { observer } from "mobx-react-lite"
-import { FC } from "react"
+import { FC, useEffect, useState } from "react"
 import { ViewStyle, TextStyle, View, TouchableOpacity } from "react-native"
 import { Screen, Text } from "@/components"
 import { ProfileMenuScreenProps } from "@/navigators/ProfileMenuNavigator"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { nostrService } from "@/services/nostr/nostr.service"
+import { useBreez } from "@/providers/BreezProvider"
 
 interface ProfileScreenProps extends ProfileMenuScreenProps<"ProfileHome"> { }
 
 export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileScreen({ navigation }) {
   const { top } = useSafeAreaInsets()
+  const { sdk, isInitialized } = useBreez()
+  const [npub, setNpub] = useState<string>("Loading...")
+
+  useEffect(() => {
+    async function deriveNostrKeys() {
+      try {
+        if (!isInitialized || !sdk) return
+
+        // Get mnemonic from Breez SDK
+        const mnemonic = await sdk.mnemonicPhrase()
+        
+        // Derive Nostr keys
+        const keys = await nostrService.deriveKeys(mnemonic)
+        
+        // Update state with npub
+        setNpub(keys.npub)
+      } catch (error) {
+        console.error("Failed to derive Nostr keys:", error)
+        setNpub("Error loading npub")
+      }
+    }
+
+    deriveNostrKeys()
+  }, [isInitialized, sdk])
 
   const handlePressUpdater = () => {
     navigation.navigate("Updater")
@@ -32,7 +58,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
       <View style={$content}>
         <View style={$profileInfo}>
           <Text text="Nostr Public Key" style={$labelText} />
-          <Text text="npub1..." style={$valueText} />
+          <Text text={npub} style={$valueText} numberOfLines={1} ellipsizeMode="middle" />
         </View>
 
         <View style={$menuContainer}>
