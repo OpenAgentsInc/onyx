@@ -71,8 +71,12 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
 
   return (
     <ThemeProvider value={{ themeScheme, setThemeContextOverride }}>
-      <NavigationContainer<AppStackParamList>
-        ref={navigationRef}
+      <NavigationContainer
+        ref={(ref) => {
+          if (navigationRef.current !== ref) {
+            (navigationRef as any).current = ref;
+          }
+        }}
         theme={navigationTheme}
         {...props}
       >
