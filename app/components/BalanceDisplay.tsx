@@ -4,22 +4,23 @@ import { Text } from "./Text"
 import { useStores } from "../models"
 import { useBreez } from "../providers/BreezProvider"
 import { observer } from "mobx-react-lite"
+import { getInfo } from '@breeztech/react-native-breez-sdk-liquid'
 
 export const BalanceDisplay = observer(function BalanceDisplay() {
   const {
     walletStore: { balanceSat, pendingSendSat, pendingReceiveSat, setBalance, setPendingSend, setPendingReceive },
   } = useStores()
-  const { sdk, isInitialized } = useBreez()
+  const { isInitialized } = useBreez()
 
   useEffect(() => {
     async function updateBalance() {
-      if (!isInitialized || !sdk) return
+      if (!isInitialized) return
 
       try {
-        const info = await sdk.nodeInfo()
-        setBalance(info.channelsBalanceMsat / 1000) // Convert from millisats to sats
-        setPendingSend(info.onchainBalanceMsat / 1000)
-        setPendingReceive(info.pendingBalanceMsat / 1000)
+        const info = await getInfo()
+        setBalance(info.balanceSat)
+        setPendingSend(info.pendingSendSat)
+        setPendingReceive(info.pendingReceiveSat)
       } catch (error) {
         console.error("Error fetching balance:", error)
       }
@@ -30,7 +31,7 @@ export const BalanceDisplay = observer(function BalanceDisplay() {
     const interval = setInterval(updateBalance, 30000) // Every 30 seconds
 
     return () => clearInterval(interval)
-  }, [isInitialized, sdk, setBalance, setPendingSend, setPendingReceive])
+  }, [isInitialized, setBalance, setPendingSend, setPendingReceive])
 
   return (
     <View style={styles.container}>
