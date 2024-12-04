@@ -9,7 +9,6 @@ export const RecordingStoreModel = types
     recordingUri: types.maybeNull(types.string),
     transcription: types.maybeNull(types.string),
     isTranscribing: false,
-    showTranscription: false,
   })
   .actions(withSetPropAction)
   .actions((store) => ({
@@ -29,9 +28,6 @@ export const RecordingStoreModel = types
     setIsTranscribing(value: boolean) {
       store.setProp("isTranscribing", value)
     },
-    setShowTranscription(value: boolean) {
-      store.setProp("showTranscription", value)
-    },
     async transcribeRecording() {
       if (!store.recordingUri) return
 
@@ -39,10 +35,11 @@ export const RecordingStoreModel = types
         store.setIsTranscribing(true)
         const text = await transcribeAudio(store.recordingUri)
         store.setTranscription(text)
-        store.setShowTranscription(true)
+        return text
       } catch (error) {
         console.error("Failed to transcribe:", error)
         store.setTranscription(null)
+        return null
       } finally {
         store.setIsTranscribing(false)
       }

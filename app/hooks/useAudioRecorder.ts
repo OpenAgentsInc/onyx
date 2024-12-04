@@ -1,14 +1,14 @@
-import { Audio } from 'expo-av'
-import { useEffect, useRef } from 'react'
-import { Alert } from 'react-native'
-import { useStores } from '../models'
+import { Audio } from "expo-av"
+import { useEffect, useRef } from "react"
+import { Alert } from "react-native"
+import { useStores } from "../models"
+import { useSharedChat } from "./useSharedChat"
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
-  // Use ref to persist recording instance between renders
+  const { append } = useSharedChat()
   const recordingRef = useRef<Audio.Recording | null>(null)
 
-  // Reset recording state on mount and cleanup
   useEffect(() => {
     const cleanup = async () => {
       if (recordingRef.current) {
@@ -23,10 +23,8 @@ export function useAudioRecorder() {
       recordingStore.setRecordingUri(null)
     }
 
-    // Reset state when component mounts
     cleanup()
 
-    // Cleanup function for unmount
     return () => {
       cleanup()
     }
@@ -34,13 +32,11 @@ export function useAudioRecorder() {
 
   const startRecording = async () => {
     try {
-      // Safety check - ensure no existing recording
       if (recordingRef.current) {
         console.log('Existing recording found, stopping first...')
         await stopRecording()
       }
 
-      // Request permissions
       const permission = await Audio.requestPermissionsAsync()
       if (permission.status !== 'granted') {
         Alert.alert('Permission required', 'Please grant microphone access to record audio.')
@@ -48,18 +44,16 @@ export function useAudioRecorder() {
         return
       }
 
-      // Set audio mode
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
       })
 
-      // Start recording
       const newRecording = new Audio.Recording()
       await newRecording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY)
       recordingRef.current = newRecording
       await newRecording.startAsync()
-      
+
       recordingStore.setIsRecording(true)
       console.log('Started recording')
     } catch (err) {
@@ -82,19 +76,33 @@ export function useAudioRecorder() {
       await recordingRef.current.stopAndUnloadAsync()
       const uri = recordingRef.current.getURI()
       console.log('Recording stopped, uri:', uri)
-      
+
       recordingStore.setRecordingUri(uri)
       recordingRef.current = null
       recordingStore.setIsRecording(false)
 
-      // Reset audio mode
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         playsInSilentModeIOS: false,
       })
 
-      // TODO: Send recording to server
-      console.log('Would send recording to server here')
+      try {
+        recordingStore.setIsTranscribing(true)
+        const transcription = await recordingStore.transcribeRecording()
+        if (transcription) {
+          // Use append from shared hook
+          console.log("Appending transcription:", transcription)
+          await append({
+            role: 'user',
+            content: transcription,
+          })
+        }
+      } catch (err) {
+        console.error('Failed to process recording:', err)
+        Alert.alert('Error', 'Failed to process recording')
+      } finally {
+        recordingStore.setIsTranscribing(false)
+      }
 
       return uri
     } catch (err) {
