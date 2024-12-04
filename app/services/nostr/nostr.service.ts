@@ -1,4 +1,4 @@
-import { generateMnemonic, mnemonicToSeedSync } from 'bip39'
+import { mnemonicToSeedSync } from 'bip39'
 import { fromSeed } from 'bip32'
 import { schnorr } from '@noble/secp256k1'
 import { bech32 } from 'bech32'
@@ -22,14 +22,13 @@ export class NostrService {
   }
 
   /**
-   * Generate new Nostr keys from BIP39 mnemonic
+   * Derive Nostr keys from Breez SDK mnemonic
    */
-  async generateKeys(mnemonic?: string): Promise<NostrKeys> {
-    // Generate or use provided mnemonic
-    const seedPhrase = mnemonic || generateMnemonic()
+  async deriveKeys(breezMnemonic: string): Promise<NostrKeys> {
+    if (!breezMnemonic) throw new Error('Breez mnemonic is required')
     
     // Convert mnemonic to seed
-    const seed = mnemonicToSeedSync(seedPhrase)
+    const seed = mnemonicToSeedSync(breezMnemonic)
     
     // Derive private key using BIP32
     const node = fromSeed(seed)
