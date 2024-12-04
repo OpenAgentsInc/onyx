@@ -1,26 +1,29 @@
 import { observer } from "mobx-react-lite"
 import { FC, useEffect, useState } from "react"
-import { ViewStyle, TextStyle, View, TouchableOpacity } from "react-native"
+import { ViewStyle, TextStyle, View, TouchableOpacity, ActivityIndicator } from "react-native"
 import { Screen, Text } from "@/components"
 import { ProfileMenuScreenProps } from "@/navigators/ProfileMenuNavigator"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { nostrService } from "@/services/nostr/nostr.service"
-import { useBreez } from "@/providers/BreezProvider"
+import { useStores } from "@/models"
+import { breezService } from "@/services/breez"
 
 interface ProfileScreenProps extends ProfileMenuScreenProps<"ProfileHome"> { }
 
 export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileScreen({ navigation }) {
   const { top } = useSafeAreaInsets()
-  const { sdk, isInitialized } = useBreez()
+  const { walletStore } = useStores()
+  const { isInitialized } = walletStore
   const [npub, setNpub] = useState<string>("Loading...")
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function deriveNostrKeys() {
       try {
-        if (!isInitialized || !sdk) return
+        if (!isInitialized) return
 
-        // Get mnemonic from Breez SDK
-        const mnemonic = await sdk.mnemonicPhrase()
+        // Get mnemonic from Breez service
+        const mnemonic = await breezService.getMnemonic()
         
         // Derive Nostr keys
         const keys = await nostrService.deriveKeys(mnemonic)
@@ -30,14 +33,26 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
       } catch (error) {
         console.error("Failed to derive Nostr keys:", error)
         setNpub("Error loading npub")
+      } finally {
+        setIsLoading(false)
       }
     }
 
     deriveNostrKeys()
-  }, [isInitialized, sdk])
+  }, [isInitialized])
 
   const handlePressUpdater = () => {
     navigation.navigate("Updater")
+  }
+
+  const handlePressDisconnect = async () => {
+    try {
+      await walletStore.disconnect()
+      // You might want to navigate somewhere or show a success message
+    } catch (error) {
+      console.error("Failed to disconnect wallet:", error)
+      // Handle error (show error message, etc.)
+    }
   }
 
   return (
@@ -58,15 +73,32 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
       <View style={$content}>
         <View style={$profileInfo}>
           <Text text="Nostr Public Key" style={$labelText} />
-          <Text text={npub} style={$valueText} numberOfLines={1} ellipsizeMode="middle" />
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#888" />
+          ) : (
+            <Text text={npub} style={$valueText} numberOfLines={1} ellipsizeMode="middle" />
+          )}
         </View>
 
         <View style={$menuContainer}>
           <TouchableOpacity style={$menuButton} onPress={handlePressUpdater}>
             <Text text="App Updates" style={$menuButtonText} />
           </TouchableOpacity>
-          
-          {/* Add more menu buttons here as needed */}
+
+          <TouchableOpacity 
+            style={[$menuButton, $dangerButton]} 
+            onPress={handlePressDisconnect}
+          >
+            <Text text="Disconnect Wallet" style={$menuButtonText} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={$infoContainer}>
+          <Text text="Wallet Status" style={$labelText} />
+          <Text 
+            text={isInitialized ? "Connected" : "Disconnected"} 
+            style={[$valueText, isInitialized ? $successText : $errorText]} 
+          />
         </View>
       </View>
     </Screen>
@@ -75,7 +107,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
 
 const $root: ViewStyle = {
   flex: 1,
-  backgroundColor: 'black',
+  backgroundColor: "black",
 }
 
 const $contentContainer: ViewStyle = {
@@ -83,7 +115,7 @@ const $contentContainer: ViewStyle = {
 }
 
 const $headerContainer: ViewStyle = {
-  backgroundColor: 'black',
+  backgroundColor: "black",
   borderBottomWidth: 1,
   borderBottomColor: "#333",
 }
@@ -97,11 +129,12 @@ const $header: ViewStyle = {
 }
 
 const $headerText: TextStyle = {
-  color: 'white',
+  color: "white",
   fontSize: 18,
   fontWeight: "600",
   flex: 1,
   textAlign: "center",
+  fontFamily: "SpaceGrotesk-Bold",
 }
 
 const $content: ViewStyle = {
@@ -112,19 +145,21 @@ const $content: ViewStyle = {
 const $profileInfo: ViewStyle = {
   marginBottom: 24,
   borderBottomWidth: 1,
-  borderBottomColor: '#333',
+  borderBottomColor: "#333",
   paddingBottom: 16,
 }
 
 const $labelText: TextStyle = {
-  color: '#888',
+  color: "#888",
   fontSize: 14,
   marginBottom: 4,
+  fontFamily: "SpaceGrotesk-Regular",
 }
 
 const $valueText: TextStyle = {
-  color: 'white',
+  color: "white",
   fontSize: 16,
+  fontFamily: "SpaceGrotesk-Medium",
 }
 
 const $menuContainer: ViewStyle = {
@@ -132,18 +167,38 @@ const $menuContainer: ViewStyle = {
 }
 
 const $menuButton: ViewStyle = {
-  backgroundColor: '#222',
+  backgroundColor: "#222",
   padding: 16,
   borderRadius: 8,
   marginBottom: 12,
 }
 
+const $dangerButton: ViewStyle = {
+  backgroundColor: "#442222",
+}
+
 const $menuButtonText: TextStyle = {
-  color: 'white',
+  color: "white",
   fontSize: 16,
-  textAlign: 'left',
+  textAlign: "left",
+  fontFamily: "SpaceGrotesk-Medium",
 }
 
 const $placeholder: ViewStyle = {
   width: 40,
+}
+
+const $infoContainer: ViewStyle = {
+  marginTop: 24,
+  padding: 16,
+  backgroundColor: "#111",
+  borderRadius: 8,
+}
+
+const $successText: TextStyle = {
+  color: "#44ff44",
+}
+
+const $errorText: TextStyle = {
+  color: "#ff4444",
 }
