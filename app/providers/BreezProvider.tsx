@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { defaultConfig, connect, disconnect, LiquidNetwork } from '@breeztech/react-native-breez-sdk-liquid';
+import { defaultConfig, connect, disconnect, LiquidNetwork, getInfo } from '@breeztech/react-native-breez-sdk-liquid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 import { Buffer } from 'buffer';
@@ -14,6 +14,12 @@ interface BreezContextType {
   debugInfo: Record<string, any>;
   sdk: any;
   mnemonic: string | null;
+  balanceInfo: {
+    balanceSat: number;
+    pendingSendSat: number;
+    pendingReceiveSat: number;
+  } | null;
+  fetchBalanceInfo: () => Promise<void>;
 }
 
 const BreezContext = createContext<BreezContextType>({
@@ -23,6 +29,8 @@ const BreezContext = createContext<BreezContextType>({
   debugInfo: {},
   sdk: null,
   mnemonic: null,
+  balanceInfo: null,
+  fetchBalanceInfo: async () => {},
 });
 
 export const useBreez = () => useContext(BreezContext);
@@ -44,10 +52,43 @@ export const BreezProvider: React.FC<BreezProviderProps> = ({ children }) => {
   const [debugInfo, setDebugInfo] = useState<Record<string, any>>({});
   const [sdk, setSdk] = useState<any>(null);
   const [mnemonic, setMnemonic] = useState<string | null>(null);
+  const [balanceInfo, setBalanceInfo] = useState<{
+    balanceSat: number;
+    pendingSendSat: number;
+    pendingReceiveSat: number;
+  } | null>(null);
 
   useEffect(() => {
     initializeBreez();
   }, []);
+
+  const fetchBalanceInfo = async () => {
+    try {
+      if (!isInitialized) {
+        console.log('SDK not initialized, cannot fetch balance');
+        return;
+      }
+
+      const info = await getInfo();
+      setBalanceInfo({
+        balanceSat: info.balanceSat,
+        pendingSendSat: info.pendingSendSat,
+        pendingReceiveSat: info.pendingReceiveSat,
+      });
+    } catch (err) {
+      console.error('Error fetching balance:', err);
+      setError(err instanceof Error ? err : new Error('Failed to fetch balance info'));
+    }
+  };
+
+  useEffect(() => {
+    if (isInitialized) {
+      fetchBalanceInfo();
+      // Set up periodic balance updates
+      const interval = setInterval(fetchBalanceInfo, 30000); // Update every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isInitialized]);
 
   const initializeBreez = async () => {
     try {
@@ -123,6 +164,7 @@ export const BreezProvider: React.FC<BreezProviderProps> = ({ children }) => {
       await disconnect();
       setIsInitialized(false);
       setSdk(null);
+      setBalanceInfo(null);
     } catch (err) {
       const error = err as Error;
       setError(error instanceof Error ? error : new Error('Failed to disconnect Breez SDK'));
@@ -136,6 +178,8 @@ export const BreezProvider: React.FC<BreezProviderProps> = ({ children }) => {
     debugInfo,
     sdk,
     mnemonic,
+    balanceInfo,
+    fetchBalanceInfo,
   };
 
   return (
