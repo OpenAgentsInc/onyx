@@ -38,6 +38,8 @@ export const WalletStoreModel = types
         })
         store.setProp("isInitialized", true)
         store.setError(null)
+        
+        // Now that we're initialized, fetch the initial balance
         yield store.fetchBalanceInfo()
       } catch (error) {
         console.error("Failed to initialize wallet:", error)
@@ -57,6 +59,12 @@ export const WalletStoreModel = types
     }),
 
     fetchBalanceInfo: flow(function* () {
+      // Don't try to fetch if we're not initialized
+      if (!breezService.isInitialized()) {
+        console.log("Skipping balance fetch - not initialized yet")
+        return
+      }
+
       try {
         const info = yield breezService.getBalance()
         store.setProp("balanceSat", info.balanceSat)
@@ -70,6 +78,12 @@ export const WalletStoreModel = types
     }),
 
     fetchTransactions: flow(function* () {
+      // Don't try to fetch if we're not initialized
+      if (!breezService.isInitialized()) {
+        console.log("Skipping transactions fetch - not initialized yet")
+        return
+      }
+
       try {
         const txs = yield breezService.getTransactions()
         store.setProp("transactions", txs)
@@ -81,6 +95,10 @@ export const WalletStoreModel = types
     }),
 
     sendPayment: flow(function* (bolt11: string, amount: number) {
+      if (!breezService.isInitialized()) {
+        throw new Error("Wallet not initialized")
+      }
+
       try {
         const tx = yield breezService.sendPayment(bolt11, amount)
         store.transactions.push(tx)
@@ -95,6 +113,10 @@ export const WalletStoreModel = types
     }),
 
     receivePayment: flow(function* (amount: number, description?: string) {
+      if (!breezService.isInitialized()) {
+        throw new Error("Wallet not initialized")
+      }
+
       try {
         const bolt11 = yield breezService.receivePayment(amount, description)
         store.setError(null)
