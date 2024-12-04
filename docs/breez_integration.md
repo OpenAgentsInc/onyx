@@ -4,36 +4,23 @@
 
 This document describes the integration of the Breez SDK into the Onyx mobile app, providing Lightning Network payment capabilities through a self-custodial solution.
 
-## Components
+## Architecture
 
-### 1. BreezProvider (`app/providers/BreezProvider.tsx`)
+### 1. Breez Service (`app/services/breez/`)
 
-Manages the Breez SDK lifecycle and provides global access to the SDK instance and wallet information.
+Core service layer that handles direct interaction with the Breez SDK.
 
-```typescript
-import { useBreez } from '@/providers/BreezProvider'
+#### Files:
+- `types.ts` - Type definitions
+- `breezService.ts` - Core SDK functionality
+- `index.ts` - Export file
 
-function MyComponent() {
-  const { 
-    sdk, 
-    isInitialized, 
-    error,
-    balanceInfo,
-    fetchBalanceInfo 
-  } = useBreez()
-  
-  // Access balance information
-  const { balanceSat, pendingSendSat, pendingReceiveSat } = balanceInfo || {};
-}
-```
-
-Key features:
-- Automatic SDK initialization
-- Mnemonic generation and management
+#### Key Features:
+- SDK initialization and configuration
+- Mnemonic management
 - Working directory setup
-- Connection state management
-- Balance tracking and auto-updates
-- Error handling
+- Balance and transaction handling
+- Payment operations
 
 ### 2. WalletStore (`app/models/WalletStore.ts`)
 
@@ -44,104 +31,70 @@ import { useStores } from '@/models'
 
 function MyComponent() {
   const { walletStore } = useStores()
-  const { balanceSat, pendingSendSat, pendingReceiveSat } = walletStore
+  const { balanceSat, isInitialized, error } = walletStore
 }
 ```
 
-Properties:
-- `balanceSat`: Current balance in satoshis
-- `pendingSendSat`: Pending outgoing transactions
-- `pendingReceiveSat`: Pending incoming transactions
-- `transactions`: Transaction history
+#### Properties:
+- `isInitialized`: boolean
+- `error`: string | null
+- `balanceSat`: number
+- `pendingSendSat`: number
+- `pendingReceiveSat`: number
+- `transactions`: Transaction[]
 
-Actions:
-- `setBalance(balance: number)`
-- `setPendingSend(amount: number)`
-- `setPendingReceive(amount: number)`
-- `setTransactions(txs: any[])`
+#### Actions:
+- `initialize()`
+- `disconnect()`
 - `fetchBalanceInfo()`
+- `fetchTransactions()`
+- `sendPayment(bolt11: string, amount: number)`
+- `receivePayment(amount: number, description?: string)`
 
-### 3. BalanceDisplay (`app/components/BalanceDisplay.tsx`)
+#### Views:
+- `totalBalance`
+- `hasPendingTransactions`
+- `recentTransactions`
+- `pendingTransactions`
 
-React component for displaying wallet balance information.
+### 3. Components
 
-Features:
-- Real-time balance updates
-- Pending transaction indicators
-- Auto-refresh every 30 seconds
-- Error handling
+#### BalanceDisplay (`app/components/BalanceDisplay.tsx`)
+- Shows current balance
+- Displays pending transactions
+- Auto-updates every 30 seconds
+- Handles loading and error states
 
-### 4. WalletScreen (`app/screens/WalletScreen.tsx`)
-
-Main wallet interface screen.
-
-Features:
-- Balance display
-- Loading state handling
-- Error state handling
-
-## Installation
-
-1. Install required packages:
-```bash
-yarn add @breeztech/react-native-breez-sdk-liquid @react-native-async-storage/async-storage expo-file-system expo-crypto buffer bip39
-```
-
-2. Add BreezProvider to app.tsx:
-```typescript
-import { BreezProvider } from '@/providers/BreezProvider'
-
-function App() {
-  return (
-    <SafeAreaProvider>
-      <ErrorBoundary>
-        <KeyboardProvider>
-          <BreezProvider>
-            <AppNavigator />
-          </BreezProvider>
-        </KeyboardProvider>
-      </ErrorBoundary>
-    </SafeAreaProvider>
-  )
-}
-```
+#### WalletScreen (`app/screens/WalletScreen.tsx`)
+- Main wallet interface
+- Transaction history
+- Send/receive functionality
 
 ## Implementation Details
 
 ### Initialization Flow
 
-1. BreezProvider mounts
-2. Checks for existing mnemonic
-3. Generates new mnemonic if needed
-4. Sets up working directory
-5. Initializes Breez SDK
-6. Makes SDK instance available via context
+1. App starts
+2. WalletStore initializes
+3. Breez service configures working directory
+4. Checks for existing mnemonic
+5. Generates new mnemonic if needed
+6. Initializes SDK
 7. Starts balance auto-update cycle
 
 ### Balance Updates
 
 1. Initial fetch on SDK initialization
 2. Automatic updates every 30 seconds
-3. Manual refresh available via fetchBalanceInfo()
-4. Updates stored in balanceInfo state
-5. Error handling for failed updates
+3. Manual refresh available
+4. Updates stored in WalletStore
 
-### Using getInfo() for Balance
+### Transaction Management
 
-The SDK uses getInfo() to fetch balance information:
-
-```typescript
-import { getInfo } from '@breeztech/react-native-breez-sdk-liquid';
-
-const fetchBalanceInfo = async () => {
-  const info = await getInfo();
-  return {
-    balanceSat: info.balanceSat,
-    pendingSendSat: info.pendingSendSat,
-    pendingReceiveSat: info.pendingReceiveSat,
-  };
-};
-```
+1. Transactions stored in WalletStore
+2. Automatic updates with balance checks
+3. Persistent storage
+4. Status tracking (pending/complete)
 
 ### Error Handling
 
@@ -151,7 +104,7 @@ The integration includes error handling for:
 - Invalid mnemonic
 - Working directory problems
 - Balance fetch failures
-- Auto-update cycle issues
+- Transaction failures
 
 ## Security Considerations
 
@@ -172,6 +125,43 @@ The integration includes error handling for:
 - API key stored securely
 - No sensitive data in logs
 
+## Usage Examples
+
+### Sending a Payment
+
+```typescript
+const { walletStore } = useStores()
+
+try {
+  await walletStore.sendPayment(bolt11, amount)
+} catch (error) {
+  console.error('Payment failed:', error)
+}
+```
+
+### Receiving a Payment
+
+```typescript
+const { walletStore } = useStores()
+
+try {
+  const invoice = await walletStore.receivePayment(amount, 'Payment description')
+  // Use invoice.bolt11 for QR code or sharing
+} catch (error) {
+  console.error('Failed to create invoice:', error)
+}
+```
+
+### Checking Balance
+
+```typescript
+const { walletStore } = useStores()
+const { balanceSat, pendingSendSat, pendingReceiveSat } = walletStore
+
+// Force refresh
+await walletStore.fetchBalanceInfo()
+```
+
 ## Testing
 
 ### Manual Testing Steps
@@ -180,9 +170,9 @@ The integration includes error handling for:
 3. Navigate to WalletScreen
 4. Verify initialization
 5. Check balance display
-6. Test error states
+6. Test transactions
 7. Verify auto-updates
-8. Test manual refresh
+8. Test error states
 
 ### Common Issues
 
@@ -195,26 +185,23 @@ The integration includes error handling for:
    - Verify SDK connection
    - Check update interval
    - Review error logs
-   - Confirm getInfo() availability
 
 ## Future Improvements
 
 1. UI/UX Enhancements
-   - Transaction history view
-   - QR code generation/scanning
-   - Send/receive screens
+   - Enhanced transaction history
+   - Advanced filtering options
    - Fiat conversion display
+   - QR code scanning
 
 2. Technical Improvements
    - Offline support
-   - Background balance updates
+   - Background updates
    - Enhanced error reporting
    - Automated backups
-   - Multi-device sync
 
 3. Security Enhancements
    - Biometric authentication
-   - Transaction signing confirmation
    - Enhanced key storage
    - Backup encryption
 
