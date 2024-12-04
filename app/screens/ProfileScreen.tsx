@@ -1,13 +1,16 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { ViewStyle, TextStyle } from "react-native"
+import { ViewStyle, TextStyle, View, TouchableOpacity } from "react-native"
 import { Screen, Text } from "@/components"
-import { MainTabScreenProps } from "@/navigators"
-import { Updater } from "@/components/Updater"
+import { ProfileMenuScreenProps } from "@/navigators/ProfileMenuNavigator"
 
-interface ProfileScreenProps extends MainTabScreenProps<"Profile"> { }
+interface ProfileScreenProps extends ProfileMenuScreenProps<"ProfileHome"> { }
 
-export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileScreen() {
+export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileScreen({ navigation }) {
+  const handlePressUpdater = () => {
+    navigation.navigate("Updater")
+  }
+
   return (
     <Screen
       style={$root}
@@ -15,7 +18,19 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
       preset="scroll"
     >
       <Text text="Profile" style={$headerText} />
-      <Updater />
+      
+      <View style={$profileInfo}>
+        <Text text="Nostr Public Key" style={$labelText} />
+        <Text text="npub1..." style={$valueText} />
+      </View>
+
+      <View style={$menuContainer}>
+        <TouchableOpacity style={$menuButton} onPress={handlePressUpdater}>
+          <Text text="App Updates" style={$menuButtonText} />
+        </TouchableOpacity>
+        
+        {/* Add more menu buttons here as needed */}
+      </View>
     </Screen>
   )
 })
@@ -34,4 +49,39 @@ const $headerText: TextStyle = {
   fontSize: 24,
   textAlign: 'center',
   marginVertical: 16,
+}
+
+const $profileInfo: ViewStyle = {
+  padding: 16,
+  marginBottom: 24,
+  borderBottomWidth: 1,
+  borderBottomColor: '#333',
+}
+
+const $labelText: TextStyle = {
+  color: '#888',
+  fontSize: 14,
+  marginBottom: 4,
+}
+
+const $valueText: TextStyle = {
+  color: 'white',
+  fontSize: 16,
+}
+
+const $menuContainer: ViewStyle = {
+  padding: 16,
+}
+
+const $menuButton: ViewStyle = {
+  backgroundColor: '#222',
+  padding: 16,
+  borderRadius: 8,
+  marginBottom: 12,
+}
+
+const $menuButtonText: TextStyle = {
+  color: 'white',
+  fontSize: 16,
+  textAlign: 'left',
 }
