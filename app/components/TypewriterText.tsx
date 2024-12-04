@@ -1,6 +1,7 @@
 import { FC, useEffect, useState, useRef } from "react"
 import { Text, TextStyle } from "react-native"
 import { observer } from "mobx-react-lite"
+import { typography } from "@/theme/typography"
 
 interface TypewriterTextProps {
   text: string
@@ -42,7 +43,7 @@ export const TypewriterText: FC<TypewriterTextProps> = observer(function Typewri
         const nextText = fullTextRef.current.slice(0, prev.length + 1)
         
         // Schedule next update
-        timeoutRef.current = setTimeout(revealText, 50)
+        timeoutRef.current = setTimeout(revealText, 25) // Reduced from 50ms to 25ms
         
         return nextText
       })
@@ -50,7 +51,7 @@ export const TypewriterText: FC<TypewriterTextProps> = observer(function Typewri
 
     // If we have more text to show, schedule an update
     if (displayText.length < fullTextRef.current.length) {
-      timeoutRef.current = setTimeout(revealText, 50)
+      timeoutRef.current = setTimeout(revealText, 25) // Reduced from 50ms to 25ms
     }
 
     return () => {
@@ -61,7 +62,15 @@ export const TypewriterText: FC<TypewriterTextProps> = observer(function Typewri
   }, [text])
 
   return (
-    <Text style={[style, { opacity: displayText ? 1 : 0 }]}>
+    <Text 
+      style={[
+        { 
+          opacity: displayText ? 1 : 0,
+          fontFamily: typography.primary.normal,
+        },
+        style,
+      ]}
+    >
       {displayText}
     </Text>
   )
