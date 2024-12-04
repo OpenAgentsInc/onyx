@@ -24,7 +24,7 @@ class BreezServiceImpl implements BreezService {
     }
 
     // If already initialized, return immediately
-    if (this.isInitializedFlag) {
+    if (this.isInitializedFlag && this.sdk) {
       return Promise.resolve()
     }
 
@@ -73,8 +73,16 @@ class BreezServiceImpl implements BreezService {
         
         sdkConfig.workingDir = workingDir
 
-        this.sdk = await connect({ mnemonic: currentMnemonic, config: sdkConfig })
+        // Connect to the SDK and store the instance
+        this.sdk = await connect({ 
+          mnemonic: currentMnemonic, 
+          config: sdkConfig 
+        })
+
+        // Only set initialized after successful connect
         this.isInitializedFlag = true
+
+        console.log('Breez SDK initialized successfully')
       } catch (err) {
         console.error('Breez initialization error:', err)
         this.isInitializedFlag = false
@@ -190,7 +198,7 @@ class BreezServiceImpl implements BreezService {
   }
 
   isInitialized(): boolean {
-    return this.isInitializedFlag
+    return this.isInitializedFlag && this.sdk !== null
   }
 }
 
