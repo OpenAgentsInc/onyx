@@ -2,22 +2,29 @@ import { FC } from "react"
 import { View, ViewStyle } from "react-native"
 import { Text } from "@/components"
 import { Message } from "@/models/ChatStore"
+import { TypewriterText } from "./TypewriterText"
 
 interface SingleMessageDisplayProps {
   message: Message
 }
 
 export const SingleMessageDisplay: FC<SingleMessageDisplayProps> = ({ message }) => {
+  const isAssistant = message.role === 'assistant'
+
   return (
     <View style={$container}>
-      <Text style={$messageText}>{message.content}</Text>
+      {isAssistant ? (
+        <TypewriterText text={message.content} style={$messageText} />
+      ) : (
+        <Text style={$messageText}>{message.content}</Text>
+      )}
     </View>
   )
 }
 
 const $container: ViewStyle = {
   position: "absolute",
-  top: "50%",
+  top: "45%", // Moved up by adjusting from 50% to 45%
   left: 20,
   right: 20,
   transform: [{ translateY: -50 }],
