@@ -4,12 +4,14 @@ export interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
+  createdAt?: Date | number
 }
 
 export const MessageModel = types.model("Message", {
   id: types.identifier,
   role: types.enumeration('Role', ['user', 'assistant']),
   content: types.string,
+  createdAt: types.maybe(types.Date),
 })
 
 export const ChatStoreModel = types
