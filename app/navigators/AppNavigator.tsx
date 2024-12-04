@@ -6,6 +6,7 @@ import {
   NavigationContainer,
   NavigationContainerRef,
   NavigatorScreenParams,
+  ParamListBase,
 } from "@react-navigation/native"
 import {
   createNativeStackNavigator,
@@ -71,7 +72,7 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
   return (
     <ThemeProvider value={{ themeScheme, setThemeContextOverride }}>
       <NavigationContainer
-        ref={navigationRef as React.RefObject<NavigationContainerRef<AppStackParamList>>}
+        ref={navigationRef}
         theme={navigationTheme}
         {...props}
       >
