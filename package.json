@@ -41,6 +41,8 @@
     "@expo-google-fonts/jetbrains-mono": "0.2.3",
     "@expo-google-fonts/space-grotesk": "0.2.3",
     "@expo/metro-runtime": "~4.0.0",
+    "@noble/curves": "^1.7.0",
+    "@noble/hashes": "^1.6.1",
     "@noble/secp256k1": "^2.1.0",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/bottom-tabs": "7.1.3",
@@ -87,6 +89,7 @@
     "react-native-screens": "~4.1.0",
     "react-native-web": "~0.19.6",
     "three": "^0.171.0",
+    "tiny-secp256k1": "^2.2.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
