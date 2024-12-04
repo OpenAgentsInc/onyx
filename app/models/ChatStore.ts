@@ -2,16 +2,16 @@ import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 
 export interface Message {
   id: string
-  role: 'user' | 'assistant'
+  role: 'user' | 'assistant' | 'system' | 'data'
   content: string
   createdAt?: Date | number
 }
 
 export const MessageModel = types.model("Message", {
   id: types.identifier,
-  role: types.enumeration('Role', ['user', 'assistant']),
+  role: types.enumeration('Role', ['user', 'assistant', 'system', 'data']),
   content: types.string,
-  createdAt: types.maybe(types.Date),
+  createdAt: types.maybe(types.union(types.Date, types.number)),
 })
 
 export const ChatStoreModel = types
@@ -24,8 +24,12 @@ export const ChatStoreModel = types
     addMessage(message: Message) {
       store.messages.push(message)
     },
-    setMessages(messages: Message[]) {
-      store.messages.replace(messages)
+    setMessages(messages: Array<{ id: string; role: string; content: string; createdAt?: Date | number }>) {
+      // Filter out any messages with invalid roles
+      const validMessages = messages.filter(msg => 
+        ['user', 'assistant', 'system', 'data'].includes(msg.role)
+      )
+      store.messages.replace(validMessages)
     },
     clearMessages() {
       store.messages.clear()
