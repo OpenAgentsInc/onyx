@@ -73,7 +73,7 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
     <ThemeProvider value={{ themeScheme, setThemeContextOverride }}>
       <NavigationContainer
         ref={(ref) => {
-          if (navigationRef.current !== ref) {
+          if (ref) {
             (navigationRef as any).current = ref;
           }
         }}
