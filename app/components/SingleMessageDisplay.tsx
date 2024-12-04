@@ -24,7 +24,7 @@ export const SingleMessageDisplay: FC<SingleMessageDisplayProps> = ({ message })
 
 const $container: ViewStyle = {
   position: "absolute",
-  top: "45%", // Moved up by adjusting from 50% to 45%
+  top: "48%", // Moved down from 45% to 48%
   left: 20,
   right: 20,
   transform: [{ translateY: -50 }],
