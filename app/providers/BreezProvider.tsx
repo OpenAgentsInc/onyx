@@ -41,8 +41,8 @@ interface BreezProviderProps {
 export const BreezProvider: React.FC<BreezProviderProps> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [debugInfo, setDebugInfo] = useState({});
-  const [sdk, setSdk] = useState(null);
+  const [debugInfo, setDebugInfo] = useState<Record<string, any>>({});
+  const [sdk, setSdk] = useState<any>(null);
   const [mnemonic, setMnemonic] = useState<string | null>(null);
 
   useEffect(() => {
@@ -66,8 +66,9 @@ export const BreezProvider: React.FC<BreezProviderProps> = ({ children }) => {
         const testFile = `${workingDirUrl}/test.txt`;
         await FileSystem.writeAsStringAsync(testFile, 'test');
         await FileSystem.deleteAsync(testFile, { idempotent: true });
-      } catch (e) {
-        throw new Error(`Working directory is not writable: ${e.message}`);
+      } catch (err) {
+        const error = err as Error;
+        throw new Error(`Working directory is not writable: ${error.message}`);
       }
 
       // Get or generate mnemonic
@@ -110,9 +111,10 @@ export const BreezProvider: React.FC<BreezProviderProps> = ({ children }) => {
       const breezSdk = await connect({ mnemonic: currentMnemonic, config });
       setSdk(breezSdk);
       setIsInitialized(true);
-    } catch (e) {
-      console.error('Breez initialization error:', e);
-      setError(e instanceof Error ? e : new Error('Failed to initialize Breez SDK'));
+    } catch (err) {
+      const error = err as Error;
+      console.error('Breez initialization error:', error);
+      setError(error instanceof Error ? error : new Error('Failed to initialize Breez SDK'));
     }
   };
 
@@ -121,8 +123,9 @@ export const BreezProvider: React.FC<BreezProviderProps> = ({ children }) => {
       await disconnect();
       setIsInitialized(false);
       setSdk(null);
-    } catch (e) {
-      setError(e instanceof Error ? e : new Error('Failed to disconnect Breez SDK'));
+    } catch (err) {
+      const error = err as Error;
+      setError(error instanceof Error ? error : new Error('Failed to disconnect Breez SDK'));
     }
   };
 
