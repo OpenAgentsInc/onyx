@@ -1,8 +1,12 @@
 import { mnemonicToSeedSync } from 'bip39'
-import * as bip32 from 'bip32'
-import * as secp256k1 from '@noble/secp256k1'
+import { BIP32Factory } from 'bip32'
+import * as ecc from 'tiny-secp256k1'
+import { schnorr } from '@noble/curves/secp256k1'
 import { bech32 } from 'bech32'
+import { sha256 } from '@noble/hashes/sha256'
 import type { NostrKeys, NostrEvent, NostrAuthEvent, NostrConfig, NostrAuthState } from './nostr.types'
+
+const bip32 = BIP32Factory(ecc)
 
 const NOSTR_BECH32_PREFIX = {
   PUBKEY: 'npub',
@@ -36,7 +40,7 @@ export class NostrService {
     if (!child.privateKey) throw new Error('Failed to derive private key')
     
     const privateKeyHex = child.privateKey.toString('hex')
-    const publicKeyHex = Buffer.from(secp256k1.schnorrGetPublicKey(privateKeyHex)).toString('hex')
+    const publicKeyHex = Buffer.from(schnorr.getPublicKey(privateKeyHex)).toString('hex')
 
     this.keys = {
       privateKey: privateKeyHex,
@@ -92,11 +96,11 @@ export class NostrService {
       event.tags,
       event.content
     ])
-    const hash = await secp256k1.utils.sha256(Buffer.from(serialized))
+    const hash = sha256(Buffer.from(serialized))
     event.id = Buffer.from(hash).toString('hex')
 
     // Sign the event
-    const signature = await secp256k1.schnorr.sign(hash, this.keys.privateKey)
+    const signature = schnorr.sign(hash, this.keys.privateKey)
     event.sig = Buffer.from(signature).toString('hex')
 
     return event
