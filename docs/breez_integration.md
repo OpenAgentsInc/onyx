@@ -8,14 +8,22 @@ This document describes the integration of the Breez SDK into the Onyx mobile ap
 
 ### 1. BreezProvider (`app/providers/BreezProvider.tsx`)
 
-Manages the Breez SDK lifecycle and provides global access to the SDK instance.
+Manages the Breez SDK lifecycle and provides global access to the SDK instance and wallet information.
 
 ```typescript
 import { useBreez } from '@/providers/BreezProvider'
 
 function MyComponent() {
-  const { sdk, isInitialized, error } = useBreez()
-  // Use sdk for Breez operations
+  const { 
+    sdk, 
+    isInitialized, 
+    error,
+    balanceInfo,
+    fetchBalanceInfo 
+  } = useBreez()
+  
+  // Access balance information
+  const { balanceSat, pendingSendSat, pendingReceiveSat } = balanceInfo || {};
 }
 ```
 
@@ -24,6 +32,7 @@ Key features:
 - Mnemonic generation and management
 - Working directory setup
 - Connection state management
+- Balance tracking and auto-updates
 - Error handling
 
 ### 2. WalletStore (`app/models/WalletStore.ts`)
@@ -107,15 +116,32 @@ function App() {
 4. Sets up working directory
 5. Initializes Breez SDK
 6. Makes SDK instance available via context
+7. Starts balance auto-update cycle
 
 ### Balance Updates
 
-1. BalanceDisplay component mounts
-2. Checks for SDK initialization
-3. Fetches initial balance
-4. Sets up 30-second refresh interval
-5. Updates MobX store with new values
-6. Cleans up interval on unmount
+1. Initial fetch on SDK initialization
+2. Automatic updates every 30 seconds
+3. Manual refresh available via fetchBalanceInfo()
+4. Updates stored in balanceInfo state
+5. Error handling for failed updates
+
+### Using getInfo() for Balance
+
+The SDK uses getInfo() to fetch balance information:
+
+```typescript
+import { getInfo } from '@breeztech/react-native-breez-sdk-liquid';
+
+const fetchBalanceInfo = async () => {
+  const info = await getInfo();
+  return {
+    balanceSat: info.balanceSat,
+    pendingSendSat: info.pendingSendSat,
+    pendingReceiveSat: info.pendingReceiveSat,
+  };
+};
+```
 
 ### Error Handling
 
@@ -125,6 +151,7 @@ The integration includes error handling for:
 - Invalid mnemonic
 - Working directory problems
 - Balance fetch failures
+- Auto-update cycle issues
 
 ## Security Considerations
 
@@ -154,6 +181,8 @@ The integration includes error handling for:
 4. Verify initialization
 5. Check balance display
 6. Test error states
+7. Verify auto-updates
+8. Test manual refresh
 
 ### Common Issues
 
@@ -166,6 +195,7 @@ The integration includes error handling for:
    - Verify SDK connection
    - Check update interval
    - Review error logs
+   - Confirm getInfo() availability
 
 ## Future Improvements
 
@@ -200,3 +230,5 @@ For issues or questions:
 
 - [Breez SDK Documentation](https://sdk-doc.breez.technology/)
 - [MobX State Tree Documentation](https://mobx-state-tree.js.org/)
+- [React Native Async Storage](https://react-native-async-storage.github.io/async-storage/)
+- [Expo FileSystem](https://docs.expo.dev/versions/latest/sdk/filesystem/)
