@@ -6,6 +6,7 @@ import { MessageMenu } from "./MessageMenu"
 import { useStores } from "@/models"
 import { useSharedChat } from "@/hooks/useSharedChat"
 import { SingleMessageDisplay } from "./SingleMessageDisplay"
+import { Message } from "@/models/ChatStore"
 
 interface ChatOverlayProps {
   visible?: boolean
@@ -14,10 +15,10 @@ interface ChatOverlayProps {
 export const ChatOverlay: FC<ChatOverlayProps> = observer(function ChatOverlay({ visible = true }) {
   const { chatStore } = useStores()
   const { error } = useSharedChat()
-  const [selectedMessage, setSelectedMessage] = useState<any>(null)
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const [menuVisible, setMenuVisible] = useState(false)
 
-  const handleLongPress = useCallback((message: any) => {
+  const handleLongPress = useCallback((message: Message) => {
     setSelectedMessage(message)
     setMenuVisible(true)
   }, [])
