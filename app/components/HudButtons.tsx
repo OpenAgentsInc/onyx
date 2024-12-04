@@ -62,16 +62,18 @@ export const HudButtons = observer(({ onChatPress, onMicPress, isRecording }: Hu
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
-        <VectorIcon
-          name="mic"
-          size={28}
-          color={isRecording ? colors.palette.angry500 : "white"}
-          containerStyle={[
-            styles.button,
-            isRecording && styles.recordingButton
-          ]}
-          onPress={onMicPress}
-        />
+        <View style={[styles.buttonWrapper, isRecording && styles.glowWrapper]}>
+          <VectorIcon
+            name="mic"
+            size={28}
+            color={isRecording ? colors.palette.angry500 : "white"}
+            containerStyle={[
+              styles.button,
+              isRecording && styles.recordingButton
+            ]}
+            onPress={onMicPress}
+          />
+        </View>
         {/* Playback button temporarily disabled
         {recordingUri && (
           <VectorIcon
@@ -113,6 +115,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 20,
   },
+  buttonWrapper: {
+    borderRadius: 35, // Slightly larger than the button
+    padding: 5,
+  },
+  glowWrapper: {
+    shadowColor: colors.palette.angry500,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10, // for Android
+  },
   button: {
     width: 60,
     height: 60,
@@ -125,7 +138,8 @@ const styles = StyleSheet.create({
   },
   recordingButton: {
     borderColor: colors.palette.angry500,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: "rgba(180, 0, 0, 0.3)", // Slight red tint
+    borderWidth: 2,
   },
   playingButton: {
     borderColor: colors.palette.accent300,
