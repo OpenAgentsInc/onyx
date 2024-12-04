@@ -15,56 +15,83 @@ class BreezServiceImpl implements BreezService {
   private sdk: any = null
   private mnemonic: string | null = null
   private isInitializedFlag = false
+  private initializationPromise: Promise<void> | null = null
 
   async initialize(config: BreezConfig): Promise<void> {
-    try {
-      // Use Expo's document directory which is guaranteed to be writable
-      const workingDirUrl = `${FileSystem.documentDirectory}breez`
-      const workingDir = fileUrlToPath(workingDirUrl)
-      
-      // Create working directory if it doesn't exist
-      const dirInfo = await FileSystem.getInfoAsync(workingDirUrl)
-      if (!dirInfo.exists) {
-        await FileSystem.makeDirectoryAsync(workingDirUrl, { intermediates: true })
-      }
+    // If already initializing, wait for that to complete
+    if (this.initializationPromise) {
+      return this.initializationPromise
+    }
 
-      // Test directory write permissions
+    // If already initialized, return immediately
+    if (this.isInitializedFlag) {
+      return Promise.resolve()
+    }
+
+    // Create a new initialization promise
+    this.initializationPromise = (async () => {
       try {
-        const testFile = `${workingDirUrl}/test.txt`
-        await FileSystem.writeAsStringAsync(testFile, 'test')
-        await FileSystem.deleteAsync(testFile, { idempotent: true })
+        // Use Expo's document directory which is guaranteed to be writable
+        const workingDirUrl = `${FileSystem.documentDirectory}breez`
+        const workingDir = fileUrlToPath(workingDirUrl)
+        
+        // Create working directory if it doesn't exist
+        const dirInfo = await FileSystem.getInfoAsync(workingDirUrl)
+        if (!dirInfo.exists) {
+          await FileSystem.makeDirectoryAsync(workingDirUrl, { intermediates: true })
+        }
+
+        // Test directory write permissions
+        try {
+          const testFile = `${workingDirUrl}/test.txt`
+          await FileSystem.writeAsStringAsync(testFile, 'test')
+          await FileSystem.deleteAsync(testFile, { idempotent: true })
+        } catch (err) {
+          throw new Error(`Working directory is not writable: ${err.message}`)
+        }
+
+        // Get or generate mnemonic
+        let currentMnemonic = await AsyncStorage.getItem(MNEMONIC_KEY)
+        if (!currentMnemonic) {
+          currentMnemonic = bip39.generateMnemonic()
+          await AsyncStorage.setItem(MNEMONIC_KEY, currentMnemonic)
+        }
+
+        // Verify mnemonic is valid
+        if (!bip39.validateMnemonic(currentMnemonic)) {
+          currentMnemonic = bip39.generateMnemonic()
+          await AsyncStorage.setItem(MNEMONIC_KEY, currentMnemonic)
+        }
+
+        this.mnemonic = currentMnemonic
+
+        // Initialize SDK with proper working directory
+        const sdkConfig = await defaultConfig(
+          config.network === 'MAINNET' ? LiquidNetwork.MAINNET : LiquidNetwork.TESTNET,
+          config.apiKey
+        )
+        
+        sdkConfig.workingDir = workingDir
+
+        this.sdk = await connect({ mnemonic: currentMnemonic, config: sdkConfig })
+        this.isInitializedFlag = true
       } catch (err) {
-        throw new Error(`Working directory is not writable: ${err.message}`)
+        console.error('Breez initialization error:', err)
+        this.isInitializedFlag = false
+        this.sdk = null
+        this.mnemonic = null
+        throw err
+      } finally {
+        this.initializationPromise = null
       }
+    })()
 
-      // Get or generate mnemonic
-      let currentMnemonic = await AsyncStorage.getItem(MNEMONIC_KEY)
-      if (!currentMnemonic) {
-        currentMnemonic = bip39.generateMnemonic()
-        await AsyncStorage.setItem(MNEMONIC_KEY, currentMnemonic)
-      }
+    return this.initializationPromise
+  }
 
-      // Verify mnemonic is valid
-      if (!bip39.validateMnemonic(currentMnemonic)) {
-        currentMnemonic = bip39.generateMnemonic()
-        await AsyncStorage.setItem(MNEMONIC_KEY, currentMnemonic)
-      }
-
-      this.mnemonic = currentMnemonic
-
-      // Initialize SDK with proper working directory
-      const sdkConfig = await defaultConfig(
-        config.network === 'MAINNET' ? LiquidNetwork.MAINNET : LiquidNetwork.TESTNET,
-        config.apiKey
-      )
-      
-      sdkConfig.workingDir = workingDir
-
-      this.sdk = await connect({ mnemonic: currentMnemonic, config: sdkConfig })
-      this.isInitializedFlag = true
-    } catch (err) {
-      console.error('Breez initialization error:', err)
-      throw err
+  private ensureInitialized() {
+    if (!this.isInitializedFlag || !this.sdk) {
+      throw new Error('Breez SDK not initialized')
     }
   }
 
@@ -74,6 +101,7 @@ class BreezServiceImpl implements BreezService {
         await disconnect()
         this.sdk = null
         this.isInitializedFlag = false
+        this.mnemonic = null
       }
     } catch (err) {
       console.error('Error disconnecting from Breez:', err)
@@ -82,9 +110,7 @@ class BreezServiceImpl implements BreezService {
   }
 
   async getBalance(): Promise<BalanceInfo> {
-    if (!this.isInitializedFlag) {
-      throw new Error('Breez SDK not initialized')
-    }
+    this.ensureInitialized()
 
     try {
       const info = await getInfo()
@@ -100,9 +126,7 @@ class BreezServiceImpl implements BreezService {
   }
 
   async sendPayment(bolt11: string, amount: number): Promise<Transaction> {
-    if (!this.isInitializedFlag) {
-      throw new Error('Breez SDK not initialized')
-    }
+    this.ensureInitialized()
 
     try {
       const result = await this.sdk.sendPayment(bolt11, amount)
@@ -122,9 +146,7 @@ class BreezServiceImpl implements BreezService {
   }
 
   async receivePayment(amount: number, description?: string): Promise<string> {
-    if (!this.isInitializedFlag) {
-      throw new Error('Breez SDK not initialized')
-    }
+    this.ensureInitialized()
 
     try {
       const invoice = await this.sdk.receivePayment({
@@ -139,9 +161,7 @@ class BreezServiceImpl implements BreezService {
   }
 
   async getTransactions(): Promise<Transaction[]> {
-    if (!this.isInitializedFlag) {
-      throw new Error('Breez SDK not initialized')
-    }
+    this.ensureInitialized()
 
     try {
       const txs = await this.sdk.listPayments()
@@ -159,6 +179,14 @@ class BreezServiceImpl implements BreezService {
       console.error('Error fetching transactions:', err)
       throw err
     }
+  }
+
+  async getMnemonic(): Promise<string> {
+    this.ensureInitialized()
+    if (!this.mnemonic) {
+      throw new Error('Mnemonic not available')
+    }
+    return this.mnemonic
   }
 
   isInitialized(): boolean {
