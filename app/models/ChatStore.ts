@@ -24,6 +24,9 @@ export const ChatStoreModel = types
     addMessage(message: Message) {
       store.messages.push(message)
     },
+    setMessages(messages: Message[]) {
+      store.messages.replace(messages)
+    },
     clearMessages() {
       store.messages.clear()
     },
