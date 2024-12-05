@@ -22,14 +22,19 @@ export class WebSocketService {
   }
 
   connect = async () => {
-    if (this.state.connected || this.state.connecting) return
+    if (this.state.connected || this.state.connecting) {
+      console.log('Already connected or connecting')
+      return
+    }
     
     this.state.connecting = true
+    console.log('Connecting to WebSocket...')
     
     try {
       this.ws = new WebSocket(this.config.url)
       
       this.ws.onopen = () => {
+        console.log('WebSocket connection opened, sending auth message')
         // Send auth message when connection opens
         const authMessage: AuthMessage = {
           type: 'auth',
@@ -40,11 +45,24 @@ export class WebSocketService {
         }
         this.send(authMessage)
       }
-      this.ws.onclose = this.handleClose
-      this.ws.onerror = this.handleError
-      this.ws.onmessage = this.handleMessage
+
+      this.ws.onclose = (event) => {
+        console.log('WebSocket closed:', event)
+        this.handleClose(event)
+      }
+
+      this.ws.onerror = (event) => {
+        console.error('WebSocket error:', event)
+        this.handleError(event)
+      }
+
+      this.ws.onmessage = (event) => {
+        console.log('WebSocket message received:', event.data)
+        this.handleMessage(event)
+      }
       
     } catch (error) {
+      console.error('WebSocket connection error:', error)
       this.state.error = `Connection failed: ${error.message || 'Unknown error'}`
       this.state.connecting = false
       this.attemptReconnect()
@@ -54,16 +72,19 @@ export class WebSocketService {
   private handleMessage = (event: MessageEvent) => {
     try {
       const message: WebSocketMessage = JSON.parse(event.data)
-      console.log('Received message:', message)
+      console.log('Parsed message:', message)
 
       // Handle auth response
       if (message.type === 'auth') {
+        console.log('Handling auth response:', message)
         if (message.payload?.status === 'success') {
+          console.log('Authentication successful')
           this.state.connected = true
           this.state.connecting = false
           this.state.error = undefined
           this.reconnectAttempts = 0
         } else {
+          console.error('Authentication failed:', message.payload?.error)
           this.state.error = message.payload?.error || 'Authentication failed'
           this.state.connecting = false
           this.ws?.close()
@@ -71,13 +92,24 @@ export class WebSocketService {
         return
       }
 
+      // Handle error messages
+      if (message.type === 'error') {
+        console.error('Received error message:', message)
+        this.state.error = message.payload?.error || 'Unknown error'
+        return
+      }
+
       // Handle other messages
+      console.log('Looking for handler for message type:', message.type)
       const handler = this.messageHandlers.get(message.type)
       if (handler) {
+        console.log('Found handler for message type:', message.type)
         handler(message)
+      } else {
+        console.warn('No handler found for message type:', message.type)
       }
     } catch (error) {
-      console.error("Failed to parse WebSocket message:", error)
+      console.error("Failed to parse WebSocket message:", error, event.data)
     }
   }
 
@@ -101,6 +133,7 @@ export class WebSocketService {
       ? `${codes[event.code]}${event.reason ? `: ${event.reason}` : ''}`
       : `Unknown error ${event.code}${event.reason ? `: ${event.reason}` : ''}`
       
+    console.log('WebSocket closed:', reason)
     this.state.error = `Connection closed - ${reason}`
     this.state.connected = false
     this.attemptReconnect()
@@ -114,6 +147,7 @@ export class WebSocketService {
       errorMessage = `Connection closed${error.reason ? `: ${error.reason}` : ''}`
     }
     
+    console.error('WebSocket error:', errorMessage)
     this.state.error = errorMessage
     this.state.connected = false
     this.attemptReconnect()
@@ -121,11 +155,13 @@ export class WebSocketService {
 
   private attemptReconnect = () => {
     if (this.reconnectAttempts >= (this.config.maxReconnectAttempts || 5)) {
+      console.log('Max reconnection attempts reached')
       this.state.error = "Max reconnection attempts reached"
       return
     }
 
     this.reconnectAttempts++
+    console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.config.maxReconnectAttempts})...`)
     setTimeout(() => {
       this.connect()
     }, this.config.reconnectInterval)
@@ -133,6 +169,7 @@ export class WebSocketService {
 
   send = (message: WebSocketMessage) => {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      console.error('WebSocket is not connected')
       throw new Error("WebSocket is not connected")
     }
     console.log('Sending message:', message)
@@ -153,6 +190,7 @@ export class WebSocketService {
   }
 
   onMessage = (type: string, handler: (message: WebSocketMessage) => void) => {
+    console.log('Registering handler for message type:', type)
     this.messageHandlers.set(type, handler)
     return () => this.messageHandlers.delete(type)
   }
@@ -162,6 +200,7 @@ export class WebSocketService {
   }
 
   disconnect = () => {
+    console.log('Disconnecting WebSocket')
     if (this.ws) {
       this.ws.close()
       this.ws = null
