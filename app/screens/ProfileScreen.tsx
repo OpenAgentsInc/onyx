@@ -8,6 +8,7 @@ import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
 import { ProfileMenuScreenProps } from "@/navigators/ProfileMenuNavigator"
 import { deriveNostrKeys } from "@/services/nostr/placeholder"
+import { typography } from "@/theme"
 
 interface ProfileScreenProps extends ProfileMenuScreenProps<"ProfileHome"> { }
 
@@ -112,7 +113,7 @@ const $headerText: TextStyle = {
   fontWeight: "600",
   flex: 1,
   textAlign: "center",
-  fontFamily: "SpaceGrotesk-Bold",
+  fontFamily: typography.primary.bold,
 }
 
 const $content: ViewStyle = {
@@ -128,13 +129,13 @@ const $labelText: TextStyle = {
   color: "#888",
   fontSize: 14,
   marginBottom: 4,
-  fontFamily: "SpaceGrotesk-Regular",
+  fontFamily: typography.primary.normal,
 }
 
 const $valueText: TextStyle = {
   color: "white",
   fontSize: 16,
-  fontFamily: "SpaceGrotesk-Medium",
+  fontFamily: typography.primary.medium,
 }
 
 const $menuContainer: ViewStyle = {
@@ -152,7 +153,7 @@ const $menuButtonText: TextStyle = {
   color: "white",
   fontSize: 16,
   textAlign: "left",
-  fontFamily: "SpaceGrotesk-Medium",
+  fontFamily: typography.primary.medium,
 }
 
 const $placeholder: ViewStyle = {
