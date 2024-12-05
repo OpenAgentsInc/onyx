@@ -97,8 +97,6 @@ const $contentContainer: ViewStyle = {
 
 const $headerContainer: ViewStyle = {
   backgroundColor: "black",
-  borderBottomWidth: 1,
-  borderBottomColor: "#333",
 }
 
 const $header: ViewStyle = {
@@ -125,9 +123,6 @@ const $content: ViewStyle = {
 
 const $profileInfo: ViewStyle = {
   marginBottom: 24,
-  borderBottomWidth: 1,
-  borderBottomColor: "#333",
-  paddingBottom: 16,
 }
 
 const $labelText: TextStyle = {
