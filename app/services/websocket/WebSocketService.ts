@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx"
-import { WebSocketConfig, WebSocketMessage, ConnectionState, AskMessage, ResponseMessage } from "./types"
+import { WebSocketConfig, WebSocketMessage, ConnectionState, AskMessage, ResponseMessage, AuthMessage } from "./types"
 
 export class WebSocketService {
   private ws: WebSocket | null = null
@@ -27,15 +27,19 @@ export class WebSocketService {
     this.state.connecting = true
     
     try {
-      // Add API key to URL as a query parameter for the initial handshake
-      const url = new URL(this.config.url)
-      if (this.config.apiKey) {
-        url.searchParams.append('api_key', this.config.apiKey)
+      this.ws = new WebSocket(this.config.url)
+      
+      this.ws.onopen = () => {
+        // Send auth message when connection opens
+        const authMessage: AuthMessage = {
+          type: 'auth',
+          id: Math.random().toString(36).substring(7),
+          payload: {
+            apiKey: this.config.apiKey || ''
+          }
+        }
+        this.send(authMessage)
       }
-      
-      this.ws = new WebSocket(url.toString())
-      
-      this.ws.onopen = this.handleOpen
       this.ws.onclose = this.handleClose
       this.ws.onerror = this.handleError
       this.ws.onmessage = this.handleMessage
@@ -47,11 +51,34 @@ export class WebSocketService {
     }
   }
 
-  private handleOpen = () => {
-    this.state.connected = true
-    this.state.connecting = false
-    this.state.error = undefined
-    this.reconnectAttempts = 0
+  private handleMessage = (event: MessageEvent) => {
+    try {
+      const message: WebSocketMessage = JSON.parse(event.data)
+      console.log('Received message:', message)
+
+      // Handle auth response
+      if (message.type === 'auth') {
+        if (message.payload?.status === 'success') {
+          this.state.connected = true
+          this.state.connecting = false
+          this.state.error = undefined
+          this.reconnectAttempts = 0
+        } else {
+          this.state.error = message.payload?.error || 'Authentication failed'
+          this.state.connecting = false
+          this.ws?.close()
+        }
+        return
+      }
+
+      // Handle other messages
+      const handler = this.messageHandlers.get(message.type)
+      if (handler) {
+        handler(message)
+      }
+    } catch (error) {
+      console.error("Failed to parse WebSocket message:", error)
+    }
   }
 
   private handleClose = (event: CloseEvent) => {
@@ -92,18 +119,6 @@ export class WebSocketService {
     this.attemptReconnect()
   }
 
-  private handleMessage = (event: MessageEvent) => {
-    try {
-      const message: WebSocketMessage = JSON.parse(event.data)
-      const handler = this.messageHandlers.get(message.type)
-      if (handler) {
-        handler(message)
-      }
-    } catch (error) {
-      console.error("Failed to parse WebSocket message:", error)
-    }
-  }
-
   private attemptReconnect = () => {
     if (this.reconnectAttempts >= (this.config.maxReconnectAttempts || 5)) {
       this.state.error = "Max reconnection attempts reached"
@@ -120,6 +135,7 @@ export class WebSocketService {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
       throw new Error("WebSocket is not connected")
     }
+    console.log('Sending message:', message)
     this.ws.send(JSON.stringify(message))
   }
 
