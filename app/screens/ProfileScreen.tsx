@@ -1,14 +1,12 @@
 import { observer } from "mobx-react-lite"
-import { FC, useEffect, useState } from "react"
+import { FC, useState } from "react"
 import {
   ActivityIndicator, TextStyle, TouchableOpacity, View, ViewStyle
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text } from "@/components"
-// import { nostrService } from "@/services/nostr/nostr.service"
 import { useStores } from "@/models"
 import { ProfileMenuScreenProps } from "@/navigators/ProfileMenuNavigator"
-import { breezService } from "@/services/breez"
 
 interface ProfileScreenProps extends ProfileMenuScreenProps<"ProfileHome"> { }
 
@@ -19,42 +17,8 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
   const [npub, setNpub] = useState<string>("Loading...")
   const [isLoading, setIsLoading] = useState(true)
 
-  // useEffect(() => {
-  //   async function deriveNostrKeys() {
-  //     try {
-  //       if (!isInitialized) return
-
-  //       // Get mnemonic from Breez service
-  //       const mnemonic = await breezService.getMnemonic()
-
-  //       // Derive Nostr keys
-  //       const keys = await nostrService.deriveKeys(mnemonic)
-
-  //       // Update state with npub
-  //       setNpub(keys.npub)
-  //     } catch (error) {
-  //       console.error("Failed to derive Nostr keys:", error)
-  //       setNpub("Error loading npub")
-  //     } finally {
-  //       setIsLoading(false)
-  //     }
-  //   }
-
-  //   deriveNostrKeys()
-  // }, [isInitialized])
-
   const handlePressUpdater = () => {
     navigation.navigate("Updater")
-  }
-
-  const handlePressDisconnect = async () => {
-    try {
-      await walletStore.disconnect()
-      // You might want to navigate somewhere or show a success message
-    } catch (error) {
-      console.error("Failed to disconnect wallet:", error)
-      // Handle error (show error message, etc.)
-    }
   }
 
   return (
@@ -85,13 +49,6 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
         <View style={$menuContainer}>
           <TouchableOpacity style={$menuButton} onPress={handlePressUpdater}>
             <Text text="App Updates" style={$menuButtonText} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[$menuButton, $dangerButton]}
-            onPress={handlePressDisconnect}
-          >
-            <Text text="Disconnect Wallet" style={$menuButtonText} />
           </TouchableOpacity>
         </View>
 
@@ -173,10 +130,6 @@ const $menuButton: ViewStyle = {
   padding: 16,
   borderRadius: 8,
   marginBottom: 12,
-}
-
-const $dangerButton: ViewStyle = {
-  backgroundColor: "#442222",
 }
 
 const $menuButtonText: TextStyle = {
