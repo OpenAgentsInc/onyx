@@ -25,7 +25,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
           setNpub("Wallet not initialized")
           return
         }
-        
+
         const keys = await deriveNostrKeys(mnemonic)
         setNpub(keys.npub)
       } catch (error) {
@@ -48,7 +48,6 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
       style={$root}
       contentContainerStyle={$contentContainer}
       preset="scroll"
-      safeAreaEdges={["bottom"]}
     >
       <View style={[$headerContainer, { paddingTop: top }]}>
         <View style={$header}>
