@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite"
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import {
   ActivityIndicator, TextStyle, TouchableOpacity, View, ViewStyle
 } from "react-native"
@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
 import { ProfileMenuScreenProps } from "@/navigators/ProfileMenuNavigator"
+import { deriveNostrKeys } from "@/services/nostr/placeholder"
 
 interface ProfileScreenProps extends ProfileMenuScreenProps<"ProfileHome"> { }
 
@@ -16,6 +17,24 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
   const { isInitialized } = walletStore
   const [npub, setNpub] = useState<string>("Loading...")
   const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadNostrKeys = async () => {
+      try {
+        // TODO: Get actual mnemonic from Breez SDK
+        const dummyMnemonic = "leader monkey parrot ring guide accident before fence cannon height naive bean"
+        const keys = await deriveNostrKeys(dummyMnemonic)
+        setNpub(keys.npub)
+      } catch (error) {
+        console.error("Failed to derive Nostr keys:", error)
+        setNpub("Error loading keys")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadNostrKeys()
+  }, [])
 
   const handlePressUpdater = () => {
     navigation.navigate("Updater")
