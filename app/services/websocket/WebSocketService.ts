@@ -27,12 +27,13 @@ export class WebSocketService {
     this.state.connecting = true
     
     try {
-      this.ws = new WebSocket(this.config.url)
-      
-      // Add API key to headers if provided
+      // Add API key to URL as a query parameter for the initial handshake
+      const url = new URL(this.config.url)
       if (this.config.apiKey) {
-        this.ws.setRequestHeader?.('x-api-key', this.config.apiKey)
+        url.searchParams.append('api_key', this.config.apiKey)
       }
+      
+      this.ws = new WebSocket(url.toString())
       
       this.ws.onopen = this.handleOpen
       this.ws.onclose = this.handleClose
