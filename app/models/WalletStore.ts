@@ -24,42 +24,41 @@ export const WalletStoreModel = types
     transactions: types.array(TransactionModel),
   })
   .actions(withSetPropAction)
-  .actions((self) => ({
-    setError(message: string | null) {
+  .actions((self) => {
+    const setError = (message: string | null) => {
       self.error = message
-    },
-  }))
-  .actions((store) => ({
-    initialize: flow(function* () {
+    }
+
+    const initialize = flow(function* () {
       try {
         yield breezService.initialize({
           workingDir: "", // This is handled internally by the service
           apiKey: "MIIBfjCCATCgAwIBAgIHPYzgGw0A+zAFBgMrZXAwEDEOMAwGA1UEAxMFQnJlZXowHhcNMjQxMTI0MjIxOTMzWhcNMzQxMTIyMjIxOTMzWjA3MRkwFwYDVQQKExBPcGVuQWdlbnRzLCBJbmMuMRowGAYDVQQDExFDaHJpc3RvcGhlciBEYXZpZDAqMAUGAytlcAMhANCD9cvfIDwcoiDKKYdT9BunHLS2/OuKzV8NS0SzqV13o4GBMH8wDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFNo5o+5ea0sNMlW/75VgGJCv2AcJMB8GA1UdIwQYMBaAFN6q1pJW843ndJIW/Ey2ILJrKJhrMB8GA1UdEQQYMBaBFGNocmlzQG9wZW5hZ2VudHMuY29tMAUGAytlcANBABvQIfNsop0kGIk0bgO/2kPum5B5lv6pYaSBXz73G1RV+eZj/wuW88lNQoGwVER+rA9+kWWTaR/dpdi8AFwjxw0=",
           network: "MAINNET",
         })
-        store.setProp("isInitialized", true)
-        store.setError(null)
+        self.isInitialized = true
+        setError(null)
         
         // Now that we're initialized, fetch the initial balance
-        yield store.fetchBalanceInfo()
+        yield fetchBalanceInfo()
       } catch (error) {
         console.error("Failed to initialize wallet:", error)
-        store.setError(error instanceof Error ? error.message : "Failed to initialize wallet")
+        setError(error instanceof Error ? error.message : "Failed to initialize wallet")
       }
-    }),
+    })
 
-    disconnect: flow(function* () {
+    const disconnect = flow(function* () {
       try {
         yield breezService.disconnect()
-        store.setProp("isInitialized", false)
-        store.setError(null)
+        self.isInitialized = false
+        setError(null)
       } catch (error) {
         console.error("Failed to disconnect wallet:", error)
-        store.setError(error instanceof Error ? error.message : "Failed to disconnect wallet")
+        setError(error instanceof Error ? error.message : "Failed to disconnect wallet")
       }
-    }),
+    })
 
-    fetchBalanceInfo: flow(function* () {
+    const fetchBalanceInfo = flow(function* () {
       // Don't try to fetch if we're not initialized
       if (!breezService.isInitialized()) {
         console.log("Skipping balance fetch - not initialized yet")
@@ -68,17 +67,17 @@ export const WalletStoreModel = types
 
       try {
         const info = yield breezService.getBalance()
-        store.setProp("balanceSat", info.balanceSat)
-        store.setProp("pendingSendSat", info.pendingSendSat)
-        store.setProp("pendingReceiveSat", info.pendingReceiveSat)
-        store.setError(null)
+        self.balanceSat = info.balanceSat
+        self.pendingSendSat = info.pendingSendSat
+        self.pendingReceiveSat = info.pendingReceiveSat
+        setError(null)
       } catch (error) {
         console.error("Error fetching balance info:", error)
-        store.setError(error instanceof Error ? error.message : "Failed to fetch balance info")
+        setError(error instanceof Error ? error.message : "Failed to fetch balance info")
       }
-    }),
+    })
 
-    fetchTransactions: flow(function* () {
+    const fetchTransactions = flow(function* () {
       // Don't try to fetch if we're not initialized
       if (!breezService.isInitialized()) {
         console.log("Skipping transactions fetch - not initialized yet")
@@ -87,48 +86,58 @@ export const WalletStoreModel = types
 
       try {
         const txs = yield breezService.getTransactions()
-        store.setProp("transactions", txs)
-        store.setError(null)
+        self.transactions.replace(txs)
+        setError(null)
       } catch (error) {
         console.error("Error fetching transactions:", error)
-        store.setError(error instanceof Error ? error.message : "Failed to fetch transactions")
+        setError(error instanceof Error ? error.message : "Failed to fetch transactions")
       }
-    }),
+    })
 
-    sendPayment: flow(function* (bolt11: string, amount: number) {
+    const sendPayment = flow(function* (bolt11: string, amount: number) {
       if (!breezService.isInitialized()) {
         throw new Error("Wallet not initialized")
       }
 
       try {
         const tx = yield breezService.sendPayment(bolt11, amount)
-        store.transactions.push(tx)
-        yield store.fetchBalanceInfo()
-        store.setError(null)
+        self.transactions.push(tx)
+        yield fetchBalanceInfo()
+        setError(null)
         return tx
       } catch (error) {
         console.error("Error sending payment:", error)
-        store.setError(error instanceof Error ? error.message : "Failed to send payment")
+        setError(error instanceof Error ? error.message : "Failed to send payment")
         throw error
       }
-    }),
+    })
 
-    receivePayment: flow(function* (amount: number, description?: string) {
+    const receivePayment = flow(function* (amount: number, description?: string) {
       if (!breezService.isInitialized()) {
         throw new Error("Wallet not initialized")
       }
 
       try {
         const bolt11 = yield breezService.receivePayment(amount, description)
-        store.setError(null)
+        setError(null)
         return bolt11
       } catch (error) {
         console.error("Error creating invoice:", error)
-        store.setError(error instanceof Error ? error.message : "Failed to create invoice")
+        setError(error instanceof Error ? error.message : "Failed to create invoice")
         throw error
       }
-    }),
-  }))
+    })
+
+    return {
+      setError,
+      initialize,
+      disconnect,
+      fetchBalanceInfo,
+      fetchTransactions,
+      sendPayment,
+      receivePayment,
+    }
+  })
   .views((store) => ({
     get totalBalance() {
       return store.balanceSat
