@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx"
-import { WebSocketConfig, WebSocketMessage, ConnectionState } from "./types"
+import { WebSocketConfig, WebSocketMessage, ConnectionState, AskMessage, ResponseMessage } from "./types"
 
 export class WebSocketService {
   private ws: WebSocket | null = null
@@ -28,6 +28,11 @@ export class WebSocketService {
     
     try {
       this.ws = new WebSocket(this.config.url)
+      
+      // Add API key to headers if provided
+      if (this.config.apiKey) {
+        this.ws.setRequestHeader?.('x-api-key', this.config.apiKey)
+      }
       
       this.ws.onopen = this.handleOpen
       this.ws.onclose = this.handleClose
@@ -72,7 +77,7 @@ export class WebSocketService {
   }
 
   private attemptReconnect = () => {
-    if (this.reconnectAttempts >= this.config.maxReconnectAttempts) {
+    if (this.reconnectAttempts >= (this.config.maxReconnectAttempts || 5)) {
       this.state.error = "Max reconnection attempts reached"
       return
     }
@@ -90,9 +95,26 @@ export class WebSocketService {
     this.ws.send(JSON.stringify(message))
   }
 
+  sendQuery = (query: string, teamId?: string) => {
+    const message: AskMessage = {
+      type: 'ask',
+      id: Math.random().toString(36).substring(7),
+      payload: {
+        query,
+        team_id: teamId
+      }
+    }
+    this.send(message)
+    return message.id
+  }
+
   onMessage = (type: string, handler: (message: WebSocketMessage) => void) => {
     this.messageHandlers.set(type, handler)
     return () => this.messageHandlers.delete(type)
+  }
+
+  onResponse = (handler: (message: ResponseMessage) => void) => {
+    return this.onMessage('response', handler as (message: WebSocketMessage) => void)
   }
 
   disconnect = () => {
