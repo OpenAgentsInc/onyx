@@ -1,4 +1,6 @@
-import { getPublicKey, nip19 } from 'nostr-tools'
+import { getPublicKey, generatePrivateKey, nip19 } from 'nostr-tools'
+import { sha256 } from '@noble/hashes/sha256'
+import { bytesToHex } from '@noble/hashes/utils'
 
 export interface NostrKeys {
   privateKey: string // hex format
@@ -8,14 +10,17 @@ export interface NostrKeys {
 }
 
 /**
- * Derives Nostr keys from a hex private key
- * The private key should be derived from the Breez mnemonic
+ * Derives Nostr keys from a mnemonic by hashing it to create a private key
  */
-export async function deriveNostrKeys(privateKey: string): Promise<NostrKeys> {
+export async function deriveNostrKeys(mnemonic: string): Promise<NostrKeys> {
+  // Hash the mnemonic to get a 32-byte private key
+  const hash = sha256(mnemonic)
+  const privateKey = bytesToHex(hash)
+  
   // Get public key using nostr-tools
   const publicKey = getPublicKey(privateKey)
   
-  // Convert to bech32 format using nostr-tools
+  // Convert to bech32 format
   const npub = nip19.npubEncode(publicKey)
   const nsec = nip19.nsecEncode(privateKey)
 
