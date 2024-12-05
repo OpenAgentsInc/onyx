@@ -4,16 +4,14 @@ import { View, ViewStyle } from "react-native"
 import { Text } from "@/components"
 import { useWebSocket } from "@/services/websocket/useWebSocket"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
+import { WS_CONFIG } from "@/config/websocket"
 
 interface NexusOverlayProps {
   visible?: boolean
 }
 
 export const NexusOverlay: FC<NexusOverlayProps> = observer(function NexusOverlay({ visible = true }) {
-  const { state } = useWebSocket({
-    url: "ws://localhost:8000",
-  })
-
+  const { state } = useWebSocket(WS_CONFIG)
   const $topInset = useSafeAreaInsetsStyle(["top"])
 
   if (!visible) return null
