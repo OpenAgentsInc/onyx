@@ -41,7 +41,7 @@ export class WebSocketService {
       this.ws.onmessage = this.handleMessage
       
     } catch (error) {
-      this.state.error = error.message
+      this.state.error = `Connection failed: ${error.message || 'Unknown error'}`
       this.state.connecting = false
       this.attemptReconnect()
     }
@@ -54,13 +54,40 @@ export class WebSocketService {
     this.reconnectAttempts = 0
   }
 
-  private handleClose = () => {
+  private handleClose = (event: CloseEvent) => {
+    const codes: Record<number, string> = {
+      1000: "Normal closure",
+      1001: "Going away",
+      1002: "Protocol error",
+      1003: "Unsupported data",
+      1005: "No status received",
+      1006: "Abnormal closure",
+      1007: "Invalid frame payload data",
+      1008: "Policy violation",
+      1009: "Message too big",
+      1010: "Mandatory extension",
+      1011: "Internal server error",
+      1015: "TLS handshake"
+    }
+
+    const reason = event.code in codes 
+      ? `${codes[event.code]}${event.reason ? `: ${event.reason}` : ''}`
+      : `Unknown error ${event.code}${event.reason ? `: ${event.reason}` : ''}`
+      
+    this.state.error = `Connection closed - ${reason}`
     this.state.connected = false
     this.attemptReconnect()
   }
 
   private handleError = (error: Event) => {
-    this.state.error = "WebSocket error occurred"
+    let errorMessage = "WebSocket error occurred"
+    if (error instanceof ErrorEvent) {
+      errorMessage = `Connection error: ${error.message}`
+    } else if (error instanceof CloseEvent) {
+      errorMessage = `Connection closed${error.reason ? `: ${error.reason}` : ''}`
+    }
+    
+    this.state.error = errorMessage
     this.state.connected = false
     this.attemptReconnect()
   }
