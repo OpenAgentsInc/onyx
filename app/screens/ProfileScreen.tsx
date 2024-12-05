@@ -14,16 +14,19 @@ interface ProfileScreenProps extends ProfileMenuScreenProps<"ProfileHome"> { }
 export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileScreen({ navigation }) {
   const { top } = useSafeAreaInsets()
   const { walletStore } = useStores()
-  const { isInitialized } = walletStore
+  const { isInitialized, mnemonic } = walletStore
   const [npub, setNpub] = useState<string>("Loading...")
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const loadNostrKeys = async () => {
       try {
-        // TODO: Get actual mnemonic from Breez SDK
-        const dummyMnemonic = "leader monkey parrot ring guide accident before fence cannon height naive bean"
-        const keys = await deriveNostrKeys(dummyMnemonic)
+        if (!mnemonic) {
+          setNpub("Wallet not initialized")
+          return
+        }
+        
+        const keys = await deriveNostrKeys(mnemonic)
         setNpub(keys.npub)
       } catch (error) {
         console.error("Failed to derive Nostr keys:", error)
@@ -34,7 +37,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
     }
 
     loadNostrKeys()
-  }, [])
+  }, [mnemonic])
 
   const handlePressUpdater = () => {
     navigation.navigate("Updater")
