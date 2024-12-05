@@ -13,6 +13,31 @@ export interface AuthMessage extends WebSocketMessage {
   }
 }
 
+export interface AskRequest {
+  query: string
+  team_id?: string
+}
+
+export interface AskResponse {
+  answer: string
+  context?: string
+  usage?: {
+    prompt_tokens: number
+    completion_tokens: number
+    total_tokens: number
+  }
+}
+
+export interface AskMessage extends WebSocketMessage {
+  type: 'ask'
+  payload: AskRequest
+}
+
+export interface ResponseMessage extends WebSocketMessage {
+  type: 'response'
+  payload: AskResponse
+}
+
 export interface CommandMessage extends WebSocketMessage {
   type: 'command'
   payload: {
@@ -31,6 +56,7 @@ export interface EventMessage extends WebSocketMessage {
 
 export interface WebSocketConfig {
   url: string
+  apiKey?: string
   reconnectInterval?: number
   maxReconnectAttempts?: number
 }
