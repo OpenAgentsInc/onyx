@@ -25,8 +25,9 @@ export const WalletStoreModel = types
   })
   .actions(withSetPropAction)
   .actions((store) => ({
-    setError(message: string | null) {
-      store.setProp("error", message)
+    // Define setError as a regular action
+    setError(error: string | null) {
+      store.setProp("error", error)
     },
 
     initialize: flow(function* () {
