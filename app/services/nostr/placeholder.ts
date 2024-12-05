@@ -1,7 +1,6 @@
-/**
- * Placeholder implementation for deriving Nostr keys from Breez mnemonic
- * To be replaced with actual implementation using NIP-06
- */
+import { getPublicKey, nip19 } from 'nostr-tools'
+import { mnemonicToSeedSync } from 'bip39'
+import { fromSeed } from 'bip32'
 
 export interface NostrKeys {
   privateKey: string // hex format
@@ -11,20 +10,29 @@ export interface NostrKeys {
 }
 
 /**
- * Placeholder function that takes a mnemonic and returns dummy Nostr keys
- * This will be replaced with proper BIP32 derivation (m/44'/1237'/0'/0/0)
+ * Derives Nostr keys from a BIP39 mnemonic using BIP32 path m/44'/1237'/0'/0/0
+ * as specified in NIP-06
  */
 export async function deriveNostrKeys(mnemonic: string): Promise<NostrKeys> {
-  // This is a dummy implementation
-  // The real implementation will:
-  // 1. Use the mnemonic to generate a seed
-  // 2. Derive the key using BIP32 path m/44'/1237'/0'/0/0
-  // 3. Convert to proper Nostr formats
+  // Convert mnemonic to seed
+  const seed = mnemonicToSeedSync(mnemonic)
   
+  // Derive private key using BIP32
+  const node = fromSeed(seed)
+  const child = node.derivePath("m/44'/1237'/0'/0/0")
+  const privateKey = child.privateKey!.toString('hex')
+  
+  // Get public key from private key
+  const publicKey = getPublicKey(privateKey)
+  
+  // Convert to bech32 format
+  const npub = nip19.npubEncode(publicKey)
+  const nsec = nip19.nsecEncode(privateKey)
+
   return {
-    privateKey: "7f7ff03d123792d6ac594bfa67bf6d0c0ab55b6b1fdb6249303fe861f1ccba9a",
-    publicKey: "17162c921dc4d2518f9a101db33695df1afb56ab82f5ff3e5da6eec3ca5cd917",
-    npub: "npub1xtscya34g58tk0z605fvr788k263gsu6cy9x0mhnm87echrgufzsevkk5s",
-    nsec: "nsec1vl029mgpspedva04g90vltkh6fvh240zqtx9z8524l6nm8qdwvhsn0pqp8"
+    privateKey,
+    publicKey, 
+    npub,
+    nsec
   }
 }
