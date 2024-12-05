@@ -24,12 +24,12 @@ export const WalletStoreModel = types
     transactions: types.array(TransactionModel),
   })
   .actions(withSetPropAction)
-  .actions((store) => ({
-    // Define setError as a regular action
-    setError(error: string | null) {
-      store.setProp("error", error)
+  .actions((self) => ({
+    setError(message: string | null) {
+      self.error = message
     },
-
+  }))
+  .actions((store) => ({
     initialize: flow(function* () {
       try {
         yield breezService.initialize({
