@@ -3,6 +3,7 @@ import { FC } from "react"
 import { View, ViewStyle } from "react-native"
 import { Text } from "@/components"
 import { useWebSocket } from "@/services/websocket/useWebSocket"
+import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
 interface NexusOverlayProps {
   visible?: boolean
@@ -12,6 +13,8 @@ export const NexusOverlay: FC<NexusOverlayProps> = observer(function NexusOverla
   const { state } = useWebSocket({
     url: "ws://localhost:8000",
   })
+
+  const $topInset = useSafeAreaInsetsStyle(["top"])
 
   if (!visible) return null
 
@@ -25,7 +28,7 @@ export const NexusOverlay: FC<NexusOverlayProps> = observer(function NexusOverla
                      "#F44336" // Red
 
   return (
-    <View style={$overlay}>
+    <View style={[$overlay, $topInset]}>
       <View style={$statusContainer}>
         <View style={[$statusDot, { backgroundColor: statusColor }]} />
         <Text style={$statusText}>{statusText}</Text>
@@ -39,7 +42,6 @@ export const NexusOverlay: FC<NexusOverlayProps> = observer(function NexusOverla
 
 const $overlay: ViewStyle = {
   position: "absolute",
-  top: 0,
   left: 0,
   right: 0,
   padding: 16,
