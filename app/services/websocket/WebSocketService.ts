@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx"
+import { makeAutoObservable, runInAction } from "mobx"
 import { WebSocketConfig, WebSocketMessage, ConnectionState, AskMessage, ResponseMessage, AuthMessage } from "./types"
 
 export class WebSocketService {
@@ -21,13 +21,20 @@ export class WebSocketService {
     makeAutoObservable(this)
   }
 
+  private setState(updates: Partial<ConnectionState>) {
+    runInAction(() => {
+      Object.assign(this.state, updates)
+      console.log('State updated:', this.state)
+    })
+  }
+
   connect = async () => {
     if (this.state.connected || this.state.connecting) {
-      console.log('Already connected or connecting')
+      console.log('Already connected or connecting, current state:', this.state)
       return
     }
     
-    this.state.connecting = true
+    this.setState({ connecting: true })
     console.log('Connecting to WebSocket...')
     
     try {
@@ -63,8 +70,10 @@ export class WebSocketService {
       
     } catch (error) {
       console.error('WebSocket connection error:', error)
-      this.state.error = `Connection failed: ${error.message || 'Unknown error'}`
-      this.state.connecting = false
+      this.setState({
+        error: `Connection failed: ${error.message || 'Unknown error'}`,
+        connecting: false
+      })
       this.attemptReconnect()
     }
   }
@@ -79,14 +88,19 @@ export class WebSocketService {
         console.log('Handling auth response:', message)
         if (message.payload?.status === 'success') {
           console.log('Authentication successful')
-          this.state.connected = true
-          this.state.connecting = false
-          this.state.error = undefined
+          this.setState({
+            connected: true,
+            connecting: false,
+            error: undefined
+          })
           this.reconnectAttempts = 0
         } else {
           console.error('Authentication failed:', message.payload?.error)
-          this.state.error = message.payload?.error || 'Authentication failed'
-          this.state.connecting = false
+          this.setState({
+            error: message.payload?.error || 'Authentication failed',
+            connecting: false,
+            connected: false
+          })
           this.ws?.close()
         }
         return
@@ -95,7 +109,9 @@ export class WebSocketService {
       // Handle error messages
       if (message.type === 'error') {
         console.error('Received error message:', message)
-        this.state.error = message.payload?.error || 'Unknown error'
+        this.setState({
+          error: message.payload?.error || 'Unknown error'
+        })
         return
       }
 
@@ -134,8 +150,11 @@ export class WebSocketService {
       : `Unknown error ${event.code}${event.reason ? `: ${event.reason}` : ''}`
       
     console.log('WebSocket closed:', reason)
-    this.state.error = `Connection closed - ${reason}`
-    this.state.connected = false
+    this.setState({
+      error: `Connection closed - ${reason}`,
+      connected: false,
+      connecting: false
+    })
     this.attemptReconnect()
   }
 
@@ -148,15 +167,22 @@ export class WebSocketService {
     }
     
     console.error('WebSocket error:', errorMessage)
-    this.state.error = errorMessage
-    this.state.connected = false
+    this.setState({
+      error: errorMessage,
+      connected: false,
+      connecting: false
+    })
     this.attemptReconnect()
   }
 
   private attemptReconnect = () => {
     if (this.reconnectAttempts >= (this.config.maxReconnectAttempts || 5)) {
       console.log('Max reconnection attempts reached')
-      this.state.error = "Max reconnection attempts reached"
+      this.setState({
+        error: "Max reconnection attempts reached",
+        connected: false,
+        connecting: false
+      })
       return
     }
 
@@ -205,7 +231,9 @@ export class WebSocketService {
       this.ws.close()
       this.ws = null
     }
-    this.state.connected = false
-    this.state.connecting = false
+    this.setState({
+      connected: false,
+      connecting: false
+    })
   }
 }
