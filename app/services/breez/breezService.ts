@@ -46,7 +46,7 @@ class BreezServiceImpl implements BreezService {
           const testFile = `${workingDirUrl}/test.txt`
           await FileSystem.writeAsStringAsync(testFile, 'test')
           await FileSystem.deleteAsync(testFile, { idempotent: true })
-        } catch (err) {
+        } catch (err: any) {
           throw new Error(`Working directory is not writable: ${err.message}`)
         }
 
@@ -173,7 +173,7 @@ class BreezServiceImpl implements BreezService {
 
     try {
       const txs = await this.sdk.listPayments()
-      return txs.map(tx => ({
+      return txs.map((tx: any) => ({
         id: tx.id,
         amount: tx.amountSat,
         timestamp: tx.timestamp,
