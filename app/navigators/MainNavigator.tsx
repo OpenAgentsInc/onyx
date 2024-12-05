@@ -11,10 +11,10 @@ import {
   CommunityScreen,
   HomeScreen,
   OnyxScreen,
-  ProfileScreen,
   WalletScreen,
 } from "../screens"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
+import { ProfileMenuNavigator } from "./ProfileMenuNavigator"
 
 import type { ThemedStyle } from "@/theme"
 
@@ -75,7 +75,7 @@ export function MainNavigator() {
 
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileMenuNavigator}
       />
     </Tab.Navigator>
   )

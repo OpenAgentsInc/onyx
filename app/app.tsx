@@ -18,22 +18,25 @@ if (__DEV__) {
 }
 import "./utils/gestureHandler"
 import "./utils/ignoreWarnings"
+import "./utils/crypto-polyfill"
+import { Buffer } from "buffer"
 import { useFonts } from "expo-font"
 import * as Linking from "expo-linking"
 import { useEffect, useState } from "react"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import {
-    initialWindowMetrics, SafeAreaProvider
+  initialWindowMetrics, SafeAreaProvider
 } from "react-native-safe-area-context"
 import Config from "./config"
 import { initI18n } from "./i18n"
-import { useInitialRootStore } from "./models"
+import { useInitialRootStore, useStores } from "./models"
 import { AppNavigator, useNavigationPersistence } from "./navigators"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import { customFontsToLoad } from "./theme"
 import { loadDateFnsLocale } from "./utils/formatDate"
 import * as storage from "./utils/storage"
-import { BreezProvider } from "./providers/BreezProvider"
+
+global.Buffer = Buffer;
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
@@ -78,6 +81,12 @@ function App(props: AppProps) {
   const [areFontsLoaded, fontLoadError] = useFonts(customFontsToLoad)
   const [isI18nInitialized, setIsI18nInitialized] = useState(false)
 
+  // Initialize wallet store
+  const { walletStore } = useStores()
+  useEffect(() => {
+    walletStore.initialize()
+  }, [walletStore])
+
   useEffect(() => {
     initI18n()
       .then(() => setIsI18nInitialized(true))
@@ -119,13 +128,11 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <KeyboardProvider>
-          <BreezProvider>
-            <AppNavigator
-              linking={linking}
-              initialState={initialNavigationState}
-              onStateChange={onNavigationStateChange}
-            />
-          </BreezProvider>
+          <AppNavigator
+            linking={linking}
+            initialState={initialNavigationState}
+            onStateChange={onNavigationStateChange}
+          />
         </KeyboardProvider>
       </ErrorBoundary>
     </SafeAreaProvider>

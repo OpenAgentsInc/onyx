@@ -1,37 +1,46 @@
 import React, { useEffect } from "react"
-import { View, StyleSheet } from "react-native"
+import { View, StyleSheet, ActivityIndicator } from "react-native"
 import { Text } from "./Text"
 import { useStores } from "../models"
-import { useBreez } from "../providers/BreezProvider"
 import { observer } from "mobx-react-lite"
-import { getInfo } from '@breeztech/react-native-breez-sdk-liquid'
 
 export const BalanceDisplay = observer(function BalanceDisplay() {
-  const {
-    walletStore: { balanceSat, pendingSendSat, pendingReceiveSat, setBalance, setPendingSend, setPendingReceive },
-  } = useStores()
-  const { isInitialized } = useBreez()
+  const { walletStore } = useStores()
+  const { 
+    balanceSat, 
+    pendingSendSat, 
+    pendingReceiveSat, 
+    isInitialized,
+    error,
+    fetchBalanceInfo 
+  } = walletStore
 
   useEffect(() => {
-    async function updateBalance() {
-      if (!isInitialized) return
-
-      try {
-        const info = await getInfo()
-        setBalance(info.balanceSat)
-        setPendingSend(info.pendingSendSat)
-        setPendingReceive(info.pendingReceiveSat)
-      } catch (error) {
-        console.error("Error fetching balance:", error)
-      }
+    if (isInitialized) {
+      fetchBalanceInfo()
+      // Set up an interval to update the balance periodically
+      const interval = setInterval(fetchBalanceInfo, 30000) // Every 30 seconds
+      return () => clearInterval(interval)
     }
+    return undefined // Add explicit return
+  }, [isInitialized, fetchBalanceInfo])
 
-    updateBalance()
-    // Set up an interval to update the balance periodically
-    const interval = setInterval(updateBalance, 30000) // Every 30 seconds
+  if (!isInitialized) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#fff" />
+        <Text style={styles.statusText}>Initializing wallet...</Text>
+      </View>
+    )
+  }
 
-    return () => clearInterval(interval)
-  }, [isInitialized, setBalance, setPendingSend, setPendingReceive])
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    )
+  }
 
   return (
     <View style={styles.container}>
@@ -63,10 +72,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     borderRadius: 10,
     margin: 10,
+    minHeight: 100,
+    justifyContent: "center",
   },
   balanceText: {
     color: "#fff",
     fontSize: 24,
+    fontFamily: "SpaceGrotesk-Bold",
   },
   pendingContainer: {
     marginTop: 10,
@@ -74,5 +86,18 @@ const styles = StyleSheet.create({
   pendingText: {
     color: "#888",
     fontSize: 14,
+    fontFamily: "SpaceGrotesk-Regular",
+  },
+  errorText: {
+    color: "#ff4444",
+    fontSize: 14,
+    fontFamily: "SpaceGrotesk-Regular",
+    textAlign: "center",
+  },
+  statusText: {
+    color: "#888",
+    fontSize: 14,
+    fontFamily: "SpaceGrotesk-Regular",
+    marginTop: 10,
   },
 })
