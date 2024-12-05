@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite"
-import { FC } from "react"
+import { FC, useEffect } from "react"
 import { View, ViewStyle } from "react-native"
 import { Text } from "@/components"
 import { useWebSocket } from "@/services/websocket/useWebSocket"
@@ -13,6 +13,10 @@ interface NexusOverlayProps {
 export const NexusOverlay: FC<NexusOverlayProps> = observer(function NexusOverlay({ visible = true }) {
   const { state } = useWebSocket(WS_CONFIG)
   const $topInset = useSafeAreaInsetsStyle(["top"])
+
+  useEffect(() => {
+    console.log('NexusOverlay state updated:', state)
+  }, [state.connected, state.connecting, state.error])
 
   if (!visible) return null
 
