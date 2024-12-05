@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { ViewStyle, View, TouchableOpacity, ScrollView } from "react-native"
+import { ViewStyle, View, TouchableOpacity, ScrollView, TextStyle } from "react-native"
 import { Screen, Text } from "@/components"
 import { MainTabScreenProps } from "@/navigators"
 import { BalanceDisplay } from "@/components/BalanceDisplay"
@@ -70,7 +70,7 @@ const $contentContainer: ViewStyle = {
   paddingTop: 20,
 }
 
-const $headerText = {
+const $headerText: TextStyle = {
   color: "white",
   fontSize: 24,
   marginBottom: 20,
@@ -84,7 +84,7 @@ const $transactionsContainer: ViewStyle = {
   marginTop: 20,
 }
 
-const $sectionHeader = {
+const $sectionHeader: TextStyle = {
   color: "white",
   fontSize: 18,
   marginBottom: 12,
@@ -112,42 +112,42 @@ const $transactionRight: ViewStyle = {
   alignItems: "flex-end",
 }
 
-const $transactionType = {
+const $transactionType: TextStyle = {
   fontSize: 16,
   marginBottom: 4,
   fontFamily: "SpaceGrotesk-Medium",
 }
 
-const $transactionDate = {
+const $transactionDate: TextStyle = {
   color: "#888",
   fontSize: 14,
   fontFamily: "SpaceGrotesk-Regular",
 }
 
-const $transactionAmount = {
+const $transactionAmount: TextStyle = {
   fontSize: 16,
   fontFamily: "SpaceGrotesk-Medium",
 }
 
-const $sendText = {
+const $sendText: TextStyle = {
   color: "#ff4444",
 }
 
-const $receiveText = {
+const $receiveText: TextStyle = {
   color: "#44ff44",
 }
 
-const $pendingText = {
+const $pendingText: TextStyle = {
   color: "#888",
   fontSize: 12,
   marginTop: 4,
   fontFamily: "SpaceGrotesk-Regular",
 }
 
-const $emptyText = {
+const $emptyText: TextStyle = {
   color: "#888",
   fontSize: 16,
-  textAlign: "center",
+  textAlign: "center" as const,
   marginTop: 20,
   fontFamily: "SpaceGrotesk-Regular",
 }
