@@ -1,59 +1,56 @@
-import { useState, useEffect, useCallback } from 'react';
-import WebSocketService from './WebSocketService';
-import { WebSocketConfig, WebSocketMessage, WebSocketState, AskRequest } from './types';
+import { useState, useEffect, useCallback } from 'react'
+import { WebSocketService } from './WebSocketService'
+import { WebSocketConfig, WebSocketMessage, ConnectionState, ResponseMessage } from './types'
 
 export const useWebSocket = (config: WebSocketConfig) => {
-  const [state, setState] = useState<WebSocketState>({
+  const [state, setState] = useState<ConnectionState>({
     connected: false,
     connecting: false,
-    error: null,
-  });
+  })
 
-  const [ws] = useState(() => new WebSocketService(config));
+  const [messages, setMessages] = useState<ResponseMessage[]>([])
+  const [ws] = useState(() => new WebSocketService(config))
 
   useEffect(() => {
-    setState(prev => ({ ...prev, connecting: true }));
-    
-    const unsubscribeStatus = ws.onStatusChange((connected) => {
-      setState(prev => ({
-        ...prev,
-        connected,
-        connecting: false,
-        error: null,
-      }));
-    });
+    const handleStateChange = () => {
+      setState({
+        connected: ws.state.connected,
+        connecting: ws.state.connecting,
+        error: ws.state.error,
+      })
+    }
 
-    ws.connect();
+    // Set up response handler
+    const unsubscribeResponse = ws.onResponse((message: ResponseMessage) => {
+      setMessages(prev => [...prev, message])
+    })
+
+    // Connect to WebSocket
+    ws.connect()
 
     return () => {
-      unsubscribeStatus();
-      ws.disconnect();
-    };
-  }, [ws]);
+      unsubscribeResponse()
+      ws.disconnect()
+    }
+  }, [ws])
 
   const sendMessage = useCallback((query: string, teamId?: string) => {
-    const message: WebSocketMessage = {
-      type: 'ask',
-      id: Math.random().toString(36).substring(7),
-      payload: {
-        query,
-        team_id: teamId,
-      } as AskRequest,
-    };
+    if (!state.connected) {
+      throw new Error('WebSocket is not connected')
+    }
+    return ws.sendQuery(query, teamId)
+  }, [state.connected, ws])
 
-    ws.send(message);
-    return message.id;
-  }, [ws]);
-
-  const subscribe = useCallback((handler: (message: WebSocketMessage) => void) => {
-    return ws.onMessage(handler);
-  }, [ws]);
+  const clearMessages = useCallback(() => {
+    setMessages([])
+  }, [])
 
   return {
     state,
+    messages,
     sendMessage,
-    subscribe,
-  };
-};
+    clearMessages,
+  }
+}
 
-export default useWebSocket;
+export default useWebSocket
