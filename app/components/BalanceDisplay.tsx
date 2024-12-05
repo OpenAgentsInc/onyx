@@ -22,6 +22,7 @@ export const BalanceDisplay = observer(function BalanceDisplay() {
       const interval = setInterval(fetchBalanceInfo, 30000) // Every 30 seconds
       return () => clearInterval(interval)
     }
+    return undefined // Add explicit return
   }, [isInitialized, fetchBalanceInfo])
 
   if (!isInitialized) {
