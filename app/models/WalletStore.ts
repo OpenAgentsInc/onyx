@@ -22,6 +22,7 @@ export const WalletStoreModel = types
     pendingSendSat: types.number,
     pendingReceiveSat: types.number,
     transactions: types.array(TransactionModel),
+    mnemonic: types.maybeNull(types.string),
   })
   .actions(withSetPropAction)
   .actions((self) => {
@@ -39,6 +40,10 @@ export const WalletStoreModel = types
         self.isInitialized = true
         setError(null)
         
+        // Store the mnemonic
+        const mnemonic = yield breezService.getMnemonic()
+        self.mnemonic = mnemonic
+        
         // Now that we're initialized, fetch the initial balance
         yield fetchBalanceInfo()
       } catch (error) {
@@ -51,6 +56,7 @@ export const WalletStoreModel = types
       try {
         yield breezService.disconnect()
         self.isInitialized = false
+        self.mnemonic = null
         setError(null)
       } catch (error) {
         console.error("Failed to disconnect wallet:", error)
@@ -166,4 +172,5 @@ export const createWalletStoreDefaultModel = () =>
     pendingSendSat: 0,
     pendingReceiveSat: 0,
     transactions: [],
+    mnemonic: null,
   })
