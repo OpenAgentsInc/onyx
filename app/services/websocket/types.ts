@@ -7,9 +7,15 @@ export interface WebSocketMessage {
 export interface AuthMessage extends WebSocketMessage {
   type: 'auth'
   payload: {
-    pubkey: string
-    signature: string
-    challenge: string
+    apiKey: string
+  }
+}
+
+export interface AuthResponse extends WebSocketMessage {
+  type: 'auth'
+  payload: {
+    status: 'success' | 'error'
+    error?: string
   }
 }
 
