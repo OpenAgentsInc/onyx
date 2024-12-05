@@ -1,52 +1,58 @@
 import { useState, useEffect, useCallback } from 'react'
 import { WebSocketService } from './WebSocketService'
 import { WebSocketConfig, WebSocketMessage, ConnectionState, ResponseMessage } from './types'
+import { useLocalObservable, observer } from 'mobx-react-lite'
+
+// Create a singleton instance
+let globalWsService: WebSocketService | null = null
 
 export const useWebSocket = (config: WebSocketConfig) => {
-  const [state, setState] = useState<ConnectionState>({
-    connected: false,
-    connecting: false,
+  // Use the existing instance or create a new one
+  const wsService = useLocalObservable(() => {
+    if (!globalWsService) {
+      globalWsService = new WebSocketService(config)
+    }
+    return globalWsService
   })
 
   const [messages, setMessages] = useState<ResponseMessage[]>([])
-  const [ws] = useState(() => new WebSocketService(config))
 
   useEffect(() => {
-    const handleStateChange = () => {
-      setState({
-        connected: ws.state.connected,
-        connecting: ws.state.connecting,
-        error: ws.state.error,
-      })
-    }
-
+    console.log('useWebSocket effect running')
+    
     // Set up response handler
-    const unsubscribeResponse = ws.onResponse((message: ResponseMessage) => {
+    const unsubscribeResponse = wsService.onResponse((message: ResponseMessage) => {
+      console.log('Response received in hook:', message)
       setMessages(prev => [...prev, message])
     })
 
-    // Connect to WebSocket
-    ws.connect()
+    // Connect to WebSocket if not already connected
+    if (!wsService.state.connected && !wsService.state.connecting) {
+      console.log('Connecting from hook')
+      wsService.connect()
+    } else {
+      console.log('Current wsService state:', wsService.state)
+    }
 
     return () => {
       unsubscribeResponse()
-      ws.disconnect()
     }
-  }, [ws])
+  }, [wsService])
 
   const sendMessage = useCallback((query: string, teamId?: string) => {
-    if (!state.connected) {
+    if (!wsService.state.connected) {
+      console.log('Cannot send message - not connected. Current state:', wsService.state)
       throw new Error('WebSocket is not connected')
     }
-    return ws.sendQuery(query, teamId)
-  }, [state.connected, ws])
+    return wsService.sendQuery(query, teamId)
+  }, [wsService])
 
   const clearMessages = useCallback(() => {
     setMessages([])
   }, [])
 
   return {
-    state,
+    state: wsService.state,
     messages,
     sendMessage,
     clearMessages,
