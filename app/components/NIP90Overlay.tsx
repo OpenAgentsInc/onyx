@@ -1,15 +1,20 @@
-// app/components/NIP90Overlay.tsx
-import { observer } from "mobx-react-lite"
 import React, { useEffect, useState } from "react"
 import { StyleSheet, Text, View } from "react-native"
+import { useNostrWebSocket } from "../services/nostr"
 
-const NIP90Overlay = observer(() => {
-  const [status, setStatus] = useState('idle'); // Status can be updated based on app state
+const NIP90Overlay = () => {
+  const relayUrl = "wss://nostr-relay.example.com";
+  const { connected, subscribe } = useNostrWebSocket(relayUrl);
+  const [status, setStatus] = useState("idle");
 
   useEffect(() => {
-    // Placeholder for any setup logic, such as initializing connection to DVM or relay
-    setStatus('connected'); // Example: update status when connection is established
-  }, []);
+    if (connected) {
+      setStatus("connected");
+      subscribe("example-subscription", [{ kinds: [1] }]); // Example subscription
+    } else {
+      setStatus("disconnected");
+    }
+  }, [connected]);
 
   return (
     <View style={styles.overlay}>
@@ -18,19 +23,19 @@ const NIP90Overlay = observer(() => {
       </View>
     </View>
   );
-});
+};
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Dark overlay background
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   statusContainer: {
     padding: 16,
     borderRadius: 8,
-    backgroundColor: 'white', // Box for displaying status
+    backgroundColor: 'white',
   },
   statusText: {
     fontSize: 16,
