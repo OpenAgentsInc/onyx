@@ -1,9 +1,11 @@
-import { WebSocketConfig } from '../services/websocket/types';
-import env from './env';
+import { WebSocketConfig } from '../types/websocket';
 
-export const WS_CONFIG: WebSocketConfig = {
-  url: 'ws://localhost:8000',  // Use root path since that's where the server is listening
-  apiKey: env.NEXUS_API_KEY,
-  reconnectAttempts: 5,
-  reconnectInterval: 3000,
+export const websocketConfig: WebSocketConfig = {
+  url: process.env.WEBSOCKET_URL || 'ws://localhost:3000',
+  maxReconnectAttempts: 5,
+  reconnectInterval: 1000,
+  reconnectBackoff: 'exponential',
+  maxBackoffTime: 30000,
+  pingInterval: 30000,
+  pongTimeout: 5000
 };
