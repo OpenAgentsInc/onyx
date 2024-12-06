@@ -7,6 +7,7 @@ export interface Resource {
   uri: string;
   type: string;
   metadata?: Record<string, any>;
+  content?: string;
 }
 
 export interface CachedResource {
@@ -14,8 +15,26 @@ export interface CachedResource {
   timestamp: number;
 }
 
+export interface PaginationParams {
+  limit?: number;
+  cursor?: string;
+}
+
+export interface ListResourcesParams extends PaginationParams {
+  type?: string;
+  query?: string;
+}
+
 export interface ListResourcesResult {
   resources: Resource[];
+  nextCursor?: string;
+  total?: number;
+}
+
+export interface ResourceUpdate {
+  type: 'created' | 'updated' | 'deleted';
+  resource: Resource;
+  timestamp: number;
 }
 
 export const ListResourcesResultSchema = {
@@ -32,7 +51,9 @@ export const ListResourcesResultSchema = {
         },
         required: ['uri', 'type']
       }
-    }
+    },
+    nextCursor: { type: 'string', optional: true },
+    total: { type: 'number', optional: true }
   },
   required: ['resources']
 };
@@ -46,4 +67,22 @@ export const ReadResourceResultSchema = {
     metadata: { type: 'object', optional: true }
   },
   required: ['uri', 'type', 'content']
+};
+
+export const ResourceUpdateSchema = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', enum: ['created', 'updated', 'deleted'] },
+    resource: {
+      type: 'object',
+      properties: {
+        uri: { type: 'string' },
+        type: { type: 'string' },
+        metadata: { type: 'object', optional: true }
+      },
+      required: ['uri', 'type']
+    },
+    timestamp: { type: 'number' }
+  },
+  required: ['type', 'resource', 'timestamp']
 };
