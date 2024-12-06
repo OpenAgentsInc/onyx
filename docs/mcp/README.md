@@ -6,6 +6,18 @@
 
 The Model Context Protocol (MCP) is an open protocol developed by Anthropic that enables seamless integration between LLM applications and external data sources/tools. For Onyx, implementing MCP would allow us to become the first mobile MCP Client, enabling users to access a growing ecosystem of AI tools and capabilities.
 
+As AI assistants gain mainstream adoption, even the most sophisticated models are constrained by their isolation from data—trapped behind information silos and legacy systems. MCP addresses this challenge by providing a universal, open standard for connecting AI systems with data sources, replacing fragmented integrations with a single protocol.
+
+## Available Integrations
+
+MCP provides pre-built servers for popular enterprise systems:
+- Google Drive
+- Slack
+- GitHub
+- Git
+- Postgres
+- Puppeteer
+
 ## How MCP Works
 
 1. **Client Applications** (like Onyx) can:
@@ -23,6 +35,8 @@ The Model Context Protocol (MCP) is an open protocol developed by Anthropic that
 1. **Plugin Ecosystem**: Access to existing and future MCP-compatible tools and data sources
 2. **Standardized Integration**: Common interface for connecting to various AI services and tools
 3. **Mobile First**: Opportunity to be the first mobile MCP Client implementation
+4. **Unified Context**: AI systems maintain context as they move between different tools and datasets
+5. **Scalable Architecture**: Build against a standard protocol instead of maintaining separate connectors
 
 ## Technical Implementation
 
@@ -54,15 +68,30 @@ The Model Context Protocol (MCP) is an open protocol developed by Anthropic that
 - Growing ecosystem of tools and providers
 - Standardized protocol for AI tool integration
 - Focus on security and permission management
+- Backed by major tech companies and development tools
+
+## Current Adoption
+
+MCP is being integrated by several major platforms:
+- Claude Desktop (Anthropic)
+- Zed Editor
+- Replit
+- Codeium
+- Sourcegraph
+- Block
+- Apollo
 
 ## Resources
 
 - [MCP Documentation](https://modelcontextprotocol.io)
 - [TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
 - [Protocol Specification](https://spec.modelcontextprotocol.io)
+- [Example Servers](https://github.com/modelcontextprotocol/servers)
+- [Quickstart Guide](https://modelcontextprotocol.io/quickstart)
 
 ## Notes
 
 - MCP is actively being developed with growing adoption
-- Current MCP Clients include Claude Desktop, Zed Editor, and Cody by Sourcegraph
 - Implementation would position Onyx as a pioneer in mobile AI tool integration
+- Focus on secure, two-way connections between data sources and AI-powered tools
+- Strong emphasis on maintaining context across different tools and datasets
