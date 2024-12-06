@@ -41,8 +41,9 @@ export class WebSocketTransport {
           }
         };
 
-        this.ws.onerror = (error) => {
-          this.events.onError(error as Error);
+        this.ws.onerror = (event) => {
+          const error = event instanceof Error ? event : new Error('WebSocket error');
+          this.events.onError(error);
           reject(new ConnectionError('WebSocket connection error'));
         };
 
@@ -54,7 +55,8 @@ export class WebSocketTransport {
           }
         };
       } catch (error) {
-        reject(new ConnectionError('Failed to create WebSocket connection'));
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        reject(new ConnectionError(`Failed to create WebSocket connection: ${message}`));
       }
     });
   }
@@ -89,7 +91,8 @@ export class WebSocketTransport {
     try {
       this.ws.send(JSON.stringify(message));
     } catch (error) {
-      throw new ConnectionError('Failed to send message');
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new ConnectionError(`Failed to send message: ${message}`);
     }
   }
 
