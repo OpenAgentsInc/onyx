@@ -1,45 +1,31 @@
+import React from "react"
 import { observer } from "mobx-react-lite"
-import { FC } from "react"
-import { StyleSheet, View } from "react-native"
-import { Canvas } from "@/components/Canvas"
-import { HudButtons } from "@/components/HudButtons"
-import { NexusOverlay } from "@/components/NexusOverlay"
-import NIP90Overlay from "@/components/NIP90Overlay"
-import { useAudioRecorder } from "@/hooks/useAudioRecorder"
-import { useStores } from "@/models"
-import { MainTabScreenProps } from "@/navigators"
+import { View, ViewStyle } from "react-native"
+import { Text } from "@/components"
+import NexusOverlay from "@/components/NexusOverlay"
+import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
-interface OnyxScreenProps extends MainTabScreenProps<"Onyx"> { }
+interface OnyxScreenProps {
+  visible?: boolean
+}
 
-export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
-  const { isRecording, toggleRecording } = useAudioRecorder()
-  const { chatStore } = useStores()
+export const OnyxScreen = observer(function OnyxScreen({ visible = true }: OnyxScreenProps) {
+  const $topInset = useSafeAreaInsetsStyle(["top"])
 
-  const handleMicPress = async () => {
-    await toggleRecording()
-  }
-
-  const handleChatPress = () => {
-    chatStore.toggleFullChat()
-  }
+  if (!visible) return null
 
   return (
-    <View style={styles.container}>
-      <Canvas />
-      {/* <NexusOverlay /> */}
-      <NIP90Overlay />
-      <HudButtons
-        onMicPress={handleMicPress}
-        onChatPress={handleChatPress}
-        isRecording={isRecording}
-      />
+    <View style={[$container, $topInset]}>
+      <NexusOverlay />
+      <Text>Onyx Screen</Text>
     </View>
   )
 })
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'black',
-  },
-})
+const $container: ViewStyle = {
+  flex: 1,
+  backgroundColor: '#fff',
+  padding: 16,
+}
+
+export default OnyxScreen
