@@ -2,158 +2,186 @@
 
 ## Overview
 
-Roots in the Model Context Protocol (MCP) represent the foundational connection points between clients and servers. They establish the base communication channels and capabilities negotiation that enable all other MCP features.
+The Model Context Protocol (MCP) provides a standardized way for clients to expose filesystem "roots" to servers. Roots define the boundaries of where servers can operate within the filesystem, allowing them to understand which directories and files they have access to. Servers can request the list of roots from supporting clients and receive notifications when that list changes.
 
-## Key Concepts
+## User Interaction Model
 
-### 1. Root Connections
+Roots in MCP are typically exposed through workspace or project configuration interfaces.
 
-- Primary communication channels between clients and servers
-- Establish initial protocol capabilities
-- Handle authentication and authorization
-- Manage connection lifecycle
+For example, implementations could offer a workspace/project picker that allows users to select directories and files the server should have access to. This can be combined with automatic workspace detection from version control systems or project files.
 
-### 2. Connection States
+However, implementations are free to expose roots through any interface pattern that suits their needs—the protocol itself does not mandate any specific user interaction model.
 
-1. **Initialization**
-   - Initial connection establishment
-   - Protocol version negotiation
-   - Capability discovery
+## Capabilities
 
-2. **Active**
-   - Normal operation state
-   - Feature availability confirmed
-   - Ready for message exchange
+Clients that support roots **MUST** declare the `roots` capability during initialization:
 
-3. **Terminated**
-   - Connection closed
-   - Resources cleaned up
-   - Ready for potential reconnection
-
-### 3. Capability Negotiation
-
-- Servers declare available features
-- Clients confirm supported capabilities
-- Establish common protocol subset
-- Version compatibility checking
-
-## Implementation Requirements
-
-### 1. Connection Management
-
-- Secure connection establishment
-- Heartbeat monitoring
-- Connection recovery
-- Resource cleanup
-
-### 2. Protocol Flow
-
-1. Client initiates connection
-2. Server responds with capabilities
-3. Client confirms supported features
-4. Connection enters active state
-5. Normal operation begins
-
-### 3. Security Requirements
-
-- TLS/SSL encryption
-- Authentication handling
-- Authorization validation
-- Secure capability negotiation
-
-## Technical Details
-
-### Connection Request
-
-```typescript
-interface RootConnectionRequest {
-  version: string;           // Protocol version
-  capabilities: string[];    // Supported capabilities
-  authentication?: {         // Optional authentication
-    type: string;
-    credentials: any;
-  };
-  metadata?: {              // Optional connection metadata
-    client_info: string;
-    environment?: string;
-  };
+```json
+{
+  "capabilities": {
+    "roots": {
+      "listChanged": true
+    }
+  }
 }
 ```
 
-### Connection Response
+`listChanged` indicates whether the client will emit notifications when the list of roots changes.
 
-```typescript
-interface RootConnectionResponse {
-  accepted: boolean;         // Connection acceptance
-  server_version: string;    // Server protocol version
-  supported_capabilities: string[];  // Available features
-  session_id?: string;      // Optional session identifier
-  metadata?: {              // Optional server metadata
-    server_info: string;
-    features?: string[];
-  };
+## Protocol Messages
+
+### Listing Roots
+
+To retrieve roots, servers send a `roots/list` request:
+
+**Request:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "roots/list"
 }
 ```
 
-## Error Scenarios
+**Response:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "roots": [
+      {
+        "uri": "file:///home/user/projects/myproject",
+        "name": "My Project"
+      }
+    ]
+  }
+}
+```
 
-Common error conditions to handle:
+### Root List Changes
 
-1. Version mismatch
-2. Authentication failure
-3. Capability mismatch
-4. Connection timeout
-5. Network issues
+When roots change, clients that support `listChanged` MUST send a notification:
 
-## Best Practices
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/roots/list_changed"
+}
+```
 
-### 1. Connection Management
+## Message Flow
 
-- Implement retry logic
-- Handle disconnections gracefully
-- Monitor connection health
-- Clean up resources properly
+The typical flow for root operations is:
 
-### 2. Security
+1. Discovery
+   - Server requests root list
+   - Client returns available roots
 
-- Validate all incoming messages
-- Implement proper encryption
-- Handle authentication securely
-- Monitor for suspicious activity
+2. Changes
+   - Client detects root changes
+   - Client sends list_changed notification
+   - Server requests updated root list
+   - Client returns new roots
 
-### 3. Performance
+## Data Types
 
-- Optimize connection establishment
-- Minimize capability negotiation
-- Implement efficient heartbeats
-- Handle concurrent connections
+### Root
+
+A root definition includes:
+
+- `uri`: Unique identifier for the root. This **MUST** be a `file://` URI in the current specification.
+- `name`: Optional human-readable name for display purposes.
+
+Example roots for different use cases:
+
+#### Project Directory
+```json
+{
+  "uri": "file:///home/user/projects/myproject",
+  "name": "My Project"
+}
+```
+
+#### Multiple Repositories
+```json
+[
+  {
+    "uri": "file:///home/user/repos/frontend",
+    "name": "Frontend Repository"
+  },
+  {
+    "uri": "file:///home/user/repos/backend",
+    "name": "Backend Repository"
+  }
+]
+```
+
+## Error Handling
+
+Clients SHOULD return standard JSON-RPC errors for common failure cases:
+
+- Client does not support roots: `-32601` (Method not found)
+- Internal errors: `-32603`
+
+Example error:
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "error": {
+    "code": -32601,
+    "message": "Roots not supported",
+    "data": {
+      "reason": "Client does not have roots capability"
+    }
+  }
+}
+```
+
+## Security Considerations
+
+1. Clients **MUST**:
+   - Only expose roots with appropriate permissions
+   - Validate all root URIs to prevent path traversal
+   - Implement proper access controls
+   - Monitor root accessibility
+
+2. Servers **SHOULD**:
+   - Handle cases where roots become unavailable
+   - Respect root boundaries during operations
+   - Validate all paths against provided roots
 
 ## Implementation Guidelines
 
-### 1. Connection Setup
+1. Clients **SHOULD**:
+   - Prompt users for consent before exposing roots to servers
+   - Provide clear user interfaces for root management
+   - Validate root accessibility before exposing
+   - Monitor for root changes
 
-1. Initialize secure channel
-2. Negotiate protocol version
-3. Exchange capabilities
-4. Establish authentication
-5. Begin normal operation
+2. Servers **SHOULD**:
+   - Check for roots capability before usage
+   - Handle root list changes gracefully
+   - Respect root boundaries in operations
+   - Cache root information appropriately
 
-### 2. Maintenance
+## Best Practices
 
-- Regular connection checks
-- Periodic capability updates
-- Session management
-- Resource monitoring
+1. Root Management
+   - Implement clear root selection UI
+   - Support automatic workspace detection
+   - Enable granular access control
+   - Monitor root health
 
-### 3. Error Handling
+2. Security
+   - Validate all paths
+   - Prevent traversal attacks
+   - Implement access controls
+   - Log access attempts
 
-- Connection retry logic
-- Graceful degradation
-- Clear error messages
-- Recovery procedures
-
-## Resources
-
-- [MCP Specification](https://spec.modelcontextprotocol.io/specification/)
-- [JSON-RPC 2.0](https://www.jsonrpc.org/)
-- [Implementation Guide](https://modelcontextprotocol.io)
+3. Change Handling
+   - Monitor root modifications
+   - Send timely notifications
+   - Handle disconnections gracefully
+   - Maintain state consistency
