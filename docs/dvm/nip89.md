@@ -30,12 +30,7 @@ A DVM must publish a `kind:31990` event that includes:
 ```json
 {
   "created_at": 1693484377,
-  "content": {
-    "name": "Dali Vending Machine",
-    "image": "https://cdn.nostr.build/i/fb207be87d748ad927f52a063c221d1d97ef6d75e660003cb6e85baf2cd2d64e.jpg",
-    "about": "I'm Dali re-incarnated, faster and cheaper",
-    "encryptionSupported": true
-  },
+  "content": "{\"name\":\"Dali Vending Machine\",\"image\":\"https://cdn.nostr.build/i/fb207be87d748ad927f52a063c221d1d97ef6d75e660003cb6e85baf2cd2d64e.jpg\",\"about\":\"I'm Dali re-incarnated, faster and cheaper\",\"encryptionSupported\":true}",
   "tags": [
     ["d", "td51xbgxwbt5116r"],
     ["k", "5100"]
@@ -50,12 +45,7 @@ A DVM must publish a `kind:31990` event that includes:
 ```json
 {
   "created_at": 1693484377,
-  "content": {
-    "name": "You might have missed",
-    "image": "https://cdn.nostr.build/i/fb207be87d748ad927f52a063c221d1d97ef6d75e660003cb6e85baf2cd2d64e.jpg",
-    "about": "My goal is to help you keep up – or catch up – with your world, no matter how much time you spend on nostr.",
-    "encryptionSupported": false
-  },
+  "content": "{\"name\":\"You might have missed\",\"image\":\"https://cdn.nostr.build/i/fb207be87d748ad927f52a063c221d1d97ef6d75e660003cb6e85baf2cd2d64e.jpg\",\"about\":\"My goal is to help you keep up – or catch up – with your world, no matter how much time you spend on nostr.\",\"encryptionSupported\":false}",
   "tags": [
     ["d", "td51xbgxwbt5116r"],
     ["k", "5300"]
