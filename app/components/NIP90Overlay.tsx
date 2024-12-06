@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native"
 import { useNostrWebSocket } from "../services/nostr"
 
 const NIP90Overlay = () => {
-  const relayUrl = "wss://nostr-relay.example.com";
+  const relayUrl = "wss://relay.damus.io";
   const { connected, subscribe } = useNostrWebSocket(relayUrl);
   const [status, setStatus] = useState("idle");
 
