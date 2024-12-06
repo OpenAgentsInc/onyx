@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useMCPClient } from './useMCPClient';
-import { Resource } from '../client/types';
+import { Resource, MCPConfig } from '../client/types';
 import { MCPError } from '../client/errors';
 
+const defaultConfig: MCPConfig = {
+  version: '1.0.0'
+};
+
 export function useMCPResource(uri: string) {
-  const { client, error: clientError } = useMCPClient();
+  const { client, error: clientError } = useMCPClient(defaultConfig);
   const [resource, setResource] = useState<Resource | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
