@@ -3,7 +3,7 @@ import { CacheConfig, ResourceCacheEntry, ListResourcesCacheEntry } from './type
 
 export class ResourceCache {
   private cache: Map<string, ResourceCacheEntry>;
-  private listCache: ListResourcesCacheEntry | null = null;
+  private listCache: Map<string, ListResourcesCacheEntry>;
   private config: Required<CacheConfig>;
 
   constructor(config: CacheConfig = {}) {
@@ -12,6 +12,7 @@ export class ResourceCache {
       maxSize: config.maxSize ?? 1000
     };
     this.cache = new Map();
+    this.listCache = new Map();
   }
 
   async get(uri: string): Promise<Resource | null> {
@@ -36,23 +37,53 @@ export class ResourceCache {
       data: resource,
       timestamp: Date.now()
     });
+
+    // Invalidate list caches that might contain this resource
+    this.listCache.clear();
   }
 
-  async getList(): Promise<Resource[] | null> {
-    if (!this.listCache || this.isStale(this.listCache)) {
-      this.listCache = null;
+  async delete(uri: string): Promise<void> {
+    this.cache.delete(uri);
+    // Invalidate list caches as they might contain this resource
+    this.listCache.clear();
+  }
+
+  async getList(cacheKey: string): Promise<Resource[] | null> {
+    const entry = this.listCache.get(cacheKey);
+    if (!entry || this.isStale(entry)) {
+      this.listCache.delete(cacheKey);
       return null;
     }
 
-    return this.listCache.data;
+    return entry.data;
   }
 
-  async setList(resources: Resource[]): Promise<void> {
-    this.listCache = {
-      key: 'resourcesList',
+  async setList(cacheKey: string, resources: Resource[]): Promise<void> {
+    // Maintain a maximum number of list caches
+    if (this.listCache.size >= 10) { // Arbitrary limit for list caches
+      const oldestKey = Array.from(this.listCache.entries())
+        .reduce((oldest, [key, entry]) => {
+          if (!oldest || entry.timestamp < this.listCache.get(oldest)!.timestamp) {
+            return key;
+          }
+          return oldest;
+        }, null as string | null);
+
+      if (oldestKey) {
+        this.listCache.delete(oldestKey);
+      }
+    }
+
+    this.listCache.set(cacheKey, {
+      key: cacheKey,
       data: resources,
       timestamp: Date.now()
-    };
+    });
+
+    // Cache individual resources as well
+    for (const resource of resources) {
+      await this.set(resource.uri, resource);
+    }
   }
 
   private isStale(entry: ResourceCacheEntry | ListResourcesCacheEntry): boolean {
@@ -77,30 +108,43 @@ export class ResourceCache {
 
   clear(): void {
     this.cache.clear();
-    this.listCache = null;
+    this.listCache.clear();
   }
 
-  getSize(): number {
-    return this.cache.size;
+  getSize(): { resources: number; lists: number } {
+    return {
+      resources: this.cache.size,
+      lists: this.listCache.size
+    };
   }
 
   getCacheStats(): {
-    size: number;
-    oldestEntry: number;
-    newestEntry: number;
+    resourceCount: number;
+    listCount: number;
+    oldestResource: number;
+    newestResource: number;
+    memoryUsage: number;
   } {
     let oldestTime = Date.now();
     let newestTime = 0;
+    let memoryUsage = 0;
 
     for (const entry of this.cache.values()) {
       if (entry.timestamp < oldestTime) oldestTime = entry.timestamp;
       if (entry.timestamp > newestTime) newestTime = entry.timestamp;
+      memoryUsage += JSON.stringify(entry).length * 2; // Rough estimate
+    }
+
+    for (const entry of this.listCache.values()) {
+      memoryUsage += JSON.stringify(entry).length * 2;
     }
 
     return {
-      size: this.cache.size,
-      oldestEntry: oldestTime,
-      newestEntry: newestTime
+      resourceCount: this.cache.size,
+      listCount: this.listCache.size,
+      oldestResource: oldestTime,
+      newestResource: newestTime,
+      memoryUsage // in bytes
     };
   }
 }
