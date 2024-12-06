@@ -1,68 +1,133 @@
-# NIP-89 and Data Vending Machines
+NIP-89
+======
 
-NIP-89 plays a crucial role in the DVM ecosystem by defining how DVMs advertise and describe their services.
+Recommended Application Handlers
+--------------------------------
 
-## Core Concepts
+`draft` `optional`
 
-NIP-89 defines two key event types:
-- Application recommendation events
-- Application handler events (kind:31990)
+This NIP describes `kind:31989` and `kind:31990`: a way to discover applications that can handle unknown event-kinds.
 
-## How It Works
+## Rationale
 
-DVMs use NIP-89's capabilities to:
-1. Announce their services using application handler events
-2. Specify which job types they handle using the `k` tag
-3. Provide detailed service characteristics in the `content` profile data
-4. Enable client-side DVM discovery and selection
+Nostr's discoverability and transparent event interaction is one of its most interesting/novel mechanics.
+This NIP provides a simple way for clients to discover applications that handle events of a specific kind to ensure smooth cross-client and cross-kind interactions.
 
-## Implementation Details
+### Parties involved
 
-A DVM must publish a `kind:31990` event that includes:
-- Service description in the `content` field
-- Job type tags (`k` tags) indicating supported operations
-- Optional metadata like encryption support
+There are three actors to this workflow:
 
-## Examples
+* application that handles a specific event kind (note that an application doesn't necessarily need to be a distinct entity and it could just be the same pubkey as user A)
+    * Publishes `kind:31990`, detailing how apps should redirect to it
+* user A, who recommends an app that handles a specific event kind
+    * Publishes `kind:31989`
+* user B, who seeks a recommendation for an app that handles a specific event kind
+    * Queries for `kind:31989` and, based on results, queries for `kind:31990`
 
-### Image Generation DVM (kind:5100)
+## Events
 
-```json
+### Recommendation event
+```jsonc
 {
-  "created_at": 1693484377,
-  "content": "{\"name\":\"Dali Vending Machine\",\"image\":\"https://cdn.nostr.build/i/fb207be87d748ad927f52a063c221d1d97ef6d75e660003cb6e85baf2cd2d64e.jpg\",\"about\":\"I'm Dali re-incarnated, faster and cheaper\",\"encryptionSupported\":true}",
+  "kind": 31989,
+  "pubkey": <recommender-user-pubkey>,
   "tags": [
-    ["d", "td51xbgxwbt5116r"],
-    ["k", "5100"]
+    ["d", <supported-event-kind>],
+    ["a", "31990:app1-pubkey:<d-identifier>", "wss://relay1", "ios"],
+    ["a", "31990:app2-pubkey:<d-identifier>", "wss://relay2", "web"]
   ],
-  "kind": 31990,
-  "pubkey": "6b37d5dc88c1cbd32d75b713f6d4c2f7766276f51c9337af9d32c8d715cc1b93"
+  // other fields...
 }
 ```
 
-### Discovery Service DVM (kind:5300)
+The `d` tag in `kind:31989` is the supported event kind this event is recommending.
 
-```json
+Multiple `a` tags can appear on the same `kind:31989`.
+
+The second value of the tag SHOULD be a relay hint.
+The third value of the tag SHOULD be the platform where this recommendation might apply.
+
+## Handler information
+```jsonc
 {
-  "created_at": 1693484377,
-  "content": "{\"name\":\"You might have missed\",\"image\":\"https://cdn.nostr.build/i/fb207be87d748ad927f52a063c221d1d97ef6d75e660003cb6e85baf2cd2d64e.jpg\",\"about\":\"My goal is to help you keep up – or catch up – with your world, no matter how much time you spend on nostr.\",\"encryptionSupported\":false}",
-  "tags": [
-    ["d", "td51xbgxwbt5116r"],
-    ["k", "5300"]
-  ],
   "kind": 31990,
-  "pubkey": "6b37d5dc88c1cbd32d75b713f6d4c2f7766276f51c9337af9d32c8d715cc1b93"
+  "pubkey": "<application-pubkey>",
+  "content": "<optional-kind:0-style-metadata>",
+  "tags": [
+    ["d", <random-id>],
+    ["k", <supported-event-kind>],
+    ["web", "https://..../a/<bech32>", "nevent"],
+    ["web", "https://..../p/<bech32>", "nprofile"],
+    ["web", "https://..../e/<bech32>"],
+    ["ios", ".../<bech32>"]
+  ],
+  // other fields...
 }
 ```
 
-## Client Implementation
+* `content` is an optional `metadata`-like stringified JSON object, as described in NIP-01. This content is useful when the pubkey creating the `kind:31990` is not an application. If `content` is empty, the `kind:0` of the pubkey should be used to display application information (e.g. name, picture, web, LUD16, etc.)
+* `k` tags' value is the event kind that is supported by this `kind:31990`.
+Using a `k` tag(s) (instead of having the kind of the `d` tag) provides:
+    * Multiple `k` tags can exist in the same event if the application supports more than one event kind and their handler URLs are the same.
+    * The same pubkey can have multiple events with different apps that handle the same event kind.
+* `bech32` in a URL MUST be replaced by clients with the NIP-19-encoded entity that should be loaded by the application.
 
-Clients SHOULD:
-- Display NIP-89 information to users
-- Enable DVM selection based on capabilities
-- Use the provided metadata for service discovery
+Multiple tags might be registered by the app, following NIP-19 nomenclature as the second value of the array.
 
-## Resources
+A tag without a second value in the array SHOULD be considered a generic handler for any NIP-19 entity that is not handled by a different tag.
 
-- [NIP-89 Specification](https://github.com/nostr-protocol/nips/blob/master/89.md)
-- [NIP-90 Specification](https://github.com/nostr-protocol/nips/blob/vending-machine/90.md)
+# Client tag
+When publishing events, clients MAY include a `client` tag. Identifying the client that published the note. This tag is a tuple of `name`, `address` identifying a handler event and, a relay `hint` for finding the handler event. This has privacy implications for users, so clients SHOULD allow users to opt-out of using this tag.
+
+```jsonc
+{
+  "kind": 1,
+  "tags": [
+    ["client", "My Client", "31990:app1-pubkey:<d-identifier>", "wss://relay1"]
+  ]
+  // other fields...
+}
+```
+
+## User flow
+A user A who uses a non-`kind:1`-centric nostr app could choose to announce/recommend a certain kind-handler application.
+
+When user B sees an unknown event kind, e.g. in a social-media centric nostr client, the client would allow user B to interact with the unknown-kind event (e.g. tapping on it).
+
+The client MIGHT query for the user's and the user's follows handler.
+
+## Example
+
+### User A recommends a `kind:31337`-handler
+User A might be a user of Zapstr, a `kind:31337`-centric client (tracks). Using Zapstr, user A publishes an event recommending Zapstr as a `kind:31337`-handler.
+
+```jsonc
+{
+  "kind": 31989,
+  "tags": [
+    ["d", "31337"],
+    ["a", "31990:1743058db7078661b94aaf4286429d97ee5257d14a86d6bfa54cb0482b876fb0:abcd", <relay-url>, "web"]
+  ],
+  // other fields...
+}
+```
+
+### User B interacts with a `kind:31337`-handler
+User B might see in their timeline an event referring to a `kind:31337` event (e.g. a `kind:1` tagging a `kind:31337`).
+
+User B's client, not knowing how to handle a `kind:31337` might display the event using its `alt` tag (as described in NIP-31). When the user clicks on the event, the application queries for a handler for this `kind`:
+
+```
+["REQ", <id>, { "kinds": [31989], "#d": ["31337"], "authors": [<user>, <users-contact-list>] }]
+```
+
+User B, who follows User A, sees that `kind:31989` event and fetches the `a`-tagged event for the app and handler information.
+
+User B's client sees the application's `kind:31990` which includes the information to redirect the user to the relevant URL with the desired entity replaced in the URL.
+
+### Alternative query bypassing `kind:31989`
+Alternatively, users might choose to query directly for `kind:31990` for an event kind. Clients SHOULD be careful doing this and use spam-prevention mechanisms or querying high-quality restricted relays to avoid directing users to malicious handlers.
+
+```
+["REQ", <id>, { "kinds": [31990], "#k": [<desired-event-kind>], "authors": [...] }]
+```
