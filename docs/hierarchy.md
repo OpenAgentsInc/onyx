@@ -12,7 +12,8 @@ onyx/
 │   └── images/              # Image assets
 ├── docs/                    # Documentation
 │   ├── hierarchy.md        # Project structure documentation
-│   └── websockets.md       # WebSocket implementation docs
+│   ├── websockets.md       # WebSocket implementation docs
+│   └── mcp/               # Model Context Protocol docs
 ├── test/                    # Test configurations and mocks
 ├── android/                 # Android-specific native code
 ├── ios/                     # iOS-specific native code
@@ -34,6 +35,7 @@ app/
 │   ├── Icon.tsx           # Icon component
 │   ├── ListItem.tsx       # List item component
 │   ├── ListView.tsx       # List view component
+│   ├── NexusOverlay.tsx   # WebSocket connection status overlay
 │   ├── Screen.tsx         # Screen container component
 │   ├── Text.tsx           # Text component
 │   ├── TextField.tsx      # Text input component
@@ -44,6 +46,7 @@ app/
 │   ├── VectorIcon.tsx     # Vector icon component
 │   └── index.ts           # Components barrel file
 ├── config/                 # App configuration
+│   ├── env.ts            # Environment configuration
 │   └── websocket.ts       # WebSocket configuration
 ├── devtools/              # Development tools
 ├── i18n/                  # Internationalization
@@ -61,6 +64,37 @@ app/
 │   └── index.ts          # Screens barrel file
 ├── services/              # External services and APIs
 │   ├── api/              # REST API services
+│   ├── mcp/              # Model Context Protocol services
+│   │   ├── client/       # MCP client implementation
+│   │   │   ├── OnyxMCPClient.ts
+│   │   │   ├── types.ts
+│   │   │   └── errors.ts
+│   │   ├── transport/    # Transport layer
+│   │   │   ├── WebSocketTransport.ts
+│   │   │   ├── ConnectionManager.ts
+│   │   │   └── types.ts
+│   │   ├── cache/        # Caching layer
+│   │   │   ├── ResourceCache.ts
+│   │   │   └── types.ts
+│   │   ├── storage/      # Persistent storage
+│   │   │   ├── AsyncStorage.ts
+│   │   │   └── types.ts
+│   │   ├── sync/         # Background sync
+│   │   │   ├── BackgroundSync.ts
+│   │   │   ├── types.ts
+│   │   │   └── index.ts
+│   │   ├── offline/      # Offline support
+│   │   │   ├── OfflineManager.ts
+│   │   │   ├── types.ts
+│   │   │   └── index.ts
+│   │   ├── network/      # Network optimization
+│   │   │   ├── NetworkOptimizer.ts
+│   │   │   ├── types.ts
+│   │   │   └── index.ts
+│   │   ├── hooks/        # React hooks
+│   │   │   ├── useMCPClient.ts
+│   │   │   └── useMCPResource.ts
+│   │   └── index.ts      # MCP barrel file
 │   ├── websocket/        # WebSocket services
 │   │   ├── WebSocketService.ts  # Core WebSocket functionality
 │   │   ├── types.ts            # WebSocket type definitions
@@ -68,6 +102,8 @@ app/
 │   │   └── index.ts           # WebSocket barrel file
 │   └── index.ts          # Services barrel file
 ├── theme/                # Styling and theming
+├── types/                # Global type definitions
+│   └── websocket.ts     # WebSocket type definitions
 └── utils/                # Utility functions
 ```
 
@@ -89,7 +125,16 @@ assets/
 docs/
 ├── hierarchy.md         # Project structure documentation
 ├── websockets.md        # WebSocket implementation details
-└── ...                 # Other documentation files
+└── mcp/                # Model Context Protocol documentation
+    ├── README.md       # MCP overview
+    ├── architecture.md # Architecture documentation
+    ├── implementation-plan.md # Implementation plan
+    ├── implementation-log.md # Implementation progress log
+    ├── onyx_strategy.md # Onyx integration strategy
+    ├── roots.md        # Root concepts
+    ├── sampling.md     # Sampling documentation
+    ├── spec_summary.md # Specification summary
+    └── typescript-sdk.md # TypeScript SDK documentation
 ```
 
 ## Key Directories and Their Purposes
@@ -106,6 +151,17 @@ Contains the main screen components. Each screen represents a full-page view in 
 ### app/services
 Contains service integrations, API clients, and other external service interfaces.
 
+#### app/services/mcp
+Contains Model Context Protocol implementation:
+- Client implementation
+- Transport layer
+- Caching system
+- Persistent storage
+- Background sync
+- Offline support
+- Network optimization
+- React hooks
+
 #### app/services/websocket
 Contains WebSocket implementation files:
 - `WebSocketService.ts`: Core WebSocket functionality
@@ -114,7 +170,7 @@ Contains WebSocket implementation files:
 - `index.ts`: Barrel file for WebSocket exports
 
 ### app/config
-Contains configuration files including WebSocket settings.
+Contains configuration files including WebSocket settings and environment variables.
 
 ### app/theme
 Contains theming configuration including colors, typography, and spacing.
@@ -157,5 +213,26 @@ The WebSocket implementation is organized across several files:
 
 4. **Integration**
    - `app/screens/ChatScreen.tsx`
+
+## MCP-Related Files
+
+The Model Context Protocol implementation is organized across several modules:
+
+1. **Core Implementation**
+   - `app/services/mcp/client/` - Core client implementation
+   - `app/services/mcp/transport/` - Transport layer
+   - `app/services/mcp/cache/` - Caching system
+   - `app/services/mcp/storage/` - Persistent storage
+
+2. **Mobile Features**
+   - `app/services/mcp/sync/` - Background synchronization
+   - `app/services/mcp/offline/` - Offline support
+   - `app/services/mcp/network/` - Network optimization
+
+3. **React Integration**
+   - `app/services/mcp/hooks/` - React hooks
+
+4. **Documentation**
+   - `docs/mcp/` - MCP documentation
 
 This structure follows the Ignite boilerplate conventions while incorporating custom additions for the Onyx project. The organization emphasizes modularity, reusability, and clear separation of concerns.
