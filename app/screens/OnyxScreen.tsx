@@ -4,7 +4,7 @@ import { View, StyleSheet } from "react-native"
 import { MainTabScreenProps } from "@/navigators"
 import { Canvas } from "@/components/Canvas"
 import { HudButtons } from "@/components/HudButtons"
-import { ChatOverlay } from "@/components/ChatOverlay"
+import { NexusOverlay } from "@/components/NexusOverlay"
 import { useAudioRecorder } from "@/hooks/useAudioRecorder"
 import { useStores } from "@/models"
 
@@ -25,7 +25,7 @@ export const OnyxScreen: FC<OnyxScreenProps> = observer(function OnyxScreen() {
   return (
     <View style={styles.container}>
       <Canvas />
-      <ChatOverlay />
+      <NexusOverlay />
       <HudButtons
         onMicPress={handleMicPress}
         onChatPress={handleChatPress}

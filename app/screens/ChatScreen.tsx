@@ -1,82 +1,125 @@
-import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
-import { FC } from "react"
+import { FC, useState } from "react"
 import { ScrollView, TextInput, View, ViewStyle } from "react-native"
 import { Screen, Text } from "@/components"
 import { AppStackScreenProps } from "@/navigators"
-import { useChat } from "@ai-sdk/react"
-
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "@/models"
+import { useWebSocket } from "@/services/websocket/useWebSocket"
 
 interface ChatScreenProps extends AppStackScreenProps<"Chat"> { }
 
-
 export const ChatScreen: FC<ChatScreenProps> = observer(function ChatScreen() {
-  const { messages, error, handleInputChange, input, handleSubmit } = useChat({
-    fetch: expoFetch as unknown as typeof globalThis.fetch,
-    api: 'https://pro.openagents.com/api/chat-app',
-    onError: error => console.error(error, 'ERROR'),
-  });
+  const [input, setInput] = useState("")
+  const { state, messages, sendMessage } = useWebSocket({
+    url: "ws://localhost:8000",
+    apiKey: process.env.NEXUS_API_KEY,
+  })
 
-  console.log('messages:', messages)
+  const handleSubmit = () => {
+    if (!input.trim() || !state.connected) return
+    
+    try {
+      sendMessage(input)
+      setInput("")
+    } catch (error) {
+      console.error("Failed to send message:", error)
+    }
+  }
 
-  if (error) return <Text>{error.message}</Text>;
-
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
-
-
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
   return (
     <Screen style={$root} preset="scroll">
-      <View
-        style={{
-          height: '95%',
-          display: 'flex',
-          flexDirection: 'column',
-          paddingHorizontal: 8,
-        }}
-      >
-        <ScrollView style={{ flex: 1 }}>
-          {messages.map(m => (
-            <View key={m.id} style={{ marginVertical: 8 }}>
-              <View>
-                <Text style={{ fontWeight: 700 }}>{m.role}</Text>
-                <Text>{m.content}</Text>
+      <View style={$container}>
+        <View style={$statusBar}>
+          <Text>
+            Status: {state.connected ? "Connected" : state.connecting ? "Connecting..." : "Disconnected"}
+            {state.error ? ` (${state.error})` : ""}
+          </Text>
+        </View>
+
+        <ScrollView style={$messagesContainer}>
+          {messages.map((message, index) => (
+            <View key={message.id || index} style={$messageWrapper}>
+              <View style={$message}>
+                <Text style={$messageText}>{message.payload.answer}</Text>
+                {message.payload.usage && (
+                  <Text style={$usageText}>
+                    Tokens: {message.payload.usage.total_tokens}
+                  </Text>
+                )}
               </View>
             </View>
           ))}
         </ScrollView>
 
-        <View style={{ marginTop: 8 }}>
+        <View style={$inputContainer}>
           <TextInput
-            style={{ backgroundColor: 'white', padding: 8 }}
-            placeholder="Say something..."
+            style={$input}
             value={input}
-            onChange={e =>
-              handleInputChange({
-                ...e,
-                target: {
-                  ...e.target,
-                  value: e.nativeEvent.text,
-                },
-              } as unknown as React.ChangeEvent<HTMLInputElement>)
-            }
-            onSubmitEditing={e => {
-              handleSubmit(e);
-              e.preventDefault();
-            }}
-            autoFocus={true}
+            onChangeText={setInput}
+            placeholder="Type your message..."
+            onSubmitEditing={handleSubmit}
+            editable={state.connected}
           />
         </View>
       </View>
     </Screen>
   )
-
 })
 
 const $root: ViewStyle = {
   flex: 1,
 }
+
+const $container: ViewStyle = {
+  flex: 1,
+  padding: 16,
+}
+
+const $statusBar: ViewStyle = {
+  padding: 8,
+  backgroundColor: "#f5f5f5",
+  borderRadius: 4,
+  marginBottom: 16,
+}
+
+const $messagesContainer: ViewStyle = {
+  flex: 1,
+  marginBottom: 16,
+}
+
+const $messageWrapper: ViewStyle = {
+  marginVertical: 8,
+}
+
+const $message: ViewStyle = {
+  backgroundColor: "#f0f0f0",
+  padding: 12,
+  borderRadius: 8,
+  maxWidth: "80%",
+}
+
+const $messageText = {
+  fontSize: 16,
+}
+
+const $usageText = {
+  fontSize: 12,
+  color: "#666",
+  marginTop: 4,
+}
+
+const $inputContainer: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+}
+
+const $input = {
+  flex: 1,
+  height: 40,
+  borderWidth: 1,
+  borderColor: "#ddd",
+  borderRadius: 20,
+  paddingHorizontal: 16,
+  backgroundColor: "white",
+}
+
+export default ChatScreen

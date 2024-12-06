@@ -11,12 +11,13 @@ onyx/
 │   ├── icons/               # Icon assets
 │   └── images/              # Image assets
 ├── docs/                    # Documentation
+│   ├── hierarchy.md        # Project structure documentation
+│   └── websockets.md       # WebSocket implementation docs
 ├── test/                    # Test configurations and mocks
 ├── android/                 # Android-specific native code
 ├── ios/                     # iOS-specific native code
 ├── ignite/                  # Ignite CLI templates
 └── index.js                 # Application entry point
-
 ```
 
 ## App Directory Structure
@@ -43,6 +44,7 @@ app/
 │   ├── VectorIcon.tsx     # Vector icon component
 │   └── index.ts           # Components barrel file
 ├── config/                 # App configuration
+│   └── websocket.ts       # WebSocket configuration
 ├── devtools/              # Development tools
 ├── i18n/                  # Internationalization
 ├── models/                # MobX state tree models
@@ -51,13 +53,20 @@ app/
 │   ├── DemoNavigator.tsx  # Demo screens navigator
 │   └── MainNavigator.tsx  # Main tab navigator
 ├── screens/               # Screen components
-│   ├── ChatScreen.tsx     # Chat interface screen
+│   ├── ChatScreen.tsx     # Chat interface screen with WebSocket
 │   ├── LoginScreen.tsx    # Login screen
 │   ├── OnyxScreen.tsx     # Main Onyx interface
 │   ├── PylonDemoScreen.tsx # Pylon demo screen
 │   ├── WelcomeScreen.tsx  # Welcome/onboarding screen
 │   └── index.ts          # Screens barrel file
 ├── services/              # External services and APIs
+│   ├── api/              # REST API services
+│   ├── websocket/        # WebSocket services
+│   │   ├── WebSocketService.ts  # Core WebSocket functionality
+│   │   ├── types.ts            # WebSocket type definitions
+│   │   ├── useWebSocket.ts     # React hook for WebSocket
+│   │   └── index.ts           # WebSocket barrel file
+│   └── index.ts          # Services barrel file
 ├── theme/                # Styling and theming
 └── utils/                # Utility functions
 ```
@@ -74,6 +83,15 @@ assets/
 └── images/              # Image assets (.png, .jpg, .gif)
 ```
 
+## Documentation Structure
+
+```
+docs/
+├── hierarchy.md         # Project structure documentation
+├── websockets.md        # WebSocket implementation details
+└── ...                 # Other documentation files
+```
+
 ## Key Directories and Their Purposes
 
 ### app/components
@@ -87,6 +105,16 @@ Contains the main screen components. Each screen represents a full-page view in 
 
 ### app/services
 Contains service integrations, API clients, and other external service interfaces.
+
+#### app/services/websocket
+Contains WebSocket implementation files:
+- `WebSocketService.ts`: Core WebSocket functionality
+- `types.ts`: TypeScript interfaces and types
+- `useWebSocket.ts`: React hook for WebSocket usage
+- `index.ts`: Barrel file for WebSocket exports
+
+### app/config
+Contains configuration files including WebSocket settings.
 
 ### app/theme
 Contains theming configuration including colors, typography, and spacing.
@@ -110,5 +138,24 @@ Contains Ignite CLI templates for generating new components, screens, and other 
 
 ### android/ & ios/
 Contains native code and configurations for each platform.
+
+## WebSocket-Related Files
+
+The WebSocket implementation is organized across several files:
+
+1. **Service Implementation**
+   - `app/services/websocket/WebSocketService.ts`
+   - `app/services/websocket/types.ts`
+   - `app/services/websocket/useWebSocket.ts`
+   - `app/services/websocket/index.ts`
+
+2. **Configuration**
+   - `app/config/websocket.ts`
+
+3. **Documentation**
+   - `docs/websockets.md`
+
+4. **Integration**
+   - `app/screens/ChatScreen.tsx`
 
 This structure follows the Ignite boilerplate conventions while incorporating custom additions for the Onyx project. The organization emphasizes modularity, reusability, and clear separation of concerns.
