@@ -1,8 +1,8 @@
 import { Resource } from '../client/types';
 
 export interface CacheConfig {
-  ttl?: number; // Time to live in milliseconds
-  maxSize?: number; // Maximum number of items in cache
+  ttl?: number;
+  maxSize?: number;
 }
 
 export interface CacheEntry<T> {
@@ -15,5 +15,5 @@ export interface ResourceCacheEntry extends CacheEntry<Resource> {
 }
 
 export interface ListResourcesCacheEntry extends CacheEntry<Resource[]> {
-  key: 'resourcesList';
+  key: string; // Changed from literal type to string
 }
