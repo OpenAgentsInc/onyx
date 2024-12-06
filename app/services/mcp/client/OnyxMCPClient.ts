@@ -1,4 +1,17 @@
-import { Client } from '@modelcontextprotocol/typescript-sdk';
+// TODO: Replace with actual MCP SDK when available
+interface Client {
+  connect: (transport: any) => Promise<void>;
+  request: (params: any, schema?: any) => Promise<any>;
+  on: (event: string, handler: (data: any) => void) => void;
+}
+
+class MCPClient implements Client {
+  constructor(config: any, capabilities: any) {}
+  async connect(transport: any): Promise<void> {}
+  async request(params: any, schema?: any): Promise<any> { return null; }
+  on(event: string, handler: (data: any) => void): void {}
+}
+
 import { WebSocketTransport } from '../transport/WebSocketTransport';
 import { ConnectionManager } from '../transport/ConnectionManager';
 import { ResourceCache } from '../cache/ResourceCache';
@@ -20,7 +33,7 @@ export class OnyxMCPClient {
   private resourceUpdateHandlers: Set<(update: ResourceUpdate) => void> = new Set();
 
   constructor(config: MCPConfig) {
-    this.client = new Client({
+    this.client = new MCPClient({
       name: 'onyx-mobile',
       version: config.version
     }, {
@@ -36,7 +49,7 @@ export class OnyxMCPClient {
     this.resourceCache = new ResourceCache();
 
     // Set up resource update handling
-    this.client.on('resource_update', (update) => {
+    this.client.on('resource_update', (update: ResourceUpdate) => {
       this.handleResourceUpdate(update);
     });
   }
@@ -57,7 +70,8 @@ export class OnyxMCPClient {
       // Start watching for resource updates
       await this.startWatchingResources();
     } catch (error) {
-      throw new ConnectionError(`Failed to connect to MCP server: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new ConnectionError(`Failed to connect to MCP server: ${message}`);
     }
   }
 
@@ -111,7 +125,8 @@ export class OnyxMCPClient {
       await this.resourceCache.setList(cacheKey, result);
       return result;
     } catch (error) {
-      throw new ResourceError(`Failed to list resources: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new ResourceError(`Failed to list resources: ${message}`);
     }
   }
 
@@ -128,7 +143,8 @@ export class OnyxMCPClient {
       await this.resourceCache.set(uri, result);
       return result;
     } catch (error) {
-      throw new ResourceError(`Failed to read resource: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new ResourceError(`Failed to read resource: ${message}`);
     }
   }
 
@@ -142,7 +158,8 @@ export class OnyxMCPClient {
         }
       }, ListResourcesResultSchema);
     } catch (error) {
-      throw new ResourceError(`Failed to search resources: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new ResourceError(`Failed to search resources: ${message}`);
     }
   }
 
