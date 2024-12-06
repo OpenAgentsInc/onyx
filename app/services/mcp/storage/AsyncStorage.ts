@@ -1,13 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Resource } from '../client/types';
-import {
-  StorageConfig,
-  StorageStats,
-  StorageEntry,
-  ResourceStorageEntry,
-  ListStorageEntry,
-  StorageMetadata
-} from './types';
+import { StorageConfig, StorageStats, StorageEntry, StorageMetadata } from './types';
+import { MCPError } from '../client/errors';
 
 const DEFAULT_CONFIG: Required<StorageConfig> = {
   namespace: 'mcp',
@@ -92,17 +85,16 @@ export class MCPStorage {
     }
   }
 
-  async getResource(uri: string): Promise<Resource | null> {
+  async getResource(uri: string): Promise<any | null> {
     await this.initialize();
-    const entry = await this.getItem<ResourceStorageEntry>(`resource:${uri}`);
+    const entry = await this.getItem<StorageEntry<any>>(`resource:${uri}`);
     return entry?.data ?? null;
   }
 
-  async setResource(uri: string, resource: Resource): Promise<void> {
+  async setResource(uri: string, resource: any): Promise<void> {
     await this.initialize();
     
-    const entry: ResourceStorageEntry = {
-      uri,
+    const entry: StorageEntry<any> = {
       data: resource,
       timestamp: Date.now(),
       size: JSON.stringify(resource).length
@@ -121,17 +113,16 @@ export class MCPStorage {
     await this.setItem('metadata', this.metadata);
   }
 
-  async getResourceList(key: string): Promise<Resource[] | null> {
+  async getResourceList(key: string): Promise<any[] | null> {
     await this.initialize();
-    const entry = await this.getItem<ListStorageEntry>(`list:${key}`);
+    const entry = await this.getItem<StorageEntry<any[]>>(`list:${key}`);
     return entry?.data ?? null;
   }
 
-  async setResourceList(key: string, resources: Resource[]): Promise<void> {
+  async setResourceList(key: string, resources: any[]): Promise<void> {
     await this.initialize();
     
-    const entry: ListStorageEntry = {
-      key,
+    const entry: StorageEntry<any[]> = {
       data: resources,
       timestamp: Date.now(),
       size: JSON.stringify(resources).length
@@ -154,11 +145,16 @@ export class MCPStorage {
     const keys = await AsyncStorage.getAllKeys();
     const ourKeys = keys.filter(k => k.startsWith(this.config.namespace));
     
-    // Sort by timestamp (oldest first)
-    const entries: Array<[string, StorageEntry<any>]> = await Promise.all(
-      ourKeys.map(async key => [key, await this.getItem(key)])
-    );
+    // Get all entries and their sizes
+    const entries: Array<[string, StorageEntry<any>]> = [];
+    for (const key of ourKeys) {
+      const entry = await this.getItem<StorageEntry<any>>(key);
+      if (entry) {
+        entries.push([key, entry]);
+      }
+    }
     
+    // Sort by timestamp (oldest first)
     entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
 
     let freedSpace = 0;
