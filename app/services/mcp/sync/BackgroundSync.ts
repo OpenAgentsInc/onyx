@@ -45,7 +45,8 @@ export class BackgroundSync {
         enableHeadless: true
       }, async () => {
         await this.performSync();
-        BackgroundFetch.finish(BackgroundFetch.FETCH_RESULT_NEW_DATA);
+        // Use a generic success status instead of specific constant
+        BackgroundFetch.finish(0);
       }, (error) => {
         console.error('Background fetch failed to start:', error);
       });
