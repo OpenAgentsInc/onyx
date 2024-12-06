@@ -2,7 +2,19 @@
 
 ## Overview
 
-This document outlines the implementation plan for integrating the Model Context Protocol (MCP) client into the Onyx mobile app. The implementation will be housed in the `app/services/mcp` directory, following the project's established service architecture patterns.
+This document outlines the comprehensive implementation plan for Model Context Protocol (MCP) in the Onyx mobile app, covering both client implementation and server integrations.
+
+## Architecture
+
+```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   Onyx Client   │     │   MCP Client     │     │    MCP Servers  │
+│   (React Native)│────▶│   (TypeScript)   │────▶│  - Local Files  │
+└─────────────────┘     └──────────────────┘     │  - Git          │
+                                                 │  - Database      │
+                                                 │  - External APIs │
+                                                 └─────────────────┘
+```
 
 ## Directory Structure
 
@@ -16,102 +28,148 @@ app/services/mcp/
 ├── transport/
 │   ├── index.ts                 # Transport exports
 │   ├── WebSocketTransport.ts    # WebSocket transport implementation
-│   └── types.ts                 # Transport-specific types
+│   ├── ConnectionManager.ts     # Connection management
+│   └── types.ts                # Transport-specific types
+├── cache/
+│   ├── index.ts                 # Cache exports
+│   ├── ResourceCache.ts         # Resource caching implementation
+│   └── types.ts                # Cache-specific types
 ├── hooks/
 │   ├── index.ts                 # Hooks exports
 │   ├── useMCPClient.ts          # React hook for MCP client
 │   └── useMCPResource.ts        # Hook for resource management
-├── config/
-│   ├── index.ts                 # Configuration exports
-│   └── defaults.ts             # Default configuration
+├── servers/
+│   ├── index.ts                 # Server exports
+│   └── local-files/            # Local files server implementation
+│       ├── index.ts            # Server entry point
+│       ├── types.ts           # Server-specific types
+│       └── security.ts        # Security implementations
 └── index.ts                     # Main barrel file
 
 app/config/
 └── mcp.ts                       # Global MCP configuration
 ```
 
-## Implementation Steps
+## Core Components
 
-### 1. Core Client Implementation
+### 1. Client Implementation
 
-#### OnyxMCPClient.ts
 ```typescript
-import { Client } from "@modelcontextprotocol/sdk/client";
-import { WebSocketTransport } from "../transport";
-
+// app/services/mcp/client/OnyxMCPClient.ts
 export class OnyxMCPClient {
   private client: Client;
-  
+  private transport: WebSocketTransport;
+  private connectionManager: ConnectionManager;
+  private resourceCache: ResourceCache;
+
   constructor(config: MCPConfig) {
     this.client = new Client({
       name: "onyx-mobile",
       version: config.version
     }, {
-      capabilities: config.capabilities
+      capabilities: {
+        "resources/list": true,
+        "resources/read": true,
+        "resources/search": true
+      }
     });
+    this.connectionManager = new ConnectionManager();
+    this.resourceCache = new ResourceCache();
   }
 
   async connect(serverUrl: string) {
-    const transport = new WebSocketTransport({
-      url: serverUrl
+    this.transport = new WebSocketTransport({
+      url: serverUrl,
+      options: {
+        reconnect: true,
+        backoff: "exponential"
+      }
     });
-    await this.client.connect(transport);
+    
+    await this.connectionManager.initialize(this.transport);
+    await this.client.connect(this.transport);
   }
 
   // Resource methods
   async listResources() {
-    // Implementation
+    const cached = await this.resourceCache.getList();
+    if (cached) return cached;
+
+    const result = await this.client.request(
+      { method: "resources/list" },
+      ListResourcesResultSchema
+    );
+    
+    await this.resourceCache.setList(result);
+    return result;
   }
 
   async readResource(uri: string) {
-    // Implementation
-  }
+    const cached = await this.resourceCache.get(uri);
+    if (cached) return cached;
 
-  // Tool methods
-  async listTools() {
-    // Implementation
-  }
+    const result = await this.client.request({
+      method: "resources/read",
+      params: { uri }
+    }, ReadResourceResultSchema);
 
-  async executeTool(name: string, params: any) {
-    // Implementation
+    await this.resourceCache.set(uri, result);
+    return result;
   }
 }
 ```
 
-### 2. Transport Implementation
+### 2. Mobile Optimizations
 
-#### WebSocketTransport.ts
 ```typescript
-import { Transport } from "@modelcontextprotocol/sdk/client";
-
-export class WebSocketTransport implements Transport {
-  private ws: WebSocket;
+// app/services/mcp/transport/ConnectionManager.ts
+export class ConnectionManager {
+  private reconnectAttempts: number = 0;
+  private networkType: "wifi" | "cellular" | "offline" = "wifi";
   
-  constructor(config: TransportConfig) {
-    // Implementation
+  async handleDisconnect() {
+    if (this.networkType === "offline") return;
+    
+    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+    this.reconnectAttempts++;
+    
+    await new Promise(resolve => setTimeout(resolve, delay));
+    await this.reconnect();
   }
 
-  async send(message: any): Promise<void> {
-    // Implementation
+  async optimizeForNetwork(type: "wifi" | "cellular" | "offline") {
+    this.networkType = type;
+    // Adjust batch sizes and polling intervals based on network type
   }
+}
 
-  onMessage(handler: (message: any) => void): void {
-    // Implementation
+// app/services/mcp/cache/ResourceCache.ts
+export class ResourceCache {
+  private cache: Map<string, CachedResource>;
+  private ttl: number;
+  
+  async get(uri: string): Promise<CachedResource | null> {
+    const cached = this.cache.get(uri);
+    if (!cached) return null;
+    
+    if (this.isStale(cached)) {
+      this.cache.delete(uri);
+      return null;
+    }
+    
+    return cached.data;
   }
-
-  async close(): Promise<void> {
-    // Implementation
+  
+  private isStale(cached: CachedResource): boolean {
+    return Date.now() - cached.timestamp > this.ttl;
   }
 }
 ```
 
-### 3. React Hooks
+### 3. React Integration
 
-#### useMCPClient.ts
 ```typescript
-import { useEffect, useState } from 'react';
-import { OnyxMCPClient } from '../client';
-
+// app/services/mcp/hooks/useMCPClient.ts
 export function useMCPClient(config: MCPConfig) {
   const [client, setClient] = useState<OnyxMCPClient | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -132,86 +190,149 @@ export function useMCPClient(config: MCPConfig) {
 
   return { client, error };
 }
+
+// app/services/mcp/hooks/useMCPResource.ts
+export function useMCPResource(uri: string) {
+  const { client } = useMCPClient();
+  const [resource, setResource] = useState<Resource | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchResource = async () => {
+      try {
+        const data = await client?.readResource(uri);
+        setResource(data);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResource();
+  }, [uri, client]);
+
+  return { resource, loading, error };
+}
 ```
 
 ## Implementation Phases
 
-### Phase 1: Basic Handshake
-1. Set up basic directory structure
+### Phase 1: Core Client Setup (Week 1)
+1. Set up directory structure
 2. Implement WebSocketTransport
-3. Create OnyxMCPClient with connection capabilities
-4. Add basic error handling
-5. Create useMCPClient hook
-6. Test basic handshake with a test server
+3. Create basic OnyxMCPClient
+4. Implement connection management
+5. Add basic error handling
 
-### Phase 2: Resource Management
+### Phase 2: Resource Management (Week 2)
 1. Implement resource listing
-2. Implement resource reading
-3. Add resource caching
-4. Create useMCPResource hook
-5. Test with real resources
+2. Add resource reading
+3. Create caching layer
+4. Add resource hooks
+5. Test with example servers
 
-### Phase 3: Tool Integration
-1. Implement tool discovery
-2. Add tool execution capabilities
-3. Create tool-specific hooks
-4. Test with example tools
+### Phase 3: Mobile Optimization (Week 3)
+1. Implement connection management
+2. Add sophisticated caching
+3. Optimize for battery life
+4. Handle offline mode
+5. Add background sync
 
-### Phase 4: Production Readiness
-1. Add comprehensive error handling
-2. Implement retry mechanisms
-3. Add logging and monitoring
+### Phase 4: Server Integration (Week 4)
+1. Implement local files server
+2. Add security measures
+3. Test with real repositories
+4. Add search capabilities
+5. Implement permission system
+
+### Phase 5: Production Readiness (Week 5)
+1. Complete error handling
+2. Add comprehensive logging
+3. Implement analytics
 4. Performance optimization
-5. Security review
+5. Security audit
 
 ## Testing Strategy
 
-1. **Unit Tests**
-   - Test client initialization
-   - Test transport layer
-   - Test individual methods
-   - Mock server responses
+### Unit Tests
+```typescript
+describe("OnyxMCPClient", () => {
+  it("should initialize with correct configuration", () => {
+    const client = new OnyxMCPClient(config);
+    expect(client).toBeDefined();
+  });
 
-2. **Integration Tests**
-   - Test with example MCP servers
-   - Test resource access
-   - Test tool execution
-   - Test error scenarios
+  it("should connect to server successfully", async () => {
+    const client = new OnyxMCPClient(config);
+    await expect(client.connect(serverUrl)).resolves.not.toThrow();
+  });
+});
 
-3. **Mobile-Specific Tests**
-   - Test background/foreground transitions
-   - Test network changes
-   - Test memory usage
-   - Test battery impact
+describe("ResourceCache", () => {
+  it("should cache and retrieve resources", async () => {
+    const cache = new ResourceCache();
+    await cache.set("test-uri", testData);
+    const result = await cache.get("test-uri");
+    expect(result).toEqual(testData);
+  });
+});
+```
+
+### Integration Tests
+```typescript
+describe("MCP Integration", () => {
+  it("should handle full resource lifecycle", async () => {
+    const client = new OnyxMCPClient(config);
+    await client.connect(serverUrl);
+    
+    const resources = await client.listResources();
+    expect(resources).toBeDefined();
+    
+    const resource = await client.readResource(resources[0].uri);
+    expect(resource).toBeDefined();
+  });
+});
+```
+
+### Mobile-Specific Tests
+1. Background/foreground transitions
+2. Network type changes
+3. Memory usage monitoring
+4. Battery impact testing
+5. Offline capability testing
 
 ## Security Considerations
 
 1. **Connection Security**
-   - Use secure WebSocket connections (WSS)
+   - Use WSS (WebSocket Secure)
    - Implement proper certificate validation
    - Handle authentication tokens securely
 
 2. **Data Security**
-   - Sanitize all data received from servers
+   - Sanitize all incoming data
+   - Encrypt cached data
    - Implement proper error boundaries
-   - Handle sensitive data appropriately
 
 3. **Permission Management**
-   - Implement proper capability negotiation
-   - Handle user consent for tool access
+   - Implement capability negotiation
+   - Handle user consent
    - Manage resource access permissions
-
-## Dependencies
-
-- @modelcontextprotocol/sdk
-- React Native WebSocket support
-- Proper type definitions
-- Error handling utilities
 
 ## Next Steps
 
-1. Create the directory structure
-2. Implement the WebSocketTransport
-3. Create the basic OnyxMCPClient
-4. Test basic handshake
-5. Document progress and challenges
+1. Create initial directory structure
+2. Implement WebSocketTransport
+3. Create basic OnyxMCPClient
+4. Add connection management
+5. Implement resource caching
+6. Create React hooks
+7. Begin server implementation
+
+## Resources
+
+- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
+- [React Native WebSocket Guide](https://reactnative.dev/docs/network)
+- [MCP Specification](https://modelcontextprotocol.io)
+- [Example Servers](https://github.com/modelcontextprotocol/servers)
