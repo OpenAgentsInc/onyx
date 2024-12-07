@@ -2,42 +2,38 @@
 
 The OpenAgents mobile app!
 
-Onyx is your personal AI agent that can connect to any API, service, or data source through the Model Context Protocol and Data Vending Machines.
-
-Your agent can automate workflows, manage your digital life, and earn you bitcoin.
+Onyx is your personal AI agent that connects to data sources and services through the Model Context Protocol and Data Vending Machines, automating tasks and earning you bitcoin.
 
 ## Features
 
+- Buy & sell AI services with bitcoin
+- Data processing through decentralized marketplaces
+- Secure AI context management
+- Cross-server resource access
 - Built-in Bitcoin wallet
-- Nostr client for decentralized social networking
-- Universal data processing through DVM marketplace
-- Secure AI context management via MCP
-- Cross-server resource and tool access
-- Decentralized service discovery
+- Nostr protocol integration
 
 ## Protocol Integrations
 
 ### Model Context Protocol (MCP)
 
-Onyx implements the Model Context Protocol (MCP) for seamless integration with AI capabilities and external data sources:
+Enables secure integration with AI capabilities and external data sources:
 
-- Client-host-server architecture for secure AI integrations
-- Capability-based negotiation system for feature discovery
-- Resource and tool access across multiple servers
-- Secure context isolation between different services
-- Mobile-optimized implementation with caching and offline support
-- First mobile MCP client implementation
+- Client-host-server architecture
+- Capability-based feature discovery
+- Resource and tool access across servers
+- Secure context isolation
+- Mobile-optimized with offline support
 
 ### Data Vending Machines (DVM)
 
-Onyx integrates with Nostr-based Data Vending Machines (NIP-90) for on-demand data processing:
+Nostr-based protocol for on-demand data processing services:
 
-- Decentralized marketplace for data processing services
-- Support for text, image, video/audio processing
-- Competitive service provider environment
+- Decentralized service marketplace
+- Text, image, and media processing
+- Competitive provider environment
 - Built on NIP-90 specification
-- Integrated with NIP-89 for service discovery
-- Local DVM service capabilities
+- Service discovery via NIP-89
 
 ## Technology Stack
 
