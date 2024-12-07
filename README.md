@@ -2,7 +2,7 @@
 
 Onyx is your personal AI agent that springs to life with voice commands, automates your tasks, and earns you bitcoin.
 
-![onyx](https://github.com/user-attachments/assets/1cdd92c1-5ec4-4183-bb51-1e52cce32c1c)
+![onyx](https://github.com/user-attachments/assets/75f0d9e5-2c66-46fd-8b00-14295e4bb808)
 
 ## Features
 
