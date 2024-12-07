@@ -2,7 +2,7 @@
 
 The OpenAgents mobile app!
 
-Onyx is your personal AI agent that can connect to any API, service, or data source through an extensible plugin system.
+Onyx is your personal AI agent that can connect to any API, service, or data source through the Model Context Protocol and Data Vending Machines.
 
 Your agent can automate workflows, manage your digital life, and earn you bitcoin.
 
@@ -10,10 +10,10 @@ Your agent can automate workflows, manage your digital life, and earn you bitcoi
 
 - Built-in Bitcoin wallet
 - Nostr client for decentralized social networking
-- AI-powered chat interface using the Vercel AI SDK
-- Extensible plugin system for unlimited capabilities
-- Agent-to-agent communication protocol
-- Secure transaction handling
+- Universal data processing through DVM marketplace
+- Secure AI context management via MCP
+- Cross-server resource and tool access
+- Decentralized service discovery
 
 ## Protocol Integrations
 
@@ -43,5 +43,4 @@ Onyx integrates with Nostr-based Data Vending Machines (NIP-90) for on-demand da
 
 - React Native + Expo
 - Nostr Protocol
-- Vercel AI SDK
 - Bitcoin & Lightning via Breez SDK
