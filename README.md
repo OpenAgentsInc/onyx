@@ -1,6 +1,6 @@
 # Onyx - Your AI Agent
 
-Onyx is your personal AI agent that responds to voice commands, connects to a growing network of AI services, and earns you bitcoin.
+Onyx is your personal AI agent that responds to voice commands, grows smarter & more capable over time, and earns you bitcoin.
 
 It's part of the OpenAgents network where every agent makes all agents smarter.
 
