@@ -16,29 +16,10 @@ _Heavily work in progress. Beta launch ETA December 20. [Follow along on X.](htt
 - Built-in Bitcoin wallet
 - Nostr protocol integration
 
-## Protocol Integrations
+## Tech
 
-### Model Context Protocol (MCP)
-
-Enables AI tools to work together seamlessly:
-
-- Connect to multiple AI services at once
-- Share context between tools securely
-- Mobile-optimized with offline support
-- Capability-based feature discovery
-
-### Data Vending Machines (DVM)
-
-Nostr-based protocol for on-demand data processing services:
-
-- Decentralized service marketplace
-- Text, image, and media processing
-- Competitive provider environment
-- Built on NIP-90 specification
-- Service discovery via NIP-89
-
-## Technology Stack
-
-- React Native + Expo
-- Nostr Protocol
-- Bitcoin & Lightning via Breez SDK
+- React Native + Expo via [Ignite](README-ignite.md)
+- Open protocols
+  - [Bitcoin](https://bitcoin.org/) & [Lightning](https://lightning.network/) via the [Breez SDK](https://sdk-doc-liquid.breez.technology/guide/about_breez_sdk_liquid.html)
+  - [Nostr](https://github.com/nostr-protocol/nostr)
+  - [Model Context Protocol](https://modelcontextprotocol.io/)
