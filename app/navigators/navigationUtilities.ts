@@ -1,16 +1,14 @@
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { BackHandler, Linking, Platform } from "react-native"
 import {
-  NavigationState,
-  PartialState,
-  createNavigationContainerRef,
+  createNavigationContainerRef, NavigationState, PartialState
 } from "@react-navigation/native"
 import Config from "../config"
-import type { PersistNavigationConfig } from "../config/config.base"
-import { useIsMounted } from "../utils/useIsMounted"
-import type { AppStackParamList, NavigationProps } from "./AppNavigator"
-
 import * as storage from "../utils/storage"
+import { useIsMounted } from "../utils/useIsMounted"
+
+import type { PersistNavigationConfig } from "../config/config.base"
+import type { AppStackParamList, NavigationProps } from "./AppNavigator"
 
 type Storage = typeof storage
 
@@ -132,7 +130,7 @@ export function useNavigationPersistence(storage: Storage, persistenceKey: strin
       if (previousRouteName !== currentRouteName) {
         // track screens.
         if (__DEV__) {
-          console.log(currentRouteName)
+          // console.log(currentRouteName)
         }
       }
 
