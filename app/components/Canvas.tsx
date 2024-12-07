@@ -20,7 +20,7 @@ export function Canvas() {
   const animationFrameRef = useRef<number>();
 
   if (isEmulator()) {
-    return null;
+    return <View style={styles.container} />;
   }
 
   const animate = useCallback(() => {

@@ -1,7 +1,7 @@
-import { Instance, SnapshotIn, SnapshotOut, types, flow } from "mobx-state-tree"
-import { withSetPropAction } from "./helpers/withSetPropAction"
-import { breezService, Transaction } from "../services/breez"
 import Constants from "expo-constants"
+import { flow, Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
+import { breezService, Transaction } from "../services/breez"
+import { withSetPropAction } from "./helpers/withSetPropAction"
 
 const TransactionModel = types.model("Transaction", {
   id: types.string,
@@ -35,7 +35,8 @@ export const WalletStoreModel = types
       try {
         const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
         if (!breezApiKey) {
-          throw new Error("BREEZ_API_KEY environment variable is not set")
+          setError("BREEZ_API_KEY environment variable is not set")
+          return
         }
 
         yield breezService.initialize({
@@ -45,11 +46,11 @@ export const WalletStoreModel = types
         })
         self.isInitialized = true
         setError(null)
-        
+
         // Store the mnemonic
         const mnemonic = yield breezService.getMnemonic()
         self.mnemonic = mnemonic
-        
+
         // Now that we're initialized, fetch the initial balance
         yield fetchBalanceInfo()
       } catch (error) {
@@ -165,9 +166,9 @@ export const WalletStoreModel = types
     },
   }))
 
-export interface WalletStore extends Instance<typeof WalletStoreModel> {}
-export interface WalletStoreSnapshotOut extends SnapshotOut<typeof WalletStoreModel> {}
-export interface WalletStoreSnapshotIn extends SnapshotIn<typeof WalletStoreModel> {}
+export interface WalletStore extends Instance<typeof WalletStoreModel> { }
+export interface WalletStoreSnapshotOut extends SnapshotOut<typeof WalletStoreModel> { }
+export interface WalletStoreSnapshotIn extends SnapshotIn<typeof WalletStoreModel> { }
 
 // The singleton instance of the WalletStore
 export const createWalletStoreDefaultModel = () =>
