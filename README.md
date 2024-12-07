@@ -10,11 +10,10 @@ _Heavily work in progress. Beta launch ETA December 20. [Follow along on X.](htt
 
 ## Features
 
-- Natural voice commands for instant assistance
-- Buy & sell AI services with bitcoin
-- Join a network of ever-evolving AI tools
-- Built-in Bitcoin wallet
-- Nostr protocol integration
+- Natural voice commands: you say it, Onyx does it
+- Crowdsourced agent tool & knowledge base
+- Built-in bitcoin wallet to buy & sell AI services
+- Level up your agent and earn bitcoin rewards
 
 ## Tech
 
