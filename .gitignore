@@ -91,3 +91,5 @@ web-build/
 .yarn/*
 
 dist/
+
+.env
