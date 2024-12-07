@@ -2,14 +2,13 @@
 
 The OpenAgents mobile app!
 
-Onyx is your personal AI agent that connects to data sources and services through the Model Context Protocol and Data Vending Machines, automating tasks and earning you bitcoin.
+Your personal JARVIS-like AI assistant that responds to voice commands, automates tasks, and earns you bitcoin.
 
 ## Features
 
+- Voice command your AI assistant
 - Buy & sell AI services with bitcoin
-- Data processing through decentralized marketplaces
-- Secure AI context management
-- Cross-server resource access
+- Access an ecosystem of AI tools and services
 - Built-in Bitcoin wallet
 - Nostr protocol integration
 
@@ -17,13 +16,12 @@ Onyx is your personal AI agent that connects to data sources and services throug
 
 ### Model Context Protocol (MCP)
 
-Enables secure integration with AI capabilities and external data sources:
+Enables AI tools to work together seamlessly:
 
-- Client-host-server architecture
-- Capability-based feature discovery
-- Resource and tool access across servers
-- Secure context isolation
+- Connect to multiple AI services at once
+- Share context between tools securely
 - Mobile-optimized with offline support
+- Capability-based feature discovery
 
 ### Data Vending Machines (DVM)
 
