@@ -2,11 +2,11 @@
 
 The OpenAgents mobile app!
 
-Your personal JARVIS-like AI assistant that responds to voice commands, automates tasks, and earns you bitcoin.
+Your personal AI assistant that springs to life with voice commands, automates your tasks, and earns you bitcoin.
 
 ## Features
 
-- Voice command your AI assistant
+- Natural voice commands for instant assistance
 - Buy & sell AI services with bitcoin
 - Access an ecosystem of AI tools and services
 - Built-in Bitcoin wallet
