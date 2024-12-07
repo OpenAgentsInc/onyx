@@ -1,6 +1,7 @@
 import { Instance, SnapshotIn, SnapshotOut, types, flow } from "mobx-state-tree"
 import { withSetPropAction } from "./helpers/withSetPropAction"
 import { breezService, Transaction } from "../services/breez"
+import Constants from "expo-constants"
 
 const TransactionModel = types.model("Transaction", {
   id: types.string,
@@ -32,9 +33,14 @@ export const WalletStoreModel = types
 
     const initialize = flow(function* () {
       try {
+        const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
+        if (!breezApiKey) {
+          throw new Error("BREEZ_API_KEY environment variable is not set")
+        }
+
         yield breezService.initialize({
           workingDir: "", // This is handled internally by the service
-          apiKey: "MIIBfjCCATCgAwIBAgIHPYzgGw0A+zAFBgMrZXAwEDEOMAwGA1UEAxMFQnJlZXowHhcNMjQxMTI0MjIxOTMzWhcNMzQxMTIyMjIxOTMzWjA3MRkwFwYDVQQKExBPcGVuQWdlbnRzLCBJbmMuMRowGAYDVQQDExFDaHJpc3RvcGhlciBEYXZpZDAqMAUGAytlcAMhANCD9cvfIDwcoiDKKYdT9BunHLS2/OuKzV8NS0SzqV13o4GBMH8wDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFNo5o+5ea0sNMlW/75VgGJCv2AcJMB8GA1UdIwQYMBaAFN6q1pJW843ndJIW/Ey2ILJrKJhrMB8GA1UdEQQYMBaBFGNocmlzQG9wZW5hZ2VudHMuY29tMAUGAytlcANBABvQIfNsop0kGIk0bgO/2kPum5B5lv6pYaSBXz73G1RV+eZj/wuW88lNQoGwVER+rA9+kWWTaR/dpdi8AFwjxw0=",
+          apiKey: breezApiKey,
           network: "MAINNET",
         })
         self.isInitialized = true
