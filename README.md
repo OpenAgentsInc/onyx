@@ -1,10 +1,8 @@
 # Onyx - Your AI Agent
 
-The OpenAgents mobile app!
+Onyx is your personal AI agent that responds to voice commands, connects to a growing network of AI services, and earns you bitcoin.
 
-Your personal AI agent that responds to voice commands, connects to a growing network of AI services, and earns you bitcoin.
-
-Part of the decentralized OpenAgents network where every agent makes all agents smarter.
+It's part of the OpenAgents network where every agent makes all agents smarter.
 
 _Heavily work in progress. Beta launch ETA December 20. [Follow along on X.](https://x.com/OpenAgentsInc/status/1864878103853477910)_
 
