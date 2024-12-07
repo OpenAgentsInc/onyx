@@ -1,6 +1,7 @@
-import { Instance, SnapshotIn, SnapshotOut, types, flow } from "mobx-state-tree"
-import { withSetPropAction } from "./helpers/withSetPropAction"
+import Constants from "expo-constants"
+import { flow, Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 import { breezService, Transaction } from "../services/breez"
+import { withSetPropAction } from "./helpers/withSetPropAction"
 
 const TransactionModel = types.model("Transaction", {
   id: types.string,
@@ -32,18 +33,24 @@ export const WalletStoreModel = types
 
     const initialize = flow(function* () {
       try {
+        const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
+        if (!breezApiKey) {
+          setError("BREEZ_API_KEY environment variable is not set")
+          return
+        }
+
         yield breezService.initialize({
           workingDir: "", // This is handled internally by the service
-          apiKey: "MIIBfjCCATCgAwIBAgIHPYzgGw0A+zAFBgMrZXAwEDEOMAwGA1UEAxMFQnJlZXowHhcNMjQxMTI0MjIxOTMzWhcNMzQxMTIyMjIxOTMzWjA3MRkwFwYDVQQKExBPcGVuQWdlbnRzLCBJbmMuMRowGAYDVQQDExFDaHJpc3RvcGhlciBEYXZpZDAqMAUGAytlcAMhANCD9cvfIDwcoiDKKYdT9BunHLS2/OuKzV8NS0SzqV13o4GBMH8wDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFNo5o+5ea0sNMlW/75VgGJCv2AcJMB8GA1UdIwQYMBaAFN6q1pJW843ndJIW/Ey2ILJrKJhrMB8GA1UdEQQYMBaBFGNocmlzQG9wZW5hZ2VudHMuY29tMAUGAytlcANBABvQIfNsop0kGIk0bgO/2kPum5B5lv6pYaSBXz73G1RV+eZj/wuW88lNQoGwVER+rA9+kWWTaR/dpdi8AFwjxw0=",
+          apiKey: breezApiKey,
           network: "MAINNET",
         })
         self.isInitialized = true
         setError(null)
-        
+
         // Store the mnemonic
         const mnemonic = yield breezService.getMnemonic()
         self.mnemonic = mnemonic
-        
+
         // Now that we're initialized, fetch the initial balance
         yield fetchBalanceInfo()
       } catch (error) {
@@ -159,9 +166,9 @@ export const WalletStoreModel = types
     },
   }))
 
-export interface WalletStore extends Instance<typeof WalletStoreModel> {}
-export interface WalletStoreSnapshotOut extends SnapshotOut<typeof WalletStoreModel> {}
-export interface WalletStoreSnapshotIn extends SnapshotIn<typeof WalletStoreModel> {}
+export interface WalletStore extends Instance<typeof WalletStoreModel> { }
+export interface WalletStoreSnapshotOut extends SnapshotOut<typeof WalletStoreModel> { }
+export interface WalletStoreSnapshotIn extends SnapshotIn<typeof WalletStoreModel> { }
 
 // The singleton instance of the WalletStore
 export const createWalletStoreDefaultModel = () =>

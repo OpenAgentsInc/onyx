@@ -1,7 +1,8 @@
-import React from "react"
 import { observer } from "mobx-react-lite"
+import React from "react"
 import { View, ViewStyle } from "react-native"
 import { Text } from "@/components"
+import { Canvas } from "@/components/Canvas"
 import NexusOverlay from "@/components/NexusOverlay"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
@@ -16,15 +17,15 @@ export const OnyxScreen = observer(function OnyxScreen({ visible = true }: OnyxS
 
   return (
     <View style={[$container, $topInset]}>
-      <NexusOverlay />
-      <Text>Onyx Screen</Text>
+      {/* <NexusOverlay /> */}
+      <Canvas />
     </View>
   )
 })
 
 const $container: ViewStyle = {
   flex: 1,
-  backgroundColor: '#fff',
+  backgroundColor: '#000',
   padding: 16,
 }
 
