@@ -2,9 +2,11 @@
 
 The OpenAgents mobile app!
 
-Your personal AI assistant that responds to voice commands, connects to a growing network of AI services, and earns you bitcoin. Part of a decentralized network where every agent makes all agents smarter.
+Your personal AI agent that responds to voice commands, connects to a growing network of AI services, and earns you bitcoin.
 
-_Heavily work in progress. Launch ETA December 20._
+Part of the decentralized OpenAgents network where every agent makes all agents smarter.
+
+_Heavily work in progress. Beta launch ETA December 20. [Follow along on X.](https://x.com/OpenAgentsInc/status/1864878103853477910)_
 
 ![onyx](https://github.com/user-attachments/assets/75f0d9e5-2c66-46fd-8b00-14295e4bb808)
 
