@@ -23,3 +23,21 @@ _Heavily work in progress. Beta launch ETA December 20. [Follow along on X.](htt
   - [Bitcoin](https://bitcoin.org/) & [Lightning](https://lightning.network/) via the [Breez SDK](https://sdk-doc-liquid.breez.technology/guide/about_breez_sdk_liquid.html)
   - [Nostr](https://github.com/nostr-protocol/nostr)
   - [Model Context Protocol](https://modelcontextprotocol.io/)
+
+## Prior work
+
+Onyx uses concepts and code from our previous projects:
+
+- [Arcade](https://github.com/OpenAgentsInc/arcade) - Nostr chat & commerce app
+- [GPUtopia](https://github.com/OpenAgentsInc/gputopia) - GPU compute marketplace paid in Lightning
+- [OpenAgents v1](https://github.com/OpenAgentsInc/openagents) - Chat & agent store MVP
+- [OpenAgents v2](https://github.com/OpenAgentsInc/v2) - Chat & GitHub coding agent via tools
+
+## Video series
+
+We've chronicled much of the development of OpenAgents over a year and 140+ videos on X.
+
+See [episode one](https://twitter.com/OpenAgentsInc/status/1721942435125715086) or
+the [full episode list](https://github.com/OpenAgentsInc/openagents/wiki/Video-Series).
+
+[Follow us on X](https://x.com/OpenAgentsInc) for updates.
