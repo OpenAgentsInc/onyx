@@ -15,119 +15,119 @@
      - Calls `client.connect(transport)` from the MCP SDK.
    - Provide methods like `listResources()`, `readResource(uri)`, etc., that internally call the MCP `request()` methods.
 
-    ```typescript
-    import { MCPClient } from "@modelcontextprotocol/typescript-sdk";
-    import { WebSocketTransport } from "../transport/WebSocketTransport";
-    import { MCP_SERVER_URL } from "../../../config/env";
+  ```typescript
+  import { MCPClient } from "@modelcontextprotocol/typescript-sdk";
+  import { WebSocketTransport } from "../transport/WebSocketTransport";
+  import { MCP_SERVER_URL } from "../../../config/env";
+
+  /**
+   * OnyxMCPClient is a wrapper around the MCPClient that:
+  * - Manages connection to the MCP server using a WebSocketTransport.
+  * - Provides convenience methods to interact with the MCP server (e.g., listing resources, reading them, calling tools).
+  * - Can be integrated with React hooks (e.g., useMCPClient) for easy usage in components.
+  */
+  export class OnyxMCPClient {
+    private client: MCPClient;
+
+    constructor() {
+      // Set initial capabilities as needed. Here we declare sampling and roots for example,
+      // adjust according to your server’s capabilities or requirements.
+      this.client = new MCPClient(
+        { name: "onyx-mobile", version: "1.0.0" },
+        {
+          capabilities: {
+            sampling: {},
+            roots: { listChanged: true },
+          },
+        }
+      );
+    }
 
     /**
-     * OnyxMCPClient is a wrapper around the MCPClient that:
-    * - Manages connection to the MCP server using a WebSocketTransport.
-    * - Provides convenience methods to interact with the MCP server (e.g., listing resources, reading them, calling tools).
-    * - Can be integrated with React hooks (e.g., useMCPClient) for easy usage in components.
+     * Establishes a connection to the MCP server via WebSocket.
+    * Reads the MCP_SERVER_URL from config to determine the connection endpoint.
     */
-    export class OnyxMCPClient {
-      private client: MCPClient;
-
-      constructor() {
-        // Set initial capabilities as needed. Here we declare sampling and roots for example,
-        // adjust according to your server’s capabilities or requirements.
-        this.client = new MCPClient(
-          { name: "onyx-mobile", version: "1.0.0" },
-          {
-            capabilities: {
-              sampling: {},
-              roots: { listChanged: true },
-            },
-          }
-        );
-      }
-
-      /**
-       * Establishes a connection to the MCP server via WebSocket.
-      * Reads the MCP_SERVER_URL from config to determine the connection endpoint.
-      */
-      async connect() {
-        const transport = new WebSocketTransport({ url: MCP_SERVER_URL });
-        await this.client.connect(transport);
-      }
-
-      /**
-       * Example method: Lists resources available on the MCP server.
-      * Returns a list of resources as defined by the MCP protocol.
-      */
-      async listResources() {
-        return await this.client.request({ method: "resources/list" });
-      }
-
-      /**
-       * Example method: Reads a specific resource by URI.
-      * @param uri The resource URI to read from the server.
-      */
-      async readResource(uri: string) {
-        return await this.client.request({
-          method: "resources/read",
-          params: { uri },
-        });
-      }
-
-      /**
-       * Example method: Calls a tool on the MCP server.
-      * @param name The name of the tool to call.
-      * @param args The arguments to pass to the tool.
-      */
-      async callTool(name: string, args: Record<string, any>) {
-        return await this.client.request({
-          method: "tools/call",
-          params: { name, arguments: args },
-        });
-      }
-
-      /**
-       * Example method: Lists available prompts or prompt templates from the server.
-      */
-      async listPrompts() {
-        return await this.client.request({ method: "prompts/list" });
-      }
-
-      /**
-       * Example method: Gets a specific prompt by name.
-      * @param name The prompt name.
-      * @param promptArgs Optional arguments to template into the prompt.
-      */
-      async getPrompt(name: string, promptArgs?: Record<string, string>) {
-        return await this.client.request({
-          method: "prompts/get",
-          params: { name, arguments: promptArgs },
-        });
-      }
-
-      /**
-       * Example method: Completes an argument’s value based on context (for autocompletion).
-      * @param ref A prompt or resource reference where the argument is defined.
-      * @param argumentName The argument name to complete.
-      * @param argumentValue The current partial value of the argument.
-      */
-      async completeArgument(ref: { type: string; name?: string; uri?: string }, argumentName: string, argumentValue: string) {
-        return await this.client.request({
-          method: "completion/complete",
-          params: {
-            ref,
-            argument: { name: argumentName, value: argumentValue },
-          },
-        });
-      }
-
-      /**
-       * Example method: List tools available on the MCP server.
-      */
-      async listTools() {
-        return await this.client.request({ method: "tools/list" });
-      }
-
-      // Add more convenience methods as needed for your workflow.
+    async connect() {
+      const transport = new WebSocketTransport({ url: MCP_SERVER_URL });
+      await this.client.connect(transport);
     }
-    ```
+
+    /**
+     * Example method: Lists resources available on the MCP server.
+    * Returns a list of resources as defined by the MCP protocol.
+    */
+    async listResources() {
+      return await this.client.request({ method: "resources/list" });
+    }
+
+    /**
+     * Example method: Reads a specific resource by URI.
+    * @param uri The resource URI to read from the server.
+    */
+    async readResource(uri: string) {
+      return await this.client.request({
+        method: "resources/read",
+        params: { uri },
+      });
+    }
+
+    /**
+     * Example method: Calls a tool on the MCP server.
+    * @param name The name of the tool to call.
+    * @param args The arguments to pass to the tool.
+    */
+    async callTool(name: string, args: Record<string, any>) {
+      return await this.client.request({
+        method: "tools/call",
+        params: { name, arguments: args },
+      });
+    }
+
+    /**
+     * Example method: Lists available prompts or prompt templates from the server.
+    */
+    async listPrompts() {
+      return await this.client.request({ method: "prompts/list" });
+    }
+
+    /**
+     * Example method: Gets a specific prompt by name.
+    * @param name The prompt name.
+    * @param promptArgs Optional arguments to template into the prompt.
+    */
+    async getPrompt(name: string, promptArgs?: Record<string, string>) {
+      return await this.client.request({
+        method: "prompts/get",
+        params: { name, arguments: promptArgs },
+      });
+    }
+
+    /**
+     * Example method: Completes an argument’s value based on context (for autocompletion).
+    * @param ref A prompt or resource reference where the argument is defined.
+    * @param argumentName The argument name to complete.
+    * @param argumentValue The current partial value of the argument.
+    */
+    async completeArgument(ref: { type: string; name?: string; uri?: string }, argumentName: string, argumentValue: string) {
+      return await this.client.request({
+        method: "completion/complete",
+        params: {
+          ref,
+          argument: { name: argumentName, value: argumentValue },
+        },
+      });
+    }
+
+    /**
+     * Example method: List tools available on the MCP server.
+    */
+    async listTools() {
+      return await this.client.request({ method: "tools/list" });
+    }
+
+    // Add more convenience methods as needed for your workflow.
+  }
+  ```
 
 
 3. **`app/services/mcp/transport/WebSocketTransport.ts`**
