@@ -205,9 +205,152 @@
    - Optionally caches result in `MCPResourcesStore` or uses `ResourceCache`.
    - Returns `resource`, `loading`, `error` to components.
 
+    ```typescript
+    // app/services/mcp/hooks/useMCPResource.ts
+    import { useEffect, useState } from "react"
+    import { useMCPClient } from "./useMCPClient"
+    import { useStores } from "../../../models" // Assuming there's a root store with MST including MCPResourcesStore
+
+    /**
+     * A hook to fetch and manage resources from the MCP server.
+    *
+    * This hook:
+    * - Gets the MCP client from useMCPClient.
+    * - Optionally fetches a list of resources or a specific resource by URI.
+    * - Updates the MCPResourcesStore with the fetched data.
+    *
+    * Usage:
+    * const { resources, loading, error } = useMCPResource();
+    * // or for a single resource:
+    * const { resource, loading, error } = useMCPResource({ uri: "file:///my/resource" });
+    */
+
+    interface UseMCPResourceOptions {
+      uri?: string; // If provided, fetch a single resource instead of listing all
+    }
+
+    export function useMCPResource(options?: UseMCPResourceOptions) {
+      const { client } = useMCPClient()
+      const { mcpResourcesStore } = useStores()
+      const [loading, setLoading] = useState(true)
+      const [error, setError] = useState<Error | null>(null)
+
+      useEffect(() => {
+        if (!client) return
+
+        async function fetchData() {
+          setLoading(true)
+          setError(null)
+
+          try {
+            if (options?.uri) {
+              // Fetch a single resource
+              const result = await client.readResource(options.uri)
+              // Assume the server returns an object with a `contents` array
+              // and we take the first content as the main resource.
+              if (result && (result as any).contents && (result as any).contents.length > 0) {
+                mcpResourcesStore.setResource(options.uri, (result as any).contents[0])
+              }
+            } else {
+              // List all resources
+              const result = await client.listResources()
+              // Assume `result.resources` is the array of resources
+              if (result && (result as any).resources) {
+                mcpResourcesStore.setResources((result as any).resources)
+              }
+            }
+          } catch (err) {
+            setError(err as Error)
+          } finally {
+            setLoading(false)
+          }
+        }
+
+        fetchData()
+      }, [client, options?.uri, mcpResourcesStore])
+
+      if (options?.uri) {
+        const resource = mcpResourcesStore.getResource(options.uri)
+        return { resource, loading, error }
+      } else {
+        const resources = mcpResourcesStore.resources
+        return { resources, loading, error }
+      }
+    }
+
 6. **`MCPResourcesStore.ts` (in `app/models`)**
    - Optional MST store to keep fetched MCP resources and manage state.
    - Could store arrays of resources returned by `listResources()` or hold selected resource content after `readResource()` calls.
+
+    ```typescript
+    // app/services/mcp/MCPResourcesStore.ts
+    import { Instance, SnapshotIn, SnapshotOut, types, cast } from "mobx-state-tree"
+
+    /**
+     * A model to represent a single resource as defined by the MCP server.
+    * We'll assume a resource has:
+    * - uri (as an identifier)
+    * - name (string)
+    * - description (optional string)
+    * - mimeType (optional string)
+    *
+    * Adjust fields as needed based on actual MCP Resource definitions.
+    */
+    export const MCPResourceModel = types.model("MCPResource", {
+      uri: types.identifier,
+      name: types.string,
+      description: types.maybe(types.string),
+      mimeType: types.maybe(types.string)
+    })
+
+    type MCPResourceModelType = Instance<typeof MCPResourceModel>
+
+    /**
+     * The MCPResourcesStore maintains a list of resources and provides actions
+    * to update them when fetching from the MCP server.
+    */
+    export const MCPResourcesStoreModel = types
+      .model("MCPResourcesStore", {
+        resources: types.array(MCPResourceModel),
+      })
+      .views((store) => ({
+        getResource(uri: string) {
+          return store.resources.find(r => r.uri === uri)
+        },
+      }))
+      .actions((store) => ({
+        setResources(resources: Array<{ uri: string; name: string; description?: string; mimeType?: string }>) {
+          const modelResources = resources.map(r => ({
+            uri: r.uri,
+            name: r.name,
+            description: r.description,
+            mimeType: r.mimeType
+          }))
+          store.resources.replace(cast(modelResources))
+        },
+        setResource(uri: string, resourceData: { uri: string; name?: string; description?: string; mimeType?: string }) {
+          // If a resource with this URI already exists, update it
+          const existing = store.resources.findIndex(r => r.uri === uri)
+          const resource = {
+            uri,
+            name: resourceData.name || "Unnamed Resource",
+            description: resourceData.description,
+            mimeType: resourceData.mimeType
+          }
+          if (existing >= 0) {
+            store.resources[existing] = cast(resource)
+          } else {
+            store.resources.push(cast(resource))
+          }
+        },
+        clearResources() {
+          store.resources.clear()
+        }
+      }))
+
+    export interface MCPResourcesStore extends Instance<typeof MCPResourcesStoreModel> {}
+    export interface MCPResourcesStoreSnapshotOut extends SnapshotOut<typeof MCPResourcesStoreModel> {}
+    export interface MCPResourcesStoreSnapshotIn extends SnapshotIn<typeof MCPResourcesStoreModel> {}
 
 ## Connecting to the Demo MCP Server
 
