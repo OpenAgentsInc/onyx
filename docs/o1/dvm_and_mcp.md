@@ -80,3 +80,29 @@ The Nostr NIP-89 and NIP-90 specifications and the MCP specification address com
 Combined, they could yield a system where users discover specialized AI services (via NIP-89’s recommendation logic), integrate them into their LLM workflows (through MCP’s structured protocol and capabilities), and delegate complex tasks to a decentralized marketplace (NIP-90) for processing. User trust, consent, and iterative negotiation remain central, ensuring a user-driven experience that respects privacy and maintains flexibility.
 
 In essence, NIP-89/NIP-90 and MCP can be seen as pieces of a larger puzzle: NIP-89 provides a decentralized address book of capabilities, NIP-90 provides a computation marketplace, and MCP provides a standardized interface and negotiation layer for integrating these capabilities directly into LLM-driven user interfaces and applications.
+
+**Addendum: Other Possible Relationship Combinations**
+
+Beyond the workflow where NIP-89 discovery leads to an MCP server that internally leverages NIP-90’s marketplace logic, a variety of other relationships and configurations are possible depending on the user’s preferences, the trust model, and the complexity of tasks:
+
+1. **Direct Discovery Without Marketplace Integration**:
+   A user may discover an MCP server via NIP-89 and decide to trust that particular server to perform the requested service directly, without involving NIP-90’s marketplace. In this scenario, the MCP server itself could be self-contained: it provides the requested computation or tool invocation in-house. The NIP-89 event merely serves as a decentralized “directory” pointing to a trusted MCP service provider that does not outsource jobs to external vendors.
+
+2. **Marketplace-First, MCP-Second**:
+   Instead of discovering an MCP server first, the user might directly post a NIP-90 job request into the Nostr network. Once they receive a satisfactory response from a service provider through NIP-90’s open marketplace, they can then initiate an MCP session with that newly identified provider. In this flow, NIP-90 acts as the starting point to find capable services, and MCP is introduced only after a suitable provider has proven itself in the open marketplace.
+
+3. **Hybrid: Selective Use of the Marketplace**:
+   A single MCP server may offer some capabilities directly (for which the user trusts it outright) and other, more specialized capabilities via the NIP-90 marketplace. For example, the server might handle general text summarization in-house, but for complex tasks like specialized transcription or image-to-text conversion, it offloads those requests to NIP-90. Thus, when the user triggers certain tools via MCP, the server either responds immediately (internal capability) or posts a NIP-90 job request and returns results later (external marketplace capability).
+
+4. **Layered Trust and Tiered Services**:
+   Users might use NIP-89 recommendations to discover multiple MCP servers. They might fully trust Server A to handle confidential tasks directly (no NIP-90 involvement), while using Server B only as an intermediary that sources answers from the NIP-90 marketplace (because Server B’s own capabilities aren’t fully trusted, but it’s a good aggregator). Over time, the user’s trust in different servers can evolve: if Server B consistently provides good results from the marketplace, the user might start trusting it with direct tasks as well.
+
+5. **Fallback Approaches**:
+   An MCP server discovered via NIP-89 might attempt to fulfill a request using its own capabilities first, and if it fails or the user is not satisfied, it could then resort to NIP-90 to find a more specialized solution. Here, NIP-89 and MCP provide a baseline channel, while NIP-90 acts as a fallback mechanism. This ensures users always have at least one known pathway to get results, with the marketplace acting as a safety net.
+
+6. **Experimental Services and Niche Capabilities**:
+   Some MCP servers might advertise cutting-edge or niche functionalities that are expensive or difficult to produce in-house. They can transparently inform the user (via their NIP-89 `kind:31990` metadata and through the MCP negotiation) that certain advanced tools will be sourced from third-party NIP-90 vendors. This model allows a single MCP server to appear as a one-stop solution while actually federating out specialized tasks to the broader ecosystem.
+
+---
+
+In all these combinations, NIP-89 acts as a decentralized discovery layer and a trust signal, while MCP enforces structured integration, user consent, and safe execution of tasks. NIP-90 provides a flexible, marketplace-like layer of computation when the MCP server cannot or chooses not to perform certain tasks internally. Depending on user preferences, trust levels, and the nature of the requested tasks, different integration strategies can be employed, ranging from direct one-to-one service usage to sophisticated multi-tiered orchestration involving both local capabilities and global marketplaces.
