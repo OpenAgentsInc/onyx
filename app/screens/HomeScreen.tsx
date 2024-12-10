@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { ViewStyle } from "react-native"
+import { View, ViewStyle } from "react-native"
 import { Screen, Text, Feed, FeedEvent } from "@/components"
 import { MainTabScreenProps } from "@/navigators"
 
@@ -18,8 +18,10 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen() {
       preset="fixed"
       safeAreaEdges={["top"]}
     >
-      <Text text="Nostr Feed" style={$headerText} />
-      <Feed onEventPress={handleEventPress} />
+      <View style={$container}>
+        <Text text="Nostr Feed" style={$headerText} />
+        <Feed onEventPress={handleEventPress} />
+      </View>
     </Screen>
   )
 })
@@ -27,6 +29,10 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen() {
 const $root: ViewStyle = {
   flex: 1,
   backgroundColor: 'black',
+}
+
+const $container: ViewStyle = {
+  flex: 1,
 }
 
 const $headerText = {
