@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { View, ViewStyle } from "react-native"
-import { Screen, Text, Feed, FeedEvent } from "@/components"
+import { Feed, FeedEvent, Screen, Text } from "@/components"
 import { MainTabScreenProps } from "@/navigators"
 
 interface HomeScreenProps extends MainTabScreenProps<"Home"> { }
@@ -20,7 +20,6 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen() {
       contentContainerStyle={$screenContainer}
     >
       <View style={$container}>
-        <Text text="Nostr Feed" style={$headerText} />
         <Feed onEventPress={handleEventPress} />
       </View>
     </Screen>
