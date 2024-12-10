@@ -13,10 +13,14 @@ export const DVMButton = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   const sendJobRequest = async () => {
-    if (!pool) return
+    if (!pool) {
+      console.log("No pool available")
+      return
+    }
     setIsLoading(true)
 
     const dvmManager = new DVMManager(pool)
+    let sub: { unsub: () => void } | null = null
     
     try {
       // Create unsigned event
@@ -45,27 +49,42 @@ export const DVMButton = () => {
       const sig = getSignature(eventToSign, DEMO_PRIVATE_KEY)
       const signedEvent = { ...eventToSign, sig }
 
+      console.log("Created signed event:", signedEvent)
+
       // Subscribe to responses first
-      const sub = dvmManager.subscribeToJobs((event) => {
+      sub = dvmManager.subscribeToJobs((event) => {
         console.log("Received potential response:", event)
-        // Only show responses to our request
-        if (event.tags.some(t => t[0] === "e" && t[1] === signedEvent.id)) {
-          console.log("Found matching response:", event)
+        
+        // Check if this is a response to our request
+        const isResponse = event.tags.some(t => 
+          t[0] === "e" && t[1] === signedEvent.id
+        )
+
+        if (isResponse) {
+          console.log("Found matching response!")
           setResponses(prev => [...prev, event])
+        } else {
+          console.log("Not a response to our request")
         }
       })
 
+      // Wait a moment for subscription to be ready
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
       // Publish the request
-      console.log("Publishing request:", signedEvent)
-      await pool.publish(signedEvent)
+      console.log("Publishing request...")
+      const pub = await pool.publish(signedEvent)
+      console.log("Publish result:", pub)
 
       // Clean up subscription after 30 seconds
       setTimeout(() => {
-        sub.unsub()
+        console.log("Cleaning up subscription")
+        sub?.unsub()
         setIsLoading(false)
       }, 30000)
     } catch (e) {
-      console.error("Error sending job request:", e)
+      console.error("Error in sendJobRequest:", e)
+      sub?.unsub()
       setIsLoading(false)
     }
   }
@@ -82,13 +101,19 @@ export const DVMButton = () => {
         </Text>
       </TouchableOpacity>
 
-      {responses.map((response, i) => (
-        <View key={response.id} style={$response}>
-          <Text style={$responseText}>
-            {response.content}
-          </Text>
+      {responses.length > 0 ? (
+        responses.map((response, i) => (
+          <View key={response.id} style={$response}>
+            <Text style={$responseText}>
+              {response.content || "Empty response"}
+            </Text>
+          </View>
+        ))
+      ) : isLoading ? (
+        <View style={$response}>
+          <Text style={$responseText}>Waiting for responses...</Text>
         </View>
-      ))}
+      ) : null}
     </View>
   )
 }
