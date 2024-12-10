@@ -16,6 +16,9 @@ Manages user contacts in the Nostr network. Handles both public and private cont
 ### encchannel.ts
 Implements encrypted channel functionality for private communications. Handles channel creation, invitation, message encryption/decryption, and metadata management. Uses NIP-04 and custom encryption schemes for secure messaging.
 
+### ident.ts
+Core identity management and cryptographic operations. Implements various NIPs (Nostr Implementation Possibilities) including NIP-04 encryption, NIP-44 encryption, and custom encryption schemes. Handles key generation, event signing, and message encryption/decryption.
+
 ## Additional Files
 (More files to be documented as they are reviewed)
 
@@ -28,5 +31,6 @@ These services form the core Nostr functionality of the Onyx app, providing:
 - Nostr event handling
 - Encrypted communication
 - Profile management
+- Identity and cryptographic operations
 
 Each service is designed to work with the NostrPool class for relay communication and event handling.
