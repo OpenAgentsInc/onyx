@@ -1,7 +1,6 @@
 import { FC } from "react"
 import { FlatList, ListRenderItem, View, ViewStyle } from "react-native"
 import { FeedCard, FeedEvent } from "./FeedCard"
-import { Text } from "./Text"
 
 // Dummy data based on NIP89 and NIP90
 const DUMMY_EVENTS: FeedEvent[] = [
@@ -69,10 +68,6 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
 
   return (
     <View style={$container}>
-      <Text text="DEBUG: Feed Component" style={$debugText} />
-      <View style={$debugBox}>
-        <Text text={`Events: ${DUMMY_EVENTS.length}`} style={$debugText} />
-      </View>
       <FlatList
         data={DUMMY_EVENTS}
         renderItem={renderItem}
@@ -88,23 +83,10 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
 const $container: ViewStyle = {
   flex: 1,
   width: "100%",
-  backgroundColor: "#222", // Darker gray for debugging
-}
-
-const $debugBox: ViewStyle = {
-  backgroundColor: "#444",
-  padding: 10,
-  margin: 10,
-}
-
-const $debugText = {
-  color: "white",
-  fontSize: 16,
 }
 
 const $list: ViewStyle = {
   flex: 1,
-  backgroundColor: "#333", // Different gray for debugging
 }
 
 const $listContent: ViewStyle = {
