@@ -53,6 +53,7 @@
     "@scure/base": "^1.1.1",
     "@shopify/flash-list": "1.7.1",
     "ai": "4.0.11",
+    "any-sqlite": "1.0.4",
     "apisauce": "3.0.1",
     "bech32": "^2.0.0",
     "bip32": "^5.0.0-rc.0",
