@@ -22,6 +22,9 @@ Core identity management and cryptographic operations. Implements various NIPs (
 ### listing.ts
 Implements the Arcade marketplace listing system. Manages buy/sell listings, offers, and actions (accept/finalize/comment) with support for both public and private interactions. Includes geohash-based location support and expiration handling.
 
+### nip28channel.ts
+Implementation of NIP-28 channel protocol for public chat channels. Handles channel creation, metadata management, messaging, and event subscriptions. Supports channel discovery, message threading, and user muting capabilities.
+
 ## Additional Files
 (More files to be documented as they are reviewed)
 
@@ -36,5 +39,6 @@ These services form the core Nostr functionality of the Onyx app, providing:
 - Profile management
 - Identity and cryptographic operations
 - Marketplace listings and trading
+- Public chat channels (NIP-28)
 
 Each service is designed to work with the NostrPool class for relay communication and event handling.
