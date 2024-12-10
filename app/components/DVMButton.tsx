@@ -1,8 +1,8 @@
-import React, { useContext, useState } from "react"
-import { TouchableOpacity, View, ViewStyle, Text } from "react-native"
-import { RelayContext } from "./RelayProvider"
 import { Event, getEventHash, getPublicKey, getSignature } from "nostr-tools"
+import React, { useContext, useState } from "react"
+import { Text, TouchableOpacity, View, ViewStyle } from "react-native"
 import { DVMManager } from "@/services/nostr/dvm"
+import { RelayContext } from "./RelayProvider"
 
 // TODO: This should come from your key management system
 const DEMO_PRIVATE_KEY = "d5770d632a5d2c8fd2c0d3db4dd5f30ea4b37480b89da1695b5d3ca25080fa91"
@@ -20,8 +20,13 @@ export const DVMButton = () => {
     setIsLoading(true)
 
     const dvmManager = new DVMManager(pool)
+<<<<<<< HEAD
     let subscription: { unsub: () => void } | undefined
     
+=======
+    let sub: { unsub: () => void } | null = null
+
+>>>>>>> 7a81a16 (dvm)
     try {
       // Create unsigned event
       const unsignedEvent = {
@@ -29,6 +34,7 @@ export const DVMButton = () => {
         content: "",
         tags: [
           ["i", "Write a haiku about artificial intelligence", "prompt"],
+<<<<<<< HEAD
           // Commenting out model params for now
           // ["param", "model", "LLaMA-2"],
           // ["param", "max_tokens", "100"],
@@ -36,6 +42,14 @@ export const DVMButton = () => {
           // ["param", "top-k", "50"],
           // ["param", "top-p", "0.9"],
           // ["param", "frequency_penalty", "1.2"],
+=======
+          // ["param", "model", "LLaMA-2"],
+          ["param", "max_tokens", "100"],
+          ["param", "temperature", "0.7"],
+          ["param", "top-k", "50"],
+          ["param", "top-p", "0.9"],
+          ["param", "frequency_penalty", "1.2"],
+>>>>>>> 7a81a16 (dvm)
           ["output", "text/plain"]
         ],
         created_at: Math.floor(Date.now() / 1000),
@@ -55,9 +69,9 @@ export const DVMButton = () => {
       // Subscribe to responses first
       subscription = dvmManager.subscribeToJobs((event) => {
         console.log("Received potential response:", event)
-        
+
         // Check if this is a response to our request
-        const isResponse = event.tags.some(t => 
+        const isResponse = event.tags.some(t =>
           t[0] === "e" && t[1] === signedEvent.id
         )
 
@@ -92,7 +106,7 @@ export const DVMButton = () => {
 
   return (
     <View style={$container}>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={$button}
         onPress={sendJobRequest}
         disabled={isLoading}

@@ -17,8 +17,8 @@ export const OnyxScreen = observer(function OnyxScreen({ visible = true }: OnyxS
 
   return (
     <View style={[$container, $topInset]}>
-      <Canvas />
       <DVMButton />
+      <Canvas />
     </View>
   )
 })
