@@ -6,10 +6,9 @@ import { MainTabScreenProps } from "@/navigators"
 
 interface HomeScreenProps extends MainTabScreenProps<"Home"> { }
 
-export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen() {
+export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen({ navigation }) {
   const handleEventPress = (event: FeedEvent) => {
-    // TODO: Handle event press - navigate to detail screen or show modal
-    console.log("Event pressed:", event)
+    navigation.navigate("EventReferences", { event })
   }
 
   return (
