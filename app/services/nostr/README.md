@@ -13,6 +13,9 @@ Provides utilities for parsing and creating trade commands in a standardized for
 ### contacts.ts
 Manages user contacts in the Nostr network. Handles both public and private contacts, contact list synchronization, and pubkey resolution. Includes support for NIP-05 identifier resolution and various Nostr address formats.
 
+### encchannel.ts
+Implements encrypted channel functionality for private communications. Handles channel creation, invitation, message encryption/decryption, and metadata management. Uses NIP-04 and custom encryption schemes for secure messaging.
+
 ## Additional Files
 (More files to be documented as they are reviewed)
 
