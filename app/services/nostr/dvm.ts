@@ -1,5 +1,5 @@
-import { NostrPool } from "./pool"
 import { Event, Filter } from "nostr-tools"
+import { NostrPool } from "./pool"
 
 export class DVMManager {
   constructor(private pool: NostrPool) {
@@ -20,7 +20,7 @@ export class DVMManager {
 
     if (!this.pool) {
       console.error("No pool available for service subscription")
-      return { unsub: () => {} }
+      return { unsub: () => { } }
     }
 
     const filter: Filter = {
@@ -38,7 +38,7 @@ export class DVMManager {
       )
     } catch (e) {
       console.error("Error subscribing to services:", e)
-      return { unsub: () => {} }
+      return { unsub: () => { } }
     }
   }
 
@@ -52,11 +52,12 @@ export class DVMManager {
 
     if (!this.pool) {
       console.error("No pool available for job subscription")
-      return { unsub: () => {} }
+      return { unsub: () => { } }
     }
 
     const filter: Filter = {
-      kinds: [5000, 5001, 5002, 5003, 5004, 5005, 5050], // Added 5050
+      kinds: [5050], // Added 5050
+      // kinds: [5000, 5001, 5002, 5003, 5004, 5005, 5050], // Added 5050
       since: Math.floor(Date.now() / 1000) - 24 * 60 * 60 // Last 24 hours
     }
 
@@ -70,7 +71,7 @@ export class DVMManager {
       )
     } catch (e) {
       console.error("Error subscribing to jobs:", e)
-      return { unsub: () => {} }
+      return { unsub: () => { } }
     }
   }
 
@@ -81,13 +82,13 @@ export class DVMManager {
       const supportedKind = event.tags.find(t => t[0] === "d")?.[1]
       const appInfo = event.tags.find(t => t[0] === "a")
       let metadata = {}
-      
+
       try {
         metadata = JSON.parse(event.content)
       } catch (e) {
         console.warn("Failed to parse event content as JSON:", e)
       }
-      
+
       return {
         id: event.id,
         kind: event.kind,
