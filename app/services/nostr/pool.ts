@@ -3,7 +3,7 @@ import { LRUCache } from "lru-cache"
 import {
   Filter, Pub, Relay, SimplePool, Sub, SubscriptionOptions
 } from "nostr-tools"
-import { ArcadeIdentity, NostrEvent, UnsignedEvent } from "./ident"
+import { NostrEvent, NostrIdentity, UnsignedEvent } from "./ident"
 
 interface SubInfo {
   sub: Sub;
@@ -46,9 +46,9 @@ export class ReconnPool extends SimplePool {
   }
 }
 
-// very thin wrapper using SimplePool + ArcadeIdentity
+// very thin wrapper using SimplePool + NostrIdentity
 export class NostrPool {
-  ident: ArcadeIdentity;
+  ident: NostrIdentity;
 
   relays: string[] = [];
   unsupportedRelays: string[] = [];
@@ -62,7 +62,7 @@ export class NostrPool {
   filters: Map<string, SubInfo>;
   subopts: SubscriptionOptions;
 
-  constructor(ident: ArcadeIdentity, db?: ArcadeDb, subopts: SubscriptionOptions = {}) {
+  constructor(ident: NostrIdentity, db?: ArcadeDb, subopts: SubscriptionOptions = {}) {
     this.ident = ident;
     const pool = new ReconnPool();
     this.pool = pool;
