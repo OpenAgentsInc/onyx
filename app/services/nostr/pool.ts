@@ -57,7 +57,7 @@ export class NostrPool {
   private pool;
   private unsubMap: Map<undefined | ((ev: NostrEvent) => void | Promise<void>), (ev: NostrEvent) => void | Promise<void>>;
   private lruSub: LRUCache<string, SubInfo>
-  watch: Sub;
+  watch?: Sub; // Mark watch as optional
   db: NostrDb | undefined;
   filters: Map<string, SubInfo>;
   subopts: SubscriptionOptions;
@@ -190,17 +190,13 @@ export class NostrPool {
     );
   }
 
-  /**
-   * Starts a subscription with a filter and optional options, and adds event callbacks to
-   * the subscription.
-   * @param {Filter} filter - tags, etc
-   * @param {SubscriptionOptions} [opts] - SubscriptionOptions
-   */
-
   start(filter: Filter[], opts?: SubscriptionOptions): void {
-    // todo webworker support: https://github.com/adamritter/nostr-relaypool-ts
+    // Check if watch is defined before unsubscribing (if needed)
+    if (this.watch) {
+      this.watch.unsub();
+    }
     this.watch = this.pool.sub(this.relays, filter, opts);
-    this.eventCallbacks.map((cb) => this.watch.on('event', cb));
+    this.eventCallbacks.map((cb) => this.watch?.on('event', cb));
   }
 
   getTotalSubs() {
@@ -240,10 +236,6 @@ export class NostrPool {
     since?: number,
     closeOnEose?: boolean
   ): void {
-    // subcribe to filters
-    // maintain filter-subscription map
-    // get callbacks on new events
-    // optionally get callbacks on eose
     const new_filters: Filter[] = [];
     const old_filters: SubInfo[] = [];
 
@@ -258,7 +250,6 @@ export class NostrPool {
     if (new_filters.length) {
       let sub_filters = new_filters;
       if (since) {
-        // caller has stuff in the db for this filter, so just ask for more recent
         sub_filters = sub_filters.map((f) => {
           return { ...f, since };
         });
@@ -268,10 +259,8 @@ export class NostrPool {
         const fil = JSON.stringify(f)
         const isFetchMeta = (f.kinds?.includes(0) || f.kinds?.includes(3)) ?? false
 
-        // sub has found, do nothing for this case. Use .get to update recency
         if (this.lruSub.get(fil)) return
 
-        // open sub for this filter
         const sub: Sub = this.pool.sub(this.relays, [sub_filters[i]], this.subopts);
         const cbs = new Set<(event: NostrEvent) => void>();
         cbs.add(callback);
@@ -279,14 +268,13 @@ export class NostrPool {
         const dat = { sub: sub, eose_seen: false, cbs, last_hit: now };
         this.filters.set(fil, dat);
 
-        // sub for user's metadata will be auto closed, no need to add to lru
         if (!isFetchMeta) {
           this.lruSub.set(fil, dat);
         }
 
         sub.on('event', (ev) => {
-          dat.cbs.forEach((sub) => {
-            sub(ev);
+          dat.cbs.forEach((subCb) => {
+            subCb(ev);
           });
         });
 
@@ -313,6 +301,7 @@ export class NostrPool {
   stop() {
     if (this.watch) {
       this.watch.unsub();
+      this.watch = undefined;
     }
   }
 
@@ -320,12 +309,6 @@ export class NostrPool {
     return this.pool.seenOn(id);
   }
 
-  /**
-   * Publishes an event and returns the event along with a subscription object to watch
-   * @param {UnsignedEvent} message - The `message` parameter is an `UnsignedEvent` object, which
-   * represents an event that has not yet been signed by the identity of the publisher
-   * @returns An array containing an `Event` object and a subscription object to watch for publication.
-   */
   async publish(message: UnsignedEvent) {
     const event: NostrEvent = await this.ident.signEvent(message);
     return [event, this.pool.publish(this.relays, event)] as [NostrEvent, Pub];
@@ -335,16 +318,12 @@ export class NostrPool {
     return [event, this.pool.publish(this.relays, event)] as [NostrEvent, Pub];
   }
 
-  /**
-   * This is an asynchronous function that sends an unsigned event and waits for it to be published,
-   * returning the event once it has been successfully sent to at least 1 relay.
-   * @param {UnsignedEvent} message - The message parameter is of type UnsignedEvent
-   */
   async send(message: UnsignedEvent): Promise<NostrEvent> {
     const [event, pubs] = await this.publish(message);
     return new Promise<NostrEvent>((res, rej) => {
-      setTimeout(() => { rej("send timed out") }, 3000)
+      const to = setTimeout(() => { rej("send timed out") }, 3000)
       pubs.on('ok', () => {
+        clearTimeout(to);
         res(event);
       });
       pubs.on('failed', (relay: string) => {
@@ -356,8 +335,9 @@ export class NostrPool {
   async sendRaw(message: NostrEvent): Promise<NostrEvent> {
     const [event, pubs] = await this.publishRaw(message);
     return new Promise<NostrEvent>((res, rej) => {
-      setTimeout(() => { rej("send raw timed out") }, 3000)
+      const to = setTimeout(() => { rej("send raw timed out") }, 3000)
       pubs.on('ok', () => {
+        clearTimeout(to);
         res(event);
       });
       pubs.on('failed', (relay: string) => {
@@ -366,12 +346,11 @@ export class NostrPool {
     });
   }
 
-
-  /**
-   * This function adds a callback function to an array of event callbacks.
-   * @param callback - Callback that takes an event of type NostrEvent as its parameter
-   */
   addEventCallback(callback: (event: NostrEvent) => void): void {
     this.eventCallbacks.push(callback);
+    // If watch is currently active, attach to it
+    if (this.watch) {
+      this.watch.on('event', callback);
+    }
   }
 }
