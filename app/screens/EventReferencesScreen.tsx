@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from "react"
+import React, { FC, useContext, useEffect, useState, useRef } from "react"
 import { View, ViewStyle, FlatList, TouchableOpacity } from "react-native"
 import { Text } from "../components/Text"
 import { Card } from "../components/Card"
@@ -21,6 +21,7 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const [references, setReferences] = useState<NostrEvent[]>([])
   const { pool } = useContext(RelayContext)
   const navigation = useNavigation()
+  const subRef = useRef<{ unsub: () => void } | null>(null)
 
   useEffect(() => {
     if (!pool) return
@@ -45,8 +46,14 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
       }
     )
 
+    // Store subscription in ref
+    subRef.current = sub
+
     return () => {
-      sub.unsub()
+      if (subRef.current) {
+        subRef.current.unsub()
+        subRef.current = null
+      }
     }
   }, [event.id, pool])
 
