@@ -9,25 +9,23 @@ interface FeedProps {
 }
 
 export const Feed: FC<FeedProps> = ({ onEventPress }) => {
-  const { pool } = useContext(RelayContext)
+  const { pool, isConnected } = useContext(RelayContext)
   const [events, setEvents] = useState<FeedEvent[]>([])
   const [dvmManager] = useState(() => new DVMManager(pool))
   const isSubscribed = useRef(false)
 
   // Wait for relay connection before subscribing
   useEffect(() => {
-    if (!pool || isSubscribed.current) return
-
-    // Check if we're connected to any relays
-    const relays = pool.relays
-    console.log("Current relays:", relays)
-    
-    if (!relays || relays.length === 0) {
-      console.log("No relays connected yet, waiting...")
+    if (!pool || !isConnected || isSubscribed.current) {
+      console.log("Feed subscription conditions not met:", { 
+        hasPool: !!pool, 
+        isConnected, 
+        isSubscribed: isSubscribed.current 
+      })
       return
     }
 
-    console.log("Relays connected, starting subscriptions...")
+    console.log("Feed conditions met, starting subscriptions...")
     isSubscribed.current = true
 
     // Subscribe to both services and jobs
@@ -77,7 +75,7 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
       subs.forEach(sub => sub?.unsub?.())
       isSubscribed.current = false
     }
-  }, [pool, dvmManager])
+  }, [pool, isConnected, dvmManager])
 
   const renderItem: ListRenderItem<FeedEvent> = ({ item }) => (
     <FeedCard 
