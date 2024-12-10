@@ -15,14 +15,19 @@ export const DVMButton = () => {
 
     const dvmManager = new DVMManager(pool)
     
-    // Create a simple text generation job request
+    // Create a text generation job request (kind 5050)
     const jobRequest = {
-      kind: 5001, // Text generation
-      content: "Hello DVM!",
+      kind: 5050,
+      content: "",
       tags: [
-        ["i", "Generate a haiku about artificial intelligence", "text", "", ""],
-        ["bid", "100"], // 100 sats
-        ["output", "text"]
+        ["i", "Write a haiku about artificial intelligence", "prompt"],
+        ["param", "model", "LLaMA-2"],
+        ["param", "max_tokens", "100"],
+        ["param", "temperature", "0.7"],
+        ["param", "top-k", "50"],
+        ["param", "top-p", "0.9"],
+        ["param", "frequency_penalty", "1.2"],
+        ["output", "text/plain"]
       ],
       created_at: Math.floor(Date.now() / 1000)
     }
@@ -58,7 +63,7 @@ export const DVMButton = () => {
         disabled={isLoading}
       >
         <Text style={$buttonText}>
-          {isLoading ? "Waiting for DVMs..." : "Send DVM Request"}
+          {isLoading ? "Waiting for AI..." : "Generate Haiku"}
         </Text>
       </TouchableOpacity>
 
