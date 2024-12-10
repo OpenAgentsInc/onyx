@@ -7,6 +7,7 @@ import { RelayContext } from "../components/RelayProvider"
 import { NostrEvent } from "../services/nostr/ident"
 import { useNavigation } from "@react-navigation/native"
 import { Icon } from "../components/Icon"
+import { connectDb } from "../services/nostr/db"
 
 interface EventReferencesScreenProps {
   route: {
@@ -22,7 +23,31 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const { pool } = useContext(RelayContext)
   const navigation = useNavigation()
   const subRef = useRef<{ unsub: () => void } | null>(null)
+  const db = useRef(connectDb())
 
+  // Load existing references from DB
+  useEffect(() => {
+    const loadFromDb = async () => {
+      try {
+        // Query both result and feedback events that reference our event
+        const filter = [{
+          kinds: [6050, 7000],
+          "#e": [event.id],
+        }]
+        
+        const events = await db.current.list(filter)
+        if (events.length > 0) {
+          setReferences(events.sort((a, b) => b.created_at - a.created_at))
+        }
+      } catch (error) {
+        console.error("Failed to load references from DB:", error)
+      }
+    }
+
+    loadFromDb()
+  }, [event.id])
+
+  // Subscribe to new references
   useEffect(() => {
     if (!pool) return
 
@@ -34,7 +59,15 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
           "#e": [event.id],
         },
       ],
-      (referenceEvent) => {
+      async (referenceEvent) => {
+        // Save to DB first
+        try {
+          await db.current.saveEventSync(referenceEvent)
+        } catch (error) {
+          console.error("Failed to save event to DB:", error)
+        }
+
+        // Update state
         setReferences((prev) => {
           // Check if event already exists
           if (prev.some((e) => e.id === referenceEvent.id)) {
