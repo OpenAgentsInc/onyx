@@ -20,7 +20,7 @@ export const DVMButton = () => {
     setIsLoading(true)
 
     const dvmManager = new DVMManager(pool)
-    let sub: { unsub: () => void } | null = null
+    let subscription: { unsub: () => void } | undefined
     
     try {
       // Create unsigned event
@@ -29,12 +29,13 @@ export const DVMButton = () => {
         content: "",
         tags: [
           ["i", "Write a haiku about artificial intelligence", "prompt"],
-          ["param", "model", "LLaMA-2"],
-          ["param", "max_tokens", "100"],
-          ["param", "temperature", "0.7"],
-          ["param", "top-k", "50"],
-          ["param", "top-p", "0.9"],
-          ["param", "frequency_penalty", "1.2"],
+          // Commenting out model params for now
+          // ["param", "model", "LLaMA-2"],
+          // ["param", "max_tokens", "100"],
+          // ["param", "temperature", "0.7"],
+          // ["param", "top-k", "50"],
+          // ["param", "top-p", "0.9"],
+          // ["param", "frequency_penalty", "1.2"],
           ["output", "text/plain"]
         ],
         created_at: Math.floor(Date.now() / 1000),
@@ -52,7 +53,7 @@ export const DVMButton = () => {
       console.log("Created signed event:", signedEvent)
 
       // Subscribe to responses first
-      sub = dvmManager.subscribeToJobs((event) => {
+      subscription = dvmManager.subscribeToJobs((event) => {
         console.log("Received potential response:", event)
         
         // Check if this is a response to our request
@@ -79,12 +80,12 @@ export const DVMButton = () => {
       // Clean up subscription after 30 seconds
       setTimeout(() => {
         console.log("Cleaning up subscription")
-        sub?.unsub()
+        subscription?.unsub()
         setIsLoading(false)
       }, 30000)
     } catch (e) {
       console.error("Error in sendJobRequest:", e)
-      sub?.unsub()
+      subscription?.unsub()
       setIsLoading(false)
     }
   }
