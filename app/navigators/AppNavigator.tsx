@@ -16,12 +16,15 @@ import Config from "../config"
 import { useStores } from "../models"
 import { MainNavigator, MainTabParamList } from "./MainNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
+import { EventReferencesScreen } from "../screens/EventReferencesScreen"
+import { FeedEvent } from "../components/FeedCard"
 
 export type AppStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>
   Login: undefined
   Welcome: undefined
   Chat: undefined
+  EventReferences: { event: FeedEvent }
 }
 
 const exitRoutes = Config.exitRoutes
@@ -57,6 +60,7 @@ const AppStack = observer(function AppStack() {
       <Stack.Screen name="Login" component={Screens.LoginScreen} />
       <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
       <Stack.Screen name="Chat" component={Screens.ChatScreen} />
+      <Stack.Screen name="EventReferences" component={EventReferencesScreen} />
     </Stack.Navigator>
   )
 })
