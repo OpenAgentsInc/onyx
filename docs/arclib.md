@@ -252,7 +252,7 @@ export class NostrDb implements NostrDbInterface {
 
   async open() {
     if (!this.db) {
-      this.db = await open("arcade.1");
+      this.db = await open("onyx.1");
       await this.db.execute(`
         CREATE TABLE IF NOT EXISTS posts (
           id STRING NOT NULL PRIMARY KEY,
