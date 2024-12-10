@@ -25,10 +25,11 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   useEffect(() => {
     if (!pool) return
 
+    // Subscribe to both results (6050) and feedback (7000)
     const sub = pool.sub(
       [
         {
-          kinds: [1, 5000, 5001, 5002], // Add other relevant kinds as needed
+          kinds: [6050, 7000], // Results and feedback for kind 5050 requests
           "#e": [event.id],
         },
       ],
@@ -38,27 +39,46 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
           if (prev.some((e) => e.id === referenceEvent.id)) {
             return prev
           }
-          return [...prev, referenceEvent]
+          // Sort by created_at with newest first
+          return [...prev, referenceEvent].sort((a, b) => b.created_at - a.created_at)
         })
       }
     )
 
     return () => {
-      pool.unsub((ev) => console.log("Unsubscribed from event references"))
+      sub.unsub()
     }
   }, [event.id, pool])
 
-  const renderReference = ({ item }: { item: NostrEvent }) => (
-    <Card
-      preset="reversed"
-      content={item.content}
-      footer={new Date(item.created_at * 1000).toLocaleString()}
-      style={$referenceCard}
-      contentContainerStyle={$cardContent}
-      contentStyle={$description}
-      footerStyle={$footer}
-    />
-  )
+  const renderReference = ({ item }: { item: NostrEvent }) => {
+    // Get the status if it's a feedback event
+    const status = item.kind === 7000 
+      ? item.tags.find(t => t[0] === 'status')?.[1] 
+      : null
+
+    // Format the content based on event kind
+    let content = item.content
+    if (item.kind === 7000) {
+      content = `Status: ${status || 'unknown'}`
+      if (status === 'error' && item.tags.find(t => t[0] === 'status')?.[2]) {
+        content += `\nError: ${item.tags.find(t => t[0] === 'status')?.[2]}`
+      }
+    }
+
+    return (
+      <Card
+        preset="reversed"
+        heading={item.kind === 6050 ? "Result" : "Status Update"}
+        content={content}
+        footer={new Date(item.created_at * 1000).toLocaleString()}
+        style={$referenceCard}
+        contentContainerStyle={$cardContent}
+        headingStyle={$cardHeading}
+        contentStyle={$description}
+        footerStyle={$footer}
+      />
+    )
+  }
 
   return (
     <View style={$container}>
@@ -81,7 +101,7 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
               headingStyle={$heading}
               contentStyle={$description}
             />
-            <Text preset="subheading" text="Responses" style={$subheading} />
+            <Text preset="subheading" text="Responses & Updates" style={$subheading} />
           </View>
         }
         data={references}
@@ -140,6 +160,12 @@ const $heading = {
   color: "#fafafa",
   fontSize: 24,
   marginBottom: 16,
+}
+
+const $cardHeading = {
+  color: "#fafafa",
+  fontSize: 18,
+  marginBottom: 8,
 }
 
 const $subheading = {
