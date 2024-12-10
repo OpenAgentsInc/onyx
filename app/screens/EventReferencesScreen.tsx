@@ -1,11 +1,12 @@
 import React, { FC, useContext, useEffect, useState } from "react"
-import { View, ViewStyle, FlatList } from "react-native"
-import { Screen } from "../components/Screen"
+import { View, ViewStyle, FlatList, TouchableOpacity } from "react-native"
 import { Text } from "../components/Text"
 import { Card } from "../components/Card"
 import { FeedEvent } from "../components/FeedCard"
 import { RelayContext } from "../components/RelayProvider"
 import { NostrEvent } from "../services/nostr/ident"
+import { useNavigation } from "@react-navigation/native"
+import { Icon } from "../components/Icon"
 
 interface EventReferencesScreenProps {
   route: {
@@ -19,6 +20,7 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const { event } = route.params
   const [references, setReferences] = useState<NostrEvent[]>([])
   const { pool } = useContext(RelayContext)
+  const navigation = useNavigation()
 
   useEffect(() => {
     if (!pool) return
@@ -59,34 +61,58 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   )
 
   return (
-    <Screen preset="scroll" contentContainerStyle={$container}>
-      <Text preset="heading" text="Event References" style={$heading} />
-      <Card
-        preset="reversed"
-        heading={event.title}
-        content={event.description}
-        style={$originalCard}
-        contentContainerStyle={$cardContent}
-        headingStyle={$heading}
-        contentStyle={$description}
-      />
-      <Text preset="subheading" text="Responses" style={$subheading} />
+    <View style={$container}>
+      <View style={$header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={$backButton}>
+          <Icon icon="back" color="#fafafa" size={24} />
+        </TouchableOpacity>
+        <Text preset="heading" text="Event References" style={$heading} />
+      </View>
+      
       <FlatList
+        ListHeaderComponent={
+          <View>
+            <Card
+              preset="reversed"
+              heading={event.title}
+              content={event.description}
+              style={$originalCard}
+              contentContainerStyle={$cardContent}
+              headingStyle={$heading}
+              contentStyle={$description}
+            />
+            <Text preset="subheading" text="Responses" style={$subheading} />
+          </View>
+        }
         data={references}
         renderItem={renderReference}
         keyExtractor={(item) => item.id}
         contentContainerStyle={$listContent}
       />
-    </Screen>
+    </View>
   )
 }
 
 const $container: ViewStyle = {
+  flex: 1,
+  backgroundColor: "#000000",
+}
+
+const $header: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
   paddingHorizontal: 16,
-  paddingTop: 16,
+  paddingTop: 48,
+  paddingBottom: 16,
+  backgroundColor: "#0a0a0c",
+}
+
+const $backButton: ViewStyle = {
+  marginRight: 16,
 }
 
 const $listContent: ViewStyle = {
+  paddingHorizontal: 16,
   paddingBottom: 16,
 }
 
