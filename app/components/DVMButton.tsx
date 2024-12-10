@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react"
 import { TouchableOpacity, View, ViewStyle, Text } from "react-native"
 import { RelayContext } from "./RelayProvider"
-import { Event, getEventHash, getPublicKey, signEvent } from "nostr-tools"
+import { Event, getEventHash, getPublicKey, getSignature } from "nostr-tools"
 import { DVMManager } from "@/services/nostr/dvm"
 
 // TODO: This should come from your key management system
@@ -41,8 +41,8 @@ export const DVMButton = () => {
       const id = getEventHash(unsignedEvent)
       const eventToSign = { ...unsignedEvent, id }
 
-      // Sign the event
-      const sig = signEvent(eventToSign, DEMO_PRIVATE_KEY)
+      // Sign the event using getSignature
+      const sig = getSignature(eventToSign, DEMO_PRIVATE_KEY)
       const signedEvent = { ...eventToSign, sig }
 
       // Subscribe to responses first
