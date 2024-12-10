@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@ai-sdk/react": "1.0.4",
-    "@breeztech/react-native-breez-sdk-liquid": "^0.5.1",
+    "@breeztech/react-native-breez-sdk-liquid": "0.5.1",
     "@expo-google-fonts/jetbrains-mono": "0.2.3",
     "@expo-google-fonts/space-grotesk": "0.2.3",
     "@expo/metro-runtime": "~4.0.0",
