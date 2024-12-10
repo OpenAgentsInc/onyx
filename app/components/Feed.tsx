@@ -73,6 +73,7 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
         renderItem={renderItem}
         keyExtractor={item => item.id}
         contentContainerStyle={$listContent}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   )
@@ -80,8 +81,10 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
 
 const $container: ViewStyle = {
   flex: 1,
+  width: "100%",
 }
 
 const $listContent: ViewStyle = {
-  paddingVertical: 8,
+  flexGrow: 1,
+  paddingBottom: 16,
 }
