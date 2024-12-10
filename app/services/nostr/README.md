@@ -1,0 +1,29 @@
+# Nostr Services
+
+This directory contains the core Nostr service implementations for the Onyx app. Here's an overview of each file:
+
+## Core Files
+
+### channel.ts
+Manages Nostr channels, including both public and private channels. Handles channel creation, messaging, metadata management, and subscription functionality. Supports both encrypted and unencrypted channels through NIP-28 implementation.
+
+### comment_to_trade.ts
+Provides utilities for parsing and creating trade commands in a standardized format. Handles BUY/SELL commands with amount ranges, currencies, prices, and payment tags. Includes support for additional metadata like expiration dates.
+
+### contacts.ts
+Manages user contacts in the Nostr network. Handles both public and private contacts, contact list synchronization, and pubkey resolution. Includes support for NIP-05 identifier resolution and various Nostr address formats.
+
+## Additional Files
+(More files to be documented as they are reviewed)
+
+## Usage
+
+These services form the core Nostr functionality of the Onyx app, providing:
+- Channel management (public/private)
+- Contact management
+- Trade command parsing
+- Nostr event handling
+- Encrypted communication
+- Profile management
+
+Each service is designed to work with the NostrPool class for relay communication and event handling.
