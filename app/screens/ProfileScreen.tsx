@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
 import { ProfileMenuScreenProps } from "@/navigators/ProfileMenuNavigator"
-import { deriveNostrKeys } from "@/services/nostr/placeholder"
+import { nostr } from "@/services/nostr"
 import { typography } from "@/theme"
 
 interface ProfileScreenProps extends ProfileMenuScreenProps<"ProfileHome"> { }
@@ -27,7 +27,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
           return
         }
 
-        const keys = await deriveNostrKeys(mnemonic)
+        const keys = await nostr.deriveNostrKeys(mnemonic)
         setNpub(keys.npub)
       } catch (error) {
         console.error("Failed to derive Nostr keys:", error)
