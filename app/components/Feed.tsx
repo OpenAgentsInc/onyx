@@ -30,7 +30,11 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
     console.log("Relays connected, starting subscriptions...")
     setIsSubscribed(true)
 
+    // Subscribe to both services and jobs
+    const subs = []
+
     // Subscribe to services
+    console.log("Subscribing to services...")
     const servicesSub = dvmManager.subscribeToServices((event) => {
       console.log("Service callback received event:", event)
       try {
@@ -45,8 +49,10 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
         console.error("Error parsing service event:", e)
       }
     })
+    subs.push(servicesSub)
 
     // Subscribe to jobs
+    console.log("Subscribing to jobs...")
     const jobsSub = dvmManager.subscribeToJobs((event) => {
       console.log("Job callback received event:", event)
       try {
@@ -61,11 +67,14 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
         console.error("Error parsing job event:", e)
       }
     })
+    subs.push(jobsSub)
+
+    // Log subscription status
+    console.log(`Subscribed to ${subs.length} event types`)
 
     return () => {
       console.log("Cleaning up subscriptions...")
-      servicesSub?.unsub?.()
-      jobsSub?.unsub?.()
+      subs.forEach(sub => sub?.unsub?.())
       setIsSubscribed(false)
     }
   }, [pool, dvmManager, isSubscribed])
