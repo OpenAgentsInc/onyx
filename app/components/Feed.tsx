@@ -19,10 +19,10 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
     if (!pool || isSubscribed) return
 
     // Check if we're connected to any relays
-    const relays = pool.getRelays()
+    const relays = pool.relays
     console.log("Current relays:", relays)
     
-    if (Object.keys(relays).length === 0) {
+    if (!relays || relays.length === 0) {
       console.log("No relays connected yet, waiting...")
       return
     }
@@ -33,31 +33,39 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
     // Subscribe to services
     const servicesSub = dvmManager.subscribeToServices((event) => {
       console.log("Service callback received event:", event)
-      const parsedEvent = dvmManager.parseServiceAnnouncement(event)
-      setEvents(prev => {
-        // Deduplicate by id
-        const exists = prev.some(e => e.id === parsedEvent.id)
-        if (exists) return prev
-        return [parsedEvent, ...prev]
-      })
+      try {
+        const parsedEvent = dvmManager.parseServiceAnnouncement(event)
+        setEvents(prev => {
+          // Deduplicate by id
+          const exists = prev.some(e => e.id === parsedEvent.id)
+          if (exists) return prev
+          return [parsedEvent, ...prev]
+        })
+      } catch (e) {
+        console.error("Error parsing service event:", e)
+      }
     })
 
     // Subscribe to jobs
     const jobsSub = dvmManager.subscribeToJobs((event) => {
       console.log("Job callback received event:", event)
-      const parsedEvent = dvmManager.parseJobRequest(event)
-      setEvents(prev => {
-        // Deduplicate by id
-        const exists = prev.some(e => e.id === parsedEvent.id)
-        if (exists) return prev
-        return [parsedEvent, ...prev]
-      })
+      try {
+        const parsedEvent = dvmManager.parseJobRequest(event)
+        setEvents(prev => {
+          // Deduplicate by id
+          const exists = prev.some(e => e.id === parsedEvent.id)
+          if (exists) return prev
+          return [parsedEvent, ...prev]
+        })
+      } catch (e) {
+        console.error("Error parsing job event:", e)
+      }
     })
 
     return () => {
       console.log("Cleaning up subscriptions...")
-      servicesSub.unsub()
-      jobsSub.unsub()
+      servicesSub?.unsub?.()
+      jobsSub?.unsub?.()
       setIsSubscribed(false)
     }
   }, [pool, dvmManager, isSubscribed])
