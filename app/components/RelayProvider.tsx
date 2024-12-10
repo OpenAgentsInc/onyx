@@ -54,7 +54,7 @@ export const RelayProvider = observer(function RelayProvider({
 
   return (
     <RelayContext.Provider
-      value={{ pool, channelManager, contactManager, profileManager, privMessageManager, social }}
+      value={{ pool, channelManager, contactManager, profileManager, privMessageManager }}
     >
       {children}
     </RelayContext.Provider>
