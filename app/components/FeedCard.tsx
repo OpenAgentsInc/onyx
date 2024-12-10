@@ -2,6 +2,8 @@ import { FC } from "react"
 import { Card } from "./Card"
 import { Text } from "./Text"
 import { View, ViewStyle } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import { AppStackScreenProps } from "../navigators/AppNavigator"
 
 export interface FeedEvent {
   id: string
@@ -23,6 +25,15 @@ interface FeedCardProps {
 export const FeedCard: FC<FeedCardProps> = ({ event, onPress }) => {
   const isNIP89 = event.kind === 31989
   const isNIP90 = event.kind >= 5000 && event.kind < 6000
+  const navigation = useNavigation<any>()
+
+  const handlePress = () => {
+    if (onPress) {
+      onPress()
+    } else {
+      navigation.navigate("EventReferences", { event })
+    }
+  }
 
   return (
     <Card
@@ -31,7 +42,7 @@ export const FeedCard: FC<FeedCardProps> = ({ event, onPress }) => {
       content={event.description}
       footer={isNIP90 ? `${event.price} sats` : undefined}
       style={$card}
-      onPress={onPress}
+      onPress={handlePress}
       RightComponent={
         <View style={$badge}>
           <Text text={isNIP89 ? "Service" : "Request"} style={$badgeText} />
