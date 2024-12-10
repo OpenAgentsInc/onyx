@@ -1,63 +1,71 @@
 import { NostrPool } from "./pool"
-import { Event } from "nostr-tools"
+import { Event, Filter } from "nostr-tools"
 
 export class DVMManager {
   constructor(private pool: NostrPool) {}
 
   // Subscribe to NIP-89 service announcements
-  async subscribeToServices() {
-    return this.pool.sub({
-      filter: {
-        kinds: [31989],
-        since: Math.floor(Date.now() / 1000) - 24 * 60 * 60 // Last 24 hours
-      },
-      cb: (event: Event) => {
-        // Handle new service announcement
+  subscribeToServices(callback: (event: Event) => void) {
+    const filter: Filter = {
+      kinds: [31989],
+      since: Math.floor(Date.now() / 1000) - 24 * 60 * 60 // Last 24 hours
+    }
+
+    return this.pool.sub(
+      [filter],
+      (event: Event) => {
         console.log("New service announcement:", event)
+        callback(event)
       }
-    })
+    )
   }
 
   // Subscribe to NIP-90 job requests
-  async subscribeToJobs() {
-    return this.pool.sub({
-      filter: {
-        kinds: [5000, 5001, 5002, 5003, 5004, 5005], // Common DVM job kinds
-        since: Math.floor(Date.now() / 1000) - 24 * 60 * 60 // Last 24 hours
-      },
-      cb: (event: Event) => {
-        // Handle new job request
-        console.log("New job request:", event) 
+  subscribeToJobs(callback: (event: Event) => void) {
+    const filter: Filter = {
+      kinds: [5000, 5001, 5002, 5003, 5004, 5005], // Common DVM job kinds
+      since: Math.floor(Date.now() / 1000) - 24 * 60 * 60 // Last 24 hours
+    }
+
+    return this.pool.sub(
+      [filter],
+      (event: Event) => {
+        console.log("New job request:", event)
+        callback(event)
       }
-    })
+    )
   }
 
   // Subscribe to job results
-  async subscribeToResults() {
-    return this.pool.sub({
-      filter: {
-        kinds: [6000, 6001, 6002, 6003, 6004, 6005], // Result kinds matching job kinds
-        since: Math.floor(Date.now() / 1000) - 24 * 60 * 60
-      },
-      cb: (event: Event) => {
-        // Handle job result
+  subscribeToResults(callback: (event: Event) => void) {
+    const filter: Filter = {
+      kinds: [6000, 6001, 6002, 6003, 6004, 6005], // Result kinds matching job kinds
+      since: Math.floor(Date.now() / 1000) - 24 * 60 * 60
+    }
+
+    return this.pool.sub(
+      [filter],
+      (event: Event) => {
         console.log("New job result:", event)
+        callback(event)
       }
-    })
+    )
   }
 
   // Subscribe to job feedback
-  async subscribeToFeedback() {
-    return this.pool.sub({
-      filter: {
-        kinds: [7000], // Job feedback kind
-        since: Math.floor(Date.now() / 1000) - 24 * 60 * 60
-      },
-      cb: (event: Event) => {
-        // Handle job feedback
+  subscribeToFeedback(callback: (event: Event) => void) {
+    const filter: Filter = {
+      kinds: [7000], // Job feedback kind
+      since: Math.floor(Date.now() / 1000) - 24 * 60 * 60
+    }
+
+    return this.pool.sub(
+      [filter],
+      (event: Event) => {
         console.log("New job feedback:", event)
+        callback(event)
       }
-    })
+    )
   }
 
   // Parse NIP-89 service announcement
