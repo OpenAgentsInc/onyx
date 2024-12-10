@@ -1,4 +1,4 @@
-import { generatePrivateKey, getPublicKey, nip19 } from "nostr-tools"
+import { getPublicKey, nip19 } from "nostr-tools"
 import { sha256 } from "@noble/hashes/sha256"
 import { bytesToHex } from "@noble/hashes/utils"
 import { NostrKeys } from "./nostr.types"
