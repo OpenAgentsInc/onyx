@@ -9,7 +9,7 @@ import {
 } from "mobx-state-tree"
 import { generatePrivateKey, getPublicKey } from "nostr-tools"
 import {
-  ArcadeIdentity, ChannelInfo, ChannelManager, NostrEvent, NostrPool,
+  ChannelInfo, ChannelManager, NostrEvent, NostrIdentity, NostrPool,
   PrivateMessageManager
 } from "@/services/nostr"
 import { schnorr } from "@noble/curves/secp256k1"
@@ -38,7 +38,7 @@ async function secureDel(key) {
   return await SecureStore.deleteItemAsync(key)
 }
 
-async function registerNip05(ident: ArcadeIdentity, name: string) {
+async function registerNip05(ident: NostrIdentity, name: string) {
   if (name.includes("@")) {
     // user should log in, not try to attach an existing nip05
     throw Error("Log in with your private key instead")
@@ -215,7 +215,7 @@ export const UserStoreModel = types
       const pubkey = getPublicKey(privkey)
 
       // update pool with ident
-      const id = new ArcadeIdentity(privkey)
+      const id = new NostrIdentity(privkey)
       pool.ident = id
 
       // register nip-05
