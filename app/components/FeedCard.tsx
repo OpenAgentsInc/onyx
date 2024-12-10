@@ -37,21 +37,29 @@ export const FeedCard: FC<FeedCardProps> = ({ event, onPress }) => {
           <Text text={isNIP89 ? "Service" : "Request"} style={$badgeText} />
         </View>
       }
+      contentContainerStyle={$cardContent}
     />
   )
 }
 
 const $card: ViewStyle = {
   marginVertical: 8,
-  marginHorizontal: 16,
+  backgroundColor: "#333",
+  borderColor: "#444",
+}
+
+const $cardContent: ViewStyle = {
+  flex: 1,
+  paddingVertical: 12,
 }
 
 const $badge: ViewStyle = {
-  backgroundColor: "#333",
+  backgroundColor: "#222",
   paddingHorizontal: 8,
   paddingVertical: 4,
   borderRadius: 4,
   alignSelf: "flex-start",
+  marginRight: 8,
 }
 
 const $badgeText = {
