@@ -40,6 +40,9 @@ Handles private messaging functionality with support for multiple encryption sch
 ### profile.ts
 Manages user profiles with support for both public and private profile data. Handles profile creation, updates, and retrieval with encrypted storage of sensitive profile information.
 
+### util.ts
+Utility functions for debugging and object tracking. Provides unique identifier generation for objects using WeakMap for memory-efficient object-to-id mapping.
+
 ## Usage
 
 These services form the core Nostr functionality of the Onyx app, providing:
@@ -68,3 +71,4 @@ Each service is designed to work with the NostrPool class for relay communicatio
 - Provides geohash-based location services
 - Includes comprehensive error handling
 - Supports both public and private data management
+- Uses WeakMap for memory-efficient object tracking
