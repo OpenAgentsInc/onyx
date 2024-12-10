@@ -1,4 +1,5 @@
-import { open, SQLiteDatabase } from 'react-native-quick-sqlite'
+import { open } from "any-sqlite"
+import { Database } from "any-sqlite/lib/types"
 import { Filter, matchFilter } from "nostr-tools"
 import { NostrEvent } from "../ident"
 import { NostrDb as NostrDbInterface } from "./"
@@ -6,45 +7,36 @@ import { NostrDb as NostrDbInterface } from "./"
 export class NostrDb implements NostrDbInterface {
   queue: Map<string, NostrEvent>;
   timer: NodeJS.Timeout | null;
-  db: SQLiteDatabase | null;
+  db: Database | null; // Allow db to be null initially
 
   constructor() {
     this.queue = new Map();
     this.timer = null;
-    this.db = null;
+    this.db = null; // Explicitly initialize to null
   }
 
   async open() {
     if (!this.db) {
-      try {
-        this.db = open({
-          name: 'onyx.db',
-          location: 'default'
-        });
-        
-        await this.db.executeSql(`create table if not exists posts (
-          id string not null primary key,
-          content string,
-          kind integer,
-          pubkey string,
-          sig string,
-          tags string,
-          p1 string,
-          e1 string,
-          created_at integer,
-          verified boolean
-        );`);
-      } catch (error) {
-        console.error('Failed to open database:', error);
-        throw error;
-      }
+      this.db = open("onyx.1");
+      await this.db.execute(`create table if not exists posts (
+        id string not null primary key,
+        content string,
+        kind integer,
+        pubkey string,
+        sig string,
+        tags string,
+        p1 string,
+        e1 string,
+        created_at integer,
+        verified boolean
+      );`);
     }
   }
 
   async reset() {
     await this.open();
     if (this.db) {
-      await this.db.executeSql("delete from posts");
+      await this.db.execute("delete from posts");
     }
   }
 
@@ -52,63 +44,42 @@ export class NostrDb implements NostrDbInterface {
     await this.open();
     if (!this.db) throw new Error("Database not initialized");
 
-    const [query, args] = this.filterToQuery(filter);
+    const [or, args] = this.filterToQuery(filter);
     const limit = filter && filter[0].limit;
-    const where = query.trim() ? `where ${query}` : "";
+    const where = or.trim() ? `where ${or}` : "";
     const limitQ = (!limit || isNaN(limit)) ? "" : ` limit ${limit}`;
     const sql = `select * from posts ${where} ${limitQ}`;
+    const records = await this.db.execute(sql, args);
+    const seen = new Set();
 
-    try {
-      const [result] = await this.db.executeSql(sql, args);
-      const records: NostrEvent[] = [];
-      
-      for (let i = 0; i < result.rows.length; i++) {
-        const row = result.rows.item(i);
-        try {
-          const event: NostrEvent = {
-            ...row,
-            tags: JSON.parse(row.tags),
-            created_at: Number(row.created_at),
-            kind: Number(row.kind)
-          };
-          records.push(event);
-        } catch (e) {
-          console.error('Error parsing event:', e);
-        }
+    records.forEach((ev: NostrEvent) => {
+      try {
+        ev.tags = JSON.parse((ev.tags as unknown) as string);
+      } catch {
+        ev.tags = [];
       }
+      seen.add(ev.id);
+    });
 
-      const seen = new Set(records.map(r => r.id));
-
-      // Add any matching events from the queue
-      for (const ev of this.queue.values()) {
-        if (!seen.has(ev.id) && filter.some((f) => matchFilter(f, ev))) {
-          seen.add(ev.id);
-          records.push(ev);
-        }
+    for (const ev of this.queue.values()) {
+      if (!seen.has(ev.id) && filter.some((f) => matchFilter(f, ev))) {
+        seen.add(ev.id);
+        records.push(ev);
       }
-
-      return records;
-    } catch (error) {
-      console.error('Error executing query:', error);
-      throw error;
     }
+    return records;
   }
 
   async latest(filter: Filter[]): Promise<number> {
     await this.open();
     if (!this.db) throw new Error("Database not initialized");
 
-    const [query, args] = this.filterToQuery(filter);
-    try {
-      const [result] = await this.db.executeSql(
-        `select max(created_at) as max from posts where ${query}`,
-        args
-      );
-      return result.rows.length ? Number(result.rows.item(0).max) : 0;
-    } catch (error) {
-      console.error('Error getting latest:', error);
-      return 0;
-    }
+    const [or, args] = this.filterToQuery(filter);
+    const records = await this.db.execute(
+      `select max(created_at) as max from posts where ${or}`,
+      args
+    );
+    return records.length ? records[0].max : 0;
   }
 
   private filterToQuery(filter: Filter[]): [string, (string | number)[]] {
@@ -152,34 +123,22 @@ export class NostrDb implements NostrDbInterface {
 
     const q = Array.from(this.queue.values());
     this.queue = new Map();
-
-    try {
-      await this.db.transaction((tx) => {
-        q.forEach((ev) => {
-          const [sql, args] = this.eventSql(ev);
-          tx.executeSql(sql, args);
-        });
-      });
-    } catch (error) {
-      console.error('Error in batch operation:', error);
-      throw error;
-    }
+    await this.db.batch(
+      q.map((ev) => {
+        return this.eventSql(ev);
+      })
+    );
   }
 
   async saveEventSync(ev: NostrEvent) {
     const [sql, args] = this.eventSql(ev);
     await this.open();
     if (this.db) {
-      try {
-        await this.db.executeSql(sql, args);
-      } catch (error) {
-        console.error('Error saving event:', error);
-        throw error;
-      }
+      await this.db.execute(sql, args);
     }
   }
 
-  private eventSql(ev: NostrEvent): [string, (string | number | null)[]] {
+  eventSql(ev: NostrEvent): [string, (string | number | null)[]] {
     let e1: string | null = null;
     let p1: string | null = null;
 
@@ -202,5 +161,6 @@ export class NostrDb implements NostrDbInterface {
 }
 
 export function connectDb(): NostrDb {
-  return new NostrDb();
+  const db = new NostrDb();
+  return db;
 }
