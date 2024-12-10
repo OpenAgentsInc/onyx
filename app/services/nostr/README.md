@@ -31,6 +31,9 @@ Main Nostr network interaction class. Provides key derivation from mnemonics and
 ### nostr.types.ts
 Type definitions for Nostr-related data structures, including key formats (private/public keys in hex and bech32 formats).
 
+### pool.ts
+Core relay pool management with automatic reconnection handling. Manages relay connections, subscriptions, and event publishing. Includes support for NIP-11 relay capability detection and LRU caching of subscriptions.
+
 ## Additional Files
 (More files to be documented as they are reviewed)
 
@@ -47,5 +50,6 @@ These services form the core Nostr functionality of the Onyx app, providing:
 - Marketplace listings and trading
 - Public chat channels (NIP-28)
 - Key management and derivation
+- Relay pool management and auto-reconnection
 
 Each service is designed to work with the NostrPool class for relay communication and event handling.
