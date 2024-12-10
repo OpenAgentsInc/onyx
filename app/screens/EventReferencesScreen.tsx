@@ -1,10 +1,11 @@
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useContext, useEffect, useState } from "react"
 import { View, ViewStyle, FlatList } from "react-native"
 import { Screen } from "../components/Screen"
 import { Text } from "../components/Text"
 import { Card } from "../components/Card"
 import { FeedEvent } from "../components/FeedCard"
-import { useNostr } from "../services/nostr/NostrProvider"
+import { RelayContext } from "../components/RelayProvider"
+import { NostrEvent } from "../services/nostr/ident"
 
 interface EventReferencesScreenProps {
   route: {
@@ -16,27 +17,36 @@ interface EventReferencesScreenProps {
 
 export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route }) => {
   const { event } = route.params
-  const [references, setReferences] = useState<FeedEvent[]>([])
-  const { pool } = useNostr()
+  const [references, setReferences] = useState<NostrEvent[]>([])
+  const { pool } = useContext(RelayContext)
 
   useEffect(() => {
-    const sub = pool.sub([
-      {
-        kinds: [1, 5000, 5001, 5002], // Add other relevant kinds as needed
-        "#e": [event.id],
-      },
-    ])
+    if (!pool) return
 
-    sub.on("event", (referenceEvent: any) => {
-      setReferences((prev) => [...prev, referenceEvent])
-    })
+    const sub = pool.sub(
+      [
+        {
+          kinds: [1, 5000, 5001, 5002], // Add other relevant kinds as needed
+          "#e": [event.id],
+        },
+      ],
+      (referenceEvent) => {
+        setReferences((prev) => {
+          // Check if event already exists
+          if (prev.some((e) => e.id === referenceEvent.id)) {
+            return prev
+          }
+          return [...prev, referenceEvent]
+        })
+      }
+    )
 
     return () => {
-      sub.unsub()
+      pool.unsub((ev) => console.log("Unsubscribed from event references"))
     }
-  }, [event.id])
+  }, [event.id, pool])
 
-  const renderReference = ({ item }: { item: FeedEvent }) => (
+  const renderReference = ({ item }: { item: NostrEvent }) => (
     <Card
       preset="reversed"
       content={item.content}
