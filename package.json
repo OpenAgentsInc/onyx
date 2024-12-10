@@ -9,6 +9,7 @@
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "patch": "patch-package",
+    "prepare": "cd node_modules/better-sqlite3 && yarn build-release",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:maestro": "maestro test .maestro/FavoritePodcast.yaml",
