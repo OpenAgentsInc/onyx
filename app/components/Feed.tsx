@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect, useState } from "react"
+import { FC, useContext, useEffect, useRef, useState } from "react"
 import { FlatList, ListRenderItem, View, ViewStyle } from "react-native"
 import { FeedCard, FeedEvent } from "./FeedCard"
 import { RelayContext } from "./RelayProvider"
@@ -12,11 +12,11 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
   const { pool } = useContext(RelayContext)
   const [events, setEvents] = useState<FeedEvent[]>([])
   const [dvmManager] = useState(() => new DVMManager(pool))
-  const [isSubscribed, setIsSubscribed] = useState(false)
+  const isSubscribed = useRef(false)
 
   // Wait for relay connection before subscribing
   useEffect(() => {
-    if (!pool || isSubscribed) return
+    if (!pool || isSubscribed.current) return
 
     // Check if we're connected to any relays
     const relays = pool.relays
@@ -28,7 +28,7 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
     }
 
     console.log("Relays connected, starting subscriptions...")
-    setIsSubscribed(true)
+    isSubscribed.current = true
 
     // Subscribe to both services and jobs
     const subs = []
@@ -75,9 +75,9 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
     return () => {
       console.log("Cleaning up subscriptions...")
       subs.forEach(sub => sub?.unsub?.())
-      setIsSubscribed(false)
+      isSubscribed.current = false
     }
-  }, [pool, dvmManager, isSubscribed])
+  }, [pool, dvmManager])
 
   const renderItem: ListRenderItem<FeedEvent> = ({ item }) => (
     <FeedCard 
