@@ -163,7 +163,7 @@ export class NostrPool {
   private lruSub: LRUCache<string, SubInfo>;
   private filters: Map<string, SubInfo>;
 
-  constructor(ident: NostrIdentity, db?: ArcadeDb, subopts: SubscriptionOptions = {}) {
+  constructor(ident: NostrIdentity, db?: NostrDb, subopts: SubscriptionOptions = {}) {
     this.pool = new ReconnPool();
     this.lruSub = new LRUCache({
       max: 3,
@@ -245,7 +245,7 @@ encChannel.sub(
 Located in `src/db/base.ts`, implements persistent storage:
 
 ```typescript
-export class ArcadeDb implements ArcadeDbInterface {
+export class NostrDb implements NostrDbInterface {
   queue: Map<string, NostrEvent>;
   timer: NodeJS.Timeout | null;
   db: Database;

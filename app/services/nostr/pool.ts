@@ -1,4 +1,4 @@
-import type { ArcadeDb } from './db';
+import type { NostrDb } from './db';
 import { LRUCache } from "lru-cache"
 import {
   Filter, Pub, Relay, SimplePool, Sub, SubscriptionOptions
@@ -58,11 +58,11 @@ export class NostrPool {
   private unsubMap: Map<undefined | ((ev: NostrEvent) => void | Promise<void>), (ev: NostrEvent) => void | Promise<void>>;
   private lruSub: LRUCache<string, SubInfo>
   watch: Sub;
-  db: ArcadeDb | undefined;
+  db: NostrDb | undefined;
   filters: Map<string, SubInfo>;
   subopts: SubscriptionOptions;
 
-  constructor(ident: NostrIdentity, db?: ArcadeDb, subopts: SubscriptionOptions = {}) {
+  constructor(ident: NostrIdentity, db?: NostrDb, subopts: SubscriptionOptions = {}) {
     this.ident = ident;
     const pool = new ReconnPool();
     this.pool = pool;
