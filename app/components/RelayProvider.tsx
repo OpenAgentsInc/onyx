@@ -7,6 +7,7 @@ import {
 } from "@/services/nostr"
 import { ContactManager } from "@/services/nostr/contacts"
 import { ProfileManager } from "@/services/nostr/profile"
+import { DVMManager } from "@/services/nostr/dvm"
 
 export const RelayContext = createContext({
   pool: null as unknown as NostrPool,
@@ -14,6 +15,7 @@ export const RelayContext = createContext({
   contactManager: null as unknown as ContactManager,
   profileManager: null as unknown as ProfileManager,
   privMessageManager: null as unknown as PrivateMessageManager,
+  dvmManager: null as unknown as DVMManager,
 })
 const db: NostrDb = connectDb()
 
@@ -36,6 +38,7 @@ export const RelayProvider = observer(function RelayProvider({
   const contactManager = useMemo(() => new ContactManager(pool), [pool])
   const profileManager = useMemo(() => new ProfileManager(pool), [pool])
   const privMessageManager = useMemo(() => new PrivateMessageManager(pool), [pool])
+  const dvmManager = useMemo(() => new DVMManager(pool), [pool])
 
   useEffect(() => {
     pool.ident = ident
@@ -54,7 +57,7 @@ export const RelayProvider = observer(function RelayProvider({
 
   return (
     <RelayContext.Provider
-      value={{ pool, channelManager, contactManager, profileManager, privMessageManager }}
+      value={{ pool, channelManager, contactManager, profileManager, privMessageManager, dvmManager }}
     >
       {children}
     </RelayContext.Provider>
