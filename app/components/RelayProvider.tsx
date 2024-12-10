@@ -1,20 +1,19 @@
-import { ContactManager } from "app/arclib/src/contacts"
-import { ProfileManager } from "app/arclib/src/profile"
 import { useStores } from "app/models"
 import { observer } from "mobx-react-lite"
 import React, { createContext, useEffect, useMemo, useState } from "react"
 import {
-  ArcadeSocial, ChannelManager, connectDb, NostrDb, NostrIdentity, NostrPool,
+  ChannelManager, connectDb, NostrDb, NostrIdentity, NostrPool,
   PrivateMessageManager
 } from "@/services/nostr"
+import { ContactManager } from "@/services/nostr/contacts"
+import { ProfileManager } from "@/services/nostr/profile"
 
 export const RelayContext = createContext({
-  pool: null as NostrPool,
-  channelManager: null as ChannelManager,
-  contactManager: null as ContactManager,
-  profileManager: null as ProfileManager,
-  privMessageManager: null as PrivateMessageManager,
-  social: null as ArcadeSocial,
+  pool: null as unknown as NostrPool,
+  channelManager: null as unknown as ChannelManager,
+  contactManager: null as unknown as ContactManager,
+  profileManager: null as unknown as ProfileManager,
+  privMessageManager: null as unknown as PrivateMessageManager,
 })
 const db: NostrDb = connectDb()
 
@@ -33,7 +32,6 @@ export const RelayProvider = observer(function RelayProvider({
   const [pool, _setPool] = useState<NostrPool>(
     () => new NostrPool(ident, db, { skipVerification: true }),
   )
-  const social = useMemo(() => (ident ? new ArcadeSocial(pool, ident) : null), [pool, ident])
   const channelManager = useMemo(() => new ChannelManager(pool), [pool])
   const contactManager = useMemo(() => new ContactManager(pool), [pool])
   const profileManager = useMemo(() => new ProfileManager(pool), [pool])
