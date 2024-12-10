@@ -3,6 +3,7 @@ import React, { useContext, useState } from "react"
 import { Text, TouchableOpacity, View, ViewStyle } from "react-native"
 import { DVMManager } from "@/services/nostr/dvm"
 import { RelayContext } from "./RelayProvider"
+import { NostrIdentity } from "@/services/nostr"
 
 // TODO: This should come from your key management system
 const DEMO_PRIVATE_KEY = "d5770d632a5d2c8fd2c0d3db4dd5f30ea4b37480b89da1695b5d3ca25080fa91"
@@ -19,6 +20,10 @@ export const DVMButton = () => {
     }
     setIsLoading(true)
 
+    // Create identity for signing
+    const identity = new NostrIdentity(DEMO_PRIVATE_KEY, "", "")
+    pool.ident = identity
+
     const dvmManager = new DVMManager(pool)
     let subscription: { unsub: () => void } | undefined
 
@@ -29,13 +34,7 @@ export const DVMButton = () => {
         content: "",
         tags: [
           ["i", "Write a haiku about artificial intelligence", "prompt"],
-          // Commenting out model params for now
-          // ["param", "model", "LLaMA-2"],
           ["param", "max_tokens", "300"],
-          // ["param", "temperature", "0.7"],
-          // ["param", "top-k", "50"],
-          // ["param", "top-p", "0.9"],
-          // ["param", "frequency_penalty", "1.2"],
           ["output", "text/plain"]
         ],
         created_at: Math.floor(Date.now() / 1000),
@@ -46,7 +45,7 @@ export const DVMButton = () => {
       const id = getEventHash(unsignedEvent)
       const eventToSign = { ...unsignedEvent, id }
 
-      // Sign the event using getSignature
+      // Sign the event using the identity
       const sig = getSignature(eventToSign, DEMO_PRIVATE_KEY)
       const signedEvent = { ...eventToSign, sig }
 
