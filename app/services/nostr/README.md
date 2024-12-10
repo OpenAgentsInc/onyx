@@ -19,6 +19,9 @@ Implements encrypted channel functionality for private communications. Handles c
 ### ident.ts
 Core identity management and cryptographic operations. Implements various NIPs (Nostr Implementation Possibilities) including NIP-04 encryption, NIP-44 encryption, and custom encryption schemes. Handles key generation, event signing, and message encryption/decryption.
 
+### listing.ts
+Implements the Arcade marketplace listing system. Manages buy/sell listings, offers, and actions (accept/finalize/comment) with support for both public and private interactions. Includes geohash-based location support and expiration handling.
+
 ## Additional Files
 (More files to be documented as they are reviewed)
 
@@ -32,5 +35,6 @@ These services form the core Nostr functionality of the Onyx app, providing:
 - Encrypted communication
 - Profile management
 - Identity and cryptographic operations
+- Marketplace listings and trading
 
 Each service is designed to work with the NostrPool class for relay communication and event handling.
