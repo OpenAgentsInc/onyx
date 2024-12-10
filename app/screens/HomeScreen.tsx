@@ -15,7 +15,8 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen() {
   return (
     <Screen
       style={$root}
-      preset="fixed"
+      preset="scroll"
+      contentContainerStyle={$container}
     >
       <Text text="Nostr Feed" style={$headerText} />
       <Feed onEventPress={handleEventPress} />
@@ -26,6 +27,10 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen() {
 const $root: ViewStyle = {
   flex: 1,
   backgroundColor: 'black',
+}
+
+const $container: ViewStyle = {
+  flex: 1,
 }
 
 const $headerText = {
