@@ -34,8 +34,11 @@ Type definitions for Nostr-related data structures, including key formats (priva
 ### pool.ts
 Core relay pool management with automatic reconnection handling. Manages relay connections, subscriptions, and event publishing. Includes support for NIP-11 relay capability detection and LRU caching of subscriptions.
 
-## Additional Files
-(More files to be documented as they are reviewed)
+### private.ts
+Handles private messaging functionality with support for multiple encryption schemes (NIP-04, NIP-44). Includes features for message threading, blinded events, and LRU caching of decrypted messages.
+
+### profile.ts
+Manages user profiles with support for both public and private profile data. Handles profile creation, updates, and retrieval with encrypted storage of sensitive profile information.
 
 ## Usage
 
@@ -51,5 +54,17 @@ These services form the core Nostr functionality of the Onyx app, providing:
 - Public chat channels (NIP-28)
 - Key management and derivation
 - Relay pool management and auto-reconnection
+- Private messaging with multiple encryption schemes
+- Profile data management with privacy controls
 
 Each service is designed to work with the NostrPool class for relay communication and event handling.
+
+## Implementation Notes
+
+- Uses LRU caching for optimized performance
+- Supports multiple NIPs (Nostr Implementation Possibilities)
+- Implements various encryption schemes for different use cases
+- Handles automatic relay reconnection
+- Provides geohash-based location services
+- Includes comprehensive error handling
+- Supports both public and private data management
