@@ -20,13 +20,8 @@ export const DVMButton = () => {
     setIsLoading(true)
 
     const dvmManager = new DVMManager(pool)
-<<<<<<< HEAD
     let subscription: { unsub: () => void } | undefined
-    
-=======
-    let sub: { unsub: () => void } | null = null
 
->>>>>>> 7a81a16 (dvm)
     try {
       // Create unsigned event
       const unsignedEvent = {
@@ -34,22 +29,13 @@ export const DVMButton = () => {
         content: "",
         tags: [
           ["i", "Write a haiku about artificial intelligence", "prompt"],
-<<<<<<< HEAD
           // Commenting out model params for now
           // ["param", "model", "LLaMA-2"],
-          // ["param", "max_tokens", "100"],
+          ["param", "max_tokens", "300"],
           // ["param", "temperature", "0.7"],
           // ["param", "top-k", "50"],
           // ["param", "top-p", "0.9"],
           // ["param", "frequency_penalty", "1.2"],
-=======
-          // ["param", "model", "LLaMA-2"],
-          ["param", "max_tokens", "100"],
-          ["param", "temperature", "0.7"],
-          ["param", "top-k", "50"],
-          ["param", "top-p", "0.9"],
-          ["param", "frequency_penalty", "1.2"],
->>>>>>> 7a81a16 (dvm)
           ["output", "text/plain"]
         ],
         created_at: Math.floor(Date.now() / 1000),
