@@ -25,6 +25,12 @@ Implements the Arcade marketplace listing system. Manages buy/sell listings, off
 ### nip28channel.ts
 Implementation of NIP-28 channel protocol for public chat channels. Handles channel creation, metadata management, messaging, and event subscriptions. Supports channel discovery, message threading, and user muting capabilities.
 
+### nostr.ts
+Main Nostr network interaction class. Provides key derivation from mnemonics and conversion between different key formats (hex/bech32). Based on the arclib library for core Nostr functionality.
+
+### nostr.types.ts
+Type definitions for Nostr-related data structures, including key formats (private/public keys in hex and bech32 formats).
+
 ## Additional Files
 (More files to be documented as they are reviewed)
 
@@ -40,5 +46,6 @@ These services form the core Nostr functionality of the Onyx app, providing:
 - Identity and cryptographic operations
 - Marketplace listings and trading
 - Public chat channels (NIP-28)
+- Key management and derivation
 
 Each service is designed to work with the NostrPool class for relay communication and event handling.
