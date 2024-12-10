@@ -85,8 +85,6 @@ export const UserStoreModel = types
     contacts: types.optional(types.array(ContactModel), []),
     privMessages: types.optional(types.array(MessageModel), []),
     relays: types.optional(types.array(types.string), [
-      "wss://relay.arcade.city",
-      "wss://arc1.arcadelabs.co",
       "wss://relay.damus.io",
     ]),
     replyTo: types.maybeNull(types.string),
