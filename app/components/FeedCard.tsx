@@ -38,23 +38,33 @@ export const FeedCard: FC<FeedCardProps> = ({ event, onPress }) => {
         </View>
       }
       contentContainerStyle={$cardContent}
+      headingStyle={$heading}
+      contentStyle={$description}
+      footerStyle={$footer}
     />
   )
 }
 
 const $card: ViewStyle = {
   marginVertical: 8,
-  backgroundColor: "#333",
-  borderColor: "#444",
+  backgroundColor: "#0a0a0c", // --card: 240 10% 3.9%
+  borderColor: "#292930", // --border: 240 3.7% 15.9%
+  borderWidth: 1,
+  borderRadius: 12,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  elevation: 5,
 }
 
 const $cardContent: ViewStyle = {
   flex: 1,
-  paddingVertical: 12,
+  padding: 24,
 }
 
 const $badge: ViewStyle = {
-  backgroundColor: "#222",
+  backgroundColor: "#292930", // --secondary: 240 3.7% 15.9%
   paddingHorizontal: 8,
   paddingVertical: 4,
   borderRadius: 4,
@@ -62,7 +72,25 @@ const $badge: ViewStyle = {
   marginRight: 8,
 }
 
+const $heading = {
+  color: "#fafafa", // --card-foreground: 0 0% 98%
+  fontSize: 16,
+  fontWeight: "600",
+  marginBottom: 8,
+}
+
+const $description = {
+  color: "#a5a5af", // --muted-foreground: 240 5% 64.9%
+  fontSize: 14,
+  lineHeight: 20,
+}
+
+const $footer = {
+  color: "#fafafa", // --card-foreground: 0 0% 98%
+  fontSize: 12,
+}
+
 const $badgeText = {
-  color: "white",
+  color: "#fafafa", // --secondary-foreground: 0 0% 98%
   fontSize: 12,
 }
