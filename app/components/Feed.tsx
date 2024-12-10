@@ -14,38 +14,31 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
   const [dvmManager] = useState(() => new DVMManager(pool))
 
   useEffect(() => {
-    const servicesSub = dvmManager.subscribeToServices()
-    const jobsSub = dvmManager.subscribeToJobs()
-
-    // Handle new service announcements
-    servicesSub.then(sub => {
-      sub.on("event", (event) => {
-        const parsedEvent = dvmManager.parseServiceAnnouncement(event)
-        setEvents(prev => {
-          // Deduplicate by id
-          const exists = prev.some(e => e.id === parsedEvent.id)
-          if (exists) return prev
-          return [parsedEvent, ...prev]
-        })
+    // Subscribe to services
+    const servicesSub = dvmManager.subscribeToServices((event) => {
+      const parsedEvent = dvmManager.parseServiceAnnouncement(event)
+      setEvents(prev => {
+        // Deduplicate by id
+        const exists = prev.some(e => e.id === parsedEvent.id)
+        if (exists) return prev
+        return [parsedEvent, ...prev]
       })
     })
 
-    // Handle new job requests
-    jobsSub.then(sub => {
-      sub.on("event", (event) => {
-        const parsedEvent = dvmManager.parseJobRequest(event)
-        setEvents(prev => {
-          // Deduplicate by id
-          const exists = prev.some(e => e.id === parsedEvent.id)
-          if (exists) return prev
-          return [parsedEvent, ...prev]
-        })
+    // Subscribe to jobs
+    const jobsSub = dvmManager.subscribeToJobs((event) => {
+      const parsedEvent = dvmManager.parseJobRequest(event)
+      setEvents(prev => {
+        // Deduplicate by id
+        const exists = prev.some(e => e.id === parsedEvent.id)
+        if (exists) return prev
+        return [parsedEvent, ...prev]
       })
     })
 
     return () => {
-      servicesSub.then(sub => sub.unsub())
-      jobsSub.then(sub => sub.unsub())
+      servicesSub.unsub()
+      jobsSub.unsub()
     }
   }, [dvmManager])
 
