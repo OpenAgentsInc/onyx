@@ -1,5 +1,3 @@
-import { Contact, ContactManager } from "app/arclib/src/contacts"
-import { Profile, ProfileManager } from "app/arclib/src/profile"
 import { PrivateSettings, updateProfile } from "app/utils/profile"
 import * as SecureStore from "expo-secure-store"
 import { runInAction } from "mobx"
@@ -12,6 +10,8 @@ import {
   ChannelInfo, ChannelManager, NostrEvent, NostrIdentity, NostrPool,
   PrivateMessageManager
 } from "@/services/nostr"
+import { Contact, ContactManager } from "@/services/nostr/contacts"
+import { Profile, ProfileManager } from "@/services/nostr/profile"
 import { schnorr } from "@noble/curves/secp256k1"
 import { sha256 } from "@noble/hashes/sha256"
 import { bytesToHex } from "@noble/hashes/utils"
