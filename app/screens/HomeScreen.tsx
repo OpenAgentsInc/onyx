@@ -21,9 +21,7 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen() {
     >
       <View style={$container}>
         <Text text="Nostr Feed" style={$headerText} />
-        <View style={$feedContainer}>
-          <Feed onEventPress={handleEventPress} />
-        </View>
+        <Feed onEventPress={handleEventPress} />
       </View>
     </Screen>
   )
@@ -31,27 +29,21 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen() {
 
 const $root: ViewStyle = {
   flex: 1,
-  backgroundColor: 'black',
+  backgroundColor: '#000000', // --background: 0 0% 0%
 }
 
 const $screenContainer: ViewStyle = {
   flex: 1,
-  backgroundColor: '#111', // Debug color
 }
 
 const $container: ViewStyle = {
   flex: 1,
-  backgroundColor: '#222', // Debug color
-}
-
-const $feedContainer: ViewStyle = {
-  flex: 1,
-  backgroundColor: '#333', // Debug color
 }
 
 const $headerText = {
-  color: 'white',
+  color: '#fafafa', // --foreground: 0 0% 98%
   fontSize: 24,
   textAlign: 'center',
   marginVertical: 16,
+  fontWeight: '600',
 }
