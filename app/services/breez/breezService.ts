@@ -1,4 +1,4 @@
-import { defaultConfig, connect, disconnect, getInfo, LiquidNetwork } from '@breeztech/react-native-breez-sdk-liquid'
+import { defaultConfig, connect, disconnect, getInfo, LiquidNetwork, parse, InputTypeVariant, prepareLnurlPay, lnurlPay } from '@breeztech/react-native-breez-sdk-liquid'
 import * as FileSystem from 'expo-file-system'
 import { BalanceInfo, BreezConfig, BreezService, Transaction } from './types'
 
@@ -120,19 +120,49 @@ class BreezServiceImpl implements BreezService {
     }
   }
 
-  async sendPayment(bolt11: string, amount: number): Promise<Transaction> {
+  async sendPayment(input: string, amount: number): Promise<Transaction> {
     this.ensureInitialized()
 
     try {
-      const result = await this.sdk.sendPayment(bolt11, amount)
-      return {
-        id: result.paymentHash,
-        amount: result.amountSat,
-        timestamp: Date.now(),
-        type: 'send',
-        status: result.status === 'complete' ? 'complete' : 'pending',
-        paymentHash: result.paymentHash,
-        fee: result.feeSat,
+      // Try to parse the input as a Lightning Address or LNURL
+      const parsedInput = await parse(input)
+      
+      if (parsedInput.type === InputTypeVariant.LN_URL_PAY) {
+        // Handle Lightning Address payment
+        const amountMsat = amount * 1000 // Convert sats to msats
+        const prepareResponse = await prepareLnurlPay({
+          data: parsedInput.data,
+          amountMsat,
+          comment: undefined,
+          validateSuccessActionUrl: true
+        })
+
+        // Execute the LNURL payment
+        const result = await lnurlPay({
+          prepareResponse
+        })
+
+        return {
+          id: result.paymentHash,
+          amount: amount,
+          timestamp: Date.now(),
+          type: 'send',
+          status: 'complete',
+          paymentHash: result.paymentHash,
+          fee: prepareResponse.feesSat,
+        }
+      } else {
+        // Handle regular BOLT11 invoice
+        const result = await this.sdk.sendPayment(input, amount)
+        return {
+          id: result.paymentHash,
+          amount: result.amountSat,
+          timestamp: Date.now(),
+          type: 'send',
+          status: result.status === 'complete' ? 'complete' : 'pending',
+          paymentHash: result.paymentHash,
+          fee: result.feeSat,
+        }
       }
     } catch (err) {
       console.error('Error sending payment:', err)
