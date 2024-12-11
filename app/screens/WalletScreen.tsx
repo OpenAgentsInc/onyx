@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { ViewStyle } from "react-native"
+import { View, ViewStyle } from "react-native"
 import { Button, Screen } from "@/components"
 import { BalanceDisplay } from "@/components/BalanceDisplay"
 import BalanceHeader from "@/components/BalanceHeader"
@@ -20,6 +20,25 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
       preset="fixed"
     >
       <BalanceHeader />
+
+      <View style={$buttonRow}>
+        <Button
+          text="Send"
+          onPress={() => {
+            navigation.navigate("Send")
+          }}
+          style={$actionButton}
+          preset="reversed"
+        />
+        <Button
+          text="Receive"
+          onPress={() => {
+            navigation.navigate("Receive")
+          }}
+          style={$actionButton}
+          preset="reversed"
+        />
+      </View>
 
       <Button
         text="Backup wallet"
@@ -48,4 +67,17 @@ const $contentContainer: ViewStyle = {
   flex: 1,
   alignItems: "center",
   paddingTop: 20,
+}
+
+const $buttonRow: ViewStyle = {
+  flexDirection: "row",
+  justifyContent: "center",
+  gap: 20,
+  marginBottom: 40,
+  paddingHorizontal: 20,
+}
+
+const $actionButton: ViewStyle = {
+  flex: 1,
+  minWidth: 130,
 }
