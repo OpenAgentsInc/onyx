@@ -52,13 +52,13 @@ export const RelayProvider = observer(function RelayProvider({
   useEffect(() => {
     const initDb = async () => {
       try {
-        console.log("Initializing database...")
+        console.log("[DB] Opening database connection...")
         const database = await connectDb()
         setDb(database)
         setIsDbReady(true)
-        console.log("Database initialized successfully")
+        console.log("[DB] Database initialized successfully")
       } catch (error) {
-        console.error("Failed to initialize database:", error)
+        console.error("[DB] Failed to initialize database:", error)
       }
     }
     initDb()
@@ -68,17 +68,17 @@ export const RelayProvider = observer(function RelayProvider({
   useEffect(() => {
     const deriveKeys = async () => {
       if (!mnemonic) {
-        console.log("No mnemonic available for key derivation")
+        console.log("[Nostr] No mnemonic available for key derivation")
         return
       }
 
       try {
-        console.log("Deriving Nostr keys from mnemonic...")
+        console.log("[Nostr] Deriving keys from mnemonic...")
         const keys = await nostr.deriveNostrKeys(mnemonic)
         setNostrKeys(keys)
-        console.log("Nostr keys derived successfully")
+        console.log("[Nostr] Keys derived successfully")
       } catch (error) {
-        console.error("Failed to derive Nostr keys:", error)
+        console.error("[Nostr] Failed to derive keys:", error)
       }
     }
 
@@ -88,24 +88,24 @@ export const RelayProvider = observer(function RelayProvider({
   // Create NostrIdentity when keys are available
   const ident = useMemo(() => {
     if (!nostrKeys?.privateKey) {
-      console.log("No Nostr keys available for identity")
+      console.log("[Nostr] No keys available for identity")
       return null
     }
-    console.log("Creating NostrIdentity with derived keys")
+    console.log("[Nostr] Creating identity with derived keys")
     return new NostrIdentity(nostrKeys.privateKey, "", "")
   }, [nostrKeys])
 
   // Initialize pool when database and identity are ready
   useEffect(() => {
     if (!db || !ident) {
-      console.log("Pool initialization waiting for:", {
+      console.log("[Pool] Waiting for initialization:", {
         hasDb: !!db,
         hasIdent: !!ident
       })
       return
     }
 
-    console.log("Initializing pool with db and ident")
+    console.log("[Pool] Initializing with db and identity")
     const newPool = new NostrPool(ident, db, { skipVerification: true })
     setPool(newPool)
     setIsInitializing(false)
@@ -114,7 +114,7 @@ export const RelayProvider = observer(function RelayProvider({
   // Initialize relays when pool is ready
   useEffect(() => {
     if (!pool || !getRelays || !ident) {
-      console.log("Relay connection waiting for:", {
+      console.log("[Relay] Waiting for connection:", {
         hasPool: !!pool,
         hasRelays: !!getRelays,
         hasIdent: !!ident
@@ -122,16 +122,16 @@ export const RelayProvider = observer(function RelayProvider({
       return
     }
 
-    console.log("Setting up relay connection with relays:", getRelays)
+    console.log("[Relay] Setting up connection with relays:", getRelays)
     pool.ident = ident
 
     const initRelays = async () => {
       try {
         await pool.setRelays(getRelays)
-        console.log("Connected to relays:", getRelays)
+        console.log("[Relay] Connected to relays:", getRelays)
         setIsConnected(true)
       } catch (error) {
-        console.error("Failed to connect to relays:", error)
+        console.error("[Relay] Failed to connect:", error)
         setIsConnected(false)
       }
     }
@@ -139,7 +139,7 @@ export const RelayProvider = observer(function RelayProvider({
     initRelays()
 
     return () => {
-      console.log("Cleaning up pool connection")
+      console.log("[Relay] Cleaning up connection")
       pool.close()
       setIsConnected(false)
     }
@@ -148,31 +148,31 @@ export const RelayProvider = observer(function RelayProvider({
   // Initialize managers only when pool is ready
   const channelManager = useMemo(() => {
     if (!pool) return null
-    console.log("Initializing channel manager")
+    console.log("[Manager] Initializing channel manager")
     return new ChannelManager(pool)
   }, [pool])
 
   const contactManager = useMemo(() => {
     if (!pool) return null
-    console.log("Initializing contact manager")
+    console.log("[Manager] Initializing contact manager")
     return new ContactManager(pool)
   }, [pool])
 
   const profileManager = useMemo(() => {
     if (!pool) return null
-    console.log("Initializing profile manager")
+    console.log("[Manager] Initializing profile manager")
     return new ProfileManager(pool)
   }, [pool])
 
   const privMessageManager = useMemo(() => {
     if (!pool) return null
-    console.log("Initializing private message manager")
+    console.log("[Manager] Initializing private message manager")
     return new PrivateMessageManager(pool)
   }, [pool])
 
   const dvmManager = useMemo(() => {
     if (!pool) return null
-    console.log("Initializing DVM manager")
+    console.log("[Manager] Initializing DVM manager")
     return new DVMManager(pool)
   }, [pool])
 
@@ -189,7 +189,7 @@ export const RelayProvider = observer(function RelayProvider({
 
   // Debug logging
   useEffect(() => {
-    console.log("RelayProvider state:", {
+    console.log("[Provider] State:", {
       isDbReady,
       hasPool: !!pool,
       isConnected,
@@ -201,8 +201,17 @@ export const RelayProvider = observer(function RelayProvider({
     })
   }, [isDbReady, pool, isConnected, ident, nostrKeys, isInitialized, mnemonic, getRelays])
 
+  if (!isInitialized) {
+    console.log("[Provider] Waiting for wallet initialization...")
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000' }}>
+        <ActivityIndicator size="large" color="#ffffff" />
+      </View>
+    )
+  }
+
   if (isInitializing || !isDbReady || !db) {
-    console.log("Waiting for initialization...")
+    console.log("[Provider] Waiting for database initialization...")
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000' }}>
         <ActivityIndicator size="large" color="#ffffff" />
