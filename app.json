@@ -1,1 +1,94 @@
-{\n  \"expo\": {\n    \"name\": \"Onyx\",\n    \"slug\": \"onyx\",\n    \"scheme\": \"onyx\",\n    \"version\": \"0.0.1\",\n    \"orientation\": \"portrait\",\n    \"userInterfaceStyle\": \"automatic\",\n    \"icon\": \"./assets/images/app-icon-all.png\",\n    \"splash\": {\n      \"image\": \"./assets/images/splash-logo-all.png\",\n      \"resizeMode\": \"contain\",\n      \"backgroundColor\": \"#191015\"\n    },\n    \"updates\": {\n      \"fallbackToCacheTimeout\": 0,\n      \"url\": \"https://u.expo.dev/69b52e85-13c8-439b-be19-8d2580e481fc\"\n    },\n    \"newArchEnabled\": true,\n    \"jsEngine\": \"hermes\",\n    \"assetBundlePatterns\": [\n      \"**/*\"\n    ],\n    \"android\": {\n      \"icon\": \"./assets/images/app-icon-android-legacy.png\",\n      \"package\": \"com.openagents.onyx\",\n      \"adaptiveIcon\": {\n        \"foregroundImage\": \"./assets/images/app-icon-android-adaptive-foreground.png\",\n        \"backgroundImage\": \"./assets/images/app-icon-android-adaptive-background.png\"\n      },\n      \"splash\": {\n        \"image\": \"./assets/images/splash-logo-android-universal.png\",\n        \"resizeMode\": \"contain\",\n        \"backgroundColor\": \"#191015\"\n      },\n      \"permissions\": [\n        \"RECORD_AUDIO\"\n      ]\n    },\n    \"ios\": {\n      \"icon\": \"./assets/images/app-icon-ios.png\",\n      \"supportsTablet\": true,\n      \"bundleIdentifier\": \"com.openagents.onyx\",\n      \"splash\": {\n        \"image\": \"./assets/images/splash-logo-ios-mobile.png\",\n        \"tabletImage\": \"./assets/images/splash-logo-ios-tablet.png\",\n        \"resizeMode\": \"contain\",\n        \"backgroundColor\": \"#191015\"\n      },\n      \"config\": {\n        \"usesNonExemptEncryption\": false\n      }\n    },\n    \"web\": {\n      \"favicon\": \"./assets/images/app-icon-web-favicon.png\",\n      \"splash\": {\n        \"image\": \"./assets/images/splash-logo-web.png\",\n        \"resizeMode\": \"contain\",\n        \"backgroundColor\": \"#191015\"\n      },\n      \"bundler\": \"metro\"\n    },\n    \"plugins\": [\n      \"expo-localization\",\n      \"expo-font\",\n      \"expo-secure-store\",\n      \"expo-sqlite\",\n      [\n        \"expo-av\",\n        {\n          \"microphonePermission\": \"Allow Onyx to access your microphone for voice recording.\"\n        }\n      ]\n    ],\n    \"experiments\": {\n      \"tsconfigPaths\": true\n    },\n    \"extra\": {\n      \"eas\": {\n        \"projectId\": \"69b52e85-13c8-439b-be19-8d2580e481fc\"\n      }\n    },\n    \"owner\": \"openagents\",\n    \"runtimeVersion\": {\n      \"policy\": \"sdkVersion\"\n    }\n  }\n}
+{
+  "expo": {
+    "name": "Onyx",
+    "slug": "onyx",
+    "scheme": "onyx",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "icon": "./assets/images/app-icon-all.png",
+    "splash": {
+      "image": "./assets/images/splash-logo-all.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#191015"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/69b52e85-13c8-439b-be19-8d2580e481fc"
+    },
+    "newArchEnabled": true,
+    "jsEngine": "hermes",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "icon": "./assets/images/app-icon-android-legacy.png",
+      "package": "com.openagents.onyx",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
+        "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
+      },
+      "splash": {
+        "image": "./assets/images/splash-logo-android-universal.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#191015"
+      },
+      "permissions": [
+        "RECORD_AUDIO"
+      ]
+    },
+    "ios": {
+      "icon": "./assets/images/app-icon-ios.png",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.openagents.onyx",
+      "splash": {
+        "image": "./assets/images/splash-logo-ios-mobile.png",
+        "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#191015"
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/app-icon-web-favicon.png",
+      "splash": {
+        "image": "./assets/images/splash-logo-web.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#191015"
+      },
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-localization",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow Onyx to access your microphone for voice recording."
+        }
+      ],
+      [
+        "@breeztech/react-native-breez-sdk-liquid",
+        {
+          "iosVersion": "0.5.1",
+          "ffiVersion": "0.5.1"
+        }
+      ]
+    ],
+    "experiments": {
+      "tsconfigPaths": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "69b52e85-13c8-439b-be19-8d2580e481fc"
+      }
+    },
+    "owner": "openagents",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    }
+  }
+}
