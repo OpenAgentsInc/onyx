@@ -2,7 +2,6 @@ import { Filter, matchFilter } from "nostr-tools"
 import { NostrEvent } from "../ident"
 import { NostrDb as NostrDbInterface } from "./"
 import { open } from '@op-engineering/op-sqlite';
-import * as FileSystem from 'expo-file-system';
 
 // Singleton instance
 let dbInstance: NostrDb | null = null;
@@ -30,26 +29,36 @@ export class NostrDb implements NostrDbInterface {
     if (!this.db) {
       try {
         console.log("[DB] Opening database connection...");
-        const dbPath = `${FileSystem.documentDirectory}/onyx.db`;
-        console.log("[DB] Database path:", dbPath);
-
+        
+        // op-sqlite requires a simple name, not a full path
         this.db = await open({
-          name: dbPath,
+          name: 'onyx.db',
+          // Use 'default' location which is the app's document directory
           location: 'default',
+          // Enable WAL mode for better concurrent access
+          enableWAL: true,
         });
         
-        await this.db.execute(`create table if not exists posts (
-          id string not null primary key,
-          content string,
-          kind integer,
-          pubkey string,
-          sig string,
-          tags string,
-          p1 string,
-          e1 string,
-          created_at integer,
-          verified boolean
-        );`);
+        // Create tables
+        await this.db.execute(`
+          create table if not exists posts (
+            id string not null primary key,
+            content string,
+            kind integer,
+            pubkey string,
+            sig string,
+            tags string,
+            p1 string,
+            e1 string,
+            created_at integer,
+            verified boolean
+          );
+          
+          create index if not exists idx_posts_kind on posts(kind);
+          create index if not exists idx_posts_e1 on posts(e1);
+          create index if not exists idx_posts_p1 on posts(p1);
+          create index if not exists idx_posts_created_at on posts(created_at);
+        `);
 
         // Verify table exists
         const tables = await this.db.execute(
@@ -82,7 +91,7 @@ export class NostrDb implements NostrDbInterface {
     const limit = filter && filter[0].limit;
     const where = or.trim() ? `where ${or}` : "";
     const limitQ = (!limit || isNaN(limit)) ? "" : ` limit ${limit}`;
-    const sql = `select * from posts ${where} ${limitQ}`;
+    const sql = `select * from posts ${where} order by created_at desc ${limitQ}`;
     
     console.log("[DB] Executing SQL:", sql, "with args:", args);
     
