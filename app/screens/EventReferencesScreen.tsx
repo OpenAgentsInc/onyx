@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState, useRef } from "react"
+import React, { FC, useContext, useEffect, useState, useRef, useCallback } from "react"
 import { View, ViewStyle, FlatList, TouchableOpacity, ActivityIndicator } from "react-native"
 import { Text } from "../components/Text"
 import { Card } from "../components/Card"
@@ -25,86 +25,99 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const navigation = useNavigation()
   const subRef = useRef<{ unsub: () => void } | null>(null)
   const dbRef = useRef<Awaited<ReturnType<typeof connectDb>> | null>(null)
+  const [isDbReady, setIsDbReady] = useState(false)
 
   // Initialize database connection
   useEffect(() => {
+    let mounted = true
+
     const initDb = async () => {
       try {
         console.log("Initializing database connection...")
-        dbRef.current = await connectDb()
-        console.log("Database connection initialized")
+        const db = await connectDb()
+        if (!mounted) return
+        
+        dbRef.current = db
+        setIsDbReady(true)
+        console.log("Database connection initialized and ready")
       } catch (error) {
         console.error("Failed to initialize database:", error)
+        if (!mounted) return
+        setIsDbReady(false)
       }
     }
+
     initDb()
+
+    return () => {
+      mounted = false
+    }
   }, [])
 
-  // Load existing references from DB
-  useEffect(() => {
-    const loadFromDb = async () => {
-      if (!dbRef.current) {
-        console.log("Waiting for database connection...")
-        return
-      }
-
-      try {
-        console.log("Loading references for event:", event.id)
-        // Query both result and feedback events that reference our event
-        const filter = [{
-          kinds: [6050, 7000],
-          "#e": [event.id],
-        }]
-        
-        const events = await dbRef.current.list(filter)
-        console.log(`Found ${events.length} references in database`)
-        if (events.length > 0) {
-          setReferences(events.sort((a, b) => b.created_at - a.created_at))
-        }
-      } catch (error) {
-        console.error("Failed to load references from DB:", error)
-      } finally {
-        setIsLoading(false)
-      }
+  // Load references from DB when database is ready
+  const loadReferences = useCallback(async () => {
+    if (!dbRef.current || !isDbReady) {
+      console.log("Database not ready for loading references")
+      return
     }
 
-    loadFromDb()
-  }, [event.id])
+    try {
+      console.log("Loading references for event:", event.id)
+      const filter = [{
+        kinds: [6050, 7000],
+        "#e": [event.id],
+      }]
+      
+      const events = await dbRef.current.list(filter)
+      console.log(`Found ${events.length} references in database`)
+      
+      if (events.length > 0) {
+        setReferences(events.sort((a, b) => b.created_at - a.created_at))
+      }
+    } catch (error) {
+      console.error("Failed to load references from DB:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [event.id, isDbReady])
+
+  // Load references when database is ready
+  useEffect(() => {
+    if (isDbReady) {
+      loadReferences()
+    }
+  }, [isDbReady, loadReferences])
 
   // Subscribe to new references
   useEffect(() => {
-    if (!pool || !dbRef.current) {
-      console.log("Waiting for pool and database:", {
+    if (!pool || !isDbReady || !dbRef.current) {
+      console.log("Not ready for subscription:", {
         hasPool: !!pool,
+        isDbReady,
         hasDb: !!dbRef.current
       })
       return
     }
 
     console.log("Setting up subscription for event:", event.id)
-    // Subscribe to both results (6050) and feedback (7000)
     const sub = pool.sub(
       [
         {
-          kinds: [6050, 7000], // Results and feedback for kind 5050 requests
+          kinds: [6050, 7000],
           "#e": [event.id],
         },
       ],
       async (referenceEvent) => {
         console.log("Received new reference event:", referenceEvent.id)
-        // Save to DB first
         try {
           await dbRef.current.saveEventSync(referenceEvent)
           console.log("Saved reference event to database:", referenceEvent.id)
 
-          // Update state
           setReferences((prev) => {
-            // Check if event already exists
             if (prev.some((e) => e.id === referenceEvent.id)) {
               console.log("Event already exists in state:", referenceEvent.id)
               return prev
             }
-            // Sort by created_at with newest first
             console.log("Adding new event to state:", referenceEvent.id)
             return [...prev, referenceEvent].sort((a, b) => b.created_at - a.created_at)
           })
@@ -114,7 +127,6 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
       }
     )
 
-    // Store subscription in ref
     subRef.current = sub
     console.log("Subscription set up successfully")
 
@@ -125,15 +137,13 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
         subRef.current = null
       }
     }
-  }, [event.id, pool])
+  }, [event.id, pool, isDbReady])
 
   const renderReference = ({ item }: { item: NostrEvent }) => {
-    // Get the status if it's a feedback event
     const status = item.kind === 7000 
       ? item.tags.find(t => t[0] === 'status')?.[1] 
       : null
 
-    // Format the content based on event kind
     let content = item.content
     if (item.kind === 7000) {
       content = `Status: ${status || 'unknown'}`
@@ -185,6 +195,10 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
           isLoading ? (
             <View style={$loadingContainer}>
               <ActivityIndicator size="large" color="#ffffff" />
+              <Text 
+                text="Loading references..." 
+                style={[$description, $emptyText]} 
+              />
             </View>
           ) : (
             <Text 
@@ -284,5 +298,6 @@ const $loadingContainer: ViewStyle = {
 
 const $emptyText = {
   textAlign: 'center',
-  marginTop: 32,
+  marginTop: 16,
+  marginBottom: 32,
 }
