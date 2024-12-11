@@ -1,25 +1,25 @@
-import React, { useEffect } from "react"
-import { View, StyleSheet, ActivityIndicator } from "react-native"
-import { Text } from "./Text"
-import { useStores } from "../models"
 import { observer } from "mobx-react-lite"
+import React, { useEffect } from "react"
+import { ActivityIndicator, StyleSheet, View } from "react-native"
+import { useStores } from "../models"
+import { Text } from "./Text"
 
 export const BalanceDisplay = observer(function BalanceDisplay() {
   const { walletStore } = useStores()
-  const { 
-    balanceSat, 
-    pendingSendSat, 
-    pendingReceiveSat, 
+  const {
+    balanceSat,
+    pendingSendSat,
+    pendingReceiveSat,
     isInitialized,
     error,
-    fetchBalanceInfo 
+    fetchBalanceInfo
   } = walletStore
 
   useEffect(() => {
     if (isInitialized) {
       fetchBalanceInfo()
       // Set up an interval to update the balance periodically
-      const interval = setInterval(fetchBalanceInfo, 30000) // Every 30 seconds
+      const interval = setInterval(fetchBalanceInfo, 5000) // Every 30 seconds
       return () => clearInterval(interval)
     }
     return undefined // Add explicit return
