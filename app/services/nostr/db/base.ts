@@ -2,6 +2,7 @@ import { Filter, matchFilter } from "nostr-tools"
 import { NostrEvent } from "../ident"
 import { NostrDb as NostrDbInterface } from "./"
 import { open } from '@op-engineering/op-sqlite';
+import * as FileSystem from 'expo-file-system';
 
 // Singleton instance
 let dbInstance: NostrDb | null = null;
@@ -29,8 +30,11 @@ export class NostrDb implements NostrDbInterface {
     if (!this.db) {
       try {
         console.log("[DB] Opening database connection...");
+        const dbPath = `${FileSystem.documentDirectory}/onyx.db`;
+        console.log("[DB] Database path:", dbPath);
+
         this.db = await open({
-          name: 'onyx.db',
+          name: dbPath,
           location: 'default',
         });
         
@@ -46,6 +50,13 @@ export class NostrDb implements NostrDbInterface {
           created_at integer,
           verified boolean
         );`);
+
+        // Verify table exists
+        const tables = await this.db.execute(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='posts'"
+        );
+        console.log("[DB] Tables:", tables?.rows?._array);
+
         console.log("[DB] Database schema initialized");
       } catch (error) {
         console.error('[DB] Failed to open database:', error);
@@ -252,6 +263,18 @@ export class NostrDb implements NostrDbInterface {
        verified = excluded.verified`,
       [ev.id, ev.pubkey, ev.content, ev.sig, ev.kind, tags, p1, e1, ev.created_at, 0],
     ];
+  }
+
+  async close() {
+    if (this.db) {
+      try {
+        await this.db.close();
+        this.db = null;
+        console.log("[DB] Database connection closed");
+      } catch (error) {
+        console.error("[DB] Error closing database:", error);
+      }
+    }
   }
 }
 
