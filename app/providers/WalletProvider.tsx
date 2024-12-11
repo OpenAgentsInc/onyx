@@ -1,12 +1,11 @@
 import { observer } from "mobx-react-lite"
 import { useEffect } from "react"
 import { useStores } from "app/models"
-import * as SecureStore from "expo-secure-store"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { Alert } from "react-native"
-import { generateMnemonic } from "@scure/bip39"
-import { wordlist } from "@scure/bip39/wordlists/english"
+import * as bip39 from "bip39"
 
-const MNEMONIC_KEY = "onyx_mnemonic"
+const MNEMONIC_KEY = '@breez_mnemonic'
 
 /**
  * Ensures we have a mnemonic
@@ -26,18 +25,21 @@ export const WalletProvider = observer(function WalletProvider({
         return
       }
 
-      // 2. If no mnemonic in walletstore, check secure storage
-      const storedMnemonic = await SecureStore.getItemAsync(MNEMONIC_KEY)
+      // 2. If no mnemonic in walletstore, check AsyncStorage
+      const storedMnemonic = await AsyncStorage.getItem(MNEMONIC_KEY)
       if (storedMnemonic) {
-        console.log("Found mnemonic in secure storage")
-        walletStore.setProp("mnemonic", storedMnemonic)
-        return
+        console.log("Found mnemonic in AsyncStorage")
+        // Verify mnemonic is valid
+        if (bip39.validateMnemonic(storedMnemonic)) {
+          walletStore.setProp("mnemonic", storedMnemonic)
+          return
+        }
       }
 
       // 3. If neither, generate new mnemonic
       console.log("Generating new mnemonic")
-      const newMnemonic = generateMnemonic(wordlist)
-      await SecureStore.setItemAsync(MNEMONIC_KEY, newMnemonic)
+      const newMnemonic = bip39.generateMnemonic()
+      await AsyncStorage.setItem(MNEMONIC_KEY, newMnemonic)
       walletStore.setProp("mnemonic", newMnemonic)
       Alert.alert("New Wallet Created", "A new wallet has been created for you.")
     }
