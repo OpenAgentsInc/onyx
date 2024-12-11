@@ -34,71 +34,40 @@ export const RelayProvider = observer(function RelayProvider({
 }: {
   children: React.ReactNode
 }) {
-  const [db, setDb] = useState<NostrDb | null>(null);
-  const [isDbReady, setIsDbReady] = useState(false);
-
   const {
     userStore: { getRelays, privkey },
   } = useStores()
 
+  // State declarations first
+  const [db, setDb] = useState<NostrDb | null>(null)
+  const [isDbReady, setIsDbReady] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
+  const [pool, setPool] = useState<NostrPool | null>(null)
 
-  useEffect(() => {
-    const initDb = async () => {
-      try {
-        const database = await connectDb();
-        setDb(database);
-        setIsDbReady(true);
-      } catch (error) {
-        console.error("Failed to initialize database:", error);
-      }
-    };
+  // Memoized values
+  const ident = useMemo(() => 
+    privkey ? new NostrIdentity(privkey, "", "") : null
+  , [privkey])
 
-    initDb();
-  }, []);
+  const channelManager = useMemo(() => 
+    pool ? new ChannelManager(pool) : null
+  , [pool])
 
-  const ident = useMemo(() => (privkey ? new NostrIdentity(privkey, "", "") : null), [privkey])
-  const [pool, _setPool] = useState<NostrPool>(() => {
-    if (!db) return null;
-    return new NostrPool(ident, db, { skipVerification: true });
-  });
+  const contactManager = useMemo(() => 
+    pool ? new ContactManager(pool) : null
+  , [pool])
 
-  // Initialize pool when db is ready
-  useEffect(() => {
-    if (db && !pool) {
-      _setPool(new NostrPool(ident, db, { skipVerification: true }));
-    }
-  }, [db, ident]);
+  const profileManager = useMemo(() => 
+    pool ? new ProfileManager(pool) : null
+  , [pool])
 
-  const channelManager = useMemo(() => pool ? new ChannelManager(pool) : null, [pool])
-  const contactManager = useMemo(() => pool ? new ContactManager(pool) : null, [pool])
-  const profileManager = useMemo(() => pool ? new ProfileManager(pool) : null, [pool])
-  const privMessageManager = useMemo(() => pool ? new PrivateMessageManager(pool) : null, [pool])
-  const dvmManager = useMemo(() => pool ? new DVMManager(pool) : null, [pool])
+  const privMessageManager = useMemo(() => 
+    pool ? new PrivateMessageManager(pool) : null
+  , [pool])
 
-  useEffect(() => {
-    if (!pool) return;
-    
-    pool.ident = ident
-
-    async function initRelays() {
-      await pool.setRelays(getRelays)
-      console.log("connected to relays: ", getRelays)
-      // Set connected state after relays are initialized
-      setIsConnected(true)
-    }
-
-    initRelays().catch(console.error)
-
-    return () => {
-      pool.close()
-      setIsConnected(false)
-    }
-  }, [ident, getRelays, pool])
-
-  if (!isDbReady || !db) {
-    return null; // Or a loading indicator
-  }
+  const dvmManager = useMemo(() => 
+    pool ? new DVMManager(pool) : null
+  , [pool])
 
   const contextValue = useMemo(() => ({
     pool,
@@ -108,7 +77,52 @@ export const RelayProvider = observer(function RelayProvider({
     privMessageManager,
     dvmManager,
     isConnected
-  }), [pool, channelManager, contactManager, profileManager, privMessageManager, dvmManager, isConnected])
+  }), [pool, channelManager, contactManager, profileManager, 
+      privMessageManager, dvmManager, isConnected])
+
+  // Effects
+  useEffect(() => {
+    const initDb = async () => {
+      try {
+        const database = await connectDb()
+        setDb(database)
+        setIsDbReady(true)
+      } catch (error) {
+        console.error("Failed to initialize database:", error)
+      }
+    }
+    initDb()
+  }, [])
+
+  useEffect(() => {
+    if (db && ident && !pool) {
+      const newPool = new NostrPool(ident, db, { skipVerification: true })
+      setPool(newPool)
+    }
+  }, [db, ident])
+
+  useEffect(() => {
+    if (!pool) return
+
+    pool.ident = ident
+
+    async function initRelays() {
+      await pool.setRelays(getRelays)
+      console.log("connected to relays: ", getRelays)
+      setIsConnected(true)
+    }
+
+    initRelays().catch(console.error)
+
+    return () => {
+      pool.close()
+      setIsConnected(false)
+    }
+  }, [pool, ident, getRelays])
+
+  if (!isDbReady || !db) {
+    return null // Or a loading indicator
+  }
 
   return (
     <RelayContext.Provider value={contextValue}>
