@@ -1,4 +1,16 @@
-import { defaultConfig, connect, disconnect, getInfo, LiquidNetwork, parse, InputTypeVariant, prepareLnurlPay, lnurlPay, receivePayment } from '@breeztech/react-native-breez-sdk-liquid'
+import { 
+  defaultConfig, 
+  connect, 
+  disconnect, 
+  getInfo, 
+  LiquidNetwork, 
+  parse, 
+  InputTypeVariant, 
+  prepareLnurlPay, 
+  lnurlPay,
+  receivePayment,
+  prepareReceivePayment
+} from '@breeztech/react-native-breez-sdk-liquid'
 import * as FileSystem from 'expo-file-system'
 import { BalanceInfo, BreezConfig, BreezService, Transaction } from './types'
 
@@ -174,10 +186,17 @@ class BreezServiceImpl implements BreezService {
     this.ensureInitialized()
 
     try {
-      const result = await receivePayment({
+      // First prepare the receive payment
+      const prepareResponse = await prepareReceivePayment({
         amountSat: amount,
         description: description || 'Payment request',
       })
+
+      // Then create the actual invoice
+      const result = await receivePayment({
+        prepareResponse
+      })
+      
       return result.bolt11
     } catch (err) {
       console.error('Error creating invoice:', err)
