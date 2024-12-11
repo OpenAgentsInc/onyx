@@ -90,6 +90,11 @@ export class NostrDb implements NostrDbInterface {
       const records = result?.rows?._array || [];
       console.log(`[DB] Found ${records.length} records in database`);
 
+      // Debug: Print all records
+      if (records.length > 0) {
+        console.log("[DB] All records:", records.map(r => ({id: r.id, kind: r.kind, e1: r.e1})));
+      }
+
       const processedRecords = records.map((ev: NostrEvent) => {
         try {
           return {
@@ -104,16 +109,6 @@ export class NostrDb implements NostrDbInterface {
           };
         }
       });
-
-      // Debug log some record details
-      if (processedRecords.length > 0) {
-        console.log("[DB] Sample record:", {
-          id: processedRecords[0].id,
-          kind: processedRecords[0].kind,
-          tags: processedRecords[0].tags,
-          e1: processedRecords[0].e1
-        });
-      }
 
       return processedRecords;
     } catch (error) {
@@ -213,8 +208,35 @@ export class NostrDb implements NostrDbInterface {
       try {
         await this.db.transaction(async (tx) => {
           await tx.execute(sql, args);
+          
+          // Verify the save
+          const verifyResult = await tx.execute(
+            'SELECT * FROM posts WHERE id = ?',
+            [ev.id]
+          );
+          const records = verifyResult?.rows?._array || [];
+          if (records.length === 0) {
+            throw new Error('Save verification failed');
+          }
+          console.log("[DB] Save verified for event:", ev.id);
         });
         console.log("[DB] Event saved successfully:", ev.id);
+
+        // Double check outside transaction
+        const result = await this.db.execute(
+          'SELECT * FROM posts WHERE id = ?',
+          [ev.id]
+        );
+        const records = result?.rows?._array || [];
+        console.log("[DB] Post-save verification:", {
+          found: records.length > 0,
+          record: records[0] ? {
+            id: records[0].id,
+            kind: records[0].kind,
+            e1: records[0].e1
+          } : null
+        });
+
       } catch (error) {
         console.error("[DB] Error saving event:", ev.id, error);
         throw error;
