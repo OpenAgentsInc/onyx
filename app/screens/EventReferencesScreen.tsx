@@ -8,6 +8,7 @@ import { FeedEvent } from "../components/FeedCard"
 import { RelayContext } from "../components/RelayProvider"
 import { Text } from "../components/Text"
 import { NostrEvent } from "../services/nostr/ident"
+import { Header } from "../components/Header"
 
 interface EventReferencesScreenProps {
   route: {
@@ -24,6 +25,18 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const { pool, db } = useContext(RelayContext)
   const navigation = useNavigation()
   const subRef = useRef<{ unsub: () => void } | null>(null)
+
+  // Set up header with back button
+  useEffect(() => {
+    navigation.setOptions({
+      header: () => (
+        <Header
+          leftIcon="back"
+          onLeftPress={() => navigation.goBack()}
+        />
+      ),
+    })
+  }, [navigation])
 
   // Load references from DB
   const loadReferences = useCallback(async () => {
@@ -145,7 +158,6 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
               heading={event.title}
               content={event.description}
               style={$originalCard}
-              // contentContainerStyle={$cardContent}
               headingStyle={$heading}
               contentStyle={$description}
             />
