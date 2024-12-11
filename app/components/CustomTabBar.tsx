@@ -39,7 +39,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             case 'Home':
               return 'home'
             case 'Community':
-              return 'groups'
+              return 'people'
             case 'Onyx':
               return 'appIcon'
             case 'Wallet':

@@ -15,6 +15,7 @@ import {
 } from "../screens"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import { ProfileMenuNavigator } from "./ProfileMenuNavigator"
+import { Header } from "@/components"
 
 import type { ThemedStyle } from "@/theme"
 
@@ -44,7 +45,14 @@ export function MainNavigator() {
     <Tab.Navigator
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        header: ({ route, navigation }) => (
+          <Header
+            title={route.name}
+            backgroundColor="#0a0a0c"
+            titleStyle={{ color: "#fafafa" }}
+          />
+        ),
         tabBarHideOnKeyboard: true,
         lazy: false,
       }}

@@ -27,6 +27,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller"
 import {
   initialWindowMetrics, SafeAreaProvider
 } from "react-native-safe-area-context"
+import { RelayProvider } from "./components"
 import Config from "./config"
 import { initI18n } from "./i18n"
 import { useInitialRootStore, useStores } from "./models"
@@ -38,7 +39,7 @@ import * as storage from "./utils/storage"
 
 global.Buffer = Buffer;
 
-export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
+export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE_2a"
 
 // Web linking configuration
 const prefix = Linking.createURL("/")
@@ -127,13 +128,15 @@ function App(props: AppProps) {
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
-        <KeyboardProvider>
-          <AppNavigator
-            linking={linking}
-            initialState={initialNavigationState}
-            onStateChange={onNavigationStateChange}
-          />
-        </KeyboardProvider>
+        <RelayProvider>
+          <KeyboardProvider>
+            <AppNavigator
+              linking={linking}
+              initialState={initialNavigationState}
+              onStateChange={onNavigationStateChange}
+            />
+          </KeyboardProvider>
+        </RelayProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
   )

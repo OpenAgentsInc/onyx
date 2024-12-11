@@ -6,11 +6,11 @@ ArcLib is a TypeScript utility library for interacting with ArcSpec trading chat
 
 ## Core Components
 
-### 1. ArcadeIdentity
+### 1. NostrIdentity
 Located in `src/ident.ts`, provides core identity and cryptography functionality:
 
 ```typescript
-export class ArcadeIdentity {
+export class NostrIdentity {
   public privKey: string;
   public pubKey: string;
 
@@ -162,12 +162,12 @@ export class NostrPool {
   private pool: ReconnPool;
   private lruSub: LRUCache<string, SubInfo>;
   private filters: Map<string, SubInfo>;
-  
-  constructor(ident: ArcadeIdentity, db?: ArcadeDb, subopts: SubscriptionOptions = {}) {
+
+  constructor(ident: NostrIdentity, db?: NostrDb, subopts: SubscriptionOptions = {}) {
     this.pool = new ReconnPool();
-    this.lruSub = new LRUCache({ 
-      max: 3, 
-      dispose: (dat: SubInfo) => { dat.sub.unsub() } 
+    this.lruSub = new LRUCache({
+      max: 3,
+      dispose: (dat: SubInfo) => { dat.sub.unsub() }
     });
     this.filters = new Map<string, SubInfo>();
   }
@@ -245,14 +245,14 @@ encChannel.sub(
 Located in `src/db/base.ts`, implements persistent storage:
 
 ```typescript
-export class ArcadeDb implements ArcadeDbInterface {
+export class NostrDb implements NostrDbInterface {
   queue: Map<string, NostrEvent>;
   timer: NodeJS.Timeout | null;
   db: Database;
 
   async open() {
     if (!this.db) {
-      this.db = await open("arcade.1");
+      this.db = await open("onyx.1");
       await this.db.execute(`
         CREATE TABLE IF NOT EXISTS posts (
           id STRING NOT NULL PRIMARY KEY,

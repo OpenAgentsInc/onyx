@@ -1,35 +1,46 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { ViewStyle } from "react-native"
-import { Screen, Text } from "@/components"
+import { View, ViewStyle } from "react-native"
+import { Feed, FeedEvent, Screen, Text } from "@/components"
 import { MainTabScreenProps } from "@/navigators"
 
 interface HomeScreenProps extends MainTabScreenProps<"Home"> { }
 
-export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen() {
+export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen({ navigation }) {
+  const handleEventPress = (event: FeedEvent) => {
+    navigation.navigate("EventReferences", { event })
+  }
+
   return (
     <Screen
       style={$root}
-      contentContainerStyle={$contentContainer}
       preset="fixed"
+      contentContainerStyle={$screenContainer}
     >
-      <Text text="Home Feed" style={$headerText} />
+      <View style={$container}>
+        <Feed onEventPress={handleEventPress} />
+      </View>
     </Screen>
   )
 })
 
 const $root: ViewStyle = {
   flex: 1,
-  backgroundColor: 'black',
+  backgroundColor: '#000000', // --background: 0 0% 0%
 }
 
-const $contentContainer: ViewStyle = {
+const $screenContainer: ViewStyle = {
   flex: 1,
-  alignItems: 'center',
-  justifyContent: 'center',
+}
+
+const $container: ViewStyle = {
+  flex: 1,
 }
 
 const $headerText = {
-  color: 'white',
+  color: '#fafafa', // --foreground: 0 0% 98%
   fontSize: 24,
+  textAlign: 'center',
+  marginVertical: 16,
+  fontWeight: '600',
 }

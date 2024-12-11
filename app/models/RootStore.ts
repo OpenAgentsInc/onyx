@@ -1,7 +1,8 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { AuthenticationStoreModel } from "./AuthenticationStore"
-import { RecordingStoreModel } from "./RecordingStore"
 import { ChatStoreModel } from "./ChatStore"
+import { RecordingStoreModel } from "./RecordingStore"
+import { UserStoreModel } from "./UserStore"
 import { WalletStoreModel } from "./WalletStore"
 
 /**
@@ -17,14 +18,15 @@ export const RootStoreModel = types.model("RootStore").props({
     pendingReceiveSat: 0,
     transactions: [],
   }),
+  userStore: types.optional(UserStoreModel, {}),
 })
 
 /**
  * The RootStore instance.
  */
-export interface RootStore extends Instance<typeof RootStoreModel> {}
+export interface RootStore extends Instance<typeof RootStoreModel> { }
 
 /**
  * The data of a RootStore.
  */
-export interface RootStoreSnapshot extends SnapshotOut<typeof RootStoreModel> {}
+export interface RootStoreSnapshot extends SnapshotOut<typeof RootStoreModel> { }

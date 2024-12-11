@@ -46,6 +46,9 @@
         "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
         "resizeMode": "contain",
         "backgroundColor": "#191015"
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "web": {
@@ -60,6 +63,7 @@
     "plugins": [
       "expo-localization",
       "expo-font",
+      "expo-secure-store",
       [
         "expo-av",
         {

@@ -2,6 +2,7 @@ export * from "./WelcomeScreen"
 export * from "./LoginScreen"
 export * from "./ErrorScreen/ErrorBoundary"
 export { default as ChatScreen } from "./ChatScreen"
+export * from "./EventReferencesScreen"
 
 // Main tab screens
 export { HomeScreen } from "./HomeScreen"
