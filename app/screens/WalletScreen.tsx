@@ -3,7 +3,7 @@ import { FC } from "react"
 import {
   ScrollView, TextStyle, TouchableOpacity, View, ViewStyle
 } from "react-native"
-import { Screen, Text } from "@/components"
+import { Button, Screen, Text } from "@/components"
 import { BalanceDisplay } from "@/components/BalanceDisplay"
 import BalanceHeader from "@/components/BalanceHeader"
 import { useStores } from "@/models"
@@ -11,7 +11,7 @@ import { MainTabScreenProps } from "@/navigators"
 
 interface WalletScreenProps extends MainTabScreenProps<"Wallet"> { }
 
-export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScreen() {
+export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScreen({ navigation }) {
   const { walletStore } = useStores()
   const { isInitialized, recentTransactions } = walletStore
 
@@ -22,6 +22,16 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
       preset="fixed"
     >
       <BalanceHeader />
+
+      <Button
+        text="Backup wallet"
+        onPress={() => {
+          navigation.navigate("BackupWallet")
+        }}
+        style={{ marginBottom: 50, width: 300 }}
+      />
+
+
       {/* <BalanceDisplay /> */}
 
       {/* {isInitialized && (

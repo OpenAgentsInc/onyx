@@ -19,6 +19,7 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 
 export type AppStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>
+  BackupWallet: undefined
   Login: undefined
   Welcome: undefined
   Chat: undefined
@@ -58,6 +59,18 @@ const AppStack = observer(function AppStack() {
       <Stack.Screen name="Login" component={Screens.LoginScreen} />
       <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
       <Stack.Screen name="Chat" component={Screens.ChatScreen} />
+      <Stack.Screen name="BackupWallet" component={Screens.BackupWalletScreen}
+        options={{
+          headerShown: true,
+          header: () => (
+            <Header
+              leftIcon="back"
+              title="Backup wallet"
+              onLeftPress={() => navigationRef.current?.goBack()}
+            />
+          ),
+        }}
+      />
       <Stack.Screen
         name="EventReferences"
         component={EventReferencesScreen}
