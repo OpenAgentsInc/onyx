@@ -29,8 +29,7 @@ const BalanceHeader = (): ReactElement => {
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    marginTop: 32,
-    marginBottom: 24,
+    marginVertical: 48
   },
   balance: {
     alignItems: "center",

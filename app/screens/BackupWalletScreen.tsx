@@ -21,9 +21,10 @@ export const BackupWalletScreen: FC<BackupWalletScreenProps> = observer(function
   return (
     <Screen style={$root} preset="scroll" contentContainerStyle={{
       flex: 1,
-      justifyContent: "center",
+      // justifyContent: "center",
       alignItems: "center",
-      paddingHorizontal: 25
+      paddingHorizontal: 25,
+      paddingVertical: 50,
     }}>
       <Text text={walletStore.mnemonic ?? "-"} />
       <Button
