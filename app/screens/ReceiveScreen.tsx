@@ -83,7 +83,7 @@ export const ReceiveScreen: FC<ReceiveScreenProps> = observer(function ReceiveSc
         {!invoice ? (
           <>
             <Text
-              text="Amount (in sats)"
+              text={`Amount (min. ${MIN_AMOUNT} sats)`}
               preset="subheading"
               style={$label}
             />
