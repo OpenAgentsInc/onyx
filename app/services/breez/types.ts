@@ -8,6 +8,7 @@ export interface BreezConfig {
   workingDir: string
   apiKey: string
   network: 'MAINNET' | 'TESTNET'
+  mnemonic?: string // Add mnemonic as optional parameter
 }
 
 export interface Transaction {
@@ -28,5 +29,6 @@ export interface BreezService {
   sendPayment(bolt11: string, amount: number): Promise<Transaction>
   receivePayment(amount: number, description?: string): Promise<string> // Returns bolt11 invoice
   getTransactions(): Promise<Transaction[]>
+  getMnemonic(): Promise<string>
   isInitialized(): boolean
 }
