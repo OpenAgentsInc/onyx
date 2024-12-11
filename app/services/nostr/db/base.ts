@@ -3,15 +3,26 @@ import { NostrEvent } from "../ident"
 import { NostrDb as NostrDbInterface } from "./"
 import { open } from '@op-engineering/op-sqlite';
 
+// Singleton instance
+let dbInstance: NostrDb | null = null;
+
 export class NostrDb implements NostrDbInterface {
   queue: Map<string, NostrEvent>;
   timer: NodeJS.Timeout | null;
   db: any | null;
 
-  constructor() {
+  private constructor() {
     this.queue = new Map();
     this.timer = null;
     this.db = null;
+  }
+
+  static async getInstance(): Promise<NostrDb> {
+    if (!dbInstance) {
+      dbInstance = new NostrDb();
+      await dbInstance.open();
+    }
+    return dbInstance;
   }
 
   async open() {
@@ -181,7 +192,6 @@ export class NostrDb implements NostrDbInterface {
   }
 }
 
-export function connectDb(): NostrDb {
-  const db = new NostrDb();
-  return db;
+export async function connectDb(): Promise<NostrDb> {
+  return NostrDb.getInstance();
 }
