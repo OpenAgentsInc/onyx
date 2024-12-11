@@ -1,35 +1,43 @@
-import { open } from "any-sqlite"
-import { Database } from "any-sqlite/lib/types"
 import { Filter, matchFilter } from "nostr-tools"
 import { NostrEvent } from "../ident"
 import { NostrDb as NostrDbInterface } from "./"
+import { open } from '@op-engineering/op-sqlite';
 
 export class NostrDb implements NostrDbInterface {
   queue: Map<string, NostrEvent>;
   timer: NodeJS.Timeout | null;
-  db: Database | null; // Allow db to be null initially
+  db: any | null;
 
   constructor() {
     this.queue = new Map();
     this.timer = null;
-    this.db = null; // Explicitly initialize to null
+    this.db = null;
   }
 
   async open() {
     if (!this.db) {
-      this.db = open("onyx.1");
-      await this.db.execute(`create table if not exists posts (
-        id string not null primary key,
-        content string,
-        kind integer,
-        pubkey string,
-        sig string,
-        tags string,
-        p1 string,
-        e1 string,
-        created_at integer,
-        verified boolean
-      );`);
+      try {
+        this.db = await open({
+          name: 'onyx.db',
+          location: 'default',
+        });
+        
+        await this.db.execute(`create table if not exists posts (
+          id string not null primary key,
+          content string,
+          kind integer,
+          pubkey string,
+          sig string,
+          tags string,
+          p1 string,
+          e1 string,
+          created_at integer,
+          verified boolean
+        );`);
+      } catch (error) {
+        console.error('Failed to open database:', error);
+        throw error;
+      }
     }
   }
 
@@ -123,11 +131,14 @@ export class NostrDb implements NostrDbInterface {
 
     const q = Array.from(this.queue.values());
     this.queue = new Map();
-    await this.db.batch(
-      q.map((ev) => {
-        return this.eventSql(ev);
-      })
-    );
+    
+    // Start a transaction for batch insert
+    await this.db.transaction(async (tx) => {
+      for (const ev of q) {
+        const [sql, args] = this.eventSql(ev);
+        await tx.execute(sql, args);
+      }
+    });
   }
 
   async saveEventSync(ev: NostrEvent) {
