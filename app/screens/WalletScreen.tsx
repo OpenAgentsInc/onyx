@@ -38,9 +38,6 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
         style={{ marginBottom: 50, width: 300 }}
       />
 
-
-      {/* <BalanceDisplay /> */}
-
       {/* {isInitialized && (
         <View style={$transactionsContainer}>
           <Text text="Recent Transactions" style={$sectionHeader} />
