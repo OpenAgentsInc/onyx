@@ -3,20 +3,20 @@ import { NostrPool } from "./pool"
 
 export class DVMManager {
   constructor(private pool: NostrPool) {
-    console.log("DVMManager initialized with pool state:", {
-      hasPool: !!pool,
-      hasRelays: pool?.relays?.length > 0,
-      relayCount: pool?.relays?.length
-    })
+    // console.log("DVMManager initialized with pool state:", {
+    //   hasPool: !!pool,
+    //   hasRelays: pool?.relays?.length > 0,
+    //   relayCount: pool?.relays?.length
+    // })
   }
 
   // Subscribe to NIP-89 service announcements
   subscribeToServices(callback: (event: Event) => void) {
-    console.log("Subscribing to services with pool state:", {
-      hasPool: !!this.pool,
-      hasRelays: this.pool?.relays?.length > 0,
-      relayCount: this.pool?.relays?.length
-    })
+    // console.log("Subscribing to services with pool state:", {
+    //   hasPool: !!this.pool,
+    //   hasRelays: this.pool?.relays?.length > 0,
+    //   relayCount: this.pool?.relays?.length
+    // })
 
     if (!this.pool) {
       console.error("No pool available for service subscription")
@@ -32,7 +32,7 @@ export class DVMManager {
       return this.pool.sub(
         [filter],
         (event: Event) => {
-          console.log("Received service announcement:", event)
+          // console.log("Received service announcement:", event)
           callback(event)
         }
       )
@@ -44,11 +44,11 @@ export class DVMManager {
 
   // Subscribe to NIP-90 job requests
   subscribeToJobs(callback: (event: Event) => void) {
-    console.log("Subscribing to jobs with pool state:", {
-      hasPool: !!this.pool,
-      hasRelays: this.pool?.relays?.length > 0,
-      relayCount: this.pool?.relays?.length
-    })
+    // console.log("Subscribing to jobs with pool state:", {
+    //   hasPool: !!this.pool,
+    //   hasRelays: this.pool?.relays?.length > 0,
+    //   relayCount: this.pool?.relays?.length
+    // })
 
     if (!this.pool) {
       console.error("No pool available for job subscription")
@@ -65,7 +65,7 @@ export class DVMManager {
       return this.pool.sub(
         [filter],
         (event: Event) => {
-          console.log("Received job request:", event)
+          // console.log("Received job request:", event)
           callback(event)
         }
       )
