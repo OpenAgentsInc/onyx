@@ -23,7 +23,6 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const { pool } = useContext(RelayContext)
   const navigation = useNavigation()
   const subRef = useRef<{ unsub: () => void } | null>(null)
-  const db = useRef(connectDb())
 
   // Load existing references from DB
   useEffect(() => {
@@ -35,7 +34,8 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
           "#e": [event.id],
         }]
         
-        const events = await db.current.list(filter)
+        const db = await connectDb()
+        const events = await db.list(filter)
         if (events.length > 0) {
           setReferences(events.sort((a, b) => b.created_at - a.created_at))
         }
@@ -62,7 +62,8 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
       async (referenceEvent) => {
         // Save to DB first
         try {
-          await db.current.saveEventSync(referenceEvent)
+          const db = await connectDb()
+          await db.saveEventSync(referenceEvent)
         } catch (error) {
           console.error("Failed to save event to DB:", error)
         }
