@@ -35,18 +35,10 @@ export class NostrDb implements NostrDbInterface {
           location: 'default',
           enableWAL: false,
         });
-        
-        // Log database path
-        const pathResult = await this.db.execute('PRAGMA database_list');
-        console.log("[DB] Database location:", JSON.stringify(pathResult?.rows?._array));
 
-        // Log journal mode
-        const journalMode = await this.db.execute('PRAGMA journal_mode');
-        console.log("[DB] Journal mode:", JSON.stringify(journalMode?.rows?._array));
-
-        // Log synchronous setting
-        const syncMode = await this.db.execute('PRAGMA synchronous');
-        console.log("[DB] Synchronous mode:", JSON.stringify(syncMode?.rows?._array));
+        // Set pragmas for better performance
+        await this.db.execute('PRAGMA journal_mode = DELETE');
+        await this.db.execute('PRAGMA synchronous = NORMAL');
         
         await this.db.execute(`
           create table if not exists posts (
@@ -67,14 +59,6 @@ export class NostrDb implements NostrDbInterface {
           create index if not exists idx_posts_p1 on posts(p1);
           create index if not exists idx_posts_created_at on posts(created_at);
         `);
-
-        // Log table info
-        const tableInfo = await this.db.execute("PRAGMA table_info('posts')");
-        console.log("[DB] Table schema:", JSON.stringify(tableInfo?.rows?._array));
-
-        // Log index info
-        const indexList = await this.db.execute("PRAGMA index_list('posts')");
-        console.log("[DB] Indexes:", JSON.stringify(indexList?.rows?._array));
 
         console.log("[DB] Database schema initialized");
       } catch (error) {
@@ -106,18 +90,9 @@ export class NostrDb implements NostrDbInterface {
     console.log("[DB] Executing SQL:", sql, "with args:", args);
     
     try {
-      // First check total count
-      const countResult = await this.db.execute('SELECT COUNT(*) as count FROM posts');
-      console.log("[DB] Total records in database:", JSON.stringify(countResult?.rows?._array));
-
       const result = await this.db.execute(sql, args);
       const records = result?.rows?._array || [];
       console.log(`[DB] Found ${records.length} records in database`);
-
-      // Debug: Print all records
-      if (records.length > 0) {
-        console.log("[DB] All records:", JSON.stringify(records.map(r => ({id: r.id, kind: r.kind, e1: r.e1}))));
-      }
 
       const processedRecords = records.map((ev: NostrEvent) => {
         try {
@@ -210,12 +185,10 @@ export class NostrDb implements NostrDbInterface {
     this.queue = new Map();
     
     try {
-      await this.db.transaction(async (tx) => {
-        for (const ev of q) {
-          const [sql, args] = this.eventSql(ev);
-          await tx.execute(sql, args);
-        }
-      });
+      for (const ev of q) {
+        const [sql, args] = this.eventSql(ev);
+        await this.db.execute(sql, args);
+      }
       console.log(`[DB] Successfully flushed ${q.length} events to database`);
     } catch (error) {
       console.error("[DB] Error flushing events to database:", error);
@@ -231,43 +204,10 @@ export class NostrDb implements NostrDbInterface {
     if (this.db) {
       try {
         // First try a direct insert
-        console.log("[DB] Executing insert SQL:", sql);
-        console.log("[DB] Insert args:", JSON.stringify(args));
-        
-        const result = await this.db.execute(sql, args);
-        console.log("[DB] Insert result:", JSON.stringify(result));
-        
-        // Verify the save
-        const verifyResult = await this.db.execute(
-          'SELECT * FROM posts WHERE id = ?',
-          [ev.id]
-        );
-        const records = verifyResult?.rows?._array || [];
-        
-        if (records.length === 0) {
-          // Check total count
-          const countResult = await this.db.execute('SELECT COUNT(*) as count FROM posts');
-          console.error("[DB] Save verification failed. Total records:", JSON.stringify(countResult?.rows?._array));
-          
-          // Check if record exists with different case
-          const allRecords = await this.db.execute('SELECT id FROM posts');
-          console.error("[DB] All record IDs:", JSON.stringify(allRecords?.rows?._array));
-          
-          throw new Error('Save verification failed - record not found');
-        }
-
-        console.log("[DB] Save verified for event:", ev.id, "Record:", JSON.stringify(records[0]));
+        await this.db.execute(sql, args);
         console.log("[DB] Event saved successfully:", ev.id);
-
       } catch (error) {
         console.error("[DB] Error saving event:", ev.id, error);
-        // Log database state
-        try {
-          const count = await this.db.execute('SELECT COUNT(*) as count FROM posts');
-          console.error("[DB] Current database count:", JSON.stringify(count?.rows?._array));
-        } catch (e) {
-          console.error("[DB] Error checking database state:", e);
-        }
         throw error;
       }
     }
