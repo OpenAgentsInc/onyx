@@ -10,7 +10,7 @@ import {
   lnurlPay,
   receivePayment,
   prepareReceivePayment,
-  PaymentType
+  PaymentMethod
 } from '@breeztech/react-native-breez-sdk-liquid'
 import * as FileSystem from 'expo-file-system'
 import { BalanceInfo, BreezConfig, BreezService, Transaction } from './types'
@@ -189,9 +189,8 @@ class BreezServiceImpl implements BreezService {
     try {
       // First prepare the receive payment
       const prepareResponse = await prepareReceivePayment({
-        amountSat: amount,
-        description: description || 'Payment request',
-        paymentMethod: PaymentType.BOLT11
+        paymentMethod: PaymentMethod.LIGHTNING,
+        payerAmountSat: amount
       })
 
       // Then create the actual invoice
