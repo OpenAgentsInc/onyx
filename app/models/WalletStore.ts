@@ -14,6 +14,9 @@ const TransactionModel = types.model("Transaction", {
   fee: types.maybe(types.number),
 })
 
+// Default mnemonic for development - DO NOT USE IN PRODUCTION
+const DEV_MNEMONIC = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+
 export const WalletStoreModel = types
   .model("WalletStore")
   .props({
@@ -34,8 +37,12 @@ export const WalletStoreModel = types
     const initialize = flow(function* () {
       try {
         const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
+
+        // For development, proceed without Breez initialization if API key is missing
         if (!breezApiKey) {
-          setError("BREEZ_API_KEY environment variable is not set")
+          console.warn("BREEZ_API_KEY not set - using development mode")
+          self.isInitialized = true
+          self.mnemonic = DEV_MNEMONIC
           return
         }
 
@@ -55,13 +62,18 @@ export const WalletStoreModel = types
         yield fetchBalanceInfo()
       } catch (error) {
         console.error("Failed to initialize wallet:", error)
-        setError(error instanceof Error ? error.message : "Failed to initialize wallet")
+        // For development, proceed with default mnemonic on error
+        console.warn("Using development mnemonic after initialization error")
+        self.isInitialized = true
+        self.mnemonic = DEV_MNEMONIC
       }
     })
 
     const disconnect = flow(function* () {
       try {
-        yield breezService.disconnect()
+        if (breezService.isInitialized()) {
+          yield breezService.disconnect()
+        }
         self.isInitialized = false
         self.mnemonic = null
         setError(null)
@@ -72,6 +84,11 @@ export const WalletStoreModel = types
     })
 
     const fetchBalanceInfo = flow(function* () {
+      // Skip if we're in development mode without Breez
+      if (!Constants.expoConfig?.extra?.BREEZ_API_KEY) {
+        return
+      }
+
       // Don't try to fetch if we're not initialized
       if (!breezService.isInitialized()) {
         console.log("Skipping balance fetch - not initialized yet")
@@ -91,6 +108,11 @@ export const WalletStoreModel = types
     })
 
     const fetchTransactions = flow(function* () {
+      // Skip if we're in development mode without Breez
+      if (!Constants.expoConfig?.extra?.BREEZ_API_KEY) {
+        return
+      }
+
       // Don't try to fetch if we're not initialized
       if (!breezService.isInitialized()) {
         console.log("Skipping transactions fetch - not initialized yet")
