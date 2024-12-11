@@ -1,6 +1,6 @@
 import { FC, useState } from "react"
 import { observer } from "mobx-react-lite" 
-import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator, Text as RNText } from "react-native"
+import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native"
 import { AppStackScreenProps } from "@/navigators"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
@@ -11,8 +11,9 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
   const [recipient, setRecipient] = useState("")
   const [amount, setAmount] = useState("")
   const [isSending, setIsSending] = useState(false)
-  const [fees, setFees] = useState<number | null>(null)
   const { walletStore } = useStores()
+
+  const MIN_AMOUNT = 1000 // 1000 sats minimum
 
   const handleSend = async () => {
     if (!recipient.trim()) {
@@ -25,14 +26,19 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
       return
     }
 
+    const amountNum = Number(amount)
+    if (amountNum < MIN_AMOUNT) {
+      walletStore.setError(`Minimum amount is ${MIN_AMOUNT} sats`)
+      return
+    }
+
     setIsSending(true)
     try {
-      const amountSats = Math.floor(Number(amount))
+      const amountSats = Math.floor(amountNum)
       await walletStore.sendPayment(recipient.trim(), amountSats)
       // Clear form on success
       setRecipient("")
       setAmount("")
-      setFees(null)
     } catch (error) {
       console.error("Send error:", error)
     } finally {
@@ -40,7 +46,7 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
     }
   }
 
-  const isValidInput = recipient.trim() && amount.trim() && !isNaN(Number(amount))
+  const isValidInput = recipient.trim() && amount.trim() && !isNaN(Number(amount)) && Number(amount) >= MIN_AMOUNT
 
   return (
     <Screen style={$root} preset="scroll">
@@ -71,7 +77,7 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
         />
 
         <Text
-          text="Amount (in sats)"
+          text={`Amount (min. ${MIN_AMOUNT} sats)`}
           preset="subheading"
           style={$label}
         />
@@ -87,13 +93,6 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
           autoCorrect={false}
           editable={!isSending}
         />
-
-        {fees !== null && (
-          <Text
-            text={`Network fee: ${fees} sats`}
-            style={$feesText}
-          />
-        )}
         
         {walletStore.error ? (
           <Text style={$errorText}>{walletStore.error}</Text>
@@ -112,13 +111,6 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
             </Text>
           )}
         </TouchableOpacity>
-
-        <View style={$helpContainer}>
-          <Text text="Supported formats:" style={$helpTitle} />
-          <RNText style={$helpText}>• BOLT11 invoice</RNText>
-          <RNText style={$helpText}>• Lightning Address (user@domain.com)</RNText>
-          <RNText style={$helpText}>• LNURL</RNText>
-        </View>
       </View>
     </Screen>
   )
@@ -185,30 +177,4 @@ const $errorText = {
   fontSize: 14,
   marginBottom: 12,
   textAlign: "center",
-}
-
-const $feesText = {
-  color: "#999",
-  fontSize: 14,
-  marginBottom: 12,
-  textAlign: "center",
-}
-
-const $helpContainer = {
-  marginTop: 24,
-  padding: 16,
-  backgroundColor: "#222",
-  borderRadius: 8,
-}
-
-const $helpTitle = {
-  marginBottom: 8,
-  opacity: 0.8,
-}
-
-const $helpText = {
-  color: "#999",
-  fontSize: 14,
-  marginBottom: 4,
-  fontFamily: "JetBrainsMono-Regular",
 }
