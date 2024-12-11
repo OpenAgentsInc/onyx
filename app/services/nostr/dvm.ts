@@ -112,7 +112,7 @@ export class DVMManager {
 
   // Parse NIP-90 job request
   parseJobRequest(event: Event) {
-    console.log("Parsing job request:", event)
+    // console.log("Parsing job request:", event)
     try {
       const input = event.tags.find(t => t[0] === "i")
       const bid = event.tags.find(t => t[0] === "bid")?.[1]
