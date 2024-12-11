@@ -1,6 +1,6 @@
 import { Event, getEventHash, getPublicKey, getSignature } from "nostr-tools"
 import React, { useContext, useState } from "react"
-import { Text, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Text, TextInput, TouchableOpacity, View, ViewStyle } from "react-native"
 import { NostrIdentity } from "@/services/nostr"
 import { DVMManager } from "@/services/nostr/dvm"
 import { RelayContext } from "./RelayProvider"
@@ -12,6 +12,7 @@ export const DVMButton = () => {
   const { pool } = useContext(RelayContext)
   const [responses, setResponses] = useState<Event[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [topic, setTopic] = useState("")
 
   const sendJobRequest = async () => {
     if (!pool) {
@@ -33,7 +34,7 @@ export const DVMButton = () => {
         kind: 5050,
         content: "",
         tags: [
-          ["i", "Write a haiku about cats", "prompt"],
+          ["i", `generate haiku about ${topic || "cats"}`, "prompt"],
           ["param", "max_tokens", "300"],
           ["output", "text/plain"]
         ],
@@ -91,6 +92,14 @@ export const DVMButton = () => {
 
   return (
     <View style={$container}>
+      <TextInput
+        style={$input}
+        placeholder="Enter topic for haiku..."
+        placeholderTextColor="#666"
+        value={topic}
+        onChangeText={setTopic}
+        editable={!isLoading}
+      />
       <TouchableOpacity
         style={$button}
         onPress={sendJobRequest}
@@ -125,6 +134,16 @@ const $container: ViewStyle = {
   transform: [{ translateX: -100 }, { translateY: -25 }],
   width: 200,
   alignItems: "center",
+}
+
+const $input = {
+  backgroundColor: "#222",
+  color: "#fff",
+  padding: 12,
+  borderRadius: 8,
+  width: "100%",
+  marginBottom: 12,
+  fontFamily: 'JetBrainsMono-Regular',
 }
 
 const $button: ViewStyle = {
