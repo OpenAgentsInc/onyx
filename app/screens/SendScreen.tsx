@@ -1,6 +1,6 @@
 import { FC, useState } from "react"
 import { observer } from "mobx-react-lite" 
-import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native"
+import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator, Text as RNText } from "react-native"
 import { AppStackScreenProps } from "@/navigators"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
@@ -16,7 +16,7 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
 
   const handleSend = async () => {
     if (!recipient.trim()) {
-      walletStore.setError("Please enter a Lightning invoice or address")
+      walletStore.setError("Please enter an invoice or Lightning address")
       return
     }
 
@@ -40,12 +40,26 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
     }
   }
 
+  const isValidInput = recipient.trim() && amount.trim() && !isNaN(Number(amount))
+
   return (
     <Screen style={$root} preset="scroll">
       <View style={$container}>
+        <Text
+          text="Send Payment"
+          preset="heading"
+          style={$heading}
+        />
+        
+        <Text
+          text="Enter a Lightning invoice or address"
+          preset="subheading"
+          style={$label}
+        />
+
         <TextInput
           style={$input}
-          placeholder="Enter Lightning invoice or address..."
+          placeholder="Lightning invoice or address..."
           placeholderTextColor="#666"
           value={recipient}
           onChangeText={setRecipient}
@@ -56,9 +70,15 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
           editable={!isSending}
         />
 
+        <Text
+          text="Amount (in sats)"
+          preset="subheading"
+          style={$label}
+        />
+
         <TextInput
           style={[$input, $amountInput]}
-          placeholder="Amount (in sats)..."
+          placeholder="Amount in sats..."
           placeholderTextColor="#666"
           value={amount}
           onChangeText={setAmount}
@@ -67,21 +87,22 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
           autoCorrect={false}
           editable={!isSending}
         />
-        
-        {fees !== null && (
-          <Text style={$feesText}>
-            Network fees: {fees} sats
-          </Text>
-        )}
 
+        {fees !== null && (
+          <Text
+            text={`Network fee: ${fees} sats`}
+            style={$feesText}
+          />
+        )}
+        
         {walletStore.error ? (
           <Text style={$errorText}>{walletStore.error}</Text>
         ) : null}
 
         <TouchableOpacity
-          style={[$button, isSending && $buttonDisabled]}
+          style={[$button, (!isValidInput || isSending) && $buttonDisabled]}
           onPress={handleSend}
-          disabled={isSending}
+          disabled={!isValidInput || isSending}
         >
           {isSending ? (
             <ActivityIndicator color="#fff" />
@@ -91,6 +112,13 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
             </Text>
           )}
         </TouchableOpacity>
+
+        <View style={$helpContainer}>
+          <Text text="Supported formats:" style={$helpTitle} />
+          <RNText style={$helpText}>• BOLT11 invoice</RNText>
+          <RNText style={$helpText}>• Lightning Address (user@domain.com)</RNText>
+          <RNText style={$helpText}>• LNURL</RNText>
+        </View>
       </View>
     </Screen>
   )
@@ -107,13 +135,24 @@ const $container: ViewStyle = {
   alignSelf: "center",
 }
 
+const $heading = {
+  fontSize: 24,
+  marginBottom: 20,
+  textAlign: "center",
+}
+
+const $label = {
+  marginBottom: 8,
+  opacity: 0.8,
+}
+
 const $input = {
   backgroundColor: "#222",
   color: "#fff",
   padding: 12,
   borderRadius: 8,
   width: "100%",
-  marginBottom: 12,
+  marginBottom: 16,
   fontFamily: "JetBrainsMono-Regular",
   textAlignVertical: "top",
 }
@@ -128,6 +167,7 @@ const $button: ViewStyle = {
   borderRadius: 8,
   width: "100%",
   alignItems: "center",
+  marginTop: 8,
 }
 
 const $buttonDisabled: ViewStyle = {
@@ -152,5 +192,23 @@ const $feesText = {
   fontSize: 14,
   marginBottom: 12,
   textAlign: "center",
+}
+
+const $helpContainer = {
+  marginTop: 24,
+  padding: 16,
+  backgroundColor: "#222",
+  borderRadius: 8,
+}
+
+const $helpTitle = {
+  marginBottom: 8,
+  opacity: 0.8,
+}
+
+const $helpText = {
+  color: "#999",
+  fontSize: 14,
+  marginBottom: 4,
   fontFamily: "JetBrainsMono-Regular",
 }
