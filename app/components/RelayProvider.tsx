@@ -49,38 +49,7 @@ export const RelayProvider = observer(function RelayProvider({
     privkey ? new NostrIdentity(privkey, "", "") : null
   , [privkey])
 
-  const channelManager = useMemo(() => 
-    pool ? new ChannelManager(pool) : null
-  , [pool])
-
-  const contactManager = useMemo(() => 
-    pool ? new ContactManager(pool) : null
-  , [pool])
-
-  const profileManager = useMemo(() => 
-    pool ? new ProfileManager(pool) : null
-  , [pool])
-
-  const privMessageManager = useMemo(() => 
-    pool ? new PrivateMessageManager(pool) : null
-  , [pool])
-
-  const dvmManager = useMemo(() => 
-    pool ? new DVMManager(pool) : null
-  , [pool])
-
-  const contextValue = useMemo(() => ({
-    pool,
-    channelManager,
-    contactManager,
-    profileManager,
-    privMessageManager,
-    dvmManager,
-    isConnected
-  }), [pool, channelManager, contactManager, profileManager, 
-      privMessageManager, dvmManager, isConnected])
-
-  // Effects
+  // Initialize database
   useEffect(() => {
     const initDb = async () => {
       try {
@@ -94,33 +63,104 @@ export const RelayProvider = observer(function RelayProvider({
     initDb()
   }, [])
 
+  // Initialize pool when database is ready
   useEffect(() => {
-    if (db && ident && !pool) {
+    if (db && ident) {
+      console.log("Initializing pool with db and ident")
       const newPool = new NostrPool(ident, db, { skipVerification: true })
       setPool(newPool)
     }
   }, [db, ident])
 
+  // Initialize relays when pool is ready
   useEffect(() => {
-    if (!pool) return
-
-    pool.ident = ident
-
-    async function initRelays() {
-      await pool.setRelays(getRelays)
-      console.log("connected to relays: ", getRelays)
-      setIsConnected(true)
+    if (!pool || !getRelays || !ident) {
+      console.log("Not ready for relay connection:", {
+        hasPool: !!pool,
+        hasRelays: !!getRelays,
+        hasIdent: !!ident
+      })
+      return
     }
 
-    initRelays().catch(console.error)
+    console.log("Setting up relay connection")
+    pool.ident = ident
+
+    const initRelays = async () => {
+      try {
+        await pool.setRelays(getRelays)
+        console.log("Connected to relays:", getRelays)
+        setIsConnected(true)
+      } catch (error) {
+        console.error("Failed to connect to relays:", error)
+        setIsConnected(false)
+      }
+    }
+
+    initRelays()
 
     return () => {
+      console.log("Cleaning up pool connection")
       pool.close()
       setIsConnected(false)
     }
-  }, [pool, ident, getRelays])
+  }, [pool, getRelays, ident])
+
+  // Initialize managers only when pool is ready
+  const channelManager = useMemo(() => {
+    if (!pool) return null
+    console.log("Initializing channel manager")
+    return new ChannelManager(pool)
+  }, [pool])
+
+  const contactManager = useMemo(() => {
+    if (!pool) return null
+    console.log("Initializing contact manager")
+    return new ContactManager(pool)
+  }, [pool])
+
+  const profileManager = useMemo(() => {
+    if (!pool) return null
+    console.log("Initializing profile manager")
+    return new ProfileManager(pool)
+  }, [pool])
+
+  const privMessageManager = useMemo(() => {
+    if (!pool) return null
+    console.log("Initializing private message manager")
+    return new PrivateMessageManager(pool)
+  }, [pool])
+
+  const dvmManager = useMemo(() => {
+    if (!pool) return null
+    console.log("Initializing DVM manager")
+    return new DVMManager(pool)
+  }, [pool])
+
+  const contextValue = useMemo(() => ({
+    pool,
+    channelManager,
+    contactManager,
+    profileManager,
+    privMessageManager,
+    dvmManager,
+    isConnected
+  }), [pool, channelManager, contactManager, profileManager, 
+      privMessageManager, dvmManager, isConnected])
+
+  // Debug logging
+  useEffect(() => {
+    console.log("RelayProvider state:", {
+      isDbReady,
+      hasPool: !!pool,
+      isConnected,
+      hasIdent: !!ident,
+      relayCount: getRelays?.length
+    })
+  }, [isDbReady, pool, isConnected, ident, getRelays])
 
   if (!isDbReady || !db) {
+    console.log("Waiting for database initialization...")
     return null // Or a loading indicator
   }
 
