@@ -63,13 +63,12 @@ const AppStack = observer(function AppStack() {
         component={EventReferencesScreen}
         options={{
           headerShown: true,
-          header: ({ navigation }) => (
+          header: () => (
             <Header
-              title="Job Request"
               leftIcon="back"
-              onLeftPress={() => navigation.goBack()}
+              onLeftPress={() => navigationRef.current?.goBack()}
               backgroundColor="#0a0a0c"
-              titleStyle={{ color: "#fafafa" }}
+              LeftActionComponent={undefined}
             />
           ),
         }}
