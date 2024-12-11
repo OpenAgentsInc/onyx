@@ -5,10 +5,10 @@ import { ActivityIndicator, FlatList, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { Card } from "../components/Card"
 import { FeedEvent } from "../components/FeedCard"
+import { Header } from "../components/Header"
 import { RelayContext } from "../components/RelayProvider"
 import { Text } from "../components/Text"
 import { NostrEvent } from "../services/nostr/ident"
-import { Header } from "../components/Header"
 
 interface EventReferencesScreenProps {
   route: {
@@ -27,17 +27,17 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const subRef = useRef<{ unsub: () => void } | null>(null)
 
   // Set up header with back button
-  useEffect(() => {
-    navigation.setOptions({
-      header: () => (
-        <Header
-          leftIcon="back"
-          onLeftPress={() => navigation.goBack()}
-          LeftActionComponent={undefined}
-        />
-      ),
-    })
-  }, [navigation])
+  // useEffect(() => {
+  //   navigation.setOptions({
+  //     header: () => (
+  //       <Header
+  //         leftIcon="back"
+  //         onLeftPress={() => navigation.goBack()}
+  //         LeftActionComponent={undefined}
+  //       />
+  //     ),
+  //   })
+  // }, [navigation])
 
   // Load references from DB
   const loadReferences = useCallback(async () => {

@@ -67,9 +67,7 @@ const AppStack = observer(function AppStack() {
             <Header
               leftIcon="back"
               title="Job Request"
-            // onLeftPress={() => navigationRef.current?.goBack()}
-            // backgroundColor="#0a0a0c"
-            // LeftActionComponent={undefined}
+              onLeftPress={() => navigationRef.current?.goBack()}
             />
           ),
         }}
