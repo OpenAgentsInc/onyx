@@ -8,6 +8,7 @@ import {
 import { ContactManager } from "@/services/nostr/contacts"
 import { ProfileManager } from "@/services/nostr/profile"
 import { DVMManager } from "@/services/nostr/dvm"
+import { ActivityIndicator, View } from "react-native"
 
 interface RelayContextType {
   pool: NostrPool | null
@@ -35,7 +36,7 @@ export const RelayProvider = observer(function RelayProvider({
   children: React.ReactNode
 }) {
   const {
-    userStore: { getRelays, privkey },
+    userStore: { getRelays, privkey, isLoggedIn },
   } = useStores()
 
   // State declarations first
@@ -43,19 +44,17 @@ export const RelayProvider = observer(function RelayProvider({
   const [isDbReady, setIsDbReady] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
   const [pool, setPool] = useState<NostrPool | null>(null)
-
-  // Memoized values
-  const ident = useMemo(() => 
-    privkey ? new NostrIdentity(privkey, "", "") : null
-  , [privkey])
+  const [isInitializing, setIsInitializing] = useState(true)
 
   // Initialize database
   useEffect(() => {
     const initDb = async () => {
       try {
+        console.log("Initializing database...")
         const database = await connectDb()
         setDb(database)
         setIsDbReady(true)
+        console.log("Database initialized successfully")
       } catch (error) {
         console.error("Failed to initialize database:", error)
       }
@@ -63,19 +62,36 @@ export const RelayProvider = observer(function RelayProvider({
     initDb()
   }, [])
 
-  // Initialize pool when database is ready
-  useEffect(() => {
-    if (db && ident) {
-      console.log("Initializing pool with db and ident")
-      const newPool = new NostrPool(ident, db, { skipVerification: true })
-      setPool(newPool)
+  // Create NostrIdentity when privkey is available
+  const ident = useMemo(() => {
+    if (!privkey) {
+      console.log("No private key available")
+      return null
     }
+    console.log("Creating NostrIdentity with private key")
+    return new NostrIdentity(privkey, "", "")
+  }, [privkey])
+
+  // Initialize pool when database and identity are ready
+  useEffect(() => {
+    if (!db || !ident) {
+      console.log("Pool initialization waiting for:", {
+        hasDb: !!db,
+        hasIdent: !!ident
+      })
+      return
+    }
+
+    console.log("Initializing pool with db and ident")
+    const newPool = new NostrPool(ident, db, { skipVerification: true })
+    setPool(newPool)
+    setIsInitializing(false)
   }, [db, ident])
 
   // Initialize relays when pool is ready
   useEffect(() => {
     if (!pool || !getRelays || !ident) {
-      console.log("Not ready for relay connection:", {
+      console.log("Relay connection waiting for:", {
         hasPool: !!pool,
         hasRelays: !!getRelays,
         hasIdent: !!ident
@@ -83,7 +99,7 @@ export const RelayProvider = observer(function RelayProvider({
       return
     }
 
-    console.log("Setting up relay connection")
+    console.log("Setting up relay connection with relays:", getRelays)
     pool.ident = ident
 
     const initRelays = async () => {
@@ -155,13 +171,18 @@ export const RelayProvider = observer(function RelayProvider({
       hasPool: !!pool,
       isConnected,
       hasIdent: !!ident,
+      isLoggedIn,
       relayCount: getRelays?.length
     })
-  }, [isDbReady, pool, isConnected, ident, getRelays])
+  }, [isDbReady, pool, isConnected, ident, isLoggedIn, getRelays])
 
-  if (!isDbReady || !db) {
-    console.log("Waiting for database initialization...")
-    return null // Or a loading indicator
+  if (isInitializing || !isDbReady || !db) {
+    console.log("Waiting for initialization...")
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#ffffff" />
+      </View>
+    )
   }
 
   return (
