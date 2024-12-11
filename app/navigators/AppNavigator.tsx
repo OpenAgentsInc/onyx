@@ -21,6 +21,8 @@ export type AppStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>
   BackupWallet: undefined
   RestoreWallet: undefined
+  Send: undefined
+  Receive: undefined
   Login: undefined
   Welcome: undefined
   Chat: undefined
@@ -79,6 +81,30 @@ const AppStack = observer(function AppStack() {
             <Header
               leftIcon="back"
               title="Restore wallet"
+              onLeftPress={() => navigationRef.current?.goBack()}
+            />
+          ),
+        }}
+      />
+      <Stack.Screen name="Send" component={Screens.SendScreen}
+        options={{
+          headerShown: true,
+          header: () => (
+            <Header
+              leftIcon="back"
+              title="Send bitcoin"
+              onLeftPress={() => navigationRef.current?.goBack()}
+            />
+          ),
+        }}
+      />
+      <Stack.Screen name="Receive" component={Screens.ReceiveScreen}
+        options={{
+          headerShown: true,
+          header: () => (
+            <Header
+              leftIcon="back"
+              title="Receive bitcoin"
               onLeftPress={() => navigationRef.current?.goBack()}
             />
           ),
