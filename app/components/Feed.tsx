@@ -1,8 +1,10 @@
 import { FC, useContext, useEffect, useRef, useState } from "react"
-import { FlatList, ListRenderItem, View, ViewStyle, ActivityIndicator } from "react-native"
+import {
+  ActivityIndicator, FlatList, ListRenderItem, View, ViewStyle
+} from "react-native"
+import { DVMManager } from "@/services/nostr/dvm"
 import { FeedCard, FeedEvent } from "./FeedCard"
 import { RelayContext } from "./RelayProvider"
-import { DVMManager } from "@/services/nostr/dvm"
 import { Text } from "./Text"
 
 interface FeedProps {
@@ -30,9 +32,9 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
   // Wait for relay connection before subscribing
   useEffect(() => {
     if (!pool || !isConnected || isSubscribed.current || !dvmManagerRef.current) {
-      console.log("Feed subscription conditions not met:", { 
-        hasPool: !!pool, 
-        isConnected, 
+      console.log("Feed subscription conditions not met:", {
+        hasPool: !!pool,
+        isConnected,
         isSubscribed: isSubscribed.current,
         hasDVMManager: !!dvmManagerRef.current
       })
@@ -46,22 +48,22 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
     const subs = []
 
     // Subscribe to services
-    console.log("Subscribing to services...")
-    const servicesSub = dvmManagerRef.current.subscribeToServices((event) => {
-      console.log("Service callback received event:", event)
-      try {
-        const parsedEvent = dvmManagerRef.current.parseServiceAnnouncement(event)
-        setEvents(prev => {
-          // Deduplicate by id
-          const exists = prev.some(e => e.id === parsedEvent.id)
-          if (exists) return prev
-          return [parsedEvent, ...prev]
-        })
-      } catch (e) {
-        console.error("Error parsing service event:", e)
-      }
-    })
-    subs.push(servicesSub)
+    // console.log("Subscribing to services...")
+    // const servicesSub = dvmManagerRef.current.subscribeToServices((event) => {
+    //   console.log("Service callback received event:", event)
+    //   try {
+    //     const parsedEvent = dvmManagerRef.current.parseServiceAnnouncement(event)
+    //     setEvents(prev => {
+    //       // Deduplicate by id
+    //       const exists = prev.some(e => e.id === parsedEvent.id)
+    //       if (exists) return prev
+    //       return [parsedEvent, ...prev]
+    //     })
+    //   } catch (e) {
+    //     console.error("Error parsing service event:", e)
+    //   }
+    // })
+    // subs.push(servicesSub)
 
     // Subscribe to jobs
     console.log("Subscribing to jobs...")
@@ -95,7 +97,7 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
   }, [pool, isConnected])
 
   const renderItem: ListRenderItem<FeedEvent> = ({ item }) => (
-    <FeedCard 
+    <FeedCard
       event={item}
       onPress={() => onEventPress?.(item)}
     />
@@ -105,8 +107,8 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
     return (
       <View style={$loadingContainer}>
         <ActivityIndicator size="large" color="#ffffff" />
-        <Text 
-          text="Loading feed..." 
+        <Text
+          text="Loading feed..."
           style={$loadingText}
         />
       </View>
@@ -124,8 +126,8 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
         style={$list}
         ListEmptyComponent={
           <View style={$emptyContainer}>
-            <Text 
-              text="No events found" 
+            <Text
+              text="No events found"
               style={$emptyText}
             />
           </View>
