@@ -29,17 +29,23 @@ export const WalletStoreModel = types
   .actions(withSetPropAction)
   .actions((self) => {
     const setError = (message: string | null) => {
+      console.log("[WalletStore] Setting error:", message)
       self.error = message
     }
 
     const initialize = flow(function* () {
       try {
+        console.log("[WalletStore] Starting initialization")
+        
         // Get mnemonic from secure storage if not in store
         if (!self.mnemonic) {
+          console.log("[WalletStore] No mnemonic in store, checking secure storage")
           const storedMnemonic = yield SecureStorageService.getMnemonic()
           if (storedMnemonic) {
+            console.log("[WalletStore] Found mnemonic in secure storage")
             self.mnemonic = storedMnemonic
           } else {
+            console.log("[WalletStore] Generating new mnemonic")
             const newMnemonic = yield SecureStorageService.generateMnemonic()
             self.mnemonic = newMnemonic
           }
@@ -47,17 +53,19 @@ export const WalletStoreModel = types
 
         const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
         if (!breezApiKey) {
-          console.warn("BREEZ_API_KEY not set - using development mode")
+          console.warn("[WalletStore] BREEZ_API_KEY not set - using development mode")
           self.isInitialized = true
           return
         }
 
         // If we were previously initialized, disconnect first
         if (breezService.isInitialized()) {
+          console.log("[WalletStore] Disconnecting previous breez instance")
           yield breezService.disconnect()
         }
 
         // Initialize breez with the mnemonic
+        console.log("[WalletStore] Initializing breez service")
         yield breezService.initialize({
           workingDir: "", // This is handled internally by the service
           apiKey: breezApiKey,
@@ -65,13 +73,15 @@ export const WalletStoreModel = types
           mnemonic: self.mnemonic,
         })
 
+        console.log("[WalletStore] Breez initialized, fetching balance")
         self.isInitialized = true
         setError(null)
 
         // Fetch initial balance
         yield fetchBalanceInfo()
+        console.log("[WalletStore] Initialization complete")
       } catch (error) {
-        console.error("Failed to initialize wallet:", error)
+        console.error("[WalletStore] Initialization error:", error)
         setError(error instanceof Error ? error.message : "Failed to initialize wallet")
         throw error
       }
@@ -79,12 +89,16 @@ export const WalletStoreModel = types
 
     const restoreWallet = flow(function* (mnemonic: string) {
       try {
+        console.log("[WalletStore] Starting wallet restoration")
+        
         // First disconnect if we're initialized
         if (breezService.isInitialized()) {
+          console.log("[WalletStore] Disconnecting previous breez instance")
           yield breezService.disconnect()
         }
 
         // Reset the store state
+        console.log("[WalletStore] Resetting store state")
         self.isInitialized = false
         self.balanceSat = 0
         self.pendingSendSat = 0
@@ -93,6 +107,7 @@ export const WalletStoreModel = types
         self.mnemonic = null
 
         // Validate and save mnemonic to secure storage
+        console.log("[WalletStore] Saving mnemonic to secure storage")
         const saved = yield SecureStorageService.setMnemonic(mnemonic)
         if (!saved) {
           throw new Error("Failed to save mnemonic")
@@ -108,6 +123,7 @@ export const WalletStoreModel = types
         }
 
         // Initialize breez with the new mnemonic
+        console.log("[WalletStore] Initializing breez with restored mnemonic")
         yield breezService.initialize({
           workingDir: "",
           apiKey: breezApiKey,
@@ -115,14 +131,16 @@ export const WalletStoreModel = types
           mnemonic: mnemonic,
         })
 
+        console.log("[WalletStore] Breez initialized, fetching balance")
         self.isInitialized = true
         setError(null)
 
         // Fetch initial balance
         yield fetchBalanceInfo()
+        console.log("[WalletStore] Restoration complete")
         return true
       } catch (error) {
-        console.error("Failed to restore wallet:", error)
+        console.error("[WalletStore] Restoration error:", error)
         setError(error instanceof Error ? error.message : "Failed to restore wallet")
         return false
       }
@@ -130,6 +148,7 @@ export const WalletStoreModel = types
 
     const disconnect = flow(function* () {
       try {
+        console.log("[WalletStore] Disconnecting wallet")
         if (breezService.isInitialized()) {
           yield breezService.disconnect()
         }
@@ -138,42 +157,44 @@ export const WalletStoreModel = types
         self.mnemonic = null
         setError(null)
       } catch (error) {
-        console.error("Failed to disconnect wallet:", error)
+        console.error("[WalletStore] Disconnect error:", error)
         setError(error instanceof Error ? error.message : "Failed to disconnect wallet")
       }
     })
 
     const fetchBalanceInfo = flow(function* () {
       if (!self.isInitialized || !breezService.isInitialized()) {
-        console.log("Skipping balance fetch - not initialized")
+        console.log("[WalletStore] Skipping balance fetch - not initialized")
         return
       }
 
       try {
+        console.log("[WalletStore] Fetching balance")
         const info = yield breezService.getBalance()
-        console.log("Balance info:", info)
+        console.log("[WalletStore] Balance info:", info)
         self.balanceSat = info.balanceSat
         self.pendingSendSat = info.pendingSendSat
         self.pendingReceiveSat = info.pendingReceiveSat
         setError(null)
       } catch (error) {
-        console.error("Error fetching balance info:", error)
+        console.error("[WalletStore] Balance fetch error:", error)
         setError(error instanceof Error ? error.message : "Failed to fetch balance info")
       }
     })
 
     const fetchTransactions = flow(function* () {
       if (!self.isInitialized || !breezService.isInitialized()) {
-        console.log("Skipping transactions fetch - not initialized")
+        console.log("[WalletStore] Skipping transactions fetch - not initialized")
         return
       }
 
       try {
+        console.log("[WalletStore] Fetching transactions")
         const txs = yield breezService.getTransactions()
         self.transactions.replace(txs)
         setError(null)
       } catch (error) {
-        console.error("Error fetching transactions:", error)
+        console.error("[WalletStore] Transactions fetch error:", error)
         setError(error instanceof Error ? error.message : "Failed to fetch transactions")
       }
     })
@@ -190,7 +211,7 @@ export const WalletStoreModel = types
         setError(null)
         return tx
       } catch (error) {
-        console.error("Error sending payment:", error)
+        console.error("[WalletStore] Send payment error:", error)
         setError(error instanceof Error ? error.message : "Failed to send payment")
         throw error
       }
@@ -206,7 +227,7 @@ export const WalletStoreModel = types
         setError(null)
         return bolt11
       } catch (error) {
-        console.error("Error creating invoice:", error)
+        console.error("[WalletStore] Receive payment error:", error)
         setError(error instanceof Error ? error.message : "Failed to create invoice")
         throw error
       }
