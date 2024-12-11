@@ -1,4 +1,4 @@
-import { memo, ReactElement } from "react"
+import { memo, ReactElement, useEffect } from "react"
 import { StyleSheet, View } from "react-native"
 import { useStores } from "@/models"
 import Money from "./Money"
@@ -7,16 +7,29 @@ import Money from "./Money"
  * Displays the total available balance for the current wallet & network.
  */
 const BalanceHeader = (): ReactElement => {
-  const totalBalance = 600
   const { walletStore } = useStores()
   const {
     balanceSat,
-    pendingSendSat,
-    pendingReceiveSat,
     isInitialized,
     error,
     fetchBalanceInfo
   } = walletStore
+
+  // Fetch balance on mount and every 30 seconds
+  useEffect(() => {
+    if (isInitialized && !error) {
+      // Initial fetch
+      fetchBalanceInfo()
+
+      // Set up periodic refresh
+      const interval = setInterval(() => {
+        fetchBalanceInfo()
+      }, 30000) // 30 seconds
+
+      return () => clearInterval(interval)
+    }
+  }, [isInitialized, error, fetchBalanceInfo])
+
   return (
     <View style={styles.container}>
       <View style={styles.balance}>
