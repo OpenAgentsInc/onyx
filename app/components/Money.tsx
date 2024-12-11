@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   balance: {
     fontSize: 34,
     lineHeight: 40,
-    fontFamily: typography.secondary.bold,
+    fontFamily: typography.primary.bold,
   }
 });
 
