@@ -1,5 +1,5 @@
 import { memo, ReactElement, useEffect } from "react"
-import { StyleSheet, View, ActivityIndicator } from "react-native"
+import { ActivityIndicator, StyleSheet, View } from "react-native"
 import { useStores } from "@/models"
 import Money from "./Money"
 import { Text } from "./Text"
@@ -28,7 +28,7 @@ const BalanceHeader = (): ReactElement => {
       const interval = setInterval(() => {
         console.log("[BalanceHeader] Periodic balance fetch")
         fetchBalanceInfo()
-      }, 10000) // 10 seconds
+      }, 5000) // 5 seconds
 
       return () => clearInterval(interval)
     }
@@ -46,7 +46,7 @@ const BalanceHeader = (): ReactElement => {
     <View style={styles.container}>
       <View style={styles.balance}>
         <Money sats={balanceSat} symbol={true} />
-        
+
         {(pendingSendSat > 0 || pendingReceiveSat > 0) && (
           <View style={styles.pendingContainer}>
             {pendingSendSat > 0 && (
