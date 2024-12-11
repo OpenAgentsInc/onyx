@@ -7,7 +7,6 @@ import { RelayContext } from "../components/RelayProvider"
 import { NostrEvent } from "../services/nostr/ident"
 import { useNavigation } from "@react-navigation/native"
 import { Icon } from "../components/Icon"
-import { connectDb } from "../services/nostr/db"
 
 interface EventReferencesScreenProps {
   route: {
@@ -21,85 +20,53 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const { event } = route.params
   const [references, setReferences] = useState<NostrEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { pool } = useContext(RelayContext)
+  const { pool, db } = useContext(RelayContext)
   const navigation = useNavigation()
   const subRef = useRef<{ unsub: () => void } | null>(null)
-  const dbRef = useRef<Awaited<ReturnType<typeof connectDb>> | null>(null)
-  const [isDbReady, setIsDbReady] = useState(false)
 
-  // Initialize database connection
-  useEffect(() => {
-    let mounted = true
-
-    const initDb = async () => {
-      try {
-        console.log("Initializing database connection...")
-        const db = await connectDb()
-        if (!mounted) return
-        
-        dbRef.current = db
-        setIsDbReady(true)
-        console.log("Database connection initialized and ready")
-      } catch (error) {
-        console.error("Failed to initialize database:", error)
-        if (!mounted) return
-        setIsDbReady(false)
-      }
-    }
-
-    initDb()
-
-    return () => {
-      mounted = false
-    }
-  }, [])
-
-  // Load references from DB when database is ready
+  // Load references from DB
   const loadReferences = useCallback(async () => {
-    if (!dbRef.current || !isDbReady) {
-      console.log("Database not ready for loading references")
+    if (!db) {
+      console.log("[References] Database not available")
       return
     }
 
     try {
-      console.log("Loading references for event:", event.id)
+      console.log("[References] Loading references for event:", event.id)
       const filter = [{
         kinds: [6050, 7000],
         "#e": [event.id],
       }]
       
-      const events = await dbRef.current.list(filter)
-      console.log(`Found ${events.length} references in database`)
+      const events = await db.list(filter)
+      console.log(`[References] Found ${events.length} references in database`)
       
       if (events.length > 0) {
         setReferences(events.sort((a, b) => b.created_at - a.created_at))
       }
     } catch (error) {
-      console.error("Failed to load references from DB:", error)
+      console.error("[References] Failed to load references from DB:", error)
     } finally {
       setIsLoading(false)
     }
-  }, [event.id, isDbReady])
+  }, [event.id, db])
 
-  // Load references when database is ready
+  // Load references when component mounts
   useEffect(() => {
-    if (isDbReady) {
-      loadReferences()
-    }
-  }, [isDbReady, loadReferences])
+    loadReferences()
+  }, [loadReferences])
 
   // Subscribe to new references
   useEffect(() => {
-    if (!pool || !isDbReady || !dbRef.current) {
-      console.log("Not ready for subscription:", {
+    if (!pool || !db) {
+      console.log("[References] Not ready for subscription:", {
         hasPool: !!pool,
-        isDbReady,
-        hasDb: !!dbRef.current
+        hasDb: !!db
       })
       return
     }
 
-    console.log("Setting up subscription for event:", event.id)
+    console.log("[References] Setting up subscription for event:", event.id)
     const sub = pool.sub(
       [
         {
@@ -108,36 +75,36 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
         },
       ],
       async (referenceEvent) => {
-        console.log("Received new reference event:", referenceEvent.id)
+        console.log("[References] Received new reference event:", referenceEvent.id)
         try {
-          await dbRef.current.saveEventSync(referenceEvent)
-          console.log("Saved reference event to database:", referenceEvent.id)
+          await db.saveEventSync(referenceEvent)
+          console.log("[References] Saved reference event to database:", referenceEvent.id)
 
           setReferences((prev) => {
             if (prev.some((e) => e.id === referenceEvent.id)) {
-              console.log("Event already exists in state:", referenceEvent.id)
+              console.log("[References] Event already exists in state:", referenceEvent.id)
               return prev
             }
-            console.log("Adding new event to state:", referenceEvent.id)
+            console.log("[References] Adding new event to state:", referenceEvent.id)
             return [...prev, referenceEvent].sort((a, b) => b.created_at - a.created_at)
           })
         } catch (error) {
-          console.error("Failed to save event to DB:", error)
+          console.error("[References] Failed to save event to DB:", error)
         }
       }
     )
 
     subRef.current = sub
-    console.log("Subscription set up successfully")
+    console.log("[References] Subscription set up successfully")
 
     return () => {
-      console.log("Cleaning up subscription")
+      console.log("[References] Cleaning up subscription")
       if (subRef.current) {
         subRef.current.unsub()
         subRef.current = null
       }
     }
-  }, [event.id, pool, isDbReady])
+  }, [event.id, pool, db])
 
   const renderReference = ({ item }: { item: NostrEvent }) => {
     const status = item.kind === 7000 
