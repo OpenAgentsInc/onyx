@@ -167,19 +167,13 @@ export function Header(props: HeaderProps) {
     rightTx,
     rightTxOptions,
     safeAreaEdges = ["top"],
-    title,
     titleMode = "center",
-    titleTx,
-    titleTxOptions,
     titleContainerStyle: $titleContainerStyleOverride,
     style: $styleOverride,
-    titleStyle: $titleStyleOverride,
     containerStyle: $containerStyleOverride,
   } = props
 
   const $containerInsets = useSafeAreaInsetsStyle(safeAreaEdges)
-
-  const titleContent = titleTx ? translate(titleTx, titleTxOptions) : title
 
   return (
     <View style={[$container, $containerInsets, { backgroundColor }, $containerStyleOverride]}>
@@ -195,23 +189,16 @@ export function Header(props: HeaderProps) {
           ActionComponent={LeftActionComponent}
         />
 
-        {!!titleContent && (
-          <View
-            style={[
-              titleMode === "center" && themed($titleWrapperCenter),
-              titleMode === "flex" && $titleWrapperFlex,
-              $titleContainerStyleOverride,
-            ]}
-            pointerEvents="none"
-          >
-            <Text
-              weight="medium"
-              size="md"
-              text={titleContent}
-              style={[$title, $titleStyleOverride]}
-            />
-          </View>
-        )}
+        <View
+          style={[
+            titleMode === "center" && themed($titleWrapperCenter),
+            titleMode === "flex" && $titleWrapperFlex,
+            $titleContainerStyleOverride,
+          ]}
+          pointerEvents="none"
+        >
+          <Icon icon="appIcon" size={32} />
+        </View>
 
         <HeaderAction
           tx={rightTx}
