@@ -1,5 +1,7 @@
 import React, { memo, ReactElement, useMemo } from "react"
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native"
+import { typography } from "@/theme"
+import { colors } from "@/theme/colorsDark"
 import { Text } from "./Text"
 
 export enum EUnit {
@@ -88,9 +90,12 @@ const Money = (props: MoneyProps): ReactElement => {
 
   const symbol = useMemo(() => {
     const style = {
+      marginTop: -4,
       marginRight: 5, // iconMargin,
-      // cap symbol font weight to ExtraBold for display size
-      ...(size === 'display' ? { fontFamily: 'InterTight-ExtraBold' } : {}),
+      fontSize: 30,
+      lineHeight: 40,
+      color: colors.palette.accent100,
+      fontFamily: typography.secondary.bold,
     };
 
     return (
@@ -150,6 +155,7 @@ const Money = (props: MoneyProps): ReactElement => {
       {showSymbol && symbol}
       <Text
         // color={color}
+        style={styles.balance}
         testID="MoneyText">
         {text}
       </Text>
@@ -165,6 +171,11 @@ const styles = StyleSheet.create({
   sign: {
     marginRight: 3,
   },
+  balance: {
+    fontSize: 34,
+    lineHeight: 40,
+    fontFamily: typography.secondary.bold,
+  }
 });
 
 export default memo(Money);
