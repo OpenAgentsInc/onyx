@@ -1,19 +1,10 @@
-import { 
-  defaultConfig, 
-  connect, 
-  disconnect, 
-  getInfo, 
-  LiquidNetwork, 
-  parse, 
-  InputTypeVariant, 
-  prepareLnurlPay, 
-  lnurlPay,
-  receivePayment,
-  prepareReceivePayment,
-  PaymentMethod
-} from '@breeztech/react-native-breez-sdk-liquid'
-import * as FileSystem from 'expo-file-system'
-import { BalanceInfo, BreezConfig, BreezService, Transaction } from './types'
+import * as FileSystem from "expo-file-system"
+import {
+  connect, defaultConfig, disconnect, getInfo, InputTypeVariant,
+  LiquidNetwork, lnurlPay, parse, PaymentMethod, prepareLnurlPay,
+  prepareReceivePayment, receivePayment
+} from "@breeztech/react-native-breez-sdk-liquid"
+import { BalanceInfo, BreezConfig, BreezService, Transaction } from "./types"
 
 // Helper function to convert file:// URL to path
 const fileUrlToPath = (fileUrl: string) => {
@@ -43,7 +34,7 @@ class BreezServiceImpl implements BreezService {
         // Use Expo's document directory which is guaranteed to be writable
         const workingDirUrl = `${FileSystem.documentDirectory}breez`
         const workingDir = fileUrlToPath(workingDirUrl)
-        
+
         // Create working directory if it doesn't exist
         const dirInfo = await FileSystem.getInfoAsync(workingDirUrl)
         if (!dirInfo.exists) {
@@ -70,13 +61,13 @@ class BreezServiceImpl implements BreezService {
           config.network === 'MAINNET' ? LiquidNetwork.MAINNET : LiquidNetwork.TESTNET,
           config.apiKey
         )
-        
+
         sdkConfig.workingDir = workingDir
 
         // Connect to the SDK and store the instance
-        this.sdk = await connect({ 
-          mnemonic: this.mnemonic, 
-          config: sdkConfig 
+        this.sdk = await connect({
+          mnemonic: this.mnemonic,
+          config: sdkConfig
         })
 
         // Only set initialized after successful connect
@@ -139,7 +130,7 @@ class BreezServiceImpl implements BreezService {
     try {
       // Try to parse the input as a Lightning Address or LNURL
       const parsedInput = await parse(input)
-      
+
       if (parsedInput.type === InputTypeVariant.LN_URL_PAY) {
         // Handle Lightning Address payment
         const amountMsat = amount * 1000 // Convert sats to msats
@@ -197,8 +188,8 @@ class BreezServiceImpl implements BreezService {
       const result = await receivePayment({
         prepareResponse
       })
-      
-      return result.bolt11
+
+      return result.destination
     } catch (err) {
       console.error('Error creating invoice:', err)
       throw err
