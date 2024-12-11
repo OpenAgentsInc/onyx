@@ -8,14 +8,15 @@ import { useStores } from "@/models"
 interface SendScreenProps extends AppStackScreenProps<"Send"> {}
 
 export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
-  const [bolt11, setBolt11] = useState("")
+  const [recipient, setRecipient] = useState("")
   const [amount, setAmount] = useState("")
   const [isSending, setIsSending] = useState(false)
+  const [fees, setFees] = useState<number | null>(null)
   const { walletStore } = useStores()
 
   const handleSend = async () => {
-    if (!bolt11.trim()) {
-      walletStore.setError("Please enter a payment invoice")
+    if (!recipient.trim()) {
+      walletStore.setError("Please enter a Lightning invoice or address")
       return
     }
 
@@ -27,10 +28,11 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
     setIsSending(true)
     try {
       const amountSats = Math.floor(Number(amount))
-      await walletStore.sendPayment(bolt11.trim(), amountSats)
+      await walletStore.sendPayment(recipient.trim(), amountSats)
       // Clear form on success
-      setBolt11("")
+      setRecipient("")
       setAmount("")
+      setFees(null)
     } catch (error) {
       console.error("Send error:", error)
     } finally {
@@ -43,10 +45,10 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
       <View style={$container}>
         <TextInput
           style={$input}
-          placeholder="Enter Lightning invoice..."
+          placeholder="Enter Lightning invoice or address..."
           placeholderTextColor="#666"
-          value={bolt11}
-          onChangeText={setBolt11}
+          value={recipient}
+          onChangeText={setRecipient}
           multiline={true}
           numberOfLines={3}
           autoCapitalize="none"
@@ -66,6 +68,12 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
           editable={!isSending}
         />
         
+        {fees !== null && (
+          <Text style={$feesText}>
+            Network fees: {fees} sats
+          </Text>
+        )}
+
         {walletStore.error ? (
           <Text style={$errorText}>{walletStore.error}</Text>
         ) : null}
@@ -137,4 +145,12 @@ const $errorText = {
   fontSize: 14,
   marginBottom: 12,
   textAlign: "center",
+}
+
+const $feesText = {
+  color: "#999",
+  fontSize: 14,
+  marginBottom: 12,
+  textAlign: "center",
+  fontFamily: "JetBrainsMono-Regular",
 }
