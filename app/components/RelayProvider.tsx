@@ -11,17 +11,19 @@ import { DVMManager } from "@/services/nostr/dvm"
 import { ActivityIndicator, View } from "react-native"
 
 interface RelayContextType {
-  pool: NostrPool | null
-  channelManager: ChannelManager | null
-  contactManager: ContactManager | null
-  profileManager: ProfileManager | null
-  privMessageManager: PrivateMessageManager | null
-  dvmManager: DVMManager | null
-  isConnected: boolean
+  pool: NostrPool | null;
+  db: NostrDb | null;
+  channelManager: ChannelManager | null;
+  contactManager: ContactManager | null;
+  profileManager: ProfileManager | null;
+  privMessageManager: PrivateMessageManager | null;
+  dvmManager: DVMManager | null;
+  isConnected: boolean;
 }
 
 export const RelayContext = createContext<RelayContextType>({
   pool: null,
+  db: null,
   channelManager: null,
   contactManager: null,
   profileManager: null,
@@ -50,18 +52,25 @@ export const RelayProvider = observer(function RelayProvider({
 
   // Initialize database
   useEffect(() => {
+    let mounted = true
     const initDb = async () => {
       try {
         console.log("[DB] Opening database connection...")
         const database = await connectDb()
+        if (!mounted) return
         setDb(database)
         setIsDbReady(true)
         console.log("[DB] Database initialized successfully")
       } catch (error) {
         console.error("[DB] Failed to initialize database:", error)
+        if (!mounted) return
+        setIsDbReady(false)
       }
     }
     initDb()
+    return () => {
+      mounted = false
+    }
   }, [])
 
   // Derive Nostr keys when mnemonic is available
@@ -178,13 +187,14 @@ export const RelayProvider = observer(function RelayProvider({
 
   const contextValue = useMemo(() => ({
     pool,
+    db,
     channelManager,
     contactManager,
     profileManager,
     privMessageManager,
     dvmManager,
     isConnected
-  }), [pool, channelManager, contactManager, profileManager, 
+  }), [pool, db, channelManager, contactManager, profileManager, 
       privMessageManager, dvmManager, isConnected])
 
   // Debug logging
