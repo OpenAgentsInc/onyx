@@ -6,7 +6,6 @@ import { FeedEvent } from "../components/FeedCard"
 import { RelayContext } from "../components/RelayProvider"
 import { NostrEvent } from "../services/nostr/ident"
 import { useNavigation } from "@react-navigation/native"
-import { Header } from "../components/Header"
 
 interface EventReferencesScreenProps {
   route: {
@@ -23,21 +22,6 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const { pool, db } = useContext(RelayContext)
   const navigation = useNavigation()
   const subRef = useRef<{ unsub: () => void } | null>(null)
-
-  // Set header options
-  useEffect(() => {
-    navigation.setOptions({
-      header: () => (
-        <Header
-          title="Event References"
-          leftIcon="back"
-          onLeftPress={() => navigation.goBack()}
-          backgroundColor="#0a0a0c"
-          titleStyle={{ color: "#fafafa" }}
-        />
-      ),
-    })
-  }, [navigation])
 
   // Load references from DB
   const loadReferences = useCallback(async () => {
