@@ -19,26 +19,22 @@ const BalanceHeader = (): ReactElement => {
   } = walletStore
   return (
     <View style={styles.container}>
-      <Money sats={balanceSat} symbol={true} />
+      <View style={styles.balance}>
+        <Money sats={balanceSat} symbol={true} />
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
+    width: "100%",
     marginTop: 32,
     marginBottom: 24,
-    paddingHorizontal: 16,
-  },
-  label: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   balance: {
-    marginTop: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 
