@@ -79,10 +79,9 @@ export const WalletStoreModel = types
 
     const restoreWallet = flow(function* (mnemonic: string) {
       try {
-        // Validate and save mnemonic to secure storage
-        const saved = yield SecureStorageService.setMnemonic(mnemonic)
-        if (!saved) {
-          throw new Error("Failed to save mnemonic")
+        // First disconnect if we're initialized
+        if (breezService.isInitialized()) {
+          yield breezService.disconnect()
         }
 
         // Reset the store state
@@ -91,16 +90,36 @@ export const WalletStoreModel = types
         self.pendingSendSat = 0
         self.pendingReceiveSat = 0
         self.transactions.clear()
+        self.mnemonic = null
+
+        // Validate and save mnemonic to secure storage
+        const saved = yield SecureStorageService.setMnemonic(mnemonic)
+        if (!saved) {
+          throw new Error("Failed to save mnemonic")
+        }
+
+        // Set mnemonic in store
         self.mnemonic = mnemonic
 
         // Initialize with new mnemonic
-        yield initialize()
-
-        if (!self.isInitialized) {
-          throw new Error("Failed to initialize wallet with provided seed phrase")
+        const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
+        if (!breezApiKey) {
+          throw new Error("BREEZ_API_KEY not set")
         }
 
+        // Initialize breez with the new mnemonic
+        yield breezService.initialize({
+          workingDir: "",
+          apiKey: breezApiKey,
+          network: "MAINNET",
+          mnemonic: mnemonic,
+        })
+
+        self.isInitialized = true
         setError(null)
+
+        // Fetch initial balance
+        yield fetchBalanceInfo()
         return true
       } catch (error) {
         console.error("Failed to restore wallet:", error)
@@ -132,6 +151,7 @@ export const WalletStoreModel = types
 
       try {
         const info = yield breezService.getBalance()
+        console.log("Balance info:", info)
         self.balanceSat = info.balanceSat
         self.pendingSendSat = info.pendingSendSat
         self.pendingReceiveSat = info.pendingReceiveSat
