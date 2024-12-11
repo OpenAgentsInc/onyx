@@ -1,5 +1,5 @@
 import React, { FC, useContext, useEffect, useState, useRef } from "react"
-import { View, ViewStyle, FlatList, TouchableOpacity } from "react-native"
+import { View, ViewStyle, FlatList, TouchableOpacity, ActivityIndicator } from "react-native"
 import { Text } from "../components/Text"
 import { Card } from "../components/Card"
 import { FeedEvent } from "../components/FeedCard"
@@ -20,27 +20,51 @@ interface EventReferencesScreenProps {
 export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route }) => {
   const { event } = route.params
   const [references, setReferences] = useState<NostrEvent[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const { pool } = useContext(RelayContext)
   const navigation = useNavigation()
   const subRef = useRef<{ unsub: () => void } | null>(null)
+  const dbRef = useRef<Awaited<ReturnType<typeof connectDb>> | null>(null)
+
+  // Initialize database connection
+  useEffect(() => {
+    const initDb = async () => {
+      try {
+        console.log("Initializing database connection...")
+        dbRef.current = await connectDb()
+        console.log("Database connection initialized")
+      } catch (error) {
+        console.error("Failed to initialize database:", error)
+      }
+    }
+    initDb()
+  }, [])
 
   // Load existing references from DB
   useEffect(() => {
     const loadFromDb = async () => {
+      if (!dbRef.current) {
+        console.log("Waiting for database connection...")
+        return
+      }
+
       try {
+        console.log("Loading references for event:", event.id)
         // Query both result and feedback events that reference our event
         const filter = [{
           kinds: [6050, 7000],
           "#e": [event.id],
         }]
         
-        const db = await connectDb()
-        const events = await db.list(filter)
+        const events = await dbRef.current.list(filter)
+        console.log(`Found ${events.length} references in database`)
         if (events.length > 0) {
           setReferences(events.sort((a, b) => b.created_at - a.created_at))
         }
       } catch (error) {
         console.error("Failed to load references from DB:", error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -49,8 +73,15 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
 
   // Subscribe to new references
   useEffect(() => {
-    if (!pool) return
+    if (!pool || !dbRef.current) {
+      console.log("Waiting for pool and database:", {
+        hasPool: !!pool,
+        hasDb: !!dbRef.current
+      })
+      return
+    }
 
+    console.log("Setting up subscription for event:", event.id)
     // Subscribe to both results (6050) and feedback (7000)
     const sub = pool.sub(
       [
@@ -60,30 +91,35 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
         },
       ],
       async (referenceEvent) => {
+        console.log("Received new reference event:", referenceEvent.id)
         // Save to DB first
         try {
-          const db = await connectDb()
-          await db.saveEventSync(referenceEvent)
+          await dbRef.current.saveEventSync(referenceEvent)
+          console.log("Saved reference event to database:", referenceEvent.id)
+
+          // Update state
+          setReferences((prev) => {
+            // Check if event already exists
+            if (prev.some((e) => e.id === referenceEvent.id)) {
+              console.log("Event already exists in state:", referenceEvent.id)
+              return prev
+            }
+            // Sort by created_at with newest first
+            console.log("Adding new event to state:", referenceEvent.id)
+            return [...prev, referenceEvent].sort((a, b) => b.created_at - a.created_at)
+          })
         } catch (error) {
           console.error("Failed to save event to DB:", error)
         }
-
-        // Update state
-        setReferences((prev) => {
-          // Check if event already exists
-          if (prev.some((e) => e.id === referenceEvent.id)) {
-            return prev
-          }
-          // Sort by created_at with newest first
-          return [...prev, referenceEvent].sort((a, b) => b.created_at - a.created_at)
-        })
       }
     )
 
     // Store subscription in ref
     subRef.current = sub
+    console.log("Subscription set up successfully")
 
     return () => {
+      console.log("Cleaning up subscription")
       if (subRef.current) {
         subRef.current.unsub()
         subRef.current = null
@@ -145,6 +181,18 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
             <Text preset="subheading" text="Responses & Updates" style={$subheading} />
           </View>
         }
+        ListEmptyComponent={
+          isLoading ? (
+            <View style={$loadingContainer}>
+              <ActivityIndicator size="large" color="#ffffff" />
+            </View>
+          ) : (
+            <Text 
+              text="No references found" 
+              style={[$description, $emptyText]} 
+            />
+          )
+        }
         data={references}
         renderItem={renderReference}
         keyExtractor={(item) => item.id}
@@ -175,6 +223,7 @@ const $backButton: ViewStyle = {
 const $listContent: ViewStyle = {
   paddingHorizontal: 16,
   paddingBottom: 16,
+  minHeight: '100%',
 }
 
 const $originalCard: ViewStyle = {
@@ -224,4 +273,16 @@ const $description = {
 const $footer = {
   color: "#fafafa",
   fontSize: 12,
+}
+
+const $loadingContainer: ViewStyle = {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingVertical: 32,
+}
+
+const $emptyText = {
+  textAlign: 'center',
+  marginTop: 32,
 }
