@@ -33,11 +33,9 @@ export class NostrDb implements NostrDbInterface {
         this.db = await open({
           name: 'onyx.db',
           location: 'default',
-          // Disable WAL mode as it might be causing issues
           enableWAL: false,
         });
         
-        // Create tables with explicit types and constraints
         await this.db.execute(`
           create table if not exists posts (
             id text not null primary key,
@@ -57,12 +55,6 @@ export class NostrDb implements NostrDbInterface {
           create index if not exists idx_posts_p1 on posts(p1);
           create index if not exists idx_posts_created_at on posts(created_at);
         `);
-
-        // Verify table exists and schema
-        const tables = await this.db.execute(
-          "SELECT sql FROM sqlite_master WHERE type='table' AND name='posts'"
-        );
-        console.log("[DB] Table schema:", tables?.rows?._array);
 
         console.log("[DB] Database schema initialized");
       } catch (error) {
@@ -199,26 +191,15 @@ export class NostrDb implements NostrDbInterface {
     this.queue = new Map();
     
     try {
-      // Start a transaction for batch insert
       await this.db.transaction(async (tx) => {
         for (const ev of q) {
           const [sql, args] = this.eventSql(ev);
           await tx.execute(sql, args);
-          // Verify each save within the transaction
-          const verifyResult = await tx.execute(
-            "SELECT id FROM posts WHERE id = ?", 
-            [ev.id]
-          );
-          const saved = verifyResult?.rows?._array?.length > 0;
-          if (!saved) {
-            throw new Error(`Failed to save event: ${ev.id}`);
-          }
         }
       });
       console.log(`[DB] Successfully flushed ${q.length} events to database`);
     } catch (error) {
       console.error("[DB] Error flushing events to database:", error);
-      // Put events back in queue if save failed
       q.forEach(ev => this.queue.set(ev.id, ev));
       throw error;
     }
@@ -230,20 +211,7 @@ export class NostrDb implements NostrDbInterface {
     await this.open();
     if (this.db) {
       try {
-        // Use transaction for atomic operation
-        await this.db.transaction(async (tx) => {
-          await tx.execute(sql, args);
-          // Verify the save within the same transaction
-          const verifyResult = await tx.execute(
-            "SELECT id FROM posts WHERE id = ?", 
-            [ev.id]
-          );
-          const saved = verifyResult?.rows?._array?.length > 0;
-          if (!saved) {
-            throw new Error("Save verification failed");
-          }
-          console.log("[DB] Event save verified:", saved);
-        });
+        await this.db.execute(sql, args);
         console.log("[DB] Event saved successfully:", ev.id);
       } catch (error) {
         console.error("[DB] Error saving event:", ev.id, error);
