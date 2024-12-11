@@ -1,7 +1,9 @@
-import { defaultConfig, connect, disconnect, getInfo, LiquidNetwork } from '@breeztech/react-native-breez-sdk-liquid'
-import * as FileSystem from 'expo-file-system'
-import { BalanceInfo, BreezConfig, BreezService, Transaction } from './types'
-import { SecureStorageService } from '../storage/secureStorage'
+import * as FileSystem from "expo-file-system"
+import {
+  connect, defaultConfig, disconnect, getInfo, LiquidNetwork
+} from "@breeztech/react-native-breez-sdk-liquid"
+import { SecureStorageService } from "../storage/secureStorage"
+import { BalanceInfo, BreezConfig, BreezService, Transaction } from "./types"
 
 // Helper function to convert file:// URL to path
 const fileUrlToPath = (fileUrl: string) => {
@@ -31,7 +33,7 @@ class BreezServiceImpl implements BreezService {
         // Use Expo's document directory which is guaranteed to be writable
         const workingDirUrl = `${FileSystem.documentDirectory}breez`
         const workingDir = fileUrlToPath(workingDirUrl)
-        
+
         // Create working directory if it doesn't exist
         const dirInfo = await FileSystem.getInfoAsync(workingDirUrl)
         if (!dirInfo.exists) {
@@ -63,19 +65,19 @@ class BreezServiceImpl implements BreezService {
           config.network === 'MAINNET' ? LiquidNetwork.MAINNET : LiquidNetwork.TESTNET,
           config.apiKey
         )
-        
+
         sdkConfig.workingDir = workingDir
 
         // Connect to the SDK and store the instance
-        this.sdk = await connect({ 
-          mnemonic: currentMnemonic, 
-          config: sdkConfig 
+        this.sdk = await connect({
+          mnemonic: currentMnemonic,
+          config: sdkConfig
         })
 
         // Only set initialized after successful connect
         this.isInitializedFlag = true
 
-        console.log('Breez SDK initialized successfully')
+        console.log('Breez SDK initialized successfully with mnemonic', currentMnemonic)
       } catch (err) {
         console.error('Breez initialization error:', err)
         this.isInitializedFlag = false

@@ -114,7 +114,7 @@ export const RelayProvider = observer(function RelayProvider({
       return
     }
 
-    console.log("[Pool] Initializing with db and identity")
+    // console.log("[Pool] Initializing with db and identity")
     const newPool = new NostrPool(ident, db, { skipVerification: true })
     setPool(newPool)
     setIsInitializing(false)
@@ -123,15 +123,15 @@ export const RelayProvider = observer(function RelayProvider({
   // Initialize relays when pool is ready
   useEffect(() => {
     if (!pool || !getRelays || !ident) {
-      console.log("[Relay] Waiting for connection:", {
-        hasPool: !!pool,
-        hasRelays: !!getRelays,
-        hasIdent: !!ident
-      })
+      // console.log("[Relay] Waiting for connection:", {
+      //   hasPool: !!pool,
+      //   hasRelays: !!getRelays,
+      //   hasIdent: !!ident
+      // })
       return
     }
 
-    console.log("[Relay] Setting up connection with relays:", getRelays)
+    // console.log("[Relay] Setting up connection with relays:", getRelays)
     pool.ident = ident
 
     const initRelays = async () => {
@@ -157,31 +157,31 @@ export const RelayProvider = observer(function RelayProvider({
   // Initialize managers only when pool is ready
   const channelManager = useMemo(() => {
     if (!pool) return null
-    console.log("[Manager] Initializing channel manager")
+    // console.log("[Manager] Initializing channel manager")
     return new ChannelManager(pool)
   }, [pool])
 
   const contactManager = useMemo(() => {
     if (!pool) return null
-    console.log("[Manager] Initializing contact manager")
+    // console.log("[Manager] Initializing contact manager")
     return new ContactManager(pool)
   }, [pool])
 
   const profileManager = useMemo(() => {
     if (!pool) return null
-    console.log("[Manager] Initializing profile manager")
+    // console.log("[Manager] Initializing profile manager")
     return new ProfileManager(pool)
   }, [pool])
 
   const privMessageManager = useMemo(() => {
     if (!pool) return null
-    console.log("[Manager] Initializing private message manager")
+    // console.log("[Manager] Initializing private message manager")
     return new PrivateMessageManager(pool)
   }, [pool])
 
   const dvmManager = useMemo(() => {
     if (!pool) return null
-    console.log("[Manager] Initializing DVM manager")
+    // console.log("[Manager] Initializing DVM manager")
     return new DVMManager(pool)
   }, [pool])
 
@@ -198,18 +198,18 @@ export const RelayProvider = observer(function RelayProvider({
     privMessageManager, dvmManager, isConnected])
 
   // Debug logging
-  useEffect(() => {
-    console.log("[Provider] State:", {
-      isDbReady,
-      hasPool: !!pool,
-      isConnected,
-      hasIdent: !!ident,
-      hasKeys: !!nostrKeys,
-      isInitialized,
-      hasMnemonic: !!mnemonic,
-      relayCount: getRelays?.length
-    })
-  }, [isDbReady, pool, isConnected, ident, nostrKeys, isInitialized, mnemonic, getRelays])
+  // useEffect(() => {
+  //   console.log("[Provider] State:", {
+  //     isDbReady,
+  //     hasPool: !!pool,
+  //     isConnected,
+  //     hasIdent: !!ident,
+  //     hasKeys: !!nostrKeys,
+  //     isInitialized,
+  //     hasMnemonic: !!mnemonic,
+  //     relayCount: getRelays?.length
+  //   })
+  // }, [isDbReady, pool, isConnected, ident, nostrKeys, isInitialized, mnemonic, getRelays])
 
   // if (!isInitialized) {
   //   console.log("[Provider] Waiting for wallet initialization...")
