@@ -1,14 +1,14 @@
 import { useStores } from "app/models"
 import { observer } from "mobx-react-lite"
 import React, { createContext, useEffect, useMemo, useState } from "react"
+import { ActivityIndicator, View } from "react-native"
 import {
-  ChannelManager, connectDb, NostrDb, NostrIdentity, NostrPool,
-  PrivateMessageManager, nostr
+  ChannelManager, connectDb, nostr, NostrDb, NostrIdentity, NostrPool,
+  PrivateMessageManager
 } from "@/services/nostr"
 import { ContactManager } from "@/services/nostr/contacts"
-import { ProfileManager } from "@/services/nostr/profile"
 import { DVMManager } from "@/services/nostr/dvm"
-import { ActivityIndicator, View } from "react-native"
+import { ProfileManager } from "@/services/nostr/profile"
 
 interface RelayContextType {
   pool: NostrPool | null;
@@ -194,8 +194,8 @@ export const RelayProvider = observer(function RelayProvider({
     privMessageManager,
     dvmManager,
     isConnected
-  }), [pool, db, channelManager, contactManager, profileManager, 
-      privMessageManager, dvmManager, isConnected])
+  }), [pool, db, channelManager, contactManager, profileManager,
+    privMessageManager, dvmManager, isConnected])
 
   // Debug logging
   useEffect(() => {
@@ -211,23 +211,23 @@ export const RelayProvider = observer(function RelayProvider({
     })
   }, [isDbReady, pool, isConnected, ident, nostrKeys, isInitialized, mnemonic, getRelays])
 
-  if (!isInitialized) {
-    console.log("[Provider] Waiting for wallet initialization...")
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000' }}>
-        <ActivityIndicator size="large" color="#ffffff" />
-      </View>
-    )
-  }
+  // if (!isInitialized) {
+  //   console.log("[Provider] Waiting for wallet initialization...")
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000' }}>
+  //       <ActivityIndicator size="large" color="#ffffff" />
+  //     </View>
+  //   )
+  // }
 
-  if (isInitializing || !isDbReady || !db) {
-    console.log("[Provider] Waiting for database initialization...")
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000' }}>
-        <ActivityIndicator size="large" color="#ffffff" />
-      </View>
-    )
-  }
+  // if (isInitializing || !isDbReady || !db) {
+  //   console.log("[Provider] Waiting for database initialization...")
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000' }}>
+  //       <ActivityIndicator size="large" color="#ffffff" />
+  //     </View>
+  //   )
+  // }
 
   return (
     <RelayContext.Provider value={contextValue}>
