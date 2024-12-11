@@ -1,24 +1,21 @@
 import { observer } from "mobx-react-lite"
 import { ComponentProps } from "react"
+import { Header } from "@/components"
 import * as Screens from "@/screens"
 import { useAppTheme, useThemeProvider } from "@/utils/useAppTheme"
 import {
-  NavigationContainer,
-  NavigationContainerRef,
-  NavigatorScreenParams,
-  ParamListBase,
+  NavigationContainer, NavigationContainerRef, NavigatorScreenParams,
+  ParamListBase
 } from "@react-navigation/native"
 import {
-  createNativeStackNavigator,
-  NativeStackScreenProps,
+  createNativeStackNavigator, NativeStackScreenProps
 } from "@react-navigation/native-stack"
+import { FeedEvent } from "../components/FeedCard"
 import Config from "../config"
 import { useStores } from "../models"
+import { EventReferencesScreen } from "../screens/EventReferencesScreen"
 import { MainNavigator, MainTabParamList } from "./MainNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
-import { EventReferencesScreen } from "../screens/EventReferencesScreen"
-import { FeedEvent } from "../components/FeedCard"
-import { Header } from "@/components"
 
 export type AppStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>
@@ -61,14 +58,14 @@ const AppStack = observer(function AppStack() {
       <Stack.Screen name="Login" component={Screens.LoginScreen} />
       <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
       <Stack.Screen name="Chat" component={Screens.ChatScreen} />
-      <Stack.Screen 
-        name="EventReferences" 
+      <Stack.Screen
+        name="EventReferences"
         component={EventReferencesScreen}
         options={{
           headerShown: true,
           header: ({ navigation }) => (
             <Header
-              title="Event References"
+              title="Job Request"
               leftIcon="back"
               onLeftPress={() => navigation.goBack()}
               backgroundColor="#0a0a0c"

@@ -1,11 +1,13 @@
-import React, { FC, useContext, useEffect, useState, useRef, useCallback } from "react"
-import { View, ViewStyle, FlatList, ActivityIndicator } from "react-native"
-import { Text } from "../components/Text"
+import React, {
+  FC, useCallback, useContext, useEffect, useRef, useState
+} from "react"
+import { ActivityIndicator, FlatList, View, ViewStyle } from "react-native"
+import { useNavigation } from "@react-navigation/native"
 import { Card } from "../components/Card"
 import { FeedEvent } from "../components/FeedCard"
 import { RelayContext } from "../components/RelayProvider"
+import { Text } from "../components/Text"
 import { NostrEvent } from "../services/nostr/ident"
-import { useNavigation } from "@react-navigation/native"
 
 interface EventReferencesScreenProps {
   route: {
@@ -36,10 +38,10 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
         kinds: [6050, 7000],
         "#e": [event.id],
       }]
-      
+
       const events = await db.list(filter)
       console.log(`[References] Found ${events.length} references in database`)
-      
+
       if (events.length > 0) {
         setReferences(events.sort((a, b) => b.created_at - a.created_at))
       }
@@ -106,8 +108,8 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   }, [event.id, pool, db])
 
   const renderReference = ({ item }: { item: NostrEvent }) => {
-    const status = item.kind === 7000 
-      ? item.tags.find(t => t[0] === 'status')?.[1] 
+    const status = item.kind === 7000
+      ? item.tags.find(t => t[0] === 'status')?.[1]
       : null
 
     let content = item.content
@@ -143,7 +145,7 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
               heading={event.title}
               content={event.description}
               style={$originalCard}
-              contentContainerStyle={$cardContent}
+              // contentContainerStyle={$cardContent}
               headingStyle={$heading}
               contentStyle={$description}
             />
@@ -154,15 +156,15 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
           isLoading ? (
             <View style={$loadingContainer}>
               <ActivityIndicator size="large" color="#ffffff" />
-              <Text 
-                text="Loading references..." 
-                style={[$description, $emptyText]} 
+              <Text
+                text="Loading references..."
+                style={[$description, $emptyText]}
               />
             </View>
           ) : (
-            <Text 
-              text="No references found" 
-              style={[$description, $emptyText]} 
+            <Text
+              text="No references found"
+              style={[$description, $emptyText]}
             />
           )
         }

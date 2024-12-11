@@ -33,7 +33,7 @@ export const DVMButton = () => {
         kind: 5050,
         content: "",
         tags: [
-          ["i", "Write a haiku about artificial intelligence", "prompt"],
+          ["i", "Write a haiku about cats", "prompt"],
           ["param", "max_tokens", "300"],
           ["output", "text/plain"]
         ],
