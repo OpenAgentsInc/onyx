@@ -2,6 +2,7 @@ import Constants from "expo-constants"
 import { flow, Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 import { breezService, Transaction } from "../services/breez"
 import { withSetPropAction } from "./helpers/withSetPropAction"
+import { SecureStorageService } from "../services/storage/secureStorage"
 
 const TransactionModel = types.model("Transaction", {
   id: types.string,
@@ -13,9 +14,6 @@ const TransactionModel = types.model("Transaction", {
   paymentHash: types.maybe(types.string),
   fee: types.maybe(types.number),
 })
-
-// Default mnemonic for development - DO NOT USE IN PRODUCTION
-const DEV_MNEMONIC = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
 
 export const WalletStoreModel = types
   .model("WalletStore")
@@ -34,15 +32,23 @@ export const WalletStoreModel = types
       self.error = message
     }
 
-    const initialize = flow(function* (customMnemonic?: string) {
+    const initialize = flow(function* () {
       try {
-        const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
+        // Get mnemonic from secure storage if not in store
+        if (!self.mnemonic) {
+          const storedMnemonic = yield SecureStorageService.getMnemonic()
+          if (storedMnemonic) {
+            self.mnemonic = storedMnemonic
+          } else {
+            const newMnemonic = yield SecureStorageService.generateMnemonic()
+            self.mnemonic = newMnemonic
+          }
+        }
 
-        // For development, proceed without Breez initialization if API key is missing
+        const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
         if (!breezApiKey) {
           console.warn("BREEZ_API_KEY not set - using development mode")
           self.isInitialized = true
-          self.mnemonic = customMnemonic || DEV_MNEMONIC
           return
         }
 
@@ -51,40 +57,44 @@ export const WalletStoreModel = types
           yield breezService.disconnect()
         }
 
+        // Initialize breez with the mnemonic
         yield breezService.initialize({
           workingDir: "", // This is handled internally by the service
           apiKey: breezApiKey,
           network: "MAINNET",
+          mnemonic: self.mnemonic,
         })
+
         self.isInitialized = true
         setError(null)
 
-        // Store the mnemonic
-        const mnemonic = yield breezService.getMnemonic()
-        self.mnemonic = mnemonic
-
-        // Now that we're initialized, fetch the initial balance
+        // Fetch initial balance
         yield fetchBalanceInfo()
       } catch (error) {
         console.error("Failed to initialize wallet:", error)
-        // For development, proceed with default mnemonic on error
-        console.warn("Using development mnemonic after initialization error")
-        self.isInitialized = true
-        self.mnemonic = customMnemonic || DEV_MNEMONIC
+        setError(error instanceof Error ? error.message : "Failed to initialize wallet")
+        throw error
       }
     })
 
     const restoreWallet = flow(function* (mnemonic: string) {
       try {
+        // Validate and save mnemonic to secure storage
+        const saved = yield SecureStorageService.setMnemonic(mnemonic)
+        if (!saved) {
+          throw new Error("Failed to save mnemonic")
+        }
+
         // Reset the store state
         self.isInitialized = false
         self.balanceSat = 0
         self.pendingSendSat = 0
         self.pendingReceiveSat = 0
         self.transactions.clear()
+        self.mnemonic = mnemonic
 
         // Initialize with new mnemonic
-        yield initialize(mnemonic)
+        yield initialize()
 
         if (!self.isInitialized) {
           throw new Error("Failed to initialize wallet with provided seed phrase")
@@ -104,6 +114,7 @@ export const WalletStoreModel = types
         if (breezService.isInitialized()) {
           yield breezService.disconnect()
         }
+        yield SecureStorageService.deleteMnemonic()
         self.isInitialized = false
         self.mnemonic = null
         setError(null)
@@ -114,20 +125,13 @@ export const WalletStoreModel = types
     })
 
     const fetchBalanceInfo = flow(function* () {
-      // Skip if we're in development mode without Breez
-      if (!Constants.expoConfig?.extra?.BREEZ_API_KEY) {
-        return
-      }
-
-      // Don't try to fetch if we're not initialized
-      if (!breezService.isInitialized()) {
-        console.log("Skipping balance fetch - not initialized yet")
+      if (!self.isInitialized || !breezService.isInitialized()) {
+        console.log("Skipping balance fetch - not initialized")
         return
       }
 
       try {
         const info = yield breezService.getBalance()
-        console.log("IFNO:", info)
         self.balanceSat = info.balanceSat
         self.pendingSendSat = info.pendingSendSat
         self.pendingReceiveSat = info.pendingReceiveSat
@@ -139,14 +143,8 @@ export const WalletStoreModel = types
     })
 
     const fetchTransactions = flow(function* () {
-      // Skip if we're in development mode without Breez
-      if (!Constants.expoConfig?.extra?.BREEZ_API_KEY) {
-        return
-      }
-
-      // Don't try to fetch if we're not initialized
-      if (!breezService.isInitialized()) {
-        console.log("Skipping transactions fetch - not initialized yet")
+      if (!self.isInitialized || !breezService.isInitialized()) {
+        console.log("Skipping transactions fetch - not initialized")
         return
       }
 
@@ -224,7 +222,6 @@ export interface WalletStore extends Instance<typeof WalletStoreModel> { }
 export interface WalletStoreSnapshotOut extends SnapshotOut<typeof WalletStoreModel> { }
 export interface WalletStoreSnapshotIn extends SnapshotIn<typeof WalletStoreModel> { }
 
-// The singleton instance of the WalletStore
 export const createWalletStoreDefaultModel = () =>
   WalletStoreModel.create({
     isInitialized: false,
