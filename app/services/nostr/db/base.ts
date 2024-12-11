@@ -1,7 +1,7 @@
 import { Filter } from "nostr-tools"
 import { NostrEvent } from "../ident"
 import { NostrDb as NostrDbInterface } from "./"
-import { open } from '@op-engineering/op-sqlite';
+import * as SQLite from 'expo-sqlite';
 
 // Singleton instance
 let dbInstance: NostrDb | null = null;
@@ -9,7 +9,7 @@ let dbInstance: NostrDb | null = null;
 export class NostrDb implements NostrDbInterface {
   queue: Map<string, NostrEvent>;
   timer: NodeJS.Timeout | null;
-  db: any | null;
+  db: SQLite.SQLiteDatabase | null;
 
   private constructor() {
     this.queue = new Map();
@@ -30,17 +30,13 @@ export class NostrDb implements NostrDbInterface {
       try {
         console.log("[DB] Opening database connection...");
         
-        this.db = await open({
-          name: 'onyx.db',
-          location: 'default',
-          enableWAL: false,
-        });
+        this.db = SQLite.openDatabaseSync('onyx.db');
 
         // Set pragmas for better performance
-        await this.db.execute('PRAGMA journal_mode = DELETE');
-        await this.db.execute('PRAGMA synchronous = NORMAL');
+        await this.db.execAsync('PRAGMA journal_mode = DELETE');
+        await this.db.execAsync('PRAGMA synchronous = NORMAL');
         
-        await this.db.execute(`
+        await this.db.execAsync(`
           create table if not exists posts (
             id text not null primary key,
             content text,
@@ -71,7 +67,7 @@ export class NostrDb implements NostrDbInterface {
   async reset() {
     await this.open();
     if (this.db) {
-      await this.db.execute("delete from posts");
+      await this.db.execAsync("delete from posts");
     }
   }
 
@@ -90,15 +86,15 @@ export class NostrDb implements NostrDbInterface {
     console.log("[DB] Executing SQL:", sql, "with args:", args);
     
     try {
-      const result = await this.db.execute(sql, args);
+      const result = await this.db.getAllAsync(sql, args);
       console.log("[DB] Raw result:", result);
       
-      if (!result?.rows?.length) {
+      if (!result?.length) {
         console.log("[DB] No rows found");
         return [];
       }
 
-      const records = result.rows;
+      const records = result;
       console.log(`[DB] Found ${records.length} records in database`);
 
       const processedRecords = records.map((ev: NostrEvent) => {
@@ -128,12 +124,11 @@ export class NostrDb implements NostrDbInterface {
     if (!this.db) throw new Error("Database not initialized");
 
     const [or, args] = this.filterToQuery(filter);
-    const result = await this.db.execute(
+    const result = await this.db.getFirstAsync<{max: number}>(
       `select max(created_at) as max from posts where ${or}`,
       args
     );
-    const records = result?.rows || [];
-    return records.length ? records[0].max : 0;
+    return result?.max || 0;
   }
 
   private filterToQuery(filter: Filter[]): [string, (string | number)[]] {
@@ -194,7 +189,7 @@ export class NostrDb implements NostrDbInterface {
     try {
       for (const ev of q) {
         const [sql, args] = this.eventSql(ev);
-        await this.db.execute(sql, args);
+        await this.db.runAsync(sql, args);
       }
       console.log(`[DB] Successfully flushed ${q.length} events to database`);
     } catch (error) {
@@ -210,7 +205,7 @@ export class NostrDb implements NostrDbInterface {
     await this.open();
     if (this.db) {
       try {
-        const result = await this.db.execute(sql, args);
+        const result = await this.db.runAsync(sql, args);
         console.log("[DB] Save result:", result);
         console.log("[DB] Event saved successfully:", ev.id);
       } catch (error) {
@@ -254,7 +249,7 @@ export class NostrDb implements NostrDbInterface {
   async close() {
     if (this.db) {
       try {
-        await this.db.close();
+        await this.db.closeAsync();
         this.db = null;
         console.log("[DB] Database connection closed");
       } catch (error) {
