@@ -15,16 +15,17 @@ const BalanceHeader = (): ReactElement => {
     fetchBalanceInfo
   } = walletStore
 
-  // Fetch balance on mount and every 30 seconds
+  // Fetch balance on mount and every 10 seconds
   useEffect(() => {
     if (isInitialized && !error) {
-      // Initial fetch
+      console.log("[BalanceHeader] Initial balance fetch")
       fetchBalanceInfo()
 
       // Set up periodic refresh
       const interval = setInterval(() => {
+        console.log("[BalanceHeader] Periodic balance fetch")
         fetchBalanceInfo()
-      }, 30000) // 30 seconds
+      }, 10000) // 10 seconds
 
       return () => clearInterval(interval)
     }
