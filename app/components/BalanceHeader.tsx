@@ -15,6 +15,8 @@ const BalanceHeader = (): ReactElement => {
     fetchBalanceInfo
   } = walletStore
 
+  console.log('balanceSat:', balanceSat)
+
   // Fetch balance on mount and every 30 seconds
   useEffect(() => {
     if (isInitialized && !error) {

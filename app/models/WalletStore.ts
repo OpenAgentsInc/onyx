@@ -127,6 +127,7 @@ export const WalletStoreModel = types
 
       try {
         const info = yield breezService.getBalance()
+        console.log("IFNO:", info)
         self.balanceSat = info.balanceSat
         self.pendingSendSat = info.pendingSendSat
         self.pendingReceiveSat = info.pendingReceiveSat
