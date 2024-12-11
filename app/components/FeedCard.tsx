@@ -1,9 +1,9 @@
 import { FC } from "react"
-import { Card } from "./Card"
-import { Text } from "./Text"
 import { View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { AppStackScreenProps } from "../navigators/AppNavigator"
+import { Card } from "./Card"
+import { Text } from "./Text"
 
 export interface FeedEvent {
   id: string
@@ -40,7 +40,7 @@ export const FeedCard: FC<FeedCardProps> = ({ event, onPress }) => {
       preset="reversed"
       heading={event.title}
       content={event.description}
-      footer={isNIP90 ? `${event.price} sats` : undefined}
+      // footer={isNIP90 ? `${event.price} sats` : undefined}
       style={$card}
       onPress={handlePress}
       RightComponent={
