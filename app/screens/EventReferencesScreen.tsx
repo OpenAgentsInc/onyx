@@ -33,6 +33,7 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
         <Header
           leftIcon="back"
           onLeftPress={() => navigation.goBack()}
+          LeftActionComponent={undefined}
         />
       ),
     })
