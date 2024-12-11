@@ -55,7 +55,6 @@ export const WalletStoreModel = types
           workingDir: "", // This is handled internally by the service
           apiKey: breezApiKey,
           network: "MAINNET",
-          mnemonic: customMnemonic, // Pass custom mnemonic if provided
         })
         self.isInitialized = true
         setError(null)
@@ -83,14 +82,14 @@ export const WalletStoreModel = types
         self.pendingSendSat = 0
         self.pendingReceiveSat = 0
         self.transactions.clear()
-        
+
         // Initialize with new mnemonic
         yield initialize(mnemonic)
-        
+
         if (!self.isInitialized) {
           throw new Error("Failed to initialize wallet with provided seed phrase")
         }
-        
+
         setError(null)
         return true
       } catch (error) {
