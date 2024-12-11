@@ -34,7 +34,7 @@ export const WalletStoreModel = types
       self.error = message
     }
 
-    const initialize = flow(function* () {
+    const initialize = flow(function* (customMnemonic?: string) {
       try {
         const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
 
@@ -42,14 +42,20 @@ export const WalletStoreModel = types
         if (!breezApiKey) {
           console.warn("BREEZ_API_KEY not set - using development mode")
           self.isInitialized = true
-          self.mnemonic = DEV_MNEMONIC
+          self.mnemonic = customMnemonic || DEV_MNEMONIC
           return
+        }
+
+        // If we were previously initialized, disconnect first
+        if (breezService.isInitialized()) {
+          yield breezService.disconnect()
         }
 
         yield breezService.initialize({
           workingDir: "", // This is handled internally by the service
           apiKey: breezApiKey,
           network: "MAINNET",
+          mnemonic: customMnemonic, // Pass custom mnemonic if provided
         })
         self.isInitialized = true
         setError(null)
@@ -65,7 +71,32 @@ export const WalletStoreModel = types
         // For development, proceed with default mnemonic on error
         console.warn("Using development mnemonic after initialization error")
         self.isInitialized = true
-        self.mnemonic = DEV_MNEMONIC
+        self.mnemonic = customMnemonic || DEV_MNEMONIC
+      }
+    })
+
+    const restoreWallet = flow(function* (mnemonic: string) {
+      try {
+        // Reset the store state
+        self.isInitialized = false
+        self.balanceSat = 0
+        self.pendingSendSat = 0
+        self.pendingReceiveSat = 0
+        self.transactions.clear()
+        
+        // Initialize with new mnemonic
+        yield initialize(mnemonic)
+        
+        if (!self.isInitialized) {
+          throw new Error("Failed to initialize wallet with provided seed phrase")
+        }
+        
+        setError(null)
+        return true
+      } catch (error) {
+        console.error("Failed to restore wallet:", error)
+        setError(error instanceof Error ? error.message : "Failed to restore wallet")
+        return false
       }
     })
 
@@ -167,6 +198,7 @@ export const WalletStoreModel = types
       setError,
       initialize,
       disconnect,
+      restoreWallet,
       fetchBalanceInfo,
       fetchTransactions,
       sendPayment,
