@@ -26,19 +26,6 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const navigation = useNavigation()
   const subRef = useRef<{ unsub: () => void } | null>(null)
 
-  // Set up header with back button
-  // useEffect(() => {
-  //   navigation.setOptions({
-  //     header: () => (
-  //       <Header
-  //         leftIcon="back"
-  //         onLeftPress={() => navigation.goBack()}
-  //         LeftActionComponent={undefined}
-  //       />
-  //     ),
-  //   })
-  // }, [navigation])
-
   // Load references from DB
   const loadReferences = useCallback(async () => {
     if (!db) {
@@ -83,12 +70,10 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
 
     console.log("[References] Setting up subscription for event:", event.id)
     const sub = pool.sub(
-      [
-        {
-          kinds: [6050, 7000],
-          "#e": [event.id],
-        },
-      ],
+      [{
+        kinds: [6050, 7000],
+        "#e": [event.id],
+      }],
       async (referenceEvent) => {
         console.log("[References] Received new reference event:", referenceEvent.id)
         try {
