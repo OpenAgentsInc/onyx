@@ -91,7 +91,14 @@ export class NostrDb implements NostrDbInterface {
     
     try {
       const result = await this.db.execute(sql, args);
-      const records = result?.rows?._array || [];
+      console.log("[DB] Raw result:", result);
+      
+      if (!result?.rows?.length) {
+        console.log("[DB] No rows found");
+        return [];
+      }
+
+      const records = result.rows;
       console.log(`[DB] Found ${records.length} records in database`);
 
       const processedRecords = records.map((ev: NostrEvent) => {
@@ -125,7 +132,7 @@ export class NostrDb implements NostrDbInterface {
       `select max(created_at) as max from posts where ${or}`,
       args
     );
-    const records = result?.rows?._array || [];
+    const records = result?.rows || [];
     return records.length ? records[0].max : 0;
   }
 
@@ -203,8 +210,8 @@ export class NostrDb implements NostrDbInterface {
     await this.open();
     if (this.db) {
       try {
-        // First try a direct insert
-        await this.db.execute(sql, args);
+        const result = await this.db.execute(sql, args);
+        console.log("[DB] Save result:", result);
         console.log("[DB] Event saved successfully:", ev.id);
       } catch (error) {
         console.error("[DB] Error saving event:", ev.id, error);
