@@ -1,19 +1,36 @@
 import { FC, useState } from "react"
 import { observer } from "mobx-react-lite" 
-import { ViewStyle, TextInput, TouchableOpacity, View } from "react-native"
+import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native"
 import { AppStackScreenProps } from "@/navigators"
 import { Screen, Text } from "@/components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "@/models" 
+import { useStores } from "@/models"
+import { useNavigation } from "@react-navigation/native"
 
 interface RestoreWalletScreenProps extends AppStackScreenProps<"RestoreWallet"> {}
 
 export const RestoreWalletScreen: FC<RestoreWalletScreenProps> = observer(function RestoreWalletScreen() {
   const [seedPhrase, setSeedPhrase] = useState("")
+  const [isRestoring, setIsRestoring] = useState(false)
+  const { walletStore } = useStores()
+  const navigation = useNavigation()
   
-  const handleRestore = () => {
-    // TODO: Implement wallet restoration logic
-    console.log("Restoring wallet with seed phrase:", seedPhrase)
+  const handleRestore = async () => {
+    if (!seedPhrase.trim()) {
+      walletStore.setError("Please enter your seed phrase")
+      return
+    }
+
+    setIsRestoring(true)
+    try {
+      const success = await walletStore.restoreWallet(seedPhrase.trim())
+      if (success) {
+        navigation.navigate("Main")
+      }
+    } catch (error) {
+      console.error("Restore error:", error)
+    } finally {
+      setIsRestoring(false)
+    }
   }
 
   return (
@@ -29,14 +46,25 @@ export const RestoreWalletScreen: FC<RestoreWalletScreenProps> = observer(functi
           numberOfLines={2}
           autoCapitalize="none"
           autoCorrect={false}
+          editable={!isRestoring}
         />
+        
+        {walletStore.error ? (
+          <Text style={$errorText}>{walletStore.error}</Text>
+        ) : null}
+
         <TouchableOpacity
-          style={$button}
+          style={[$button, isRestoring && $buttonDisabled]}
           onPress={handleRestore}
+          disabled={isRestoring}
         >
-          <Text style={$buttonText}>
-            Restore Wallet
-          </Text>
+          {isRestoring ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={$buttonText}>
+              Restore Wallet
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </Screen>
@@ -74,8 +102,19 @@ const $button: ViewStyle = {
   alignItems: "center",
 }
 
+const $buttonDisabled: ViewStyle = {
+  opacity: 0.5,
+}
+
 const $buttonText = {
   color: "#fff",
   fontSize: 16,
   fontFamily: "JetBrainsMono-Regular",
+}
+
+const $errorText = {
+  color: "#ff4444",
+  fontSize: 14,
+  marginBottom: 12,
+  textAlign: "center",
 }
