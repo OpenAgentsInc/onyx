@@ -8,7 +8,6 @@ export * from "./Header"
 export * from "./Icon"
 export * from "./ListItem"
 export * from "./ListView"
-export * from './RelayProvider'
 export * from "./Screen"
 export * from "./Text"
 export * from "./TextField"

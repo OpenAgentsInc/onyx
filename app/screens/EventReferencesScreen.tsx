@@ -2,11 +2,10 @@ import React, {
   FC, useCallback, useContext, useEffect, useRef, useState
 } from "react"
 import { ActivityIndicator, FlatList, View, ViewStyle } from "react-native"
+import { RelayContext } from "@/providers/RelayProvider"
 import { useNavigation } from "@react-navigation/native"
 import { Card } from "../components/Card"
 import { FeedEvent } from "../components/FeedCard"
-import { Header } from "../components/Header"
-import { RelayContext } from "../components/RelayProvider"
 import { Text } from "../components/Text"
 import { NostrEvent } from "../services/nostr/ident"
 

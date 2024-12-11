@@ -2,9 +2,9 @@ import { FC, useContext, useEffect, useRef, useState } from "react"
 import {
   ActivityIndicator, FlatList, ListRenderItem, View, ViewStyle
 } from "react-native"
+import { RelayContext } from "@/providers/RelayProvider"
 import { DVMManager } from "@/services/nostr/dvm"
 import { FeedCard, FeedEvent } from "./FeedCard"
-import { RelayContext } from "./RelayProvider"
 import { Text } from "./Text"
 
 interface FeedProps {
