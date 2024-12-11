@@ -30,28 +30,26 @@ export class NostrDb implements NostrDbInterface {
       try {
         console.log("[DB] Opening database connection...");
         
-        // op-sqlite requires a simple name, not a full path
         this.db = await open({
           name: 'onyx.db',
-          // Use 'default' location which is the app's document directory
           location: 'default',
-          // Enable WAL mode for better concurrent access
-          enableWAL: true,
+          // Disable WAL mode as it might be causing issues
+          enableWAL: false,
         });
         
-        // Create tables
+        // Create tables with explicit types and constraints
         await this.db.execute(`
           create table if not exists posts (
-            id string not null primary key,
-            content string,
-            kind integer,
-            pubkey string,
-            sig string,
-            tags string,
-            p1 string,
-            e1 string,
-            created_at integer,
-            verified boolean
+            id text not null primary key,
+            content text,
+            kind integer not null,
+            pubkey text not null,
+            sig text,
+            tags text,
+            p1 text,
+            e1 text,
+            created_at integer not null,
+            verified integer default 0
           );
           
           create index if not exists idx_posts_kind on posts(kind);
@@ -60,11 +58,11 @@ export class NostrDb implements NostrDbInterface {
           create index if not exists idx_posts_created_at on posts(created_at);
         `);
 
-        // Verify table exists
+        // Verify table exists and schema
         const tables = await this.db.execute(
-          "SELECT name FROM sqlite_master WHERE type='table' AND name='posts'"
+          "SELECT sql FROM sqlite_master WHERE type='table' AND name='posts'"
         );
-        console.log("[DB] Tables:", tables?.rows?._array);
+        console.log("[DB] Table schema:", tables?.rows?._array);
 
         console.log("[DB] Database schema initialized");
       } catch (error) {
@@ -120,7 +118,8 @@ export class NostrDb implements NostrDbInterface {
         console.log("[DB] Sample record:", {
           id: processedRecords[0].id,
           kind: processedRecords[0].kind,
-          tags: processedRecords[0].tags
+          tags: processedRecords[0].tags,
+          e1: processedRecords[0].e1
         });
       }
 
@@ -205,6 +204,15 @@ export class NostrDb implements NostrDbInterface {
         for (const ev of q) {
           const [sql, args] = this.eventSql(ev);
           await tx.execute(sql, args);
+          // Verify each save within the transaction
+          const verifyResult = await tx.execute(
+            "SELECT id FROM posts WHERE id = ?", 
+            [ev.id]
+          );
+          const saved = verifyResult?.rows?._array?.length > 0;
+          if (!saved) {
+            throw new Error(`Failed to save event: ${ev.id}`);
+          }
         }
       });
       console.log(`[DB] Successfully flushed ${q.length} events to database`);
@@ -222,12 +230,21 @@ export class NostrDb implements NostrDbInterface {
     await this.open();
     if (this.db) {
       try {
-        await this.db.execute(sql, args);
+        // Use transaction for atomic operation
+        await this.db.transaction(async (tx) => {
+          await tx.execute(sql, args);
+          // Verify the save within the same transaction
+          const verifyResult = await tx.execute(
+            "SELECT id FROM posts WHERE id = ?", 
+            [ev.id]
+          );
+          const saved = verifyResult?.rows?._array?.length > 0;
+          if (!saved) {
+            throw new Error("Save verification failed");
+          }
+          console.log("[DB] Event save verified:", saved);
+        });
         console.log("[DB] Event saved successfully:", ev.id);
-        // Verify the save
-        const verifyResult = await this.db.execute("SELECT id FROM posts WHERE id = ?", [ev.id]);
-        const saved = verifyResult?.rows?._array?.length > 0;
-        console.log("[DB] Event save verified:", saved);
       } catch (error) {
         console.error("[DB] Error saving event:", ev.id, error);
         throw error;
@@ -258,18 +275,8 @@ export class NostrDb implements NostrDbInterface {
     });
 
     return [
-      `insert into posts (id, pubkey, content, sig, kind, tags, p1, e1, created_at, verified)
-       values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-       on conflict (id) do update set
-       content = excluded.content,
-       kind = excluded.kind,
-       pubkey = excluded.pubkey,
-       sig = excluded.sig,
-       tags = excluded.tags,
-       p1 = excluded.p1,
-       e1 = excluded.e1,
-       created_at = excluded.created_at,
-       verified = excluded.verified`,
+      `insert or replace into posts (id, pubkey, content, sig, kind, tags, p1, e1, created_at, verified)
+       values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [ev.id, ev.pubkey, ev.content, ev.sig, ev.kind, tags, p1, e1, ev.created_at, 0],
     ];
   }
