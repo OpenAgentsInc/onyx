@@ -2,6 +2,7 @@ import { memo, ReactElement, useEffect } from "react"
 import { StyleSheet, View, ActivityIndicator } from "react-native"
 import { useStores } from "@/models"
 import Money from "./Money"
+import { Text } from "./Text"
 
 /**
  * Displays the total available balance for the current wallet & network.
@@ -10,6 +11,8 @@ const BalanceHeader = (): ReactElement => {
   const { walletStore } = useStores()
   const {
     balanceSat,
+    pendingSendSat,
+    pendingReceiveSat,
     isInitialized,
     error,
     fetchBalanceInfo
@@ -43,6 +46,21 @@ const BalanceHeader = (): ReactElement => {
     <View style={styles.container}>
       <View style={styles.balance}>
         <Money sats={balanceSat} symbol={true} />
+        
+        {(pendingSendSat > 0 || pendingReceiveSat > 0) && (
+          <View style={styles.pendingContainer}>
+            {pendingSendSat > 0 && (
+              <Text style={styles.pendingText}>
+                Sending: {pendingSendSat.toLocaleString()} sats
+              </Text>
+            )}
+            {pendingReceiveSat > 0 && (
+              <Text style={styles.pendingText}>
+                Receiving: {pendingReceiveSat.toLocaleString()} sats
+              </Text>
+            )}
+          </View>
+        )}
       </View>
     </View>
   )
@@ -60,7 +78,17 @@ const styles = StyleSheet.create({
   loading: {
     alignItems: "center",
     justifyContent: "center",
+  },
+  pendingContainer: {
+    marginTop: 12,
+    alignItems: "center",
+  },
+  pendingText: {
+    color: "#888",
+    fontSize: 14,
+    fontFamily: "JetBrainsMono-Regular",
+    marginVertical: 2,
   }
-});
+})
 
-export default memo(BalanceHeader);
+export default memo(BalanceHeader)
