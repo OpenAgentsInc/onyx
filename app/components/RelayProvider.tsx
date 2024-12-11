@@ -29,14 +29,13 @@ export const RelayContext = createContext<RelayContextType>({
   isConnected: false
 })
 
-const db: NostrDb = connectDb()
-
 export const RelayProvider = observer(function RelayProvider({
   children,
 }: {
   children: React.ReactNode
 }) {
-  if (!db) throw new Error("cannot initialized db")
+  const [db, setDb] = useState<NostrDb | null>(null);
+  const [isDbReady, setIsDbReady] = useState(false);
 
   const {
     userStore: { getRelays, privkey },
@@ -44,17 +43,42 @@ export const RelayProvider = observer(function RelayProvider({
 
   const [isConnected, setIsConnected] = useState(false)
 
+  useEffect(() => {
+    const initDb = async () => {
+      try {
+        const database = await connectDb();
+        setDb(database);
+        setIsDbReady(true);
+      } catch (error) {
+        console.error("Failed to initialize database:", error);
+      }
+    };
+
+    initDb();
+  }, []);
+
   const ident = useMemo(() => (privkey ? new NostrIdentity(privkey, "", "") : null), [privkey])
-  const [pool, _setPool] = useState<NostrPool>(
-    () => new NostrPool(ident, db, { skipVerification: true }),
-  )
-  const channelManager = useMemo(() => new ChannelManager(pool), [pool])
-  const contactManager = useMemo(() => new ContactManager(pool), [pool])
-  const profileManager = useMemo(() => new ProfileManager(pool), [pool])
-  const privMessageManager = useMemo(() => new PrivateMessageManager(pool), [pool])
-  const dvmManager = useMemo(() => new DVMManager(pool), [pool])
+  const [pool, _setPool] = useState<NostrPool>(() => {
+    if (!db) return null;
+    return new NostrPool(ident, db, { skipVerification: true });
+  });
+
+  // Initialize pool when db is ready
+  useEffect(() => {
+    if (db && !pool) {
+      _setPool(new NostrPool(ident, db, { skipVerification: true }));
+    }
+  }, [db, ident]);
+
+  const channelManager = useMemo(() => pool ? new ChannelManager(pool) : null, [pool])
+  const contactManager = useMemo(() => pool ? new ContactManager(pool) : null, [pool])
+  const profileManager = useMemo(() => pool ? new ProfileManager(pool) : null, [pool])
+  const privMessageManager = useMemo(() => pool ? new PrivateMessageManager(pool) : null, [pool])
+  const dvmManager = useMemo(() => pool ? new DVMManager(pool) : null, [pool])
 
   useEffect(() => {
+    if (!pool) return;
+    
     pool.ident = ident
 
     async function initRelays() {
@@ -70,7 +94,11 @@ export const RelayProvider = observer(function RelayProvider({
       pool.close()
       setIsConnected(false)
     }
-  }, [ident, getRelays])
+  }, [ident, getRelays, pool])
+
+  if (!isDbReady || !db) {
+    return null; // Or a loading indicator
+  }
 
   const contextValue = useMemo(() => ({
     pool,
