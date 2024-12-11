@@ -27,11 +27,12 @@ import { KeyboardProvider } from "react-native-keyboard-controller"
 import {
   initialWindowMetrics, SafeAreaProvider
 } from "react-native-safe-area-context"
-import { RelayProvider } from "./components"
 import Config from "./config"
 import { initI18n } from "./i18n"
 import { useInitialRootStore, useStores } from "./models"
 import { AppNavigator, useNavigationPersistence } from "./navigators"
+import { RelayProvider } from "./providers/RelayProvider"
+import { WalletProvider } from "./providers/WalletProvider"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import { customFontsToLoad } from "./theme"
 import { loadDateFnsLocale } from "./utils/formatDate"
@@ -128,15 +129,17 @@ function App(props: AppProps) {
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
-        <RelayProvider>
-          <KeyboardProvider>
-            <AppNavigator
-              linking={linking}
-              initialState={initialNavigationState}
-              onStateChange={onNavigationStateChange}
-            />
-          </KeyboardProvider>
-        </RelayProvider>
+        <WalletProvider>
+          <RelayProvider>
+            <KeyboardProvider>
+              <AppNavigator
+                linking={linking}
+                initialState={initialNavigationState}
+                onStateChange={onNavigationStateChange}
+              />
+            </KeyboardProvider>
+          </RelayProvider>
+        </WalletProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
   )

@@ -4,6 +4,7 @@ import { useUpdates } from 'expo-updates';
 import * as Updates from 'expo-updates';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from './Text';
+import Constants from "expo-constants";
 
 export const Updater = () => {
   const {
@@ -115,6 +116,10 @@ export const Updater = () => {
     );
   }
 
+  // Get first 10 chars of BREEZ_API_KEY
+  const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY || 'not found';
+  const breezApiKeyPreview = breezApiKey.substring(0, 10) + '...';
+
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
@@ -139,6 +144,7 @@ export const Updater = () => {
       </View>
 
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+        <InfoRow label="BREEZ_API_KEY" value={breezApiKeyPreview} />
         <InfoRow label="Check Error" value={checkError} />
         <InfoRow label="Download Error" value={downloadError} />
         <InfoRow label="Initialization Error" value={initializationError} />

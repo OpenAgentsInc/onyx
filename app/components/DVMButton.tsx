@@ -1,9 +1,11 @@
 import { Event, getEventHash, getPublicKey, getSignature } from "nostr-tools"
 import React, { useContext, useState } from "react"
-import { Text, TextInput, TouchableOpacity, View, ViewStyle } from "react-native"
+import {
+  Text, TextInput, TouchableOpacity, View, ViewStyle
+} from "react-native"
+import { RelayContext } from "@/providers/RelayProvider"
 import { NostrIdentity } from "@/services/nostr"
 import { DVMManager } from "@/services/nostr/dvm"
-import { RelayContext } from "./RelayProvider"
 
 // TODO: This should come from your key management system
 const DEMO_PRIVATE_KEY = "d5770d632a5d2c8fd2c0d3db4dd5f30ea4b37480b89da1695b5d3ca25080fa91"

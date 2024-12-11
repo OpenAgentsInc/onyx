@@ -19,6 +19,10 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 
 export type AppStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>
+  BackupWallet: undefined
+  RestoreWallet: undefined
+  Send: undefined
+  Receive: undefined
   Login: undefined
   Welcome: undefined
   Chat: undefined
@@ -58,6 +62,54 @@ const AppStack = observer(function AppStack() {
       <Stack.Screen name="Login" component={Screens.LoginScreen} />
       <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
       <Stack.Screen name="Chat" component={Screens.ChatScreen} />
+      <Stack.Screen name="BackupWallet" component={Screens.BackupWalletScreen}
+        options={{
+          headerShown: true,
+          header: () => (
+            <Header
+              leftIcon="back"
+              title="Backup wallet"
+              onLeftPress={() => navigationRef.current?.goBack()}
+            />
+          ),
+        }}
+      />
+      <Stack.Screen name="RestoreWallet" component={Screens.RestoreWalletScreen}
+        options={{
+          headerShown: true,
+          header: () => (
+            <Header
+              leftIcon="back"
+              title="Restore wallet"
+              onLeftPress={() => navigationRef.current?.goBack()}
+            />
+          ),
+        }}
+      />
+      <Stack.Screen name="Send" component={Screens.SendScreen}
+        options={{
+          headerShown: true,
+          header: () => (
+            <Header
+              leftIcon="back"
+              title="Send bitcoin"
+              onLeftPress={() => navigationRef.current?.goBack()}
+            />
+          ),
+        }}
+      />
+      <Stack.Screen name="Receive" component={Screens.ReceiveScreen}
+        options={{
+          headerShown: true,
+          header: () => (
+            <Header
+              leftIcon="back"
+              title="Receive bitcoin"
+              onLeftPress={() => navigationRef.current?.goBack()}
+            />
+          ),
+        }}
+      />
       <Stack.Screen
         name="EventReferences"
         component={EventReferencesScreen}

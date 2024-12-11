@@ -2,9 +2,9 @@ import { FC, useContext, useEffect, useRef, useState } from "react"
 import {
   ActivityIndicator, FlatList, ListRenderItem, View, ViewStyle
 } from "react-native"
+import { RelayContext } from "@/providers/RelayProvider"
 import { DVMManager } from "@/services/nostr/dvm"
 import { FeedCard, FeedEvent } from "./FeedCard"
-import { RelayContext } from "./RelayProvider"
 import { Text } from "./Text"
 
 interface FeedProps {
@@ -21,10 +21,10 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
   // Initialize DVMManager when pool changes
   useEffect(() => {
     if (pool) {
-      console.log("Initializing DVMManager with pool")
+      // console.log("Initializing DVMManager with pool")
       dvmManagerRef.current = new DVMManager(pool)
     } else {
-      console.log("No pool available for DVMManager")
+      // console.log("No pool available for DVMManager")
       dvmManagerRef.current = null
     }
   }, [pool])
@@ -32,25 +32,25 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
   // Wait for relay connection before subscribing
   useEffect(() => {
     if (!pool || !isConnected || isSubscribed.current || !dvmManagerRef.current) {
-      console.log("Feed subscription conditions not met:", {
-        hasPool: !!pool,
-        isConnected,
-        isSubscribed: isSubscribed.current,
-        hasDVMManager: !!dvmManagerRef.current
-      })
+      // console.log("Feed subscription conditions not met:", {
+      //   hasPool: !!pool,
+      //   isConnected,
+      //   isSubscribed: isSubscribed.current,
+      //   hasDVMManager: !!dvmManagerRef.current
+      // })
       return
     }
 
-    console.log("Feed conditions met, starting subscriptions...")
+    // console.log("Feed conditions met, starting subscriptions...")
     isSubscribed.current = true
 
     // Subscribe to both services and jobs
     const subs = []
 
     // Subscribe to jobs
-    console.log("Subscribing to jobs...")
+    // console.log("Subscribing to jobs...")
     const jobsSub = dvmManagerRef.current.subscribeToJobs((event) => {
-      console.log("Job callback received event:", event)
+      // console.log("Job callback received event:", event)
       try {
         const parsedEvent = dvmManagerRef.current.parseJobRequest(event)
         setEvents(prev => {

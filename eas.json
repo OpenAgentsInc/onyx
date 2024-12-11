@@ -13,7 +13,11 @@
       "ios": {
         "buildConfiguration": "Debug",
         "simulator": true
-      }
+      },
+      "env": {
+        "ENVIRONMENT": "development"
+      },
+      "environment": "development"
     },
     "development:device": {
       "extends": "development",
@@ -21,7 +25,11 @@
       "ios": {
         "buildConfiguration": "Debug",
         "simulator": false
-      }
+      },
+      "env": {
+        "ENVIRONMENT": "development"
+      },
+      "environment": "development"
     },
     "preview": {
       "extends": "production",
@@ -31,17 +39,29 @@
       },
       "android": {
         "buildType": "apk"
-      }
+      },
+      "env": {
+        "ENVIRONMENT": "preview"
+      },
+      "environment": "preview"
     },
     "preview:device": {
       "extends": "preview",
       "ios": {
         "simulator": false
-      }
+      },
+      "env": {
+        "ENVIRONMENT": "preview"
+      },
+      "environment": "preview"
     },
     "production": {
       "autoIncrement": true,
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "ENVIRONMENT": "production"
+      },
+      "environment": "production"
     }
   },
   "submit": {

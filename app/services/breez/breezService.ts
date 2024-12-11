@@ -1,15 +1,27 @@
-import { defaultConfig, connect, disconnect, getInfo, LiquidNetwork } from '@breeztech/react-native-breez-sdk-liquid'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { 
+  defaultConfig, 
+  connect, 
+  disconnect, 
+  getInfo, 
+  LiquidNetwork, 
+  parse, 
+  InputTypeVariant, 
+  prepareLnurlPay, 
+  lnurlPay,
+  receivePayment,
+  prepareReceivePayment,
+  PaymentMethod
+} from '@breeztech/react-native-breez-sdk-liquid'
 import * as FileSystem from 'expo-file-system'
-import * as bip39 from 'bip39'
 import { BalanceInfo, BreezConfig, BreezService, Transaction } from './types'
-
-const MNEMONIC_KEY = '@breez_mnemonic'
 
 // Helper function to convert file:// URL to path
 const fileUrlToPath = (fileUrl: string) => {
   return decodeURIComponent(fileUrl.replace('file://', ''))
 }
+
+// Helper to generate a random id if none is provided
+const generateId = () => Math.random().toString(36).substring(2, 15)
 
 class BreezServiceImpl implements BreezService {
   private sdk: any = null
@@ -50,20 +62,11 @@ class BreezServiceImpl implements BreezService {
           throw new Error(`Working directory is not writable: ${err.message}`)
         }
 
-        // Get or generate mnemonic
-        let currentMnemonic = await AsyncStorage.getItem(MNEMONIC_KEY)
-        if (!currentMnemonic) {
-          currentMnemonic = bip39.generateMnemonic()
-          await AsyncStorage.setItem(MNEMONIC_KEY, currentMnemonic)
+        // Use provided mnemonic
+        if (!config.mnemonic) {
+          throw new Error("Mnemonic is required for initialization")
         }
-
-        // Verify mnemonic is valid
-        if (!bip39.validateMnemonic(currentMnemonic)) {
-          currentMnemonic = bip39.generateMnemonic()
-          await AsyncStorage.setItem(MNEMONIC_KEY, currentMnemonic)
-        }
-
-        this.mnemonic = currentMnemonic
+        this.mnemonic = config.mnemonic
 
         // Initialize SDK with proper working directory
         const sdkConfig = await defaultConfig(
@@ -75,7 +78,7 @@ class BreezServiceImpl implements BreezService {
 
         // Connect to the SDK and store the instance
         this.sdk = await connect({ 
-          mnemonic: currentMnemonic, 
+          mnemonic: this.mnemonic, 
           config: sdkConfig 
         })
 
@@ -133,19 +136,53 @@ class BreezServiceImpl implements BreezService {
     }
   }
 
-  async sendPayment(bolt11: string, amount: number): Promise<Transaction> {
+  async sendPayment(input: string, amount: number): Promise<Transaction> {
     this.ensureInitialized()
 
+    if (amount < 1000) {
+      throw new Error("Minimum send amount is 1000 sats")
+    }
+
     try {
-      const result = await this.sdk.sendPayment(bolt11, amount)
-      return {
-        id: result.paymentHash,
-        amount: result.amountSat,
-        timestamp: Date.now(),
-        type: 'send',
-        status: result.status === 'complete' ? 'complete' : 'pending',
-        paymentHash: result.paymentHash,
-        fee: result.feeSat,
+      // Try to parse the input as a Lightning Address or LNURL
+      const parsedInput = await parse(input)
+      
+      if (parsedInput.type === InputTypeVariant.LN_URL_PAY) {
+        // Handle Lightning Address payment
+        const amountMsat = amount * 1000 // Convert sats to msats
+        const prepareResponse = await prepareLnurlPay({
+          data: parsedInput.data,
+          amountMsat,
+          comment: undefined,
+          validateSuccessActionUrl: true
+        })
+
+        // Execute the LNURL payment
+        const result = await lnurlPay({
+          prepareResponse
+        })
+
+        return {
+          id: result.paymentHash || generateId(),
+          amount: amount,
+          timestamp: Date.now(),
+          type: 'send',
+          status: 'complete',
+          paymentHash: result.paymentHash,
+          fee: prepareResponse.feesSat,
+        }
+      } else {
+        // Handle regular BOLT11 invoice
+        const result = await this.sdk.sendPayment(input, amount)
+        return {
+          id: result.paymentHash || generateId(),
+          amount: result.amountSat,
+          timestamp: Date.now(),
+          type: 'send',
+          status: result.status === 'complete' ? 'complete' : 'pending',
+          paymentHash: result.paymentHash,
+          fee: result.feeSat,
+        }
       }
     } catch (err) {
       console.error('Error sending payment:', err)
@@ -156,12 +193,23 @@ class BreezServiceImpl implements BreezService {
   async receivePayment(amount: number, description?: string): Promise<string> {
     this.ensureInitialized()
 
+    if (amount < 1000) {
+      throw new Error("Minimum receive amount is 1000 sats")
+    }
+
     try {
-      const invoice = await this.sdk.receivePayment({
-        amountSat: amount,
-        description: description || 'Payment request',
+      // First prepare the receive payment
+      const prepareResponse = await prepareReceivePayment({
+        paymentMethod: PaymentMethod.LIGHTNING,
+        payerAmountSat: amount
       })
-      return invoice.bolt11
+
+      // Then create the actual invoice
+      const result = await receivePayment({
+        prepareResponse
+      })
+      
+      return result.destination
     } catch (err) {
       console.error('Error creating invoice:', err)
       throw err
@@ -174,7 +222,7 @@ class BreezServiceImpl implements BreezService {
     try {
       const txs = await this.sdk.listPayments()
       return txs.map((tx: any) => ({
-        id: tx.id,
+        id: tx.id || tx.paymentHash || generateId(),
         amount: tx.amountSat,
         timestamp: tx.timestamp,
         type: tx.type === 'sent' ? 'send' : 'receive',
