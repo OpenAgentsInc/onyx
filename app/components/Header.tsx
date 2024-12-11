@@ -6,6 +6,7 @@ import {
   TouchableOpacityProps,
   View,
   ViewStyle,
+  Image,
 } from "react-native"
 import { isRTL, translate } from "../i18n"
 import { $styles } from "../theme"
@@ -138,6 +139,15 @@ interface HeaderActionProps {
   ActionComponent?: ReactElement
 }
 
+const DefaultProfileImage = () => (
+  <TouchableOpacity style={$profileContainer}>
+    <Image 
+      source={{ uri: "https://pbs.twimg.com/profile_images/1866325943201021952/8UZH5JFx_400x400.jpg" }}
+      style={$profileImage}
+    />
+  </TouchableOpacity>
+)
+
 /**
  * Header that appears on many screens. Will hold navigation buttons and screen title.
  * The Header is meant to be used with the `screenOptions.header` option on navigators, routes, or screen components via `navigation.setOptions({ header })`.
@@ -152,7 +162,7 @@ export function Header(props: HeaderProps) {
   } = useAppTheme()
   const {
     backgroundColor = colors.background,
-    LeftActionComponent,
+    LeftActionComponent = <DefaultProfileImage />,
     leftIcon,
     leftIconColor,
     leftText,
@@ -309,4 +319,14 @@ const $titleWrapperCenter: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 const $titleWrapperFlex: ViewStyle = {
   justifyContent: "center",
   flexGrow: 1,
+}
+
+const $profileContainer: ViewStyle = {
+  padding: 8,
+}
+
+const $profileImage: ViewStyle = {
+  width: 32,
+  height: 32,
+  borderRadius: 16,
 }
