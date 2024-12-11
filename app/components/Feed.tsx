@@ -47,24 +47,6 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
     // Subscribe to both services and jobs
     const subs = []
 
-    // Subscribe to services
-    // console.log("Subscribing to services...")
-    // const servicesSub = dvmManagerRef.current.subscribeToServices((event) => {
-    //   console.log("Service callback received event:", event)
-    //   try {
-    //     const parsedEvent = dvmManagerRef.current.parseServiceAnnouncement(event)
-    //     setEvents(prev => {
-    //       // Deduplicate by id
-    //       const exists = prev.some(e => e.id === parsedEvent.id)
-    //       if (exists) return prev
-    //       return [parsedEvent, ...prev]
-    //     })
-    //   } catch (e) {
-    //     console.error("Error parsing service event:", e)
-    //   }
-    // })
-    // subs.push(servicesSub)
-
     // Subscribe to jobs
     console.log("Subscribing to jobs...")
     const jobsSub = dvmManagerRef.current.subscribeToJobs((event) => {
