@@ -57,25 +57,34 @@ export class NostrDb implements NostrDbInterface {
     const where = or.trim() ? `where ${or}` : "";
     const limitQ = (!limit || isNaN(limit)) ? "" : ` limit ${limit}`;
     const sql = `select * from posts ${where} ${limitQ}`;
-    const records = await this.db.execute(sql, args);
+    
+    const result = await this.db.execute(sql, args);
+    const records = result?.rows?._array || [];
     const seen = new Set();
 
-    records.forEach((ev: NostrEvent) => {
+    const processedRecords = records.map((ev: NostrEvent) => {
       try {
-        ev.tags = JSON.parse((ev.tags as unknown) as string);
+        return {
+          ...ev,
+          tags: typeof ev.tags === 'string' ? JSON.parse(ev.tags) : ev.tags
+        };
       } catch {
-        ev.tags = [];
+        return {
+          ...ev,
+          tags: []
+        };
       }
-      seen.add(ev.id);
     });
+
+    processedRecords.forEach(ev => seen.add(ev.id));
 
     for (const ev of this.queue.values()) {
       if (!seen.has(ev.id) && filter.some((f) => matchFilter(f, ev))) {
         seen.add(ev.id);
-        records.push(ev);
+        processedRecords.push(ev);
       }
     }
-    return records;
+    return processedRecords;
   }
 
   async latest(filter: Filter[]): Promise<number> {
@@ -83,10 +92,11 @@ export class NostrDb implements NostrDbInterface {
     if (!this.db) throw new Error("Database not initialized");
 
     const [or, args] = this.filterToQuery(filter);
-    const records = await this.db.execute(
+    const result = await this.db.execute(
       `select max(created_at) as max from posts where ${or}`,
       args
     );
+    const records = result?.rows?._array || [];
     return records.length ? records[0].max : 0;
   }
 
