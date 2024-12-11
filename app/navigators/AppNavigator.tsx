@@ -18,6 +18,7 @@ import { MainNavigator, MainTabParamList } from "./MainNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import { EventReferencesScreen } from "../screens/EventReferencesScreen"
 import { FeedEvent } from "../components/FeedCard"
+import { Header } from "@/components"
 
 export type AppStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>
@@ -60,7 +61,22 @@ const AppStack = observer(function AppStack() {
       <Stack.Screen name="Login" component={Screens.LoginScreen} />
       <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
       <Stack.Screen name="Chat" component={Screens.ChatScreen} />
-      <Stack.Screen name="EventReferences" component={EventReferencesScreen} />
+      <Stack.Screen 
+        name="EventReferences" 
+        component={EventReferencesScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => (
+            <Header
+              title="Event References"
+              leftIcon="back"
+              onLeftPress={() => navigation.goBack()}
+              backgroundColor="#0a0a0c"
+              titleStyle={{ color: "#fafafa" }}
+            />
+          ),
+        }}
+      />
     </Stack.Navigator>
   )
 })
