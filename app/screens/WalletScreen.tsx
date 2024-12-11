@@ -5,6 +5,7 @@ import {
 } from "react-native"
 import { Screen, Text } from "@/components"
 import { BalanceDisplay } from "@/components/BalanceDisplay"
+import BalanceHeader from "@/components/BalanceHeader"
 import { useStores } from "@/models"
 import { MainTabScreenProps } from "@/navigators"
 
@@ -20,7 +21,8 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
       contentContainerStyle={$contentContainer}
       preset="fixed"
     >
-      <BalanceDisplay />
+      <BalanceHeader />
+      {/* <BalanceDisplay /> */}
 
       {isInitialized && (
         <View style={$transactionsContainer}>
