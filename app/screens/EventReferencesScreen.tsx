@@ -1,12 +1,12 @@
 import React, { FC, useContext, useEffect, useState, useRef, useCallback } from "react"
-import { View, ViewStyle, FlatList, TouchableOpacity, ActivityIndicator } from "react-native"
+import { View, ViewStyle, FlatList, ActivityIndicator } from "react-native"
 import { Text } from "../components/Text"
 import { Card } from "../components/Card"
 import { FeedEvent } from "../components/FeedCard"
 import { RelayContext } from "../components/RelayProvider"
 import { NostrEvent } from "../services/nostr/ident"
 import { useNavigation } from "@react-navigation/native"
-import { Icon } from "../components/Icon"
+import { Header } from "../components/Header"
 
 interface EventReferencesScreenProps {
   route: {
@@ -23,6 +23,21 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
   const { pool, db } = useContext(RelayContext)
   const navigation = useNavigation()
   const subRef = useRef<{ unsub: () => void } | null>(null)
+
+  // Set header options
+  useEffect(() => {
+    navigation.setOptions({
+      header: () => (
+        <Header
+          title="Event References"
+          leftIcon="back"
+          onLeftPress={() => navigation.goBack()}
+          backgroundColor="#0a0a0c"
+          titleStyle={{ color: "#fafafa" }}
+        />
+      ),
+    })
+  }, [navigation])
 
   // Load references from DB
   const loadReferences = useCallback(async () => {
@@ -136,13 +151,6 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
 
   return (
     <View style={$container}>
-      <View style={$header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={$backButton}>
-          <Icon icon="back" color="#fafafa" size={24} />
-        </TouchableOpacity>
-        <Text preset="heading" text="Event References" style={$heading} />
-      </View>
-      
       <FlatList
         ListHeaderComponent={
           <View>
@@ -186,19 +194,6 @@ export const EventReferencesScreen: FC<EventReferencesScreenProps> = ({ route })
 const $container: ViewStyle = {
   flex: 1,
   backgroundColor: "#000000",
-}
-
-const $header: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-  paddingHorizontal: 16,
-  paddingTop: 48,
-  paddingBottom: 16,
-  backgroundColor: "#0a0a0c",
-}
-
-const $backButton: ViewStyle = {
-  marginRight: 16,
 }
 
 const $listContent: ViewStyle = {
