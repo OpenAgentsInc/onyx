@@ -32,7 +32,7 @@
     "serve:web": "npx server dist",
     "prebuild:clean": "npx expo prebuild --clean",
     "submit:ios": "eas submit -p ios",
-    "update:prod": "eas update --channel --environment production production --message",
+    "update:prod": "eas update --channel production --environment production --message",
     "t": "tsc --noEmit",
     "doctor": "npx expo-doctor",
     "gen:screen": "npx ignite-cli generate screen $1"
