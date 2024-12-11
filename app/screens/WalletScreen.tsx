@@ -28,13 +28,12 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
               navigation.navigate("Send")
             }}
             style={$actionButton}
-            preset="reversed"
             LeftAccessory={(props) => (
               <Icon
                 icon="arrow-upward"
                 color="white"
                 size={20}
-                containerStyle={props.style}
+                containerStyle={[$iconContainer, props.style]}
               />
             )}
           />
@@ -44,13 +43,12 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
               navigation.navigate("Receive")
             }}
             style={$actionButton}
-            preset="reversed"
             LeftAccessory={(props) => (
               <Icon
                 icon="arrow-downward"
                 color="white"
                 size={20}
-                containerStyle={props.style}
+                containerStyle={[$iconContainer, props.style]}
               />
             )}
           />
@@ -64,6 +62,14 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
             navigation.navigate("BackupWallet")
           }}
           style={$bottomButton}
+          LeftAccessory={(props) => (
+            <Icon
+              icon="backup"
+              color="white"
+              size={20}
+              containerStyle={[$iconContainer, props.style]}
+            />
+          )}
         />
         <Button
           text="Restore wallet"
@@ -71,6 +77,14 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
             navigation.navigate("RestoreWallet")
           }}
           style={$bottomButton}
+          LeftAccessory={(props) => (
+            <Icon
+              icon="restore"
+              color="white"
+              size={20}
+              containerStyle={[$iconContainer, props.style]}
+            />
+          )}
         />
       </View>
     </Screen>
@@ -112,4 +126,8 @@ const $actionButton: ViewStyle = {
 
 const $bottomButton: ViewStyle = {
   marginBottom: 25,
+}
+
+const $iconContainer: ViewStyle = {
+  marginRight: 8,
 }
