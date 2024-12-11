@@ -36,6 +36,10 @@ export class NostrDb implements NostrDbInterface {
           enableWAL: false,
         });
         
+        // Log database path
+        const pathResult = await this.db.execute('PRAGMA database_list');
+        console.log("[DB] Database location:", pathResult?.rows?._array);
+        
         await this.db.execute(`
           create table if not exists posts (
             id text not null primary key,
@@ -55,6 +59,10 @@ export class NostrDb implements NostrDbInterface {
           create index if not exists idx_posts_p1 on posts(p1);
           create index if not exists idx_posts_created_at on posts(created_at);
         `);
+
+        // Log table info
+        const tableInfo = await this.db.execute("PRAGMA table_info('posts')");
+        console.log("[DB] Table schema:", tableInfo?.rows?._array);
 
         console.log("[DB] Database schema initialized");
       } catch (error) {
@@ -86,6 +94,10 @@ export class NostrDb implements NostrDbInterface {
     console.log("[DB] Executing SQL:", sql, "with args:", args);
     
     try {
+      // First check total count
+      const countResult = await this.db.execute('SELECT COUNT(*) as count FROM posts');
+      console.log("[DB] Total records in database:", countResult?.rows?._array[0]?.count);
+
       const result = await this.db.execute(sql, args);
       const records = result?.rows?._array || [];
       console.log(`[DB] Found ${records.length} records in database`);
@@ -206,39 +218,33 @@ export class NostrDb implements NostrDbInterface {
     await this.open();
     if (this.db) {
       try {
-        await this.db.transaction(async (tx) => {
-          await tx.execute(sql, args);
-          
-          // Verify the save
-          const verifyResult = await tx.execute(
-            'SELECT * FROM posts WHERE id = ?',
-            [ev.id]
-          );
-          const records = verifyResult?.rows?._array || [];
-          if (records.length === 0) {
-            throw new Error('Save verification failed');
-          }
-          console.log("[DB] Save verified for event:", ev.id);
-        });
-        console.log("[DB] Event saved successfully:", ev.id);
-
-        // Double check outside transaction
+        // First try a direct insert
+        await this.db.execute(sql, args);
+        
+        // Verify the save
         const result = await this.db.execute(
           'SELECT * FROM posts WHERE id = ?',
           [ev.id]
         );
         const records = result?.rows?._array || [];
-        console.log("[DB] Post-save verification:", {
-          found: records.length > 0,
-          record: records[0] ? {
-            id: records[0].id,
-            kind: records[0].kind,
-            e1: records[0].e1
-          } : null
-        });
+        
+        if (records.length === 0) {
+          console.error("[DB] Save verification failed - record not found");
+          throw new Error('Save verification failed - record not found');
+        }
+
+        console.log("[DB] Save verified for event:", ev.id, "Record:", records[0]);
+        console.log("[DB] Event saved successfully:", ev.id);
 
       } catch (error) {
         console.error("[DB] Error saving event:", ev.id, error);
+        // Log database state
+        try {
+          const count = await this.db.execute('SELECT COUNT(*) as count FROM posts');
+          console.error("[DB] Current database count:", count?.rows?._array[0]?.count);
+        } catch (e) {
+          console.error("[DB] Error checking database state:", e);
+        }
         throw error;
       }
     }
