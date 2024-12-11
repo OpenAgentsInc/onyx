@@ -1,4 +1,4 @@
-import { Filter, matchFilter } from "nostr-tools"
+import { Filter } from "nostr-tools"
 import { NostrEvent } from "../ident"
 import { NostrDb as NostrDbInterface } from "./"
 import { open } from '@op-engineering/op-sqlite';
@@ -211,7 +211,9 @@ export class NostrDb implements NostrDbInterface {
     await this.open();
     if (this.db) {
       try {
-        await this.db.execute(sql, args);
+        await this.db.transaction(async (tx) => {
+          await tx.execute(sql, args);
+        });
         console.log("[DB] Event saved successfully:", ev.id);
       } catch (error) {
         console.error("[DB] Error saving event:", ev.id, error);
