@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { View, ViewStyle } from "react-native"
-import { Button, Screen } from "@/components"
+import { Button, Icon, Screen } from "@/components"
 import { BalanceDisplay } from "@/components/BalanceDisplay"
 import BalanceHeader from "@/components/BalanceHeader"
 import { useStores } from "@/models"
@@ -29,6 +29,14 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
             }}
             style={$actionButton}
             preset="reversed"
+            LeftAccessory={(props) => (
+              <Icon
+                icon="arrow-upward"
+                color="white"
+                size={20}
+                containerStyle={props.style}
+              />
+            )}
           />
           <Button
             text="Receive"
@@ -37,6 +45,14 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
             }}
             style={$actionButton}
             preset="reversed"
+            LeftAccessory={(props) => (
+              <Icon
+                icon="arrow-downward"
+                color="white"
+                size={20}
+                containerStyle={props.style}
+              />
+            )}
           />
         </View>
       </View>
