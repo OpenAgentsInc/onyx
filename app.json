@@ -69,13 +69,6 @@
         {
           "microphonePermission": "Allow Onyx to access your microphone for voice recording."
         }
-      ],
-      [
-        "@breeztech/react-native-breez-sdk-liquid",
-        {
-          "iosVersion": "0.5.1",
-          "ffiVersion": "0.5.1"
-        }
       ]
     ],
     "experiments": {
