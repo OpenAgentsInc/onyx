@@ -1,8 +1,9 @@
 import { FC, useContext, useEffect, useRef, useState } from "react"
-import { FlatList, ListRenderItem, View, ViewStyle } from "react-native"
+import { FlatList, ListRenderItem, View, ViewStyle, ActivityIndicator } from "react-native"
 import { FeedCard, FeedEvent } from "./FeedCard"
 import { RelayContext } from "./RelayProvider"
 import { DVMManager } from "@/services/nostr/dvm"
+import { Text } from "./Text"
 
 interface FeedProps {
   onEventPress?: (event: FeedEvent) => void
@@ -11,10 +12,11 @@ interface FeedProps {
 export const Feed: FC<FeedProps> = ({ onEventPress }) => {
   const { pool, isConnected } = useContext(RelayContext)
   const [events, setEvents] = useState<FeedEvent[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const isSubscribed = useRef(false)
   const dvmManagerRef = useRef<DVMManager | null>(null)
 
-  // Initialize or update DVMManager when pool changes
+  // Initialize DVMManager when pool changes
   useEffect(() => {
     if (pool) {
       console.log("Initializing DVMManager with pool")
@@ -82,6 +84,9 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
     // Log subscription status
     console.log(`Subscribed to ${subs.length} event types`)
 
+    // Set loading to false after subscriptions are set up
+    setIsLoading(false)
+
     return () => {
       console.log("Cleaning up subscriptions...")
       subs.forEach(sub => sub?.unsub?.())
@@ -96,6 +101,18 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
     />
   )
 
+  if (isLoading) {
+    return (
+      <View style={$loadingContainer}>
+        <ActivityIndicator size="large" color="#ffffff" />
+        <Text 
+          text="Loading feed..." 
+          style={$loadingText}
+        />
+      </View>
+    )
+  }
+
   return (
     <View style={$container}>
       <FlatList
@@ -105,6 +122,14 @@ export const Feed: FC<FeedProps> = ({ onEventPress }) => {
         contentContainerStyle={$listContent}
         showsVerticalScrollIndicator={false}
         style={$list}
+        ListEmptyComponent={
+          <View style={$emptyContainer}>
+            <Text 
+              text="No events found" 
+              style={$emptyText}
+            />
+          </View>
+        }
       />
     </View>
   )
@@ -123,4 +148,29 @@ const $listContent: ViewStyle = {
   paddingHorizontal: 16,
   paddingTop: 8,
   paddingBottom: 24,
+}
+
+const $loadingContainer: ViewStyle = {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#000000',
+}
+
+const $loadingText = {
+  color: '#ffffff',
+  marginTop: 16,
+  fontSize: 16,
+}
+
+const $emptyContainer: ViewStyle = {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingTop: 32,
+}
+
+const $emptyText = {
+  color: '#ffffff',
+  fontSize: 16,
 }
