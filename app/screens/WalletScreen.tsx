@@ -28,6 +28,13 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
         onPress={() => {
           navigation.navigate("BackupWallet")
         }}
+        style={{ marginBottom: 25, width: 300 }}
+      />
+      <Button
+        text="Restore wallet"
+        onPress={() => {
+          navigation.navigate("RestoreWallet")
+        }}
         style={{ marginBottom: 50, width: 300 }}
       />
 
