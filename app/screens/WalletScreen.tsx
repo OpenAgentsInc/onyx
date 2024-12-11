@@ -1,10 +1,12 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { ViewStyle, View, TouchableOpacity, ScrollView, TextStyle } from "react-native"
+import {
+  ScrollView, TextStyle, TouchableOpacity, View, ViewStyle
+} from "react-native"
 import { Screen, Text } from "@/components"
-import { MainTabScreenProps } from "@/navigators"
 import { BalanceDisplay } from "@/components/BalanceDisplay"
 import { useStores } from "@/models"
+import { MainTabScreenProps } from "@/navigators"
 
 interface WalletScreenProps extends MainTabScreenProps<"Wallet"> { }
 
@@ -18,9 +20,8 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
       contentContainerStyle={$contentContainer}
       preset="fixed"
     >
-      <Text text="Wallet" style={$headerText} />
       <BalanceDisplay />
-      
+
       {isInitialized && (
         <View style={$transactionsContainer}>
           <Text text="Recent Transactions" style={$sectionHeader} />
@@ -31,17 +32,17 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
               recentTransactions.map((tx) => (
                 <TouchableOpacity key={tx.id} style={$transactionItem}>
                   <View style={$transactionLeft}>
-                    <Text 
-                      text={tx.type === "send" ? "Sent" : "Received"} 
-                      style={[$transactionType, tx.type === "send" ? $sendText : $receiveText]} 
+                    <Text
+                      text={tx.type === "send" ? "Sent" : "Received"}
+                      style={[$transactionType, tx.type === "send" ? $sendText : $receiveText]}
                     />
-                    <Text 
-                      text={new Date(tx.timestamp).toLocaleDateString()} 
-                      style={$transactionDate} 
+                    <Text
+                      text={new Date(tx.timestamp).toLocaleDateString()}
+                      style={$transactionDate}
                     />
                   </View>
                   <View style={$transactionRight}>
-                    <Text 
+                    <Text
                       text={`${tx.type === "send" ? "-" : "+"}${tx.amount.toLocaleString()} sats`}
                       style={[$transactionAmount, tx.type === "send" ? $sendText : $receiveText]}
                     />

@@ -50,14 +50,6 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
       contentContainerStyle={$contentContainer}
       preset="scroll"
     >
-      <View style={[$headerContainer, { paddingTop: top }]}>
-        <View style={$header}>
-          <View style={$placeholder} />
-          <Text text="Profile" style={$headerText} />
-          <View style={$placeholder} />
-        </View>
-      </View>
-
       <View style={$content}>
         <View style={$profileInfo}>
           <Text text="Nostr Public Key" style={$labelText} />

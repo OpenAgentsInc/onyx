@@ -15,7 +15,6 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen({ na
     <Screen
       style={$root}
       preset="fixed"
-      safeAreaEdges={["top"]}
       contentContainerStyle={$screenContainer}
     >
       <View style={$container}>

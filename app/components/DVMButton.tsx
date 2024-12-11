@@ -1,9 +1,9 @@
 import { Event, getEventHash, getPublicKey, getSignature } from "nostr-tools"
 import React, { useContext, useState } from "react"
 import { Text, TouchableOpacity, View, ViewStyle } from "react-native"
+import { NostrIdentity } from "@/services/nostr"
 import { DVMManager } from "@/services/nostr/dvm"
 import { RelayContext } from "./RelayProvider"
-import { NostrIdentity } from "@/services/nostr"
 
 // TODO: This should come from your key management system
 const DEMO_PRIVATE_KEY = "d5770d632a5d2c8fd2c0d3db4dd5f30ea4b37480b89da1695b5d3ca25080fa91"
@@ -121,7 +121,7 @@ export const DVMButton = () => {
 const $container: ViewStyle = {
   position: "absolute",
   top: "50%",
-  left: "50%",
+  left: "54%",
   transform: [{ translateX: -100 }, { translateY: -25 }],
   width: 200,
   alignItems: "center",
@@ -138,6 +138,7 @@ const $button: ViewStyle = {
 const $buttonText = {
   color: "#fff",
   fontSize: 16,
+  fontFamily: 'JetBrainsMono-Regular',
 }
 
 const $response: ViewStyle = {
