@@ -1,19 +1,17 @@
 import { ReactElement } from "react"
 import {
-  StyleProp,
-  TextStyle,
-  TouchableOpacity,
-  TouchableOpacityProps,
-  View,
-  ViewStyle,
-  Image,
+  StyleProp, TextStyle, TouchableOpacity, TouchableOpacityProps, View,
+  ViewStyle
 } from "react-native"
+import { useAppTheme } from "@/utils/useAppTheme"
 import { isRTL, translate } from "../i18n"
 import { $styles } from "../theme"
-import { ExtendedEdge, useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
+import {
+  ExtendedEdge, useSafeAreaInsetsStyle
+} from "../utils/useSafeAreaInsetsStyle"
 import { Icon, IconTypes } from "./Icon"
 import { Text, TextProps } from "./Text"
-import { useAppTheme } from "@/utils/useAppTheme"
+
 import type { ThemedStyle } from "@/theme"
 
 export interface HeaderProps {
@@ -139,15 +137,6 @@ interface HeaderActionProps {
   ActionComponent?: ReactElement
 }
 
-const DefaultProfileImage = () => (
-  <TouchableOpacity style={$profileContainer}>
-    <Image 
-      source={{ uri: "https://pbs.twimg.com/profile_images/1866325943201021952/8UZH5JFx_400x400.jpg" }}
-      style={$profileImage}
-    />
-  </TouchableOpacity>
-)
-
 /**
  * Header that appears on many screens. Will hold navigation buttons and screen title.
  * The Header is meant to be used with the `screenOptions.header` option on navigators, routes, or screen components via `navigation.setOptions({ header })`.
@@ -162,7 +151,7 @@ export function Header(props: HeaderProps) {
   } = useAppTheme()
   const {
     backgroundColor = colors.background,
-    LeftActionComponent = <DefaultProfileImage />,
+    LeftActionComponent,
     leftIcon,
     leftIconColor,
     leftText,
@@ -177,13 +166,19 @@ export function Header(props: HeaderProps) {
     rightTx,
     rightTxOptions,
     safeAreaEdges = ["top"],
+    title,
     titleMode = "center",
+    titleTx,
+    titleTxOptions,
     titleContainerStyle: $titleContainerStyleOverride,
     style: $styleOverride,
+    titleStyle: $titleStyleOverride,
     containerStyle: $containerStyleOverride,
   } = props
 
   const $containerInsets = useSafeAreaInsetsStyle(safeAreaEdges)
+
+  const titleContent = titleTx ? translate(titleTx, titleTxOptions) : title
 
   return (
     <View style={[$container, $containerInsets, { backgroundColor }, $containerStyleOverride]}>
@@ -199,16 +194,23 @@ export function Header(props: HeaderProps) {
           ActionComponent={LeftActionComponent}
         />
 
-        <View
-          style={[
-            titleMode === "center" && themed($titleWrapperCenter),
-            titleMode === "flex" && $titleWrapperFlex,
-            $titleContainerStyleOverride,
-          ]}
-          pointerEvents="none"
-        >
-          <Icon icon="appIcon" size={32} />
-        </View>
+        {!!titleContent && (
+          <View
+            style={[
+              titleMode === "center" && themed($titleWrapperCenter),
+              titleMode === "flex" && $titleWrapperFlex,
+              $titleContainerStyleOverride,
+            ]}
+            pointerEvents="none"
+          >
+            <Text
+              weight="medium"
+              size="md"
+              text={titleContent}
+              style={[$title, $titleStyleOverride]}
+            />
+          </View>
+        )}
 
         <HeaderAction
           tx={rightTx}
@@ -319,14 +321,4 @@ const $titleWrapperCenter: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 const $titleWrapperFlex: ViewStyle = {
   justifyContent: "center",
   flexGrow: 1,
-}
-
-const $profileContainer: ViewStyle = {
-  padding: 8,
-}
-
-const $profileImage: ViewStyle = {
-  width: 32,
-  height: 32,
-  borderRadius: 16,
 }
