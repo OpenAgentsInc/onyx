@@ -1,5 +1,6 @@
 import { memo, ReactElement } from "react"
-import { StyleSheet, TouchableOpacity, View } from "react-native"
+import { StyleSheet, View } from "react-native"
+import { useStores } from "@/models"
 import Money from "./Money"
 
 /**
@@ -7,26 +8,18 @@ import Money from "./Money"
  */
 const BalanceHeader = (): ReactElement => {
   const totalBalance = 600
+  const { walletStore } = useStores()
+  const {
+    balanceSat,
+    pendingSendSat,
+    pendingReceiveSat,
+    isInitialized,
+    error,
+    fetchBalanceInfo
+  } = walletStore
   return (
     <View style={styles.container}>
-      <View style={styles.label}>
-        <Money
-          sats={totalBalance}
-          unitType="secondary"
-          color="secondary"
-          size="caption13Up"
-          enableHide={true}
-          symbol={true}
-        />
-      </View>
-      <TouchableOpacity
-        style={styles.balance}
-        activeOpacity={0.7}
-        testID="TotalBalance"
-      // onPress={onSwitchUnit}
-      >
-        <Money sats={totalBalance} enableHide={true} symbol={true} />
-      </TouchableOpacity>
+      <Money sats={balanceSat} symbol={true} />
     </View>
   )
 }

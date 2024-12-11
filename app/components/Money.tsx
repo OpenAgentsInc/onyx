@@ -65,7 +65,7 @@ const Money = (props: MoneyProps): ReactElement => {
   const dv = {
     fiatWhole: "600",
     fiatFormatted: "600",
-    bitcoinFormatted: "600",
+    bitcoinFormatted: sats,
     fiatSymbol: "$",
   }
 

@@ -24,7 +24,7 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
       <BalanceHeader />
       {/* <BalanceDisplay /> */}
 
-      {isInitialized && (
+      {/* {isInitialized && (
         <View style={$transactionsContainer}>
           <Text text="Recent Transactions" style={$sectionHeader} />
           <ScrollView style={$transactionsList}>
@@ -57,7 +57,7 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
             )}
           </ScrollView>
         </View>
-      )}
+      )} */}
     </Screen>
   )
 })
