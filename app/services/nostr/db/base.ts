@@ -28,6 +28,7 @@ export class NostrDb implements NostrDbInterface {
   async open() {
     if (!this.db) {
       try {
+        console.log("Opening database connection...");
         this.db = await open({
           name: 'onyx.db',
           location: 'default',
@@ -45,6 +46,7 @@ export class NostrDb implements NostrDbInterface {
           created_at integer,
           verified boolean
         );`);
+        console.log("Database opened and schema created successfully");
       } catch (error) {
         console.error('Failed to open database:', error);
         throw error;
@@ -63,14 +65,20 @@ export class NostrDb implements NostrDbInterface {
     await this.open();
     if (!this.db) throw new Error("Database not initialized");
 
+    console.log("Listing events with filter:", filter);
+
     const [or, args] = this.filterToQuery(filter);
     const limit = filter && filter[0].limit;
     const where = or.trim() ? `where ${or}` : "";
     const limitQ = (!limit || isNaN(limit)) ? "" : ` limit ${limit}`;
     const sql = `select * from posts ${where} ${limitQ}`;
     
+    console.log("Executing SQL:", sql, "with args:", args);
+    
     const result = await this.db.execute(sql, args);
     const records = result?.rows?._array || [];
+    console.log(`Found ${records.length} records in database`);
+
     const seen = new Set();
 
     const processedRecords = records.map((ev: NostrEvent) => {
@@ -79,7 +87,8 @@ export class NostrDb implements NostrDbInterface {
           ...ev,
           tags: typeof ev.tags === 'string' ? JSON.parse(ev.tags) : ev.tags
         };
-      } catch {
+      } catch (error) {
+        console.error("Error parsing tags for event:", ev.id, error);
         return {
           ...ev,
           tags: []
@@ -89,12 +98,18 @@ export class NostrDb implements NostrDbInterface {
 
     processedRecords.forEach(ev => seen.add(ev.id));
 
-    for (const ev of this.queue.values()) {
+    // Add queued events that match the filter
+    const queuedEvents = Array.from(this.queue.values());
+    console.log(`Checking ${queuedEvents.length} queued events against filter`);
+    
+    for (const ev of queuedEvents) {
       if (!seen.has(ev.id) && filter.some((f) => matchFilter(f, ev))) {
         seen.add(ev.id);
         processedRecords.push(ev);
       }
     }
+
+    console.log(`Returning ${processedRecords.length} total events`);
     return processedRecords;
   }
 
@@ -112,27 +127,39 @@ export class NostrDb implements NostrDbInterface {
   }
 
   private filterToQuery(filter: Filter[]): [string, (string | number)[]] {
+    if (!filter || filter.length === 0) {
+      return ["1=1", []];
+    }
+
     const or: string[] = [];
     const args: (string | number)[] = [];
+    
     filter.forEach((f) => {
       const ins: [string, (string | number)[]][] = [];
-      if (f.authors) ins.push(["pubkey", f.authors]);
-      if (f.ids) ins.push(["id", f.ids]);
-      if (f.kinds) ins.push(["kind", f.kinds]);
-      if (f["#e"]) ins.push(["e1", f["#e"]]);
-      if (f["#p"]) ins.push(["p1", f["#p"]]);
-      const and: string[] = ins.map((inop) => {
-        const [fd, vals] = inop;
-        const ph = Array(vals.length).fill("?").join(", ");
-        args.push(...vals);
-        return `(${fd} IN (${ph}))`;
-      });
-      or.push(and.join(" AND "));
+      if (f.authors?.length) ins.push(["pubkey", f.authors]);
+      if (f.ids?.length) ins.push(["id", f.ids]);
+      if (f.kinds?.length) ins.push(["kind", f.kinds]);
+      if (f["#e"]?.length) ins.push(["e1", f["#e"]]);
+      if (f["#p"]?.length) ins.push(["p1", f["#p"]]);
+
+      if (ins.length === 0) {
+        or.push("1=1"); // Default true condition if no filters
+      } else {
+        const and: string[] = ins.map((inop) => {
+          const [fd, vals] = inop;
+          const ph = Array(vals.length).fill("?").join(", ");
+          args.push(...vals);
+          return `(${fd} IN (${ph}))`;
+        });
+        or.push(and.join(" AND "));
+      }
     });
-    return [or.join(" or "), args];
+
+    return [or.join(" OR "), args];
   }
 
   async saveEvent(ev: NostrEvent) {
+    console.log("Queueing event for save:", ev.id);
     this.queue.set(ev.id, ev);
     if (!this.timer) {
       this.timer = setTimeout(async () => {
@@ -151,22 +178,38 @@ export class NostrDb implements NostrDbInterface {
     if (!this.db) throw new Error("Database not initialized");
 
     const q = Array.from(this.queue.values());
+    console.log(`Flushing ${q.length} events to database`);
     this.queue = new Map();
     
-    // Start a transaction for batch insert
-    await this.db.transaction(async (tx) => {
-      for (const ev of q) {
-        const [sql, args] = this.eventSql(ev);
-        await tx.execute(sql, args);
-      }
-    });
+    try {
+      // Start a transaction for batch insert
+      await this.db.transaction(async (tx) => {
+        for (const ev of q) {
+          const [sql, args] = this.eventSql(ev);
+          await tx.execute(sql, args);
+        }
+      });
+      console.log(`Successfully flushed ${q.length} events to database`);
+    } catch (error) {
+      console.error("Error flushing events to database:", error);
+      // Put events back in queue if save failed
+      q.forEach(ev => this.queue.set(ev.id, ev));
+      throw error;
+    }
   }
 
   async saveEventSync(ev: NostrEvent) {
+    console.log("Saving event synchronously:", ev.id);
     const [sql, args] = this.eventSql(ev);
     await this.open();
     if (this.db) {
-      await this.db.execute(sql, args);
+      try {
+        await this.db.execute(sql, args);
+        console.log("Event saved successfully:", ev.id);
+      } catch (error) {
+        console.error("Error saving event:", ev.id, error);
+        throw error;
+      }
     }
   }
 
@@ -186,7 +229,16 @@ export class NostrDb implements NostrDbInterface {
     return [
       `insert into posts (id, pubkey, content, sig, kind, tags, p1, e1, created_at, verified)
        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-       on conflict (id) do nothing`,
+       on conflict (id) do update set
+       content = excluded.content,
+       kind = excluded.kind,
+       pubkey = excluded.pubkey,
+       sig = excluded.sig,
+       tags = excluded.tags,
+       p1 = excluded.p1,
+       e1 = excluded.e1,
+       created_at = excluded.created_at,
+       verified = excluded.verified`,
       [ev.id, ev.pubkey, ev.content, ev.sig, ev.kind, JSON.stringify(ev.tags), p1, e1, ev.created_at, 0],
     ];
   }
