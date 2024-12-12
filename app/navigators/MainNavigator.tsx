@@ -2,6 +2,7 @@ import { Image, TouchableOpacity, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Header, Text } from "@/components"
 import { CustomTabBar } from "@/components/CustomTabBar"
+import { colorsDark, ThemedStyle, type } from "@/theme"
 import { useAppTheme } from "@/utils/useAppTheme"
 import {
   BottomTabScreenProps, createBottomTabNavigator
@@ -13,8 +14,6 @@ import {
 } from "../screens"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import { ProfileMenuNavigator } from "./ProfileMenuNavigator"
-
-import type { ThemedStyle } from "@/theme"
 
 export type MainTabParamList = {
   Home: undefined
@@ -55,7 +54,7 @@ export function MainNavigator() {
               />
             }
             containerStyle={{
-              borderBottomColor: '#1a1a1a',
+              borderBottomColor: colorsDark.border,
               borderBottomWidth: 1
             }}
             LeftActionComponent={

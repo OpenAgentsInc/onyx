@@ -26,7 +26,6 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen({ na
 
 const $root: ViewStyle = {
   flex: 1,
-  backgroundColor: '#000000', // --background: 0 0% 0%
 }
 
 const $screenContainer: ViewStyle = {

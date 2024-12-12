@@ -1,5 +1,6 @@
 import { TouchableOpacity, View, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { colorsDark } from "@/theme"
 import { useAppTheme } from "@/utils/useAppTheme"
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs"
 import { Icon } from "./Icon"
@@ -63,6 +64,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                   <Icon
                     icon={getIconName()}
                     size={36}
+                    color={isFocused ? colors.tint : colors.tintInactive}
                     style={{ borderRadius: 12, marginTop: -1 }}
                   />
                 </TouchableOpacity>
@@ -93,7 +95,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 const $tabBar: ViewStyle = {
   flexDirection: 'row',
   backgroundColor: 'black',
-  borderTopColor: '#1a1a1a',
+  borderTopColor: colorsDark.border,
   borderTopWidth: 1,
   position: 'relative',
 }
@@ -117,7 +119,7 @@ const $onyxButtonBorder: ViewStyle = {
   borderRadius: ONYX_BUTTON_SIZE / 2,
   marginTop: -20,
   borderWidth: 1,
-  borderColor: '#1a1a1a',
+  borderColor: colorsDark.border,
   backgroundColor: 'black',
   shadowColor: "#fff",
   shadowOffset: {

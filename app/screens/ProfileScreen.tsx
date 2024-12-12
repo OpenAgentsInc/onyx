@@ -80,7 +80,6 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(function ProfileSc
 
 const $root: ViewStyle = {
   flex: 1,
-  backgroundColor: "black",
 }
 
 const $contentContainer: ViewStyle = {

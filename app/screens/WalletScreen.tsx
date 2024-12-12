@@ -10,15 +10,6 @@ import { useHeader } from "@/utils/useHeader"
 interface WalletScreenProps extends MainTabScreenProps<"Wallet"> { }
 
 export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScreen({ navigation }) {
-  // useHeader({
-  //   containerStyle: {
-  //     backgroundColor: "black",
-  //   },
-  //   style: {
-  //     display: "none",
-  //   }
-  // })
-
   return (
     <Screen
       style={$root}
@@ -68,7 +59,6 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
 
 const $root: ViewStyle = {
   flex: 1,
-  backgroundColor: "black",
 }
 
 const $contentContainer: ViewStyle = {
