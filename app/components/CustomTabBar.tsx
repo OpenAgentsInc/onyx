@@ -41,11 +41,11 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             case 'Marketplace':
               return 'storefront'
             case 'Onyx':
-              return 'appIcon'
+              return 'mic'
             case 'Notifications':
               return 'notifications'
-            case 'Profile':
-              return 'person'
+            case 'Inbox':
+              return 'mail-outline'
             default:
               return 'home'
           }
@@ -62,7 +62,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                 >
                   <Icon
                     icon={getIconName()}
-                    size={48}
+                    size={36}
                     style={{ borderRadius: 12, marginTop: -1 }}
                   />
                 </TouchableOpacity>
