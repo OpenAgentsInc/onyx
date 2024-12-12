@@ -3,6 +3,7 @@ import { FC } from "react"
 import { View, ViewStyle } from "react-native"
 import { Button, Icon, Screen } from "@/components"
 import BalanceHeader from "@/components/BalanceHeader"
+import { WalletActions } from "@/components/WalletActions"
 import { MainTabScreenProps } from "@/navigators"
 import { useHeader } from "@/utils/useHeader"
 
@@ -60,38 +61,7 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
         </View>
       </View>
 
-      <View style={$bottomSection}>
-        <Button
-          text="Backup wallet"
-          onPress={() => {
-            navigation.navigate("BackupWallet")
-          }}
-          style={$bottomButton}
-          LeftAccessory={(props) => (
-            <Icon
-              icon="backup"
-              color="white"
-              size={20}
-              containerStyle={[$iconContainer, props.style]}
-            />
-          )}
-        />
-        <Button
-          text="Restore wallet"
-          onPress={() => {
-            navigation.navigate("RestoreWallet")
-          }}
-          style={$bottomButton}
-          LeftAccessory={(props) => (
-            <Icon
-              icon="restore"
-              color="white"
-              size={20}
-              containerStyle={[$iconContainer, props.style]}
-            />
-          )}
-        />
-      </View>
+      <WalletActions />
     </Screen>
   )
 })

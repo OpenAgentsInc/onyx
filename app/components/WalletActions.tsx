@@ -1,13 +1,14 @@
 import { FC } from "react"
 import { View, ViewStyle } from "react-native"
 import { Button, Icon } from "@/components"
-import { NavigationProp } from "@react-navigation/native"
+import { NavigationProp, useNavigation } from "@react-navigation/native"
 
 interface WalletActionsProps {
   navigation: NavigationProp<any>
 }
 
-export const WalletActions: FC<WalletActionsProps> = ({ navigation }) => {
+export const WalletActions: FC<WalletActionsProps> = () => {
+  const navigation = useNavigation<any>()
   return (
     <View style={$bottomSection}>
       <Button
