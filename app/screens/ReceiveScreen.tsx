@@ -1,12 +1,14 @@
-import { FC, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator, Share } from "react-native"
-import { AppStackScreenProps } from "@/navigators"
+import { FC, useState } from "react"
+import {
+  ActivityIndicator, Share, TextInput, TouchableOpacity, View, ViewStyle
+} from "react-native"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
+import { AppStackScreenProps } from "@/navigators"
 import Clipboard from "@react-native-clipboard/clipboard"
 
-interface ReceiveScreenProps extends AppStackScreenProps<"Receive"> {}
+interface ReceiveScreenProps extends AppStackScreenProps<"Receive"> { }
 
 export const ReceiveScreen: FC<ReceiveScreenProps> = observer(function ReceiveScreen() {
   const [amount, setAmount] = useState("")
@@ -74,22 +76,17 @@ export const ReceiveScreen: FC<ReceiveScreenProps> = observer(function ReceiveSc
   return (
     <Screen style={$root} preset="scroll">
       <View style={$container}>
-        <Text
-          text="Receive Payment"
-          preset="heading"
-          style={$heading}
-        />
 
         {!invoice ? (
           <>
             <Text
-              text={`Amount (min. ${MIN_AMOUNT} sats)`}
+              text={`Amount`}
               preset="subheading"
               style={$label}
             />
             <TextInput
               style={[$input, $amountInput]}
-              placeholder={`Amount (min. ${MIN_AMOUNT} sats)...`}
+              placeholder={`Min ${MIN_AMOUNT} sats`}
               placeholderTextColor="#666"
               value={amount}
               onChangeText={setAmount}
@@ -100,13 +97,13 @@ export const ReceiveScreen: FC<ReceiveScreenProps> = observer(function ReceiveSc
             />
 
             <Text
-              text="Description (optional)"
+              text="Description"
               preset="subheading"
               style={$label}
             />
             <TextInput
               style={$input}
-              placeholder="Payment description..."
+              placeholder="Optional"
               placeholderTextColor="#666"
               value={description}
               onChangeText={setDescription}
@@ -140,7 +137,7 @@ export const ReceiveScreen: FC<ReceiveScreenProps> = observer(function ReceiveSc
               preset="subheading"
               style={$label}
             />
-            
+
             <View style={$invoiceBox}>
               <Text style={$invoiceText} numberOfLines={3}>
                 {invoice}

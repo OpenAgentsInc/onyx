@@ -1,11 +1,13 @@
+import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import { observer } from "mobx-react-lite" 
-import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native"
-import { AppStackScreenProps } from "@/navigators"
+import {
+  ActivityIndicator, TextInput, TouchableOpacity, View, ViewStyle
+} from "react-native"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
+import { AppStackScreenProps } from "@/navigators"
 
-interface SendScreenProps extends AppStackScreenProps<"Send"> {}
+interface SendScreenProps extends AppStackScreenProps<"Send"> { }
 
 export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
   const [recipient, setRecipient] = useState("")
@@ -52,20 +54,14 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
     <Screen style={$root} preset="scroll">
       <View style={$container}>
         <Text
-          text="Send Payment"
-          preset="heading"
-          style={$heading}
-        />
-        
-        <Text
-          text="Enter a Lightning invoice or address"
+          text="Lightning invoice or address"
           preset="subheading"
           style={$label}
         />
 
         <TextInput
           style={$input}
-          placeholder="Lightning invoice or address..."
+          placeholder="Invoice or address"
           placeholderTextColor="#666"
           value={recipient}
           onChangeText={setRecipient}
@@ -77,14 +73,14 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
         />
 
         <Text
-          text={`Amount (min. ${MIN_AMOUNT} sats)`}
+          text={`Amount`}
           preset="subheading"
           style={$label}
         />
 
         <TextInput
           style={[$input, $amountInput]}
-          placeholder="Amount in sats..."
+          placeholder={`Min ${MIN_AMOUNT} sats`}
           placeholderTextColor="#666"
           value={amount}
           onChangeText={setAmount}
@@ -93,7 +89,7 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
           autoCorrect={false}
           editable={!isSending}
         />
-        
+
         {walletStore.error ? (
           <Text style={$errorText}>{walletStore.error}</Text>
         ) : null}
