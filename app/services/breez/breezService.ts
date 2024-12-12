@@ -212,15 +212,16 @@ class BreezServiceImpl implements BreezService {
 
     try {
       const txs = await listPayments({})
+      console.log('Transactions:', txs)
       return txs.map((tx: any) => ({
-        id: tx.id || tx.paymentHash || generateId(),
+        id: tx.txId || generateId(),
         amount: tx.amountSat,
         timestamp: tx.timestamp,
-        type: tx.type === 'sent' ? 'send' : 'receive',
+        type: tx.paymentType === 'send' ? 'send' : 'receive',
         status: tx.status,
-        description: tx.description,
-        paymentHash: tx.paymentHash,
-        fee: tx.feeSat,
+        description: tx.details?.description,
+        paymentHash: tx.details?.paymentHash,
+        fee: tx.feesSat,
       }))
     } catch (err) {
       console.error('Error fetching transactions:', err)
