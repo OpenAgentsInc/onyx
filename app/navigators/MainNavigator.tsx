@@ -3,9 +3,9 @@ import { Image, TouchableOpacity, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Header, Text } from "@/components"
 import { CustomTabBar } from "@/components/CustomTabBar"
-import Money from "@/components/Money"
+import Money from "@/components/MoneySmall"
 import { useStores } from "@/models"
-import { colorsDark, ThemedStyle, type } from "@/theme"
+import { colorsDark } from "@/theme"
 import { useAppTheme } from "@/utils/useAppTheme"
 import {
   BottomTabScreenProps, createBottomTabNavigator
