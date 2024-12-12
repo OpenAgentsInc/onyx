@@ -212,7 +212,6 @@ class BreezServiceImpl implements BreezService {
 
     try {
       const txs = await listPayments({})
-      console.log('Transactions:', txs)
       return txs.map((tx: any) => ({
         id: tx.txId || generateId(),
         amount: tx.amountSat,

@@ -1,4 +1,4 @@
-import { memo, ReactElement, useEffect } from "react"
+import { memo, ReactElement, useEffect, useMemo } from "react"
 import { ActivityIndicator, StyleSheet, View } from "react-native"
 import { useStores } from "@/models"
 import Money from "./Money"
@@ -17,6 +17,12 @@ const BalanceHeader = (): ReactElement => {
     error,
     fetchBalanceInfo
   } = walletStore
+
+
+  const totalBalance = useMemo(() => balanceSat + pendingSendSat + pendingReceiveSat,
+    [balanceSat, pendingSendSat, pendingReceiveSat])
+
+  console.log("total balance: ", totalBalance)
 
   // Fetch balance on mount and every 15 seconds
   useEffect(() => {
