@@ -51,7 +51,7 @@ export function MainNavigator() {
               <Image
                 source={require('../../assets/images/app-icon-all.png')}
                 resizeMode="contain"
-                style={{ width: 100, height: 30 }}
+                style={{ width: 100, height: 36 }}
               />
             }
             containerStyle={{
