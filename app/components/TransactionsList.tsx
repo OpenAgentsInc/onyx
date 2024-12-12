@@ -1,3 +1,4 @@
+import { formatDistanceToNow } from "date-fns"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import {
@@ -6,7 +7,6 @@ import {
 import { Text } from "@/components"
 import { useStores } from "@/models"
 import { typography } from "@/theme"
-import { colors } from "@/theme/colorsDark"
 
 export const TransactionsList: FC = observer(function TransactionsList() {
   const { walletStore } = useStores()
@@ -29,7 +29,7 @@ export const TransactionsList: FC = observer(function TransactionsList() {
                   style={[$transactionType, tx.type === "send" ? $sendText : $receiveText]}
                 />
                 <Text
-                  text={new Date(tx.timestamp * 1000).toLocaleDateString()}
+                  text={formatDistanceToNow(new Date(tx.timestamp * 1000), { addSuffix: true })}
                   style={$transactionDate}
                 />
               </View>
