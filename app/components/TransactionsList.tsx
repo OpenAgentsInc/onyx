@@ -7,6 +7,7 @@ import {
 import { Text } from "@/components"
 import { useStores } from "@/models"
 import { typography } from "@/theme"
+import { colors } from "@/theme/colorsDark"
 
 export const TransactionsList: FC = observer(function TransactionsList() {
   const { walletStore } = useStores()
@@ -58,8 +59,8 @@ const $transactionsContainer: ViewStyle = {
 }
 
 const $sectionHeader: TextStyle = {
-  color: "white",
-  fontSize: 18,
+  color: colors.palette.accent100,
+  fontSize: 16,
   marginTop: 24,
   marginBottom: 12,
   fontFamily: typography.primary.medium
