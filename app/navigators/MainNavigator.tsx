@@ -1,4 +1,5 @@
-import { useMemo } from "react"
+import { observer } from "mobx-react-lite"
+import { FC, useMemo } from "react"
 import { Image, TouchableOpacity, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Header, Text } from "@/components"
@@ -33,7 +34,7 @@ export type MainTabScreenProps<T extends keyof MainTabParamList> = CompositeScre
 
 const Tab = createBottomTabNavigator<MainTabParamList>()
 
-export function MainNavigator() {
+export const MainNavigator: FC = observer(function MainNavigator() {
   const { bottom } = useSafeAreaInsets()
   const {
     themed,
@@ -128,4 +129,4 @@ export function MainNavigator() {
       />
     </Tab.Navigator>
   )
-}
+})

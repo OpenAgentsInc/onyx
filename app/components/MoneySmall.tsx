@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite"
 import React, { memo, ReactElement, useEffect, useMemo } from "react"
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native"
 import { useStores } from "@/models"
@@ -39,7 +40,7 @@ type MoneyProps = {
   size?: TSize;
 };
 
-const MoneySmall = (props: MoneyProps): ReactElement => {
+const MoneySmall = observer((props: MoneyProps): ReactElement => {
   // const primaryUnit = useAppSelector(unitSelector);
   // const nextUnit = useAppSelector(nextUnitSelector);
   // const denomination = useAppSelector(denominationSelector);
@@ -53,6 +54,7 @@ const MoneySmall = (props: MoneyProps): ReactElement => {
     error,
     fetchBalanceInfo
   } = walletStore
+  console.log(props)
 
   // Fetch balance on mount and every 15 seconds
   useEffect(() => {
@@ -187,7 +189,7 @@ const MoneySmall = (props: MoneyProps): ReactElement => {
       </Text>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   root: {
