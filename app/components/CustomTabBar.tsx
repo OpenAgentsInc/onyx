@@ -13,7 +13,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
   const { bottom } = useSafeAreaInsets()
 
   return (
-    <View style={[$tabBar, { paddingBottom: bottom, height: bottom + 65 }]}>
+    <View style={[$tabBar, { paddingBottom: bottom, height: bottom + 55 }]}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key]
         const isFocused = state.index === index
@@ -63,7 +63,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                   <Icon
                     icon={getIconName()}
                     size={48}
-                    style={{ borderRadius: 12 }}
+                    style={{ borderRadius: 12, marginTop: -1 }}
                   />
                 </TouchableOpacity>
               </View>
