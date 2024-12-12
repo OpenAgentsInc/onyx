@@ -1,8 +1,11 @@
+import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { ScrollView, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import {
+  ScrollView, TextStyle, TouchableOpacity, View, ViewStyle
+} from "react-native"
 import { Text } from "@/components"
 import { useStores } from "@/models"
-import { observer } from "mobx-react-lite"
+import { colors } from "@/theme/colorsDark"
 
 export const TransactionsList: FC = observer(function TransactionsList() {
   const { walletStore } = useStores()
@@ -18,14 +21,14 @@ export const TransactionsList: FC = observer(function TransactionsList() {
           <Text text="No transactions yet" style={$emptyText} />
         ) : (
           recentTransactions.map((tx) => (
-            <TouchableOpacity key={tx.id} style={$transactionItem}>
+            <TouchableOpacity key={tx.id} style={$transactionItem} activeOpacity={1}>
               <View style={$transactionLeft}>
                 <Text
                   text={tx.type === "send" ? "Sent" : "Received"}
                   style={[$transactionType, tx.type === "send" ? $sendText : $receiveText]}
                 />
                 <Text
-                  text={new Date(tx.timestamp).toLocaleDateString()}
+                  text={new Date(tx.timestamp * 1000).toLocaleDateString()}
                   style={$transactionDate}
                 />
               </View>
@@ -56,6 +59,7 @@ const $transactionsContainer: ViewStyle = {
 const $sectionHeader: TextStyle = {
   color: "white",
   fontSize: 18,
+  marginTop: 14,
   marginBottom: 12,
   fontFamily: "SpaceGrotesk-Medium",
 }
@@ -81,10 +85,12 @@ const $transactionRight: ViewStyle = {
   alignItems: "flex-end",
 }
 
+// And update these style constants:
 const $transactionType: TextStyle = {
   fontSize: 16,
   marginBottom: 4,
   fontFamily: "SpaceGrotesk-Medium",
+  color: "white", // Added this
 }
 
 const $transactionDate: TextStyle = {
@@ -96,14 +102,15 @@ const $transactionDate: TextStyle = {
 const $transactionAmount: TextStyle = {
   fontSize: 16,
   fontFamily: "SpaceGrotesk-Medium",
+  color: "white", // Added this
 }
 
 const $sendText: TextStyle = {
-  color: "#ff4444",
+  color: 'white',
 }
 
 const $receiveText: TextStyle = {
-  color: "#44ff44",
+  color: "white", // Changed from green to white
 }
 
 const $pendingText: TextStyle = {
