@@ -1,29 +1,28 @@
 import { ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { Header } from "@/components"
 import { CustomTabBar } from "@/components/CustomTabBar"
 import { useAppTheme } from "@/utils/useAppTheme"
 import {
-  BottomTabScreenProps,
-  createBottomTabNavigator,
+  BottomTabScreenProps, createBottomTabNavigator
 } from "@react-navigation/bottom-tabs"
 import { CompositeScreenProps } from "@react-navigation/native"
 import {
-  CommunityScreen,
-  HomeScreen,
-  OnyxScreen,
-  WalletScreen,
+  CommunityScreen, HomeScreen, MarketplaceScreen, NotificationsScreen,
+  OnyxScreen, WalletScreen
 } from "../screens"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import { ProfileMenuNavigator } from "./ProfileMenuNavigator"
-import { Header } from "@/components"
 
 import type { ThemedStyle } from "@/theme"
 
 export type MainTabParamList = {
   Home: undefined
-  Community: undefined
+  // Community: undefined
   Onyx: undefined
-  Wallet: undefined
+  Notifications: undefined
+  Marketplace: undefined
+  // Wallet: undefined
   Profile: undefined
 }
 
@@ -64,8 +63,8 @@ export function MainNavigator() {
       />
 
       <Tab.Screen
-        name="Community"
-        component={CommunityScreen}
+        name="Marketplace"
+        component={MarketplaceScreen}
       />
 
       <Tab.Screen
@@ -77,9 +76,14 @@ export function MainNavigator() {
       />
 
       <Tab.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+      />
+
+      {/* <Tab.Screen
         name="Wallet"
         component={WalletScreen}
-      />
+      /> */}
 
       <Tab.Screen
         name="Profile"

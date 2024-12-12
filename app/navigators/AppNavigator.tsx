@@ -22,6 +22,8 @@ export type AppStackParamList = {
   BackupWallet: undefined
   RestoreWallet: undefined
   Send: undefined
+  Notifications: undefined
+  Marketplace: undefined
   Receive: undefined
   Login: undefined
   Welcome: undefined
@@ -61,6 +63,8 @@ const AppStack = observer(function AppStack() {
       <Stack.Screen name="Main" component={MainNavigator} />
       <Stack.Screen name="Login" component={Screens.LoginScreen} />
       <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
+      <Stack.Screen name="Notifications" component={Screens.NotificationsScreen} />
+      <Stack.Screen name="Marketplace" component={Screens.MarketplaceScreen} />
       <Stack.Screen name="Chat" component={Screens.ChatScreen} />
       <Stack.Screen name="BackupWallet" component={Screens.BackupWalletScreen}
         options={{

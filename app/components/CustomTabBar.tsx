@@ -38,12 +38,12 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
           switch (route.name) {
             case 'Home':
               return 'home'
-            case 'Community':
-              return 'people'
+            case 'Marketplace':
+              return 'storefront'
             case 'Onyx':
               return 'appIcon'
-            case 'Wallet':
-              return 'account-balance-wallet'
+            case 'Notifications':
+              return 'notifications'
             case 'Profile':
               return 'person'
             default:
