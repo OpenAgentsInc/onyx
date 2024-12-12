@@ -1,30 +1,30 @@
-import { ViewStyle } from "react-native"
+import { observer } from "mobx-react-lite"
+import { FC, useMemo } from "react"
+import { Image, TouchableOpacity, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { Header, Text } from "@/components"
 import { CustomTabBar } from "@/components/CustomTabBar"
+import Money from "@/components/MoneySmall"
+import { useStores } from "@/models"
+import { colorsDark } from "@/theme"
 import { useAppTheme } from "@/utils/useAppTheme"
 import {
-  BottomTabScreenProps,
-  createBottomTabNavigator,
+  BottomTabScreenProps, createBottomTabNavigator
 } from "@react-navigation/bottom-tabs"
 import { CompositeScreenProps } from "@react-navigation/native"
 import {
-  CommunityScreen,
-  HomeScreen,
-  OnyxScreen,
-  WalletScreen,
+  CommunityScreen, HomeScreen, InboxScreen, MarketplaceScreen,
+  NotificationsScreen, OnyxScreen, WalletScreen
 } from "../screens"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import { ProfileMenuNavigator } from "./ProfileMenuNavigator"
-import { Header } from "@/components"
-
-import type { ThemedStyle } from "@/theme"
 
 export type MainTabParamList = {
   Home: undefined
-  Community: undefined
+  Marketplace: undefined
   Onyx: undefined
-  Wallet: undefined
-  Profile: undefined
+  Notifications: undefined
+  Inbox: undefined
 }
 
 export type MainTabScreenProps<T extends keyof MainTabParamList> = CompositeScreenProps<
@@ -34,12 +34,25 @@ export type MainTabScreenProps<T extends keyof MainTabParamList> = CompositeScre
 
 const Tab = createBottomTabNavigator<MainTabParamList>()
 
-export function MainNavigator() {
+export const MainNavigator: FC = observer(function MainNavigator() {
   const { bottom } = useSafeAreaInsets()
   const {
     themed,
     theme: { colors },
   } = useAppTheme()
+  const { walletStore } = useStores()
+  const {
+    balanceSat,
+    pendingSendSat,
+    pendingReceiveSat,
+    isInitialized,
+    error,
+    fetchBalanceInfo
+  } = walletStore
+
+
+  const totalBalance = useMemo(() => balanceSat + pendingSendSat + pendingReceiveSat,
+    [balanceSat, pendingSendSat, pendingReceiveSat])
 
   return (
     <Tab.Navigator
@@ -48,9 +61,38 @@ export function MainNavigator() {
         headerShown: true,
         header: ({ route, navigation }) => (
           <Header
-            title={route.name}
-            backgroundColor="#0a0a0c"
-            titleStyle={{ color: "#fafafa" }}
+            titleMode="center"
+            backgroundColor="black"
+            title={
+              <Image
+                source={require('../../assets/images/app-icon-all.png')}
+                resizeMode="contain"
+                style={{ width: 100, height: 36 }}
+              />
+            }
+            containerStyle={{
+              borderBottomColor: colorsDark.border,
+              borderBottomWidth: 1
+            }}
+            LeftActionComponent={
+              <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('Profile')}>
+                <Image
+                  source={{ uri: 'https://pbs.twimg.com/profile_images/1866325943201021952/8UZH5JFx_400x400.jpg' }}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    marginLeft: 16  // Add some padding from the left edge
+                  }}
+                />
+              </TouchableOpacity>
+            }
+
+            RightActionComponent={
+              <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('Wallet')}>
+                <Money sats={totalBalance} symbol={true} />
+              </TouchableOpacity>
+            }
           />
         ),
         tabBarHideOnKeyboard: true,
@@ -64,8 +106,8 @@ export function MainNavigator() {
       />
 
       <Tab.Screen
-        name="Community"
-        component={CommunityScreen}
+        name="Marketplace"
+        component={MarketplaceScreen}
       />
 
       <Tab.Screen
@@ -77,14 +119,14 @@ export function MainNavigator() {
       />
 
       <Tab.Screen
-        name="Wallet"
-        component={WalletScreen}
+        name="Notifications"
+        component={NotificationsScreen}
       />
 
       <Tab.Screen
-        name="Profile"
-        component={ProfileMenuNavigator}
+        name="Inbox"
+        component={InboxScreen}
       />
     </Tab.Navigator>
   )
-}
+})

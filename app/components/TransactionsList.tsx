@@ -1,8 +1,13 @@
+import { formatDistanceToNow } from "date-fns"
+import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { ScrollView, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import {
+  ScrollView, TextStyle, TouchableOpacity, View, ViewStyle
+} from "react-native"
 import { Text } from "@/components"
 import { useStores } from "@/models"
-import { observer } from "mobx-react-lite"
+import { typography } from "@/theme"
+import { colors } from "@/theme/colorsDark"
 
 export const TransactionsList: FC = observer(function TransactionsList() {
   const { walletStore } = useStores()
@@ -18,20 +23,20 @@ export const TransactionsList: FC = observer(function TransactionsList() {
           <Text text="No transactions yet" style={$emptyText} />
         ) : (
           recentTransactions.map((tx) => (
-            <TouchableOpacity key={tx.id} style={$transactionItem}>
+            <TouchableOpacity key={tx.id} style={$transactionItem} activeOpacity={1}>
               <View style={$transactionLeft}>
                 <Text
                   text={tx.type === "send" ? "Sent" : "Received"}
                   style={[$transactionType, tx.type === "send" ? $sendText : $receiveText]}
                 />
                 <Text
-                  text={new Date(tx.timestamp).toLocaleDateString()}
+                  text={formatDistanceToNow(new Date(tx.timestamp * 1000), { addSuffix: true })}
                   style={$transactionDate}
                 />
               </View>
               <View style={$transactionRight}>
                 <Text
-                  text={`${tx.type === "send" ? "-" : "+"}${tx.amount.toLocaleString()} sats`}
+                  text={`${tx.type === "send" ? "-" : "+"}${tx.amount} sats`}
                   style={[$transactionAmount, tx.type === "send" ? $sendText : $receiveText]}
                 />
                 {tx.status === "pending" && (
@@ -54,10 +59,11 @@ const $transactionsContainer: ViewStyle = {
 }
 
 const $sectionHeader: TextStyle = {
-  color: "white",
-  fontSize: 18,
+  color: colors.palette.accent100,
+  fontSize: 16,
+  marginTop: 24,
   marginBottom: 12,
-  fontFamily: "SpaceGrotesk-Medium",
+  fontFamily: typography.primary.medium
 }
 
 const $transactionsList: ViewStyle = {
@@ -81,36 +87,39 @@ const $transactionRight: ViewStyle = {
   alignItems: "flex-end",
 }
 
+// And update these style constants:
 const $transactionType: TextStyle = {
   fontSize: 16,
   marginBottom: 4,
-  fontFamily: "SpaceGrotesk-Medium",
+  fontFamily: typography.primary.normal,
+  color: "white", // Added this
 }
 
 const $transactionDate: TextStyle = {
   color: "#888",
   fontSize: 14,
-  fontFamily: "SpaceGrotesk-Regular",
+  fontFamily: typography.primary.normal,
 }
 
 const $transactionAmount: TextStyle = {
   fontSize: 16,
-  fontFamily: "SpaceGrotesk-Medium",
+  fontFamily: typography.primary.medium,
+  color: "white", // Added this
 }
 
 const $sendText: TextStyle = {
-  color: "#ff4444",
+  color: 'white',
 }
 
 const $receiveText: TextStyle = {
-  color: "#44ff44",
+  color: "white", // Changed from green to white
 }
 
 const $pendingText: TextStyle = {
   color: "#888",
   fontSize: 12,
   marginTop: 4,
-  fontFamily: "SpaceGrotesk-Regular",
+  fontFamily: typography.primary.normal,
 }
 
 const $emptyText: TextStyle = {
@@ -118,5 +127,5 @@ const $emptyText: TextStyle = {
   fontSize: 16,
   textAlign: "center" as const,
   marginTop: 20,
-  fontFamily: "SpaceGrotesk-Regular",
+  fontFamily: typography.primary.normal,
 }

@@ -1,7 +1,7 @@
+import { useStores } from "app/models"
 import { observer } from "mobx-react-lite"
 import { useEffect } from "react"
-import { useStores } from "app/models"
-import { ActivityIndicator, View, Text } from "react-native"
+import { ActivityIndicator, Text, View } from "react-native"
 
 /**
  * Ensures we have a mnemonic and initializes the wallet
@@ -15,9 +15,15 @@ export const WalletProvider = observer(function WalletProvider({
 
   useEffect(() => {
     console.log("[WalletProvider] Starting initialization")
-    walletStore.initialize().catch(error => {
-      console.error("[WalletProvider] Initialization error:", error)
-    })
+    walletStore.initialize()
+      .then(async () => {
+        console.log("[WalletProvider] Initialized")
+        await walletStore.fetchTransactions()
+        console.log("[WalletProvider] Fetched transactions")
+      })
+      .catch(error => {
+        console.error("[WalletProvider] Initialization error:", error)
+      })
   }, [walletStore])
 
   if (!walletStore.isInitialized) {

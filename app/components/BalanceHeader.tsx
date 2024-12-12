@@ -1,4 +1,4 @@
-import { memo, ReactElement, useEffect } from "react"
+import { memo, ReactElement, useEffect, useMemo } from "react"
 import { ActivityIndicator, StyleSheet, View } from "react-native"
 import { useStores } from "@/models"
 import Money from "./Money"
@@ -18,7 +18,13 @@ const BalanceHeader = (): ReactElement => {
     fetchBalanceInfo
   } = walletStore
 
-  // Fetch balance on mount and every 10 seconds
+
+  const totalBalance = useMemo(() => balanceSat + pendingSendSat + pendingReceiveSat,
+    [balanceSat, pendingSendSat, pendingReceiveSat])
+
+  console.log("total balance: ", totalBalance)
+
+  // Fetch balance on mount and every 15 seconds
   useEffect(() => {
     if (isInitialized && !error) {
       console.log("[BalanceHeader] Initial balance fetch")
@@ -28,7 +34,7 @@ const BalanceHeader = (): ReactElement => {
       const interval = setInterval(() => {
         console.log("[BalanceHeader] Periodic balance fetch")
         fetchBalanceInfo()
-      }, 5000) // 5 seconds
+      }, 15000) //
 
       return () => clearInterval(interval)
     }
@@ -45,9 +51,9 @@ const BalanceHeader = (): ReactElement => {
   return (
     <View style={styles.container}>
       <View style={styles.balance}>
-        <Money sats={balanceSat} symbol={true} />
+        <Money sats={totalBalance} symbol={true} />
 
-        {(pendingSendSat > 0 || pendingReceiveSat > 0) && (
+        {/* {(pendingSendSat > 0 || pendingReceiveSat > 0) && (
           <View style={styles.pendingContainer}>
             {pendingSendSat > 0 && (
               <Text style={styles.pendingText}>
@@ -60,7 +66,7 @@ const BalanceHeader = (): ReactElement => {
               </Text>
             )}
           </View>
-        )}
+        )} */}
       </View>
     </View>
   )

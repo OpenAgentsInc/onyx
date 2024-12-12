@@ -1,5 +1,6 @@
+import { use } from "i18next"
 import { observer } from "mobx-react-lite"
-import React, { useEffect } from "react"
+import React, { useEffect, useMemo } from "react"
 import { ActivityIndicator, StyleSheet, View } from "react-native"
 import { useStores } from "../models"
 import { Text } from "./Text"
@@ -19,7 +20,7 @@ export const BalanceDisplay = observer(function BalanceDisplay() {
     if (isInitialized) {
       fetchBalanceInfo()
       // Set up an interval to update the balance periodically
-      const interval = setInterval(fetchBalanceInfo, 5000) // Every 30 seconds
+      const interval = setInterval(fetchBalanceInfo, 15000) // Every 15 seconds
       return () => clearInterval(interval)
     }
     return undefined // Add explicit return
@@ -45,7 +46,7 @@ export const BalanceDisplay = observer(function BalanceDisplay() {
   return (
     <View style={styles.container}>
       <Text style={styles.balanceText} preset="heading">
-        {balanceSat.toLocaleString()} sats
+        {totalBalance.toLocaleString()} sats
       </Text>
       {(pendingSendSat > 0 || pendingReceiveSat > 0) && (
         <View style={styles.pendingContainer}>

@@ -41,7 +41,7 @@ export const colors = {
   text: palette.neutral800,
   textDim: palette.neutral600,
   background: palette.neutral100,
-  border: palette.neutral400,
+  border: palette.neutral200,
   tint: palette.primary500,
   tintInactive: palette.neutral300,
   separator: palette.neutral300,

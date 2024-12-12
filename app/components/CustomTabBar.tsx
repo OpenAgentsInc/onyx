@@ -1,5 +1,6 @@
 import { TouchableOpacity, View, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { colorsDark } from "@/theme"
 import { useAppTheme } from "@/utils/useAppTheme"
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs"
 import { Icon } from "./Icon"
@@ -13,7 +14,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
   const { bottom } = useSafeAreaInsets()
 
   return (
-    <View style={[$tabBar, { paddingBottom: bottom, height: bottom + 65 }]}>
+    <View style={[$tabBar, { paddingBottom: bottom, height: bottom + 55 }]}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key]
         const isFocused = state.index === index
@@ -38,14 +39,14 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
           switch (route.name) {
             case 'Home':
               return 'home'
-            case 'Community':
-              return 'people'
+            case 'Marketplace':
+              return 'storefront'
             case 'Onyx':
-              return 'appIcon'
-            case 'Wallet':
-              return 'account-balance-wallet'
-            case 'Profile':
-              return 'person'
+              return 'mic'
+            case 'Notifications':
+              return 'notifications'
+            case 'Inbox':
+              return 'mail-outline'
             default:
               return 'home'
           }
@@ -62,8 +63,9 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                 >
                   <Icon
                     icon={getIconName()}
-                    size={48}
-                    style={{ borderRadius: 12 }}
+                    size={36}
+                    color={isFocused ? colors.tint : colors.tintInactive}
+                    style={{ borderRadius: 12, marginTop: -1 }}
                   />
                 </TouchableOpacity>
               </View>
@@ -93,7 +95,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 const $tabBar: ViewStyle = {
   flexDirection: 'row',
   backgroundColor: 'black',
-  borderTopColor: '#333',
+  borderTopColor: colorsDark.border,
   borderTopWidth: 1,
   position: 'relative',
 }
@@ -117,7 +119,7 @@ const $onyxButtonBorder: ViewStyle = {
   borderRadius: ONYX_BUTTON_SIZE / 2,
   marginTop: -20,
   borderWidth: 1,
-  borderColor: '#333',
+  borderColor: colorsDark.border,
   backgroundColor: 'black',
   shadowColor: "#fff",
   shadowOffset: {
@@ -125,7 +127,7 @@ const $onyxButtonBorder: ViewStyle = {
     height: 0,
   },
   shadowOpacity: 0.2,
-  shadowRadius: 5,
+  shadowRadius: 1,
   elevation: 5,
 }
 

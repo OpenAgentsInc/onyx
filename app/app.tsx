@@ -40,7 +40,7 @@ import * as storage from "./utils/storage"
 
 global.Buffer = Buffer;
 
-export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE_2a"
+export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE_2b"
 
 // Web linking configuration
 const prefix = Linking.createURL("/")
