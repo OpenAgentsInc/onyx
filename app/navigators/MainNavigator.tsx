@@ -1,6 +1,6 @@
-import { ViewStyle } from "react-native"
+import { Image, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { Header } from "@/components"
+import { Header, Text } from "@/components"
 import { CustomTabBar } from "@/components/CustomTabBar"
 import { useAppTheme } from "@/utils/useAppTheme"
 import {
@@ -47,9 +47,15 @@ export function MainNavigator() {
         headerShown: true,
         header: ({ route, navigation }) => (
           <Header
-            title={route.name}
-            backgroundColor="#0a0a0c"
-            titleStyle={{ color: "#fafafa" }}
+            titleMode="center"
+            backgroundColor="black"
+            title={
+              <Image
+                source={require('../../assets/images/app-icon-all.png')}
+                resizeMode="contain"
+                style={{ width: 100, height: 30 }} // adjust size as needed
+              />
+            }
           />
         ),
         tabBarHideOnKeyboard: true,
