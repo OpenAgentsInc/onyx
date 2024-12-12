@@ -2,22 +2,16 @@ import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { View, ViewStyle } from "react-native"
 import { Button, Icon, Screen } from "@/components"
-import { BalanceDisplay } from "@/components/BalanceDisplay"
 import BalanceHeader from "@/components/BalanceHeader"
-import { useStores } from "@/models"
 import { MainTabScreenProps } from "@/navigators"
 import { useHeader } from "@/utils/useHeader"
 
 interface WalletScreenProps extends MainTabScreenProps<"Wallet"> { }
 
 export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScreen({ navigation }) {
-  const { walletStore } = useStores()
-
   useHeader({
     containerStyle: {
-      // display: "none",
       backgroundColor: "black",
-      // marginTop: 0
     },
     style: {
       display: "none",

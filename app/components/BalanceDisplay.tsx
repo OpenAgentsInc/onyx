@@ -19,7 +19,7 @@ export const BalanceDisplay = observer(function BalanceDisplay() {
     if (isInitialized) {
       fetchBalanceInfo()
       // Set up an interval to update the balance periodically
-      const interval = setInterval(fetchBalanceInfo, 5000) // Every 30 seconds
+      const interval = setInterval(fetchBalanceInfo, 15000) // Every 15 seconds
       return () => clearInterval(interval)
     }
     return undefined // Add explicit return
