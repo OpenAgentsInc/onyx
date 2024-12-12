@@ -3,7 +3,7 @@ import { FC } from "react"
 import { View, ViewStyle } from "react-native"
 import { Button, Icon, Screen } from "@/components"
 import BalanceHeader from "@/components/BalanceHeader"
-import { WalletActions } from "@/components/WalletActions"
+import { TransactionsList } from "@/components/TransactionsList"
 import { MainTabScreenProps } from "@/navigators"
 import { useHeader } from "@/utils/useHeader"
 
@@ -61,7 +61,7 @@ export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScree
         </View>
       </View>
 
-      <WalletActions />
+      <TransactionsList />
     </Screen>
   )
 })
@@ -80,13 +80,6 @@ const $topSection: ViewStyle = {
   width: "100%",
 }
 
-const $bottomSection: ViewStyle = {
-  width: "100%",
-  paddingHorizontal: 20,
-  marginTop: "auto",
-  marginBottom: 40,
-}
-
 const $buttonRow: ViewStyle = {
   flexDirection: "row",
   justifyContent: "center",
@@ -97,10 +90,6 @@ const $buttonRow: ViewStyle = {
 const $actionButton: ViewStyle = {
   flex: 1,
   minWidth: 130,
-}
-
-const $bottomButton: ViewStyle = {
-  marginBottom: 25,
 }
 
 const $iconContainer: ViewStyle = {
