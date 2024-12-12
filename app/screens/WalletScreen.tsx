@@ -6,12 +6,23 @@ import { BalanceDisplay } from "@/components/BalanceDisplay"
 import BalanceHeader from "@/components/BalanceHeader"
 import { useStores } from "@/models"
 import { MainTabScreenProps } from "@/navigators"
+import { useHeader } from "@/utils/useHeader"
 
 interface WalletScreenProps extends MainTabScreenProps<"Wallet"> { }
 
 export const WalletScreen: FC<WalletScreenProps> = observer(function WalletScreen({ navigation }) {
   const { walletStore } = useStores()
-  const { isInitialized } = walletStore
+
+  useHeader({
+    containerStyle: {
+      // display: "none",
+      backgroundColor: "black",
+      // marginTop: 0
+    },
+    style: {
+      display: "none",
+    }
+  })
 
   return (
     <Screen
