@@ -56,6 +56,10 @@ export function MainNavigator() {
                 style={{ width: 100, height: 30 }} // adjust size as needed
               />
             }
+            containerStyle={{
+              borderBottomColor: '#1a1a1a',
+              borderBottomWidth: 1
+            }}
           />
         ),
         tabBarHideOnKeyboard: true,

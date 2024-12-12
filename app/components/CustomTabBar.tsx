@@ -93,7 +93,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 const $tabBar: ViewStyle = {
   flexDirection: 'row',
   backgroundColor: 'black',
-  borderTopColor: '#333',
+  borderTopColor: '#1a1a1a',
   borderTopWidth: 1,
   position: 'relative',
 }
@@ -117,7 +117,7 @@ const $onyxButtonBorder: ViewStyle = {
   borderRadius: ONYX_BUTTON_SIZE / 2,
   marginTop: -20,
   borderWidth: 1,
-  borderColor: '#333',
+  borderColor: '#1a1a1a',
   backgroundColor: 'black',
   shadowColor: "#fff",
   shadowOffset: {
@@ -125,7 +125,7 @@ const $onyxButtonBorder: ViewStyle = {
     height: 0,
   },
   shadowOpacity: 0.2,
-  shadowRadius: 5,
+  shadowRadius: 1,
   elevation: 5,
 }
 
