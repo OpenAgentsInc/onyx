@@ -51,9 +51,9 @@ const BalanceHeader = (): ReactElement => {
   return (
     <View style={styles.container}>
       <View style={styles.balance}>
-        <Money sats={balanceSat} symbol={true} />
+        <Money sats={totalBalance} symbol={true} />
 
-        {(pendingSendSat > 0 || pendingReceiveSat > 0) && (
+        {/* {(pendingSendSat > 0 || pendingReceiveSat > 0) && (
           <View style={styles.pendingContainer}>
             {pendingSendSat > 0 && (
               <Text style={styles.pendingText}>
@@ -66,7 +66,7 @@ const BalanceHeader = (): ReactElement => {
               </Text>
             )}
           </View>
-        )}
+        )} */}
       </View>
     </View>
   )
