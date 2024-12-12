@@ -5,6 +5,7 @@ import {
 } from "react-native"
 import { Text } from "@/components"
 import { useStores } from "@/models"
+import { typography } from "@/theme"
 import { colors } from "@/theme/colorsDark"
 
 export const TransactionsList: FC = observer(function TransactionsList() {
@@ -59,9 +60,9 @@ const $transactionsContainer: ViewStyle = {
 const $sectionHeader: TextStyle = {
   color: "white",
   fontSize: 18,
-  marginTop: 14,
+  marginTop: 24,
   marginBottom: 12,
-  fontFamily: "SpaceGrotesk-Medium",
+  fontFamily: typography.primary.medium
 }
 
 const $transactionsList: ViewStyle = {
@@ -89,19 +90,19 @@ const $transactionRight: ViewStyle = {
 const $transactionType: TextStyle = {
   fontSize: 16,
   marginBottom: 4,
-  fontFamily: "SpaceGrotesk-Medium",
+  fontFamily: typography.primary.normal,
   color: "white", // Added this
 }
 
 const $transactionDate: TextStyle = {
   color: "#888",
   fontSize: 14,
-  fontFamily: "SpaceGrotesk-Regular",
+  fontFamily: typography.primary.normal,
 }
 
 const $transactionAmount: TextStyle = {
   fontSize: 16,
-  fontFamily: "SpaceGrotesk-Medium",
+  fontFamily: typography.primary.medium,
   color: "white", // Added this
 }
 
@@ -117,7 +118,7 @@ const $pendingText: TextStyle = {
   color: "#888",
   fontSize: 12,
   marginTop: 4,
-  fontFamily: "SpaceGrotesk-Regular",
+  fontFamily: typography.primary.normal,
 }
 
 const $emptyText: TextStyle = {
@@ -125,5 +126,5 @@ const $emptyText: TextStyle = {
   fontSize: 16,
   textAlign: "center" as const,
   marginTop: 20,
-  fontFamily: "SpaceGrotesk-Regular",
+  fontFamily: typography.primary.normal,
 }

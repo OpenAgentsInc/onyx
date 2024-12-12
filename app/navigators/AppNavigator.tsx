@@ -23,6 +23,7 @@ export type AppStackParamList = {
   RestoreWallet: undefined
   Send: undefined
   Notifications: undefined
+  Wallet: undefined
   Marketplace: undefined
   Receive: undefined
   Login: undefined
@@ -62,6 +63,23 @@ const AppStack = observer(function AppStack() {
     >
       <Stack.Screen name="Main" component={MainNavigator} />
       <Stack.Screen name="Login" component={Screens.LoginScreen} />
+      <Stack.Screen name="Wallet" component={Screens.WalletScreen}
+        options={{
+          headerShown: true,
+          header: () => (
+            <Header
+              leftIcon="back"
+              title="Wallet"
+              backgroundColor="black"
+              containerStyle={{
+                borderBottomColor: '#1a1a1a',
+                borderBottomWidth: 1
+              }}
+              onLeftPress={() => navigationRef.current?.goBack()}
+            />
+          ),
+        }}
+      />
       <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
       <Stack.Screen name="Notifications" component={Screens.NotificationsScreen} />
       <Stack.Screen name="Marketplace" component={Screens.MarketplaceScreen} />
