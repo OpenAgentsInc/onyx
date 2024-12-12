@@ -1,7 +1,10 @@
+import { useMemo } from "react"
 import { Image, TouchableOpacity, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Header, Text } from "@/components"
 import { CustomTabBar } from "@/components/CustomTabBar"
+import Money from "@/components/Money"
+import { useStores } from "@/models"
 import { colorsDark, ThemedStyle, type } from "@/theme"
 import { useAppTheme } from "@/utils/useAppTheme"
 import {
@@ -36,6 +39,19 @@ export function MainNavigator() {
     themed,
     theme: { colors },
   } = useAppTheme()
+  const { walletStore } = useStores()
+  const {
+    balanceSat,
+    pendingSendSat,
+    pendingReceiveSat,
+    isInitialized,
+    error,
+    fetchBalanceInfo
+  } = walletStore
+
+
+  const totalBalance = useMemo(() => balanceSat + pendingSendSat + pendingReceiveSat,
+    [balanceSat, pendingSendSat, pendingReceiveSat])
 
   return (
     <Tab.Navigator
@@ -70,12 +86,12 @@ export function MainNavigator() {
                 />
               </TouchableOpacity>
             }
-            rightIcon="wallet"  // This uses the Icon component internally
-            rightIconColor="#fff"  // Make it white to be visible on black background
-            onRightPress={() => {
-              // Your handler function here
-              navigation.navigate('Wallet')
-            }}
+
+            RightActionComponent={
+              <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('Wallet')}>
+                <Money sats={totalBalance} symbol={true} />
+              </TouchableOpacity>
+            }
           />
         ),
         tabBarHideOnKeyboard: true,
