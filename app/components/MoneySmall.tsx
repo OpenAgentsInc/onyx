@@ -194,14 +194,18 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
 const styles = StyleSheet.create({
   root: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 4
+    // alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    marginRight: 4,
+    marginTop: 4
   },
   sign: {
-    marginRight: 3,
+    // marginTop: -100
+    // marginBottom: 44
   },
   balance: {
-    fontSize: 18,
+    fontSize: 20,
+    marginTop: 1,
     // lineHeight: 40,
     fontFamily: typography.primary.bold,
   }
