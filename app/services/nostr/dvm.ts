@@ -58,7 +58,7 @@ export class DVMManager {
     const filter: Filter = {
       kinds: [5050], // Added 5050
       // kinds: [5000, 5001, 5002, 5003, 5004, 5005, 5050], // Added 5050
-      since: Math.floor(Date.now() / 1000) - 24 * 60 * 60 // Last 24 hours
+      since: Math.floor(Date.now() / 1000) - 72 * 60 * 60 // Last 72 hours
     }
 
     try {
