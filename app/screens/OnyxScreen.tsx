@@ -20,6 +20,7 @@ export const OnyxScreen = observer(function OnyxScreen({ visible = true }: OnyxS
     <View style={[$container, $topInset]}>
       <Canvas />
       <PylonOverlay />
+      <Text style={$connectionText}>Connected to Pylon</Text>
       <View style={$fileExplorer}>
         <FileExplorer />
       </View>
@@ -33,12 +34,16 @@ const $container: ViewStyle = {
   padding: 16,
 }
 
+const $connectionText: TextStyle = {
+  color: '#fff',
+  fontSize: 14,
+  marginTop: 16,
+  marginBottom: 8,
+  fontFamily: typography.primary.light,
+}
+
 const $fileExplorer: ViewStyle = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
+  flex: 1,
   backgroundColor: '#1a1a1a',
   borderRadius: 8,
   overflow: 'hidden',
