@@ -6,6 +6,7 @@ export class WebSocketService {
   private config: WebSocketConfig;
   private reconnectAttempts = 0;
   private messageHandlers: Map<string, (message: WebSocketMessage) => void> = new Map();
+  private responseHandlers: Map<string, (response: any) => void> = new Map();
   private messageId = 0;
   
   state: ConnectionState = {
@@ -124,6 +125,16 @@ export class WebSocketService {
         return;
       }
 
+      // Handle response messages
+      if (message.id && this.responseHandlers.has(message.id)) {
+        const handler = this.responseHandlers.get(message.id);
+        if (handler) {
+          handler(message);
+          this.responseHandlers.delete(message.id);
+        }
+        return;
+      }
+
       // Handle other messages
       if (message.method) {
         console.log('Looking for handler for message method:', message.method);
@@ -215,8 +226,18 @@ export class WebSocketService {
       params: { path },
       id: this.getNextId()
     };
-    this.send(message);
-    return message.id;
+
+    return new Promise<any>((resolve, reject) => {
+      const messageId = message.id;
+      this.responseHandlers.set(messageId, (response) => {
+        if (response.error) {
+          reject(new Error(response.error.message));
+        } else {
+          resolve(response.result);
+        }
+      });
+      this.send(message);
+    });
   };
 
   readResource = async (path: string) => {
@@ -226,8 +247,18 @@ export class WebSocketService {
       params: { path },
       id: this.getNextId()
     };
-    this.send(message);
-    return message.id;
+
+    return new Promise<any>((resolve, reject) => {
+      const messageId = message.id;
+      this.responseHandlers.set(messageId, (response) => {
+        if (response.error) {
+          reject(new Error(response.error.message));
+        } else {
+          resolve(response.result);
+        }
+      });
+      this.send(message);
+    });
   };
 
   watchResource = async (path: string) => {
@@ -237,8 +268,18 @@ export class WebSocketService {
       params: { path },
       id: this.getNextId()
     };
-    this.send(message);
-    return message.id;
+
+    return new Promise<any>((resolve, reject) => {
+      const messageId = message.id;
+      this.responseHandlers.set(messageId, (response) => {
+        if (response.error) {
+          reject(new Error(response.error.message));
+        } else {
+          resolve(response.result);
+        }
+      });
+      this.send(message);
+    });
   };
 
   unwatchResource = async (path: string) => {
@@ -248,8 +289,18 @@ export class WebSocketService {
       params: { path },
       id: this.getNextId()
     };
-    this.send(message);
-    return message.id;
+
+    return new Promise<any>((resolve, reject) => {
+      const messageId = message.id;
+      this.responseHandlers.set(messageId, (response) => {
+        if (response.error) {
+          reject(new Error(response.error.message));
+        } else {
+          resolve(response.result);
+        }
+      });
+      this.send(message);
+    });
   };
 
   // Original methods
