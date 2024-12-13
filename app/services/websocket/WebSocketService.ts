@@ -6,6 +6,7 @@ export class WebSocketService {
   private config: WebSocketConfig;
   private reconnectAttempts = 0;
   private messageHandlers: Map<string, (message: WebSocketMessage) => void> = new Map();
+  private messageId = 0;
   
   state: ConnectionState = {
     connected: false,
@@ -28,6 +29,10 @@ export class WebSocketService {
     });
   }
 
+  private getNextId() {
+    return (++this.messageId).toString();
+  }
+
   connect = async () => {
     if (this.state.connected || this.state.connecting) {
       console.log('Already connected or connecting, current state:', this.state);
@@ -43,12 +48,16 @@ export class WebSocketService {
       this.ws.onopen = () => {
         console.log('WebSocket connection opened, sending auth message');
         // Send auth message when connection opens
-        const authMessage: AuthMessage = {
-          type: 'auth',
-          id: Math.random().toString(36).substring(7),
-          payload: {
-            apiKey: this.config.apiKey || ''
-          }
+        const authMessage = {
+          jsonrpc: '2.0',
+          method: 'initialize',
+          params: {
+            capabilities: {
+              experimental: false,
+              roots: []
+            }
+          },
+          id: this.getNextId()
         };
         this.send(authMessage);
       };
@@ -83,49 +92,40 @@ export class WebSocketService {
 
   private handleMessage = (event: MessageEvent) => {
     try {
-      const message: WebSocketMessage = JSON.parse(event.data);
+      const message = JSON.parse(event.data);
       console.log('Parsed message:', message);
 
-      // Handle auth response
-      if (message.type === 'auth') {
-        console.log('Handling auth response:', message);
-        if (message.payload?.status === 'success') {
-          console.log('Authentication successful');
-          this.setState({
-            connected: true,
-            connecting: false,
-            error: undefined
-          });
-          this.reconnectAttempts = 0;
-        } else {
-          console.error('Authentication failed:', message.payload?.error);
-          this.setState({
-            error: message.payload?.error || 'Authentication failed',
-            connecting: false,
-            connected: false
-          });
-          this.ws?.close();
-        }
+      // Handle initialization response
+      if (message.id && message.result?.capabilities) {
+        console.log('Initialization successful');
+        this.setState({
+          connected: true,
+          connecting: false,
+          error: undefined
+        });
+        this.reconnectAttempts = 0;
         return;
       }
 
       // Handle error messages
-      if (message.type === 'error') {
+      if (message.error) {
         console.error('Received error message:', message);
         this.setState({
-          error: message.payload?.error || 'Unknown error'
+          error: message.error.message || 'Unknown error'
         });
         return;
       }
 
       // Handle other messages
-      console.log('Looking for handler for message type:', message.type);
-      const handler = this.messageHandlers.get(message.type);
-      if (handler) {
-        console.log('Found handler for message type:', message.type);
-        handler(message);
-      } else {
-        console.warn('No handler found for message type:', message.type);
+      if (message.method) {
+        console.log('Looking for handler for message method:', message.method);
+        const handler = this.messageHandlers.get(message.method);
+        if (handler) {
+          console.log('Found handler for message method:', message.method);
+          handler(message);
+        } else {
+          console.warn('No handler found for message method:', message.method);
+        }
       }
     } catch (error) {
       console.error('Failed to parse WebSocket message:', error, event.data);
@@ -190,7 +190,7 @@ export class WebSocketService {
     }, this.config.reconnectInterval);
   };
 
-  send = (message: WebSocketMessage) => {
+  send = (message: any) => {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
       console.error('WebSocket is not connected');
       throw new Error('WebSocket is not connected');
@@ -200,26 +200,27 @@ export class WebSocketService {
   };
 
   sendQuery = (query: string, teamId?: string) => {
-    const message: AskMessage = {
-      type: 'ask',
-      id: Math.random().toString(36).substring(7),
-      payload: {
+    const message = {
+      jsonrpc: '2.0',
+      method: 'ask',
+      params: {
         query,
         team_id: teamId
-      }
+      },
+      id: this.getNextId()
     };
     this.send(message);
     return message.id;
   };
 
-  onMessage = (type: string, handler: (message: WebSocketMessage) => void) => {
-    console.log('Registering handler for message type:', type);
-    this.messageHandlers.set(type, handler);
-    return () => this.messageHandlers.delete(type);
+  onMessage = (method: string, handler: (message: any) => void) => {
+    console.log('Registering handler for message method:', method);
+    this.messageHandlers.set(method, handler);
+    return () => this.messageHandlers.delete(method);
   };
 
   onResponse = (handler: (message: ResponseMessage) => void) => {
-    return this.onMessage('response', handler as (message: WebSocketMessage) => void);
+    return this.onMessage('response', handler as (message: any) => void);
   };
 
   disconnect = () => {
