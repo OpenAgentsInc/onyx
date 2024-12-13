@@ -1,15 +1,15 @@
-import { useCallback, useState } from "react"
-import { pylonConfig } from "@/config/websocket"
-import { useWebSocket } from "@/services/websocket/useWebSocket"
-import { ChatMessage, ChatRequest } from "@/types/ollama"
+import { useState, useCallback } from 'react';
+import { pylonConfig } from '@/config/websocket';
+import { useWebSocket } from '@/services/websocket/useWebSocket';
+import { ChatMessage, ChatRequest } from '@/types/ollama';
 
-export const useOllamaChat = (model: string = 'llama3.2') => {
-  const { state, sendMessage } = useWebSocket(pylonConfig);
+export const useOllamaChat = (model: string = 'llama2') => {
+  const { state, sendChatMessage } = useWebSocket(pylonConfig);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const sendChatMessage = useCallback(async (content: string) => {
+  const sendMessage = useCallback(async (content: string) => {
     if (!state.connected) {
       throw new Error('WebSocket is not connected');
     }
@@ -27,27 +27,16 @@ export const useOllamaChat = (model: string = 'llama3.2') => {
 
     try {
       // Send request directly to ollama/chat endpoint
-      const response = await sendMessage(JSON.stringify({
+      const result = await sendChatMessage({
         jsonrpc: '2.0',
         method: 'ollama/chat',
         params: {
           model,
           messages: [...messages, newMessage],
         },
-        id: Date.now().toString(),
-      }));
+      });
 
-      // Parse response
-      const result = JSON.parse(response);
-      if (result.error) {
-        throw new Error(result.error.message);
-      }
-
-      const assistantMessage: ChatMessage = {
-        role: 'assistant',
-        content: result.result.message.content,
-      };
-
+      const assistantMessage: ChatMessage = result.message;
       setMessages(prev => [...prev, assistantMessage]);
       setIsLoading(false);
       return assistantMessage;
@@ -57,7 +46,7 @@ export const useOllamaChat = (model: string = 'llama3.2') => {
       setIsLoading(false);
       throw err;
     }
-  }, [state.connected, sendMessage, messages, model]);
+  }, [state.connected, sendChatMessage, messages, model]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
@@ -68,7 +57,7 @@ export const useOllamaChat = (model: string = 'llama3.2') => {
     messages,
     isLoading,
     error,
-    sendMessage: sendChatMessage,
+    sendMessage,
     clearMessages,
     connected: state.connected,
   };
