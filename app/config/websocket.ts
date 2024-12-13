@@ -13,7 +13,7 @@ export const websocketConfig: WebSocketConfig = {
 };
 
 export const pylonConfig: WebSocketConfig = {
-  url: 'ws://localhost:8080',
+  url: 'ws://localhost:8080/mcp',
   maxReconnectAttempts: 5,
   reconnectInterval: 3000,
   reconnectBackoff: 'exponential',
