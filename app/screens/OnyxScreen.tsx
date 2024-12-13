@@ -35,11 +35,10 @@ const $container: ViewStyle = {
 
 const $fileExplorer: ViewStyle = {
   position: 'absolute',
-  top: 60,
-  left: 8,
-  right: 8,
-  width: 'auto',
-  height: 400,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
   backgroundColor: '#1a1a1a',
   borderRadius: 8,
   overflow: 'hidden',
