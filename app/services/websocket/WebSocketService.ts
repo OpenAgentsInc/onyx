@@ -207,6 +207,52 @@ export class WebSocketService {
     this.ws.send(JSON.stringify(message));
   };
 
+  // Resource methods
+  listResources = async (path?: string) => {
+    const message = {
+      jsonrpc: '2.0',
+      method: 'resource/list',
+      params: { path },
+      id: this.getNextId()
+    };
+    this.send(message);
+    return message.id;
+  };
+
+  readResource = async (path: string) => {
+    const message = {
+      jsonrpc: '2.0',
+      method: 'resource/read',
+      params: { path },
+      id: this.getNextId()
+    };
+    this.send(message);
+    return message.id;
+  };
+
+  watchResource = async (path: string) => {
+    const message = {
+      jsonrpc: '2.0',
+      method: 'resource/watch',
+      params: { path },
+      id: this.getNextId()
+    };
+    this.send(message);
+    return message.id;
+  };
+
+  unwatchResource = async (path: string) => {
+    const message = {
+      jsonrpc: '2.0',
+      method: 'resource/unwatch',
+      params: { path },
+      id: this.getNextId()
+    };
+    this.send(message);
+    return message.id;
+  };
+
+  // Original methods
   sendQuery = (query: string, teamId?: string) => {
     const message = {
       jsonrpc: '2.0',
