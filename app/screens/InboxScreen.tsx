@@ -1,4 +1,4 @@
-import { FC, useCallback, useRef } from "react"
+import { FC, useCallback, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { StyleSheet, TextInput, TouchableOpacity, View, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
 import { AppStackScreenProps } from "@/navigators"
@@ -87,15 +87,24 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
             placeholder="Type a message..."
             placeholderTextColor="#666"
             multiline
+            returnKeyType="send"
             onSubmitEditing={handleSend}
             blurOnSubmit={false}
           />
           <TouchableOpacity 
-            style={[styles.sendButton, (!inputText.trim() || isLoading) && styles.sendButtonDisabled]} 
+            style={[
+              styles.sendButton, 
+              (!inputText.trim() || isLoading) && styles.sendButtonDisabled
+            ]} 
             onPress={handleSend}
             disabled={!inputText.trim() || isLoading}
           >
-            <Text style={styles.sendButtonText}>Send</Text>
+            <Text style={[
+              styles.sendButtonText,
+              (!inputText.trim() || isLoading) && styles.sendButtonTextDisabled
+            ]}>
+              {isLoading ? "..." : "Send"}
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -124,25 +133,30 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#333',
     backgroundColor: '#1a1a1a',
+    alignItems: 'flex-end', // Align items at the bottom
   },
   input: {
     flex: 1,
     backgroundColor: '#333',
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 12,
+    paddingBottom: 12,
     marginRight: 8,
     color: '#fff',
     fontFamily: typography.primary.normal,
     fontSize: 16,
-    maxHeight: 100,
+    maxHeight: 120,
+    minHeight: 45,
   },
   sendButton: {
     backgroundColor: '#0084ff',
     borderRadius: 20,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 80,
   },
   sendButtonDisabled: {
     backgroundColor: '#333',
@@ -151,6 +165,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: typography.primary.medium,
     fontSize: 16,
+  },
+  sendButtonTextDisabled: {
+    color: '#666',
   },
   loadingContainer: {
     padding: 16,
