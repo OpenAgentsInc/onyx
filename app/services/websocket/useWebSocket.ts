@@ -39,12 +39,12 @@ export const useWebSocket = (config: WebSocketConfig) => {
     };
   }, [wsService]);
 
-  const sendMessage = useCallback((query: string, teamId?: string) => {
+  const sendMessage = useCallback(async (message: any) => {
     if (!wsService.state.connected) {
       console.log('Cannot send message - not connected. Current state:', wsService.state);
       throw new Error('WebSocket is not connected');
     }
-    return wsService.sendQuery(query, teamId);
+    return wsService.sendAndWait(message);
   }, [wsService]);
 
   const clearMessages = useCallback(() => {
@@ -62,8 +62,4 @@ export const useWebSocket = (config: WebSocketConfig) => {
     watchResource: wsService.watchResource,
     unwatchResource: wsService.unwatchResource,
   };
-};
-
-export const createWebSocketService = (config: WebSocketConfig): WebSocketService => {
-  return new WebSocketService(config);
 };
