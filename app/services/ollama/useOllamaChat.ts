@@ -26,20 +26,18 @@ export const useOllamaChat = (model: string = 'llama2') => {
     setMessages(prev => [...prev, newMessage]);
 
     try {
-      const request: ChatRequest = {
-        model,
-        messages: [...messages, newMessage],
-      };
-
-      // Send request using JSON-RPC format
+      // Send request directly to ollama/chat endpoint
       const response = await sendMessage(JSON.stringify({
         jsonrpc: '2.0',
         method: 'ollama/chat',
-        params: request,
+        params: {
+          model,
+          messages: [...messages, newMessage],
+        },
         id: Date.now().toString(),
       }));
 
-      // Parse response and add assistant message
+      // Parse response
       const result = JSON.parse(response);
       if (result.error) {
         throw new Error(result.error.message);
