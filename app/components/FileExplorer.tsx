@@ -30,16 +30,18 @@ export const FileExplorer = observer(() => {
   }, [state.connected, currentPath]);
 
   const fetchResources = async (path: string) => {
-    if (!state.connected) return;
+    if (!state.connected || !listResources) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      // Register one-time handler for this request
-      const messageId = await listResources(path);
-      console.log('Sent list resources request with id:', messageId);
+      const result = await listResources(path);
+      console.log('Resources:', result);
+      setResources(result);
+      setLoading(false);
     } catch (err) {
+      console.error('Error fetching resources:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
       setLoading(false);
     }
