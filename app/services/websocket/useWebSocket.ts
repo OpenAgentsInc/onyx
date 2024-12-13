@@ -56,6 +56,11 @@ export const useWebSocket = (config: WebSocketConfig) => {
     messages,
     sendMessage,
     clearMessages,
+    // Expose resource methods
+    listResources: wsService.listResources,
+    readResource: wsService.readResource,
+    watchResource: wsService.watchResource,
+    unwatchResource: wsService.unwatchResource,
   };
 };
 
