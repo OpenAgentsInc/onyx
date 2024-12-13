@@ -64,7 +64,7 @@ const {
   sendMessage,
   clearMessages,
   connected
-} = useOllamaChat('llama2');
+} = useOllamaChat('llama3.2');
 
 // Send a message
 await sendMessage('Hello, how are you?');

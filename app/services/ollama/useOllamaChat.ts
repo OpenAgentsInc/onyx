@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
-import { pylonConfig } from '@/config/websocket';
-import { useWebSocket } from '@/services/websocket/useWebSocket';
-import { ChatMessage, ChatRequest } from '@/types/ollama';
+import { useCallback, useState } from "react"
+import { pylonConfig } from "@/config/websocket"
+import { useWebSocket } from "@/services/websocket/useWebSocket"
+import { ChatMessage, ChatRequest } from "@/types/ollama"
 
-export const useOllamaChat = (model: string = 'llama2') => {
+export const useOllamaChat = (model: string = 'llama3.2') => {
   const { state, sendMessage } = useWebSocket(pylonConfig);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
