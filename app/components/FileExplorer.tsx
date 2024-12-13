@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { observer } from 'mobx-react-lite';
 import { pylonConfig } from '@/config/websocket';
 import { useWebSocket } from '@/services/websocket/useWebSocket';
+import { typography } from "@/theme"
 
 interface Resource {
   name: string;
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1a1a1a',
-    padding: 10,
+    padding: 8,
   },
   header: {
     flexDirection: 'row',
@@ -124,10 +125,12 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#fff',
     fontSize: 14,
+    fontFamily: typography.primary.light,
   },
   pathText: {
     color: '#fff',
     fontSize: 14,
+    fontFamily: typography.primary.light,
     flex: 1,
   },
   list: {
@@ -141,14 +144,17 @@ const styles = StyleSheet.create({
   itemText: {
     color: '#fff',
     fontSize: 16,
+    fontFamily: typography.primary.light,
   },
   text: {
     color: '#fff',
     fontSize: 16,
+    fontFamily: typography.primary.light,
   },
   errorText: {
     color: '#ff4444',
     fontSize: 16,
+    fontFamily: typography.primary.light,
   },
 });
 
