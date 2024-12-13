@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { observer } from 'mobx-react-lite';
-import { pylonConfig } from '@/config/websocket';
-import { useWebSocket } from '@/services/websocket/useWebSocket';
+import { observer } from "mobx-react-lite"
+import React from "react"
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { pylonConfig } from "@/config/websocket"
+import { useWebSocket } from "@/services/websocket/useWebSocket"
+import { typography } from "@/theme"
 
 const PylonOverlay = observer(() => {
   const { state } = useWebSocket(pylonConfig);
@@ -17,7 +18,7 @@ const PylonOverlay = observer(() => {
           <Text style={styles.errorText}>{state.error}</Text>
         )}
         {!state.connecting && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.retryButton}
             onPress={() => {
               // This will trigger a reconnection attempt
@@ -89,6 +90,7 @@ const styles = StyleSheet.create({
   connectedText: {
     color: '#fff',
     fontSize: 12,
+    fontFamily: typography.primary.light
   },
 });
 
