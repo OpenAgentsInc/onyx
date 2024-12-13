@@ -46,20 +46,28 @@ export class WebSocketService {
       this.ws = new WebSocket(this.config.url);
       
       this.ws.onopen = () => {
-        console.log('WebSocket connection opened, sending auth message');
-        // Send auth message when connection opens
-        const authMessage = {
+        console.log('WebSocket connection opened, sending initialize message');
+        // Send initialize message when connection opens
+        const initMessage = {
           jsonrpc: '2.0',
           method: 'initialize',
           params: {
             capabilities: {
-              experimental: false,
-              roots: []
-            }
+              experimental: {},
+              roots: {
+                list_changed: true
+              },
+              sampling: {}
+            },
+            clientInfo: {
+              name: 'onyx',
+              version: '0.1.0'
+            },
+            protocolVersion: '0.1.0'
           },
           id: this.getNextId()
         };
-        this.send(authMessage);
+        this.send(initMessage);
       };
 
       this.ws.onclose = (event) => {
