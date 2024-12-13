@@ -39,7 +39,15 @@ export const FileExplorer = observer(() => {
     try {
       const result = await listResources(path);
       console.log('Resources:', result);
-      setResources(result);
+      // Sort resources: directories first, then files, both alphabetically
+      const sortedResources = [...result].sort((a, b) => {
+        const aIsDir = !a.mime_type;
+        const bIsDir = !b.mime_type;
+        if (aIsDir && !bIsDir) return -1;
+        if (!aIsDir && bIsDir) return 1;
+        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+      });
+      setResources(sortedResources);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching resources:', err);
