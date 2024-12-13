@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { observer } from 'mobx-react-lite';
-import { pylonConfig } from '@/config/websocket';
-import { useWebSocket } from '@/services/websocket/useWebSocket';
+import { observer } from "mobx-react-lite"
+import React, { useEffect, useState } from "react"
+import {
+    ScrollView, StyleSheet, Text, TouchableOpacity, View
+} from "react-native"
+import { pylonConfig } from "@/config/websocket"
+import { useWebSocket } from "@/services/websocket/useWebSocket"
 import { typography } from "@/theme"
 
 interface Resource {
@@ -90,7 +92,7 @@ export const FileExplorer = observer(() => {
       </View>
 
       {loading ? (
-        <Text style={styles.text}>Loading...</Text>
+        <Text style={styles.text}></Text>
       ) : error ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : (
