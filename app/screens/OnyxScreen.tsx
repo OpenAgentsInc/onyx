@@ -3,7 +3,7 @@ import React from "react"
 import { View, ViewStyle } from "react-native"
 import { Text } from "@/components"
 import { Canvas } from "@/components/Canvas"
-import { DVMButton } from "@/components/DVMButton"
+import PylonOverlay from "@/components/PylonOverlay"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
 interface OnyxScreenProps {
@@ -18,7 +18,7 @@ export const OnyxScreen = observer(function OnyxScreen({ visible = true }: OnyxS
   return (
     <View style={[$container, $topInset]}>
       <Canvas />
-      {/* <DVMButton /> */}
+      <PylonOverlay />
     </View>
   )
 })
