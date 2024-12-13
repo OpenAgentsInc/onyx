@@ -1,11 +1,12 @@
 import { observer } from "mobx-react-lite"
 import React from "react"
-import { View, ViewStyle } from "react-native"
+import { View, ViewStyle, TextStyle } from "react-native"
 import { Text } from "@/components"
 import { Canvas } from "@/components/Canvas"
 import { PylonOverlay } from "@/components/PylonOverlay"
 import { FileExplorer } from "@/components/FileExplorer"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
+import { typography } from "@/theme"
 
 interface OnyxScreenProps {
   visible?: boolean
