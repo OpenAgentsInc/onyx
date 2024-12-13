@@ -17,7 +17,7 @@ interface ResourceResponse {
 }
 
 export const FileExplorer = observer(() => {
-  const { state, sendMessage } = useWebSocket(pylonConfig);
+  const { state, listResources } = useWebSocket(pylonConfig);
   const [currentPath, setCurrentPath] = useState('.');
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(false);
@@ -25,36 +25,20 @@ export const FileExplorer = observer(() => {
 
   useEffect(() => {
     if (state.connected) {
-      listResources(currentPath);
+      fetchResources(currentPath);
     }
   }, [state.connected, currentPath]);
 
-  const listResources = async (path: string) => {
+  const fetchResources = async (path: string) => {
     if (!state.connected) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const message = {
-        jsonrpc: '2.0',
-        method: 'resource/list',
-        params: { path },
-        id: Math.random().toString(36).substring(7)
-      };
-
       // Register one-time handler for this request
-      const handler = (response: any) => {
-        if (response.error) {
-          setError(response.error.message);
-        } else if (response.result) {
-          setResources(response.result);
-        }
-        setLoading(false);
-      };
-
-      // Send request
-      sendMessage(message);
+      const messageId = await listResources(path);
+      console.log('Sent list resources request with id:', messageId);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
       setLoading(false);
