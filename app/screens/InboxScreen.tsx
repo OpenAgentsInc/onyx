@@ -1,6 +1,6 @@
 import { FC, useCallback, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { StyleSheet, TextInput, TouchableOpacity, View, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
+import { StyleSheet, TextInput, TouchableOpacity, View, ScrollView } from "react-native"
 import { AppStackScreenProps } from "@/navigators"
 import { Screen, Text } from "@/components"
 import { ChatMessage } from "@/components/ChatMessage"
@@ -51,63 +51,61 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
   }
 
   return (
-    <Screen style={styles.root} preset="fixed">
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoid} 
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-      >
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.messagesContainer}
-          contentContainerStyle={styles.messagesContent}
-          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-        >
-          {messages.map((msg, index) => (
-            <ChatMessage key={index} message={msg} />
-          ))}
-          {isLoading && (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>...</Text>
-            </View>
-          )}
-          {error && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          )}
-        </ScrollView>
+    <Screen 
+      style={styles.root} 
+      preset="scroll"
+      keyboardOffset={100}
+      ScrollViewProps={{
+        ref: scrollViewRef,
+        keyboardShouldPersistTaps: "handled",
+        contentContainerStyle: styles.scrollContent,
+      }}
+    >
+      <View style={styles.messagesContainer}>
+        {messages.map((msg, index) => (
+          <ChatMessage key={index} message={msg} />
+        ))}
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>...</Text>
+          </View>
+        )}
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+      </View>
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            ref={inputRef}
-            style={styles.input}
-            value={inputText}
-            onChangeText={setInputText}
-            placeholder="Type a message..."
-            placeholderTextColor="#666"
-            multiline
-            returnKeyType="send"
-            onSubmitEditing={handleSend}
-            blurOnSubmit={false}
-          />
-          <TouchableOpacity 
-            style={[
-              styles.sendButton, 
-              (!inputText.trim() || isLoading) && styles.sendButtonDisabled
-            ]} 
-            onPress={handleSend}
-            disabled={!inputText.trim() || isLoading}
-          >
-            <Text style={[
-              styles.sendButtonText,
-              (!inputText.trim() || isLoading) && styles.sendButtonTextDisabled
-            ]}>
-              {isLoading ? "..." : "Send"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+      <View style={styles.inputContainer}>
+        <TextInput
+          ref={inputRef}
+          style={styles.input}
+          value={inputText}
+          onChangeText={setInputText}
+          placeholder="Type a message..."
+          placeholderTextColor="#666"
+          multiline
+          returnKeyType="send"
+          onSubmitEditing={handleSend}
+          blurOnSubmit={false}
+        />
+        <TouchableOpacity 
+          style={[
+            styles.sendButton, 
+            (!inputText.trim() || isLoading) && styles.sendButtonDisabled
+          ]} 
+          onPress={handleSend}
+          disabled={!inputText.trim() || isLoading}
+        >
+          <Text style={[
+            styles.sendButtonText,
+            (!inputText.trim() || isLoading) && styles.sendButtonTextDisabled
+          ]}>
+            {isLoading ? "..." : "Send"}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </Screen>
   )
 })
@@ -117,15 +115,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1a1a1a',
   },
-  keyboardAvoid: {
-    flex: 1,
+  scrollContent: {
+    flexGrow: 1,
   },
   messagesContainer: {
     flex: 1,
-  },
-  messagesContent: {
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingVertical: 16,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -133,7 +128,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#333',
     backgroundColor: '#1a1a1a',
-    alignItems: 'flex-end', // Align items at the bottom
+    alignItems: 'flex-end',
   },
   input: {
     flex: 1,
