@@ -4,12 +4,12 @@ import { useWebSocket } from '@/services/websocket/useWebSocket';
 import { ChatMessage, ChatRequest } from '@/types/ollama';
 
 export const useOllamaChat = (model: string = 'llama2') => {
-  const { state, sendChatMessage } = useWebSocket(pylonConfig);
+  const { state, sendMessage } = useWebSocket(pylonConfig);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const sendMessage = useCallback(async (content: string) => {
+  const sendChatMessage = useCallback(async (content: string) => {
     if (!state.connected) {
       throw new Error('WebSocket is not connected');
     }
@@ -27,7 +27,7 @@ export const useOllamaChat = (model: string = 'llama2') => {
 
     try {
       // Send request directly to ollama/chat endpoint
-      const result = await sendChatMessage({
+      const result = await sendMessage({
         jsonrpc: '2.0',
         method: 'ollama/chat',
         params: {
@@ -46,7 +46,7 @@ export const useOllamaChat = (model: string = 'llama2') => {
       setIsLoading(false);
       throw err;
     }
-  }, [state.connected, sendChatMessage, messages, model]);
+  }, [state.connected, sendMessage, messages, model]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
@@ -57,7 +57,7 @@ export const useOllamaChat = (model: string = 'llama2') => {
     messages,
     isLoading,
     error,
-    sendMessage,
+    sendMessage: sendChatMessage,
     clearMessages,
     connected: state.connected,
   };
