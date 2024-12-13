@@ -49,8 +49,11 @@ export const FileExplorer = observer(() => {
 
   const handleItemPress = (resource: Resource) => {
     if (!resource.mime_type) {
-      // It's a directory
-      setCurrentPath(resource.uri);
+      // It's a directory - extract relative path from URI
+      const url = new URL(resource.uri);
+      const rootPath = '/Users/christopherdavid/code/pylon/';
+      const relativePath = url.pathname.replace(rootPath, '');
+      setCurrentPath(relativePath || '.');
     }
   };
 
