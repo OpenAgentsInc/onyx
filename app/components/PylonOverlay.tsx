@@ -95,3 +95,4 @@ const styles = StyleSheet.create({
 });
 
 export default PylonOverlay;
+export { PylonOverlay };
