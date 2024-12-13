@@ -60,7 +60,9 @@ export class WebSocketService {
 
       this.ws.onerror = (event) => {
         console.error('WebSocket error:', event);
-        this.handleError(event);
+        // In React Native, we don't have ErrorEvent, so we create our own error object
+        const errorMessage = event.message || 'Unknown WebSocket error';
+        this.handleError(errorMessage);
       };
 
       this.ws.onmessage = (event) => {
@@ -130,7 +132,7 @@ export class WebSocketService {
     }
   };
 
-  private handleClose = (event: CloseEvent) => {
+  private handleClose = (event: WebSocket.CloseEvent) => {
     const codes: Record<number, string> = {
       1000: 'Normal closure',
       1001: 'Going away',
@@ -159,14 +161,8 @@ export class WebSocketService {
     this.attemptReconnect();
   };
 
-  private handleError = (error: Event) => {
-    let errorMessage = 'WebSocket error occurred';
-    if (error instanceof ErrorEvent) {
-      errorMessage = `Connection error: ${error.message}`;
-    } else if (error instanceof CloseEvent) {
-      errorMessage = `Connection closed${error.reason ? `: ${error.reason}` : ''}`;
-    }
-    
+  private handleError = (error: string) => {
+    const errorMessage = `Connection error: ${error}`;
     console.error('WebSocket error:', errorMessage);
     this.setState({
       error: errorMessage,
