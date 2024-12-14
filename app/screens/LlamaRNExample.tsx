@@ -10,6 +10,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context"
 import { Bubble } from "@/components/Bubble"
 import { DEFAULT_MODEL } from "@/features/llama/constants"
 import { useModelDownload } from "@/features/llama/hooks/useModelDownload"
+import { typography } from "@/theme"
 import { colors } from "@/theme/colorsDark"
 import { Chat, darkTheme } from "@flyerhq/react-native-chat-ui"
 
@@ -50,6 +51,19 @@ const monoTheme: Theme = {
   },
   fonts: {
     ...darkTheme.fonts,
+    dateDividerTextStyle: { fontFamily: typography.primary.normal },
+    emptyChatPlaceholderTextStyle: { fontFamily: typography.primary.normal },
+    inputTextStyle: { fontFamily: typography.primary.normal },
+    receivedMessageBodyTextStyle: { fontFamily: typography.primary.normal },
+    receivedMessageCaptionTextStyle: { fontFamily: typography.primary.normal },
+    receivedMessageLinkDescriptionTextStyle: { fontFamily: typography.primary.normal },
+    receivedMessageLinkTitleTextStyle: { fontFamily: typography.primary.normal },
+    sentMessageBodyTextStyle: { fontFamily: typography.primary.normal },
+    sentMessageCaptionTextStyle: { fontFamily: typography.primary.normal },
+    sentMessageLinkDescriptionTextStyle: { fontFamily: typography.primary.normal },
+    sentMessageLinkTitleTextStyle: { fontFamily: typography.primary.normal },
+    userAvatarTextStyle: { fontFamily: typography.primary.normal },
+    userNameTextStyle: { fontFamily: typography.primary.normal },
   },
   insets: {
     ...darkTheme.insets,
