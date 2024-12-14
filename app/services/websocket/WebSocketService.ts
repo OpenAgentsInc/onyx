@@ -8,6 +8,7 @@ export class WebSocketService {
   private messageHandlers: Map<string, (message: WebSocketMessage) => void> = new Map();
   private responseHandlers: Map<string, (response: any) => void> = new Map();
   private messageId = 0;
+  private cleanupCallbacks: (() => void)[] = [];
   
   state: ConnectionState = {
     connected: false,
@@ -177,7 +178,11 @@ export class WebSocketService {
       connected: false,
       connecting: false
     });
-    this.attemptReconnect();
+
+    // Only attempt reconnect if it wasn't a normal closure
+    if (event.code !== 1000) {
+      this.attemptReconnect();
+    }
   };
 
   private handleError = (error: string) => {
@@ -218,89 +223,59 @@ export class WebSocketService {
     this.ws.send(JSON.stringify(message));
   };
 
-  // Resource methods
-  listResources = async (path?: string) => {
-    const message = {
-      jsonrpc: '2.0',
-      method: 'resource/list',
-      params: { path },
-      id: this.getNextId()
-    };
+  // Send a message and wait for response
+  sendAndWait = async (message: any): Promise<any> => {
+    const id = this.getNextId();
+    const fullMessage = { ...message, id };
 
-    return new Promise<any>((resolve, reject) => {
-      const messageId = message.id;
-      this.responseHandlers.set(messageId, (response) => {
+    return new Promise((resolve, reject) => {
+      this.responseHandlers.set(id, (response) => {
         if (response.error) {
           reject(new Error(response.error.message));
         } else {
           resolve(response.result);
         }
       });
-      this.send(message);
+      this.send(fullMessage);
+    });
+  };
+
+  // Resource methods
+  listResources = async (path?: string) => {
+    return this.sendAndWait({
+      jsonrpc: '2.0',
+      method: 'resource/list',
+      params: { path }
     });
   };
 
   readResource = async (path: string) => {
-    const message = {
+    return this.sendAndWait({
       jsonrpc: '2.0',
       method: 'resource/read',
-      params: { path },
-      id: this.getNextId()
-    };
-
-    return new Promise<any>((resolve, reject) => {
-      const messageId = message.id;
-      this.responseHandlers.set(messageId, (response) => {
-        if (response.error) {
-          reject(new Error(response.error.message));
-        } else {
-          resolve(response.result);
-        }
-      });
-      this.send(message);
+      params: { path }
     });
   };
 
   watchResource = async (path: string) => {
-    const message = {
+    return this.sendAndWait({
       jsonrpc: '2.0',
       method: 'resource/watch',
-      params: { path },
-      id: this.getNextId()
-    };
-
-    return new Promise<any>((resolve, reject) => {
-      const messageId = message.id;
-      this.responseHandlers.set(messageId, (response) => {
-        if (response.error) {
-          reject(new Error(response.error.message));
-        } else {
-          resolve(response.result);
-        }
-      });
-      this.send(message);
+      params: { path }
     });
   };
 
   unwatchResource = async (path: string) => {
-    const message = {
+    return this.sendAndWait({
       jsonrpc: '2.0',
       method: 'resource/unwatch',
-      params: { path },
-      id: this.getNextId()
-    };
-
-    return new Promise<any>((resolve, reject) => {
-      const messageId = message.id;
-      this.responseHandlers.set(messageId, (response) => {
-        if (response.error) {
-          reject(new Error(response.error.message));
-        } else {
-          resolve(response.result);
-        }
-      });
-      this.send(message);
+      params: { path }
     });
+  };
+
+  // Chat methods
+  sendChatMessage = async (message: any) => {
+    return this.sendAndWait(message);
   };
 
   // Original methods
@@ -321,22 +296,34 @@ export class WebSocketService {
   onMessage = (method: string, handler: (message: any) => void) => {
     console.log('Registering handler for message method:', method);
     this.messageHandlers.set(method, handler);
-    return () => this.messageHandlers.delete(method);
+    const cleanup = () => this.messageHandlers.delete(method);
+    this.cleanupCallbacks.push(cleanup);
+    return cleanup;
   };
 
   onResponse = (handler: (message: ResponseMessage) => void) => {
     return this.onMessage('response', handler as (message: any) => void);
   };
 
+  cleanup = () => {
+    console.log('Cleaning up WebSocket service');
+    this.cleanupCallbacks.forEach(cleanup => cleanup());
+    this.cleanupCallbacks = [];
+    this.messageHandlers.clear();
+    this.responseHandlers.clear();
+  };
+
   disconnect = () => {
     console.log('Disconnecting WebSocket');
     if (this.ws) {
-      this.ws.close();
+      // Send a close frame with normal closure code
+      this.ws.close(1000, 'Client disconnecting');
       this.ws = null;
     }
     this.setState({
       connected: false,
       connecting: false
     });
+    this.cleanup();
   };
 }

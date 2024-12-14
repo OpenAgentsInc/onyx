@@ -65,7 +65,7 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
       const interval = setInterval(() => {
         console.log("[MoneySmall] Periodic balance fetch")
         fetchBalanceInfo()
-      }, 5000) //
+      }, 60000) //
 
       return () => clearInterval(interval)
     }
