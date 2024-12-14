@@ -3,20 +3,63 @@ import {
     convertJsonSchemaToGrammar, initLlama, loadLlamaModelInfo
 } from "llama.rn"
 import React, { useRef, useState } from "react"
-import { Platform } from "react-native"
+import { Platform, View } from "react-native"
 import ReactNativeBlobUtil from "react-native-blob-util"
 import DocumentPicker from "react-native-document-picker"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { Bubble } from "@/components/Bubble"
 import { DEFAULT_MODEL } from "@/features/llama/constants"
 import { useModelDownload } from "@/features/llama/hooks/useModelDownload"
+import { colors } from "@/theme/colorsDark"
 import { Chat, darkTheme } from "@flyerhq/react-native-chat-ui"
 
 import type { ReactNode } from 'react'
 import type { DocumentPickerResponse } from 'react-native-document-picker'
-import type { MessageType } from '@flyerhq/react-native-chat-ui'
+import type { MessageType, Theme } from '@flyerhq/react-native-chat-ui'
 import type { LlamaContext } from 'llama.rn'
 const { dirs } = ReactNativeBlobUtil.fs
+
+const monoTheme: Theme = {
+  colors: {
+    primary: colors.palette.neutral800, // Light text
+    secondary: colors.palette.neutral600, // Dimmed text
+    background: colors.palette.neutral100, // Dark background
+    inputBackground: colors.palette.neutral200, // Input background
+    inputText: colors.palette.neutral800, // Input text
+    error: colors.palette.neutral600, // Error messages
+    userAvatarBackground: colors.palette.neutral300,
+    userAvatarText: colors.palette.neutral100,
+    receivedMessageDocumentIcon: colors.palette.neutral600,
+    receivedMessageText: colors.palette.neutral800,
+    receivedMessageTextLink: colors.palette.neutral600,
+    receivedMessageTimestamp: colors.palette.neutral500,
+    sentMessageDocumentIcon: colors.palette.neutral300,
+    sentMessageText: colors.palette.neutral100,
+    sentMessageTextLink: colors.palette.neutral300,
+    sentMessageTimestamp: colors.palette.neutral400,
+    sentMessageBackground: colors.palette.neutral300,
+    receivedMessageBackground: colors.palette.neutral700,
+    typingIndicator: colors.palette.neutral600,
+  },
+  borders: {
+    inputBorderRadius: 20,
+    messageBorderRadius: 20,
+  },
+  // fonts: {
+  //   // bodyText: undefined,
+  //   bodyTextStyle: {},
+  //   captionText: undefined,
+  //   captionTextStyle: {},
+  // },
+  insets: {
+    messageInsetsHorizontal: 12,
+    messageInsetsVertical: 12,
+  }
+}
+
+const BottomPadding = () => (
+  <View style={{ height: 80 }} />
+)
 
 const randId = () => Math.random().toString(36).substr(2, 9)
 
@@ -582,7 +625,7 @@ export function LlamaRNExample() {
     <SafeAreaProvider>
       <Chat
         renderBubble={renderBubble}
-        theme={darkTheme}
+        theme={monoTheme}
         messages={messages}
         onSendPress={handleSendPress}
         user={{ id: 'user' }}
@@ -592,10 +635,10 @@ export function LlamaRNExample() {
           placeholder: !context
             ? 'Type /download or press file icon to load model'
             : 'Type your message here',
-          // style: {
-          //   color: colors.palette.neutral800,
-          //   backgroundColor: colors.palette.neutral200,
-          // }
+          style: {
+            color: colors.palette.neutral800,
+            backgroundColor: colors.palette.neutral200,
+          }
         }}
       // customBottomComponent={BottomPadding}
       />
