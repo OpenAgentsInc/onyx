@@ -45,18 +45,19 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
     if (isLoading) return
 
     try {
-      // Send a special prompt message that follows the MCP prompt format
-      await sendMessage(JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'prompts/get',
-        params: {
-          name: 'code_review',
-          arguments: {
-            file_path: 'app/screens/InboxScreen.tsx',
-            style_guide: 'React Native best practices'
-          }
-        }
-      }))
+      // Send a system message followed by the file content to review
+      const systemMessage = `You are a code reviewer examining the React Native file InboxScreen.tsx. 
+Please review this code following React Native best practices and suggest improvements for:
+1. Performance
+2. Code organization
+3. React hooks usage
+4. TypeScript types
+5. UI/UX patterns
+6. Error handling
+
+Format your response with clear sections and code examples where relevant.`
+
+      await sendMessage(systemMessage)
       scrollViewRef.current?.scrollToEnd({ animated: true })
     } catch (err) {
       console.error('Failed to send code review prompt:', err)
