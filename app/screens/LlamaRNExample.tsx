@@ -39,7 +39,7 @@ const renderBubble = ({
   message: MessageType.Any
 }) => <Bubble child={child} message={message} />
 
-export default function App() {
+export function LlamaRNExample() {
   const [context, setContext] = useState<LlamaContext | undefined>(undefined)
 
   const [inferencing, setInferencing] = useState<boolean>(false)
