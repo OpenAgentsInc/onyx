@@ -1,13 +1,16 @@
-import { FC, useCallback, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { StyleSheet, TextInput, TouchableOpacity, View, ScrollView } from "react-native"
-import { AppStackScreenProps } from "@/navigators"
+import { FC, useCallback, useRef, useState } from "react"
+import {
+    ScrollView, StyleSheet, TextInput, TouchableOpacity, View
+} from "react-native"
 import { Screen, Text } from "@/components"
 import { ChatMessage } from "@/components/ChatMessage"
+import { AppStackScreenProps } from "@/navigators"
 import { useOllamaChat } from "@/services/ollama/useOllamaChat"
 import { typography } from "@/theme"
+import { colors } from "@/theme/colorsDark"
 
-interface InboxScreenProps extends AppStackScreenProps<"Inbox"> {}
+interface InboxScreenProps extends AppStackScreenProps<"Inbox"> { }
 
 export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen() {
   const {
@@ -51,8 +54,8 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
   }
 
   return (
-    <Screen 
-      style={styles.root} 
+    <Screen
+      style={styles.root}
       preset="scroll"
       keyboardOffset={100}
       ScrollViewProps={{
@@ -90,11 +93,11 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
           onSubmitEditing={handleSend}
           blurOnSubmit={false}
         />
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
-            styles.sendButton, 
+            styles.sendButton,
             (!inputText.trim() || isLoading) && styles.sendButtonDisabled
-          ]} 
+          ]}
           onPress={handleSend}
           disabled={!inputText.trim() || isLoading}
         >
@@ -145,7 +148,7 @@ const styles = StyleSheet.create({
     minHeight: 45,
   },
   sendButton: {
-    backgroundColor: '#0084ff',
+    backgroundColor: colors.palette.accent200,
     borderRadius: 20,
     paddingHorizontal: 20,
     paddingVertical: 12,
