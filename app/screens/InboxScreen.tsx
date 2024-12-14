@@ -7,6 +7,7 @@ import { Screen, Text } from "@/components"
 import { ChatMessage } from "@/components/ChatMessage"
 import { AppStackScreenProps } from "@/navigators"
 import { useOllamaChat } from "@/services/ollama/useOllamaChat"
+import { usePrompts } from "@/services/prompts/usePrompts"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colorsDark"
 
@@ -15,19 +16,26 @@ interface InboxScreenProps extends AppStackScreenProps<"Inbox"> { }
 export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen() {
   const {
     messages,
-    isLoading,
-    error,
+    isLoading: chatLoading,
+    error: chatError,
     sendMessage,
     clearMessages,
-    connected,
+    connected: chatConnected,
   } = useOllamaChat()
+
+  const {
+    getPrompt,
+    isLoading: promptLoading,
+    error: promptError,
+    connected: promptConnected,
+  } = usePrompts()
 
   const inputRef = useRef<TextInput>(null)
   const scrollViewRef = useRef<ScrollView>(null)
   const [inputText, setInputText] = useState("")
 
   const handleSend = useCallback(async () => {
-    if (!inputText.trim() || isLoading) return
+    if (!inputText.trim() || chatLoading) return
 
     const text = inputText.trim()
     setInputText("")
@@ -39,32 +47,31 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
     } catch (err) {
       console.error('Failed to send message:', err)
     }
-  }, [inputText, isLoading, sendMessage])
+  }, [inputText, chatLoading, sendMessage])
 
   const handleCodeReviewPrompt = useCallback(async () => {
-    if (isLoading) return
+    if (promptLoading || chatLoading) return
 
     try {
-      // Send a system message followed by the file content to review
-      const systemMessage = `You are a code reviewer examining the React Native file InboxScreen.tsx. 
-Please review this code following React Native best practices and suggest improvements for:
-1. Performance
-2. Code organization
-3. React hooks usage
-4. TypeScript types
-5. UI/UX patterns
-6. Error handling
-
-Format your response with clear sections and code examples where relevant.`
-
-      await sendMessage(systemMessage)
+      const result = await getPrompt('code_review', {
+        file_path: 'app/screens/InboxScreen.tsx',
+        style_guide: 'React Native best practices'
+      })
+      
+      // Add the response messages to the chat
+      if (result.messages) {
+        for (const msg of result.messages) {
+          await sendMessage(msg.content)
+        }
+      }
+      
       scrollViewRef.current?.scrollToEnd({ animated: true })
     } catch (err) {
       console.error('Failed to send code review prompt:', err)
     }
-  }, [isLoading, sendMessage])
+  }, [promptLoading, chatLoading, getPrompt, sendMessage])
 
-  if (!connected) {
+  if (!chatConnected || !promptConnected) {
     return (
       <Screen style={styles.root} preset="fixed">
         <View style={styles.disconnectedContainer}>
@@ -89,11 +96,11 @@ Format your response with clear sections and code examples where relevant.`
     >
       <View style={styles.promptButtonContainer}>
         <TouchableOpacity
-          style={[styles.promptButton, isLoading && styles.promptButtonDisabled]}
+          style={[styles.promptButton, (promptLoading || chatLoading) && styles.promptButtonDisabled]}
           onPress={handleCodeReviewPrompt}
-          disabled={isLoading}
+          disabled={promptLoading || chatLoading}
         >
-          <Text style={[styles.promptButtonText, isLoading && styles.promptButtonTextDisabled]}>
+          <Text style={[styles.promptButtonText, (promptLoading || chatLoading) && styles.promptButtonTextDisabled]}>
             Code Review This File
           </Text>
         </TouchableOpacity>
@@ -103,14 +110,14 @@ Format your response with clear sections and code examples where relevant.`
         {messages.map((msg, index) => (
           <ChatMessage key={index} message={msg} />
         ))}
-        {isLoading && (
+        {(chatLoading || promptLoading) && (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>...</Text>
           </View>
         )}
-        {error && (
+        {(chatError || promptError) && (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.errorText}>{chatError || promptError}</Text>
           </View>
         )}
       </View>
@@ -131,16 +138,16 @@ Format your response with clear sections and code examples where relevant.`
         <TouchableOpacity
           style={[
             styles.sendButton,
-            (!inputText.trim() || isLoading) && styles.sendButtonDisabled
+            (!inputText.trim() || chatLoading) && styles.sendButtonDisabled
           ]}
           onPress={handleSend}
-          disabled={!inputText.trim() || isLoading}
+          disabled={!inputText.trim() || chatLoading}
         >
           <Text style={[
             styles.sendButtonText,
-            (!inputText.trim() || isLoading) && styles.sendButtonTextDisabled
+            (!inputText.trim() || chatLoading) && styles.sendButtonTextDisabled
           ]}>
-            {isLoading ? "..." : "Send"}
+            {chatLoading ? "..." : "Send"}
           </Text>
         </TouchableOpacity>
       </View>
