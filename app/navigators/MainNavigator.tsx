@@ -6,15 +6,16 @@ import { Header, Text } from "@/components"
 import { CustomTabBar } from "@/components/CustomTabBar"
 import Money from "@/components/MoneySmall"
 import { useStores } from "@/models"
+import { LlamaRNExample } from "@/screens/LlamaRNExample"
 import { colorsDark } from "@/theme"
 import { useAppTheme } from "@/utils/useAppTheme"
 import {
-  BottomTabScreenProps, createBottomTabNavigator
+    BottomTabScreenProps, createBottomTabNavigator
 } from "@react-navigation/bottom-tabs"
 import { CompositeScreenProps } from "@react-navigation/native"
 import {
-  CommunityScreen, HomeScreen, InboxScreen, MarketplaceScreen,
-  NotificationsScreen, OnyxScreen, WalletScreen
+    CommunityScreen, HomeScreen, InboxScreen, MarketplaceScreen,
+    NotificationsScreen, OnyxScreen, WalletScreen
 } from "../screens"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import { ProfileMenuNavigator } from "./ProfileMenuNavigator"
@@ -120,8 +121,14 @@ export const MainNavigator: FC = observer(function MainNavigator() {
 
       <Tab.Screen
         name="Notifications"
-        component={NotificationsScreen}
+        component={LlamaRNExample}
       />
+
+
+      {/* <Tab.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+      /> */}
 
       <Tab.Screen
         name="Inbox"
