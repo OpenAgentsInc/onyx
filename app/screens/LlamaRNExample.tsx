@@ -1,14 +1,40 @@
 import React, { useState } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { Chat, darkTheme } from '@flyerhq/react-native-chat-ui'
+import { Chat } from '@flyerhq/react-native-chat-ui'
 import DocumentPicker from 'react-native-document-picker'
-import { Platform } from 'react-native'
+import { Platform, View } from 'react-native'
 import type { LlamaContext } from 'llama.rn'
 import { Bubble } from '@/components/Bubble'
 import { useChat } from '@/features/llama/hooks/useChat'
 import { useModelDownload } from '@/features/llama/hooks/useModelDownload'
 import { DEFAULT_MODEL } from '@/features/llama/constants'
 import { ModelManager } from '@/features/llama/ModelManager'
+import { colors } from '@/theme/colorsDark'
+
+// Custom theme using monochrome colors
+const monoTheme = {
+  colors: {
+    primary: colors.palette.neutral800, // Light text
+    secondary: colors.palette.neutral600, // Dimmed text
+    background: colors.palette.neutral100, // Dark background
+    inputBackground: colors.palette.neutral200, // Input background
+    inputText: colors.palette.neutral800, // Input text
+    error: colors.palette.neutral600, // Error messages
+    userAvatarBackground: colors.palette.neutral300,
+    userAvatarText: colors.palette.neutral100,
+    receivedMessageDocumentIcon: colors.palette.neutral600,
+    receivedMessageText: colors.palette.neutral800,
+    receivedMessageTextLink: colors.palette.neutral600,
+    receivedMessageTimestamp: colors.palette.neutral500,
+    sentMessageDocumentIcon: colors.palette.neutral300,
+    sentMessageText: colors.palette.neutral100,
+    sentMessageTextLink: colors.palette.neutral300,
+    sentMessageTimestamp: colors.palette.neutral400,
+    sentMessageBackground: colors.palette.neutral300,
+    receivedMessageBackground: colors.palette.neutral700,
+    typingIndicator: colors.palette.neutral600,
+  },
+}
 
 const renderBubble = ({ child, message }) => (
   <Bubble child={child} message={message} />
@@ -110,20 +136,29 @@ export function LlamaRNExample() {
 
   return (
     <SafeAreaProvider>
-      <Chat
-        renderBubble={renderBubble}
-        theme={darkTheme}
-        messages={messages}
-        onSendPress={handleSendPress}
-        user={{ id: 'user' }}
-        onAttachmentPress={!context ? handlePickModel : undefined}
-        textInputProps={{
-          editable: true,
-          placeholder: !context
-            ? 'Type /download or press file icon to load model'
-            : 'Type your message here'
-        }}
-      />
+      <View style={{ flex: 1, backgroundColor: colors.palette.neutral100 }}>
+        <Chat
+          renderBubble={renderBubble}
+          theme={monoTheme}
+          messages={messages}
+          onSendPress={handleSendPress}
+          user={{ id: 'user' }}
+          onAttachmentPress={!context ? handlePickModel : undefined}
+          textInputProps={{
+            editable: true,
+            placeholder: !context
+              ? 'Type /download or press file icon to load model'
+              : 'Type your message here',
+            style: {
+              color: colors.palette.neutral800,
+              backgroundColor: colors.palette.neutral200,
+            }
+          }}
+          customBottomComponent={
+            <View style={{ height: 80 }} /> // Add padding for tab bar
+          }
+        />
+      </View>
     </SafeAreaProvider>
   )
 }
