@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Chat, Theme } from '@flyerhq/react-native-chat-ui'
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 import DocumentPicker from 'react-native-document-picker'
-import { Platform, View } from 'react-native'
+import { Platform, View, ViewStyle } from 'react-native'
 import type { LlamaContext } from 'llama.rn'
 import { Bubble } from '@/components/Bubble'
+import { Screen } from '@/components'
 import { useChat } from '@/features/llama/hooks/useChat'
 import { useModelDownload } from '@/features/llama/hooks/useModelDownload'
 import { DEFAULT_MODEL } from '@/features/llama/constants'
@@ -154,28 +154,31 @@ export function LlamaRNExample() {
   }, [error])
 
   return (
-    <SafeAreaProvider>
-      <View style={{ flex: 1, backgroundColor: colors.palette.neutral100 }}>
-        <Chat
-          renderBubble={renderBubble}
-          theme={monoTheme}
-          messages={messages}
-          onSendPress={handleSendPress}
-          user={{ id: 'user' }}
-          onAttachmentPress={!context ? handlePickModel : undefined}
-          textInputProps={{
-            editable: true,
-            placeholder: !context
-              ? 'Type /download or press file icon to load model'
-              : 'Type your message here',
-            style: {
-              color: colors.palette.neutral800,
-              backgroundColor: colors.palette.neutral200,
-            }
-          }}
-          customBottomComponent={BottomPadding}
-        />
-      </View>
-    </SafeAreaProvider>
+    <Screen style={$root} preset="fixed">
+      <Chat
+        renderBubble={renderBubble}
+        theme={monoTheme}
+        messages={messages}
+        onSendPress={handleSendPress}
+        user={{ id: 'user' }}
+        onAttachmentPress={!context ? handlePickModel : undefined}
+        textInputProps={{
+          editable: true,
+          placeholder: !context
+            ? 'Type /download or press file icon to load model'
+            : 'Type your message here',
+          style: {
+            color: colors.palette.neutral800,
+            backgroundColor: colors.palette.neutral200,
+          }
+        }}
+        customBottomComponent={BottomPadding}
+      />
+    </Screen>
   )
+}
+
+const $root: ViewStyle = {
+  flex: 1,
+  backgroundColor: colors.palette.neutral100
 }
