@@ -3,7 +3,7 @@ import {
     convertJsonSchemaToGrammar, initLlama, loadLlamaModelInfo
 } from "llama.rn"
 import React, { useRef, useState } from "react"
-import { Platform, View } from "react-native"
+import { KeyboardAvoidingView, Platform, View } from "react-native"
 import ReactNativeBlobUtil from "react-native-blob-util"
 import DocumentPicker from "react-native-document-picker"
 import { SafeAreaProvider } from "react-native-safe-area-context"
@@ -631,6 +631,9 @@ export function LlamaRNExample() {
         onSendPress={handleSendPress}
         user={{ id: 'user' }}
         onAttachmentPress={!context ? handlePickModel : undefined}
+        flatListProps={{
+          marginBottom: 60
+        }}
         textInputProps={{
           editable: true,
           placeholder: !context
