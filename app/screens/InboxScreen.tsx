@@ -41,6 +41,28 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
     }
   }, [inputText, isLoading, sendMessage])
 
+  const handleCodeReviewPrompt = useCallback(async () => {
+    if (isLoading) return
+
+    try {
+      // Send a special prompt message that follows the MCP prompt format
+      await sendMessage(JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'prompts/get',
+        params: {
+          name: 'code_review',
+          arguments: {
+            file_path: 'app/screens/InboxScreen.tsx',
+            style_guide: 'React Native best practices'
+          }
+        }
+      }))
+      scrollViewRef.current?.scrollToEnd({ animated: true })
+    } catch (err) {
+      console.error('Failed to send code review prompt:', err)
+    }
+  }, [isLoading, sendMessage])
+
   if (!connected) {
     return (
       <Screen style={styles.root} preset="fixed">
@@ -64,6 +86,18 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
         contentContainerStyle: styles.scrollContent,
       }}
     >
+      <View style={styles.promptButtonContainer}>
+        <TouchableOpacity
+          style={[styles.promptButton, isLoading && styles.promptButtonDisabled]}
+          onPress={handleCodeReviewPrompt}
+          disabled={isLoading}
+        >
+          <Text style={[styles.promptButtonText, isLoading && styles.promptButtonTextDisabled]}>
+            Code Review This File
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.messagesContainer}>
         {messages.map((msg, index) => (
           <ChatMessage key={index} message={msg} />
@@ -120,6 +154,29 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+  },
+  promptButtonContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  promptButton: {
+    backgroundColor: colors.palette.accent300,
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  promptButtonDisabled: {
+    backgroundColor: '#333',
+  },
+  promptButtonText: {
+    color: '#fff',
+    fontFamily: typography.primary.medium,
+    fontSize: 16,
+  },
+  promptButtonTextDisabled: {
+    color: '#666',
   },
   messagesContainer: {
     flex: 1,
