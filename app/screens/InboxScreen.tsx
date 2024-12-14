@@ -1,10 +1,11 @@
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useRef, useState } from "react"
 import {
-    ScrollView, StyleSheet, TextInput, TouchableOpacity, View
+    Modal, ScrollView, StyleSheet, TextInput, TouchableOpacity, View
 } from "react-native"
 import { Screen, Text } from "@/components"
 import { ChatMessage } from "@/components/ChatMessage"
+import { FileExplorer } from "@/components/FileExplorer"
 import { AppStackScreenProps } from "@/navigators"
 import { useOllamaChat } from "@/services/ollama/useOllamaChat"
 import { usePrompts } from "@/services/prompts/usePrompts"
@@ -33,6 +34,8 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
   const inputRef = useRef<TextInput>(null)
   const scrollViewRef = useRef<ScrollView>(null)
   const [inputText, setInputText] = useState("")
+  const [showFilePicker, setShowFilePicker] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<string | null>(null)
 
   const handleSend = useCallback(async () => {
     if (!inputText.trim() || chatLoading) return
@@ -49,12 +52,23 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
     }
   }, [inputText, chatLoading, sendMessage])
 
+  const handleFileSelect = useCallback((resource: { uri: string, mime_type?: string }) => {
+    if (resource.mime_type) {
+      // It's a file, not a directory
+      const url = new URL(resource.uri)
+      const rootPath = '/Users/christopherdavid/code/pylon/'
+      const relativePath = url.pathname.replace(rootPath, '')
+      setSelectedFile(relativePath)
+      setShowFilePicker(false)
+    }
+  }, [])
+
   const handleCodeReviewPrompt = useCallback(async () => {
-    if (promptLoading || chatLoading) return
+    if (promptLoading || chatLoading || !selectedFile) return
 
     try {
       const result = await getPrompt('code_review', {
-        file_path: 'app/screens/InboxScreen.tsx',
+        file_path: selectedFile,
         style_guide: 'React Native best practices'
       })
       
@@ -69,7 +83,7 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
     } catch (err) {
       console.error('Failed to send code review prompt:', err)
     }
-  }, [promptLoading, chatLoading, getPrompt, sendMessage])
+  }, [promptLoading, chatLoading, selectedFile, getPrompt, sendMessage])
 
   if (!chatConnected || !promptConnected) {
     return (
@@ -96,14 +110,25 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
     >
       <View style={styles.promptButtonContainer}>
         <TouchableOpacity
-          style={[styles.promptButton, (promptLoading || chatLoading) && styles.promptButtonDisabled]}
-          onPress={handleCodeReviewPrompt}
+          style={[styles.promptButton, !selectedFile && styles.promptButtonDisabled]}
+          onPress={() => setShowFilePicker(true)}
           disabled={promptLoading || chatLoading}
         >
-          <Text style={[styles.promptButtonText, (promptLoading || chatLoading) && styles.promptButtonTextDisabled]}>
-            Code Review This File
+          <Text style={[styles.promptButtonText, !selectedFile && styles.promptButtonTextDisabled]}>
+            {selectedFile ? `Review: ${selectedFile}` : 'Select File to Review'}
           </Text>
         </TouchableOpacity>
+        {selectedFile && (
+          <TouchableOpacity
+            style={[styles.promptButton, (promptLoading || chatLoading) && styles.promptButtonDisabled]}
+            onPress={handleCodeReviewPrompt}
+            disabled={promptLoading || chatLoading}
+          >
+            <Text style={[styles.promptButtonText, (promptLoading || chatLoading) && styles.promptButtonTextDisabled]}>
+              Start Review
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.messagesContainer}>
@@ -151,6 +176,25 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
           </Text>
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={showFilePicker}
+        animationType="slide"
+        onRequestClose={() => setShowFilePicker(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() => setShowFilePicker(false)}
+            >
+              <Text style={styles.modalCloseText}>Close</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Select File to Review</Text>
+          </View>
+          <FileExplorer onSelectFile={handleFileSelect} />
+        </View>
+      </Modal>
     </Screen>
   )
 })
@@ -167,6 +211,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
+    gap: 8,
   },
   promptButton: {
     backgroundColor: colors.palette.accent300,
@@ -259,5 +304,30 @@ const styles = StyleSheet.create({
     color: '#666',
     fontFamily: typography.primary.normal,
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#1a1a1a',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  modalCloseButton: {
+    marginRight: 16,
+  },
+  modalCloseText: {
+    color: colors.palette.accent200,
+    fontFamily: typography.primary.medium,
+    fontSize: 16,
+  },
+  modalTitle: {
+    color: '#fff',
+    fontFamily: typography.primary.medium,
+    fontSize: 18,
+    flex: 1,
   },
 });
