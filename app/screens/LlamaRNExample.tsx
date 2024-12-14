@@ -20,38 +20,39 @@ import type { LlamaContext } from 'llama.rn'
 const { dirs } = ReactNativeBlobUtil.fs
 
 const monoTheme: Theme = {
+  ...darkTheme,
   colors: {
+    ...darkTheme.colors,
     primary: colors.palette.neutral800, // Light text
-    secondary: colors.palette.neutral600, // Dimmed text
+    secondary: colors.palette.neutral200, // Dimmed text
     background: colors.palette.neutral100, // Dark background
     inputBackground: colors.palette.neutral200, // Input background
     inputText: colors.palette.neutral800, // Input text
     error: colors.palette.neutral600, // Error messages
-    userAvatarBackground: colors.palette.neutral300,
-    userAvatarText: colors.palette.neutral100,
+    // userAvatarBackground: colors.palette.neutral300,
+    // userAvatarText: colors.palette.neutral100,
     receivedMessageDocumentIcon: colors.palette.neutral600,
-    receivedMessageText: colors.palette.neutral800,
-    receivedMessageTextLink: colors.palette.neutral600,
-    receivedMessageTimestamp: colors.palette.neutral500,
+    // receivedMessageText: colors.palette.neutral800,
+    // receivedMessageTextLink: colors.palette.neutral600,
+    // receivedMessageTimestamp: colors.palette.neutral500,
+    // receivedMessageBackground: colors.palette.neutral100,
     sentMessageDocumentIcon: colors.palette.neutral300,
-    sentMessageText: colors.palette.neutral100,
-    sentMessageTextLink: colors.palette.neutral300,
-    sentMessageTimestamp: colors.palette.neutral400,
-    sentMessageBackground: colors.palette.neutral300,
-    receivedMessageBackground: colors.palette.neutral700,
-    typingIndicator: colors.palette.neutral600,
+    // sentMessageText: colors.palette.neutral100,
+    // sentMessageTextLink: colors.palette.neutral300,
+    // sentMessageTimestamp: colors.palette.neutral400,
+    // sentMessageBackground: colors.palette.neutral300,
+    // typingIndicator: colors.palette.neutral600,
   },
   borders: {
+    ...darkTheme.borders,
     inputBorderRadius: 20,
     messageBorderRadius: 20,
   },
-  // fonts: {
-  //   // bodyText: undefined,
-  //   bodyTextStyle: {},
-  //   captionText: undefined,
-  //   captionTextStyle: {},
-  // },
+  fonts: {
+    ...darkTheme.fonts,
+  },
   insets: {
+    ...darkTheme.insets,
     messageInsetsHorizontal: 12,
     messageInsetsVertical: 12,
   }
