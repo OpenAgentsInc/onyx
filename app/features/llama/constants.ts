@@ -5,5 +5,5 @@ export const DEFAULT_MODEL = {
 
 export const SYSTEM_MESSAGE = {
   role: 'system',
-  content: 'This is a conversation between user and assistant, a friendly chatbot.\n\n'
+  content: 'This is a conversation between user and Onyx, a friendly AI agent in a mobile app.\n\n'
 }

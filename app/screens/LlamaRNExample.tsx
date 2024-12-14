@@ -25,7 +25,7 @@ const monoTheme: Theme = {
   colors: {
     ...darkTheme.colors,
     primary: colors.palette.neutral800, // Light text
-    secondary: colors.palette.neutral200, // Dimmed text
+    secondary: colors.palette.neutral400, // Dimmed text
     background: colors.palette.neutral100, // Dark background
     inputBackground: colors.palette.neutral200, // Input background
     inputText: colors.palette.neutral800, // Input text
