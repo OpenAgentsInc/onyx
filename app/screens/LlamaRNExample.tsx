@@ -154,31 +154,45 @@ export function LlamaRNExample() {
   }, [error])
 
   return (
-    <Screen style={$root} preset="fixed">
-      <Chat
-        renderBubble={renderBubble}
-        theme={monoTheme}
-        messages={messages}
-        onSendPress={handleSendPress}
-        user={{ id: 'user' }}
-        onAttachmentPress={!context ? handlePickModel : undefined}
-        textInputProps={{
-          editable: true,
-          placeholder: !context
-            ? 'Type /download or press file icon to load model'
-            : 'Type your message here',
-          style: {
-            color: colors.palette.neutral800,
-            backgroundColor: colors.palette.neutral200,
-          }
-        }}
-        customBottomComponent={BottomPadding}
-      />
+    <Screen 
+      style={$root} 
+      preset="fixed"
+      safeAreaEdges={["top", "bottom"]}
+      KeyboardAvoidingViewProps={{
+        behavior: Platform.OS === "ios" ? "padding" : undefined,
+      }}
+    >
+      <View style={$chatContainer}>
+        <Chat
+          renderBubble={renderBubble}
+          theme={monoTheme}
+          messages={messages}
+          onSendPress={handleSendPress}
+          user={{ id: 'user' }}
+          onAttachmentPress={!context ? handlePickModel : undefined}
+          textInputProps={{
+            editable: true,
+            placeholder: !context
+              ? 'Type /download or press file icon to load model'
+              : 'Type your message here',
+            style: {
+              color: colors.palette.neutral800,
+              backgroundColor: colors.palette.neutral200,
+            }
+          }}
+          customBottomComponent={BottomPadding}
+        />
+      </View>
     </Screen>
   )
 }
 
 const $root: ViewStyle = {
+  flex: 1,
+  backgroundColor: colors.palette.neutral100
+}
+
+const $chatContainer: ViewStyle = {
   flex: 1,
   backgroundColor: colors.palette.neutral100
 }
