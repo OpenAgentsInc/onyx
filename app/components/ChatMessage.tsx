@@ -1,7 +1,7 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { ChatMessage as ChatMessageType } from '@/types/ollama';
-import { typography } from '@/theme';
+import React from "react"
+import { StyleSheet, Text, View } from "react-native"
+import { typography } from "@/theme"
+import { ChatMessage as ChatMessageType } from "@/types/ollama"
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   userBubble: {
-    backgroundColor: '#0084ff',
+    backgroundColor: '#444',
     borderBottomRightRadius: 4,
   },
   assistantBubble: {
