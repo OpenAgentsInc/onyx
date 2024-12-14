@@ -34,8 +34,12 @@ export const useWebSocket = (config: WebSocketConfig) => {
       console.log('Current wsService state:', wsService.state);
     }
 
+    // Cleanup function
     return () => {
+      console.log('useWebSocket cleanup running');
       unsubscribeResponse();
+      wsService.disconnect();
+      globalWsService = null;
     };
   }, [wsService]);
 
