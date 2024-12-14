@@ -19,7 +19,11 @@ interface ResourceResponse {
   result: Resource[];
 }
 
-export const FileExplorer = observer(() => {
+interface FileExplorerProps {
+  onSelectFile?: (resource: Resource) => void;
+}
+
+export const FileExplorer = observer(({ onSelectFile }: FileExplorerProps) => {
   const { state, listResources } = useWebSocket(pylonConfig);
   const [currentPath, setCurrentPath] = useState('.');
   const [resources, setResources] = useState<Resource[]>([]);
@@ -65,6 +69,9 @@ export const FileExplorer = observer(() => {
       const rootPath = '/Users/christopherdavid/code/pylon/';
       const relativePath = url.pathname.replace(rootPath, '');
       setCurrentPath(relativePath || '.');
+    } else if (onSelectFile) {
+      // It's a file and we have a selection handler
+      onSelectFile(resource);
     }
   };
 
@@ -100,10 +107,16 @@ export const FileExplorer = observer(() => {
           {resources.map((resource) => (
             <TouchableOpacity
               key={resource.uri}
-              style={styles.item}
+              style={[
+                styles.item,
+                resource.mime_type && styles.fileItem
+              ]}
               onPress={() => handleItemPress(resource)}
             >
-              <Text style={styles.itemText}>
+              <Text style={[
+                styles.itemText,
+                resource.mime_type && styles.fileItemText
+              ]}>
                 {resource.mime_type ? '📄 ' : '📁 '}
                 {resource.name}
               </Text>
@@ -151,10 +164,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#333',
   },
+  fileItem: {
+    backgroundColor: '#222',
+  },
   itemText: {
     color: '#fff',
     fontSize: 16,
     fontFamily: typography.primary.light,
+  },
+  fileItemText: {
+    color: '#aaa',
   },
   text: {
     color: '#fff',
