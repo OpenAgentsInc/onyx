@@ -1,4 +1,5 @@
 import { WebSocketConfig, WebSocketMessage, ConnectionState, AskMessage, ResponseMessage, AuthMessage } from '../../types/websocket';
+import { PromptMessage, PromptResponse } from '../../types/prompts';
 import { makeAutoObservable, runInAction } from 'mobx';
 
 export class WebSocketService {
@@ -59,7 +60,11 @@ export class WebSocketService {
               roots: {
                 list_changed: true
               },
-              sampling: {}
+              sampling: {},
+              prompts: {
+                list: true,
+                get: true
+              }
             },
             clientInfo: {
               name: 'onyx',
@@ -270,6 +275,26 @@ export class WebSocketService {
       jsonrpc: '2.0',
       method: 'resource/unwatch',
       params: { path }
+    });
+  };
+
+  // Prompt methods
+  listPrompts = async () => {
+    return this.sendAndWait({
+      jsonrpc: '2.0',
+      method: 'prompts/list',
+      params: {}
+    });
+  };
+
+  getPrompt = async (name: string, args?: Record<string, string>) => {
+    return this.sendAndWait({
+      jsonrpc: '2.0',
+      method: 'prompts/get',
+      params: {
+        name,
+        arguments: args
+      }
     });
   };
 
