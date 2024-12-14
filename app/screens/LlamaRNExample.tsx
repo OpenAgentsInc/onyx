@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { Chat } from '@flyerhq/react-native-chat-ui'
+import { Chat, Theme } from '@flyerhq/react-native-chat-ui'
+import type { MessageType } from '@flyerhq/react-native-chat-ui'
 import DocumentPicker from 'react-native-document-picker'
 import { Platform, View } from 'react-native'
 import type { LlamaContext } from 'llama.rn'
@@ -12,7 +13,7 @@ import { ModelManager } from '@/features/llama/ModelManager'
 import { colors } from '@/theme/colorsDark'
 
 // Custom theme using monochrome colors
-const monoTheme = {
+const monoTheme: Theme = {
   colors: {
     primary: colors.palette.neutral800, // Light text
     secondary: colors.palette.neutral600, // Dimmed text
@@ -34,10 +35,28 @@ const monoTheme = {
     receivedMessageBackground: colors.palette.neutral700,
     typingIndicator: colors.palette.neutral600,
   },
+  borders: {
+    inputBorderRadius: 20,
+    messageBorderRadius: 20,
+  },
+  fonts: {
+    bodyText: undefined,
+    bodyTextStyle: {},
+    captionText: undefined,
+    captionTextStyle: {},
+  },
+  insets: {
+    messageInsetsHorizontal: 12,
+    messageInsetsVertical: 12,
+  }
 }
 
 const renderBubble = ({ child, message }) => (
   <Bubble child={child} message={message} />
+)
+
+const BottomPadding = () => (
+  <View style={{ height: 80 }} />
 )
 
 export function LlamaRNExample() {
@@ -154,9 +173,7 @@ export function LlamaRNExample() {
               backgroundColor: colors.palette.neutral200,
             }
           }}
-          customBottomComponent={
-            <View style={{ height: 80 }} /> // Add padding for tab bar
-          }
+          customBottomComponent={BottomPadding}
         />
       </View>
     </SafeAreaProvider>
