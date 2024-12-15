@@ -110,16 +110,16 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
 
   const conversationIdRef = useRef<string>(defaultConversationId)
 
-  const addMessage = (message: MessageType.Any, batching = false) => {
+  const addMessage = React.useCallback((message: MessageType.Any, batching = false) => {
     if (batching) {
       // This can avoid the message duplication in a same batch
       setMessages([message, ...messages])
     } else {
       setMessages((msgs) => [message, ...msgs])
     }
-  }
+  }, [messages])
 
-  const addSystemMessage = (text: string, metadata = {}) => {
+  const addSystemMessage = React.useCallback((text: string, metadata = {}) => {
     const textMessage: MessageType.Text = {
       author: system,
       createdAt: Date.now(),
@@ -130,7 +130,7 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
     }
     addMessage(textMessage)
     return textMessage.id
-  }
+  }, [addMessage])
 
   const handleReleaseContext = async () => {
     if (!context) return
@@ -597,12 +597,14 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
         setInferencing(false)
         addSystemMessage(`Completion failed: ${e.message}`)
       })
-  }, [context, addMessage, setInferencing, conversationIdRef])
+  }, [context, addMessage, setInferencing, addSystemMessage, conversationIdRef])
 
   React.useEffect(() => {
-    console.log("Registering message handler")
-    messageHandler.setHandleMessage(handleSendPress)
-  }, [handleSendPress]) // Now depends on the memoized function
+    const handler = async (message: MessageType.PartialText) => {
+      await handleSendPress(message)
+    }
+    messageHandler.setHandleMessage(handler)
+  }, []) // Empty dependency array
 
   const llamaChat = useLlamaChat()
   // After messages state is set up:
