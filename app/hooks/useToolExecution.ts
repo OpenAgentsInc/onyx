@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
-import { ToolService } from '@/services/tools';
-import { ChatMessage } from '@/services/llama/LlamaTypes';
+import { useCallback } from "react"
+import { ChatMessage } from "@/services/llama/LlamaTypes"
+import { ToolService } from "@/services/tools"
 
 export const useToolExecution = (toolService: ToolService) => {
   // Process text for tool calls and execute them
@@ -14,11 +14,18 @@ export const useToolExecution = (toolService: ToolService) => {
       try {
         // Get the tool call content
         let toolCallText = match[1].trim();
-        
+
         // Try to parse the JSON, handling incomplete JSON
         let toolCall;
         try {
           toolCall = JSON.parse(toolCallText);
+
+          console.tron.display({
+            name: 'Tool call',
+            value: toolCall,
+            important: true
+          })
+
         } catch (e) {
           // If JSON is incomplete, try to fix common issues
           if (toolCallText.endsWith('}')) {
@@ -31,12 +38,18 @@ export const useToolExecution = (toolService: ToolService) => {
             throw e;
           }
         }
-        
+
         // Execute tool
         const toolResult = await toolService.executeTool(
           toolCall.name,
           toolCall.arguments
         );
+
+        console.tron.display({
+          name: 'Tool result',
+          value: toolResult,
+          important: true
+        })
 
         // Replace tool call with result
         const resultText = toolResult.content
@@ -63,6 +76,12 @@ export const useToolExecution = (toolService: ToolService) => {
     addMessage: (msg: ChatMessage) => void
   ): Promise<ChatMessage> => {
     if (message.type !== 'text') return message;
+
+    console.tron.display({
+      name: 'Processing message',
+      value: message,
+      important: true
+    })
 
     try {
       // Process any tool calls in the text
