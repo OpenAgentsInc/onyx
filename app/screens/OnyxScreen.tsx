@@ -7,10 +7,16 @@ import { LlamaRNExample } from "./LlamaRNExample"
 
 export const OnyxScreen = observer(function OnyxScreen() {
   return (
-    <View style={[$container]}>
-      <OnyxStatus />
-      <Canvas />
-      <LlamaRNExample />
+    <View style={$container}>
+      <View style={$statusContainer}>
+        <OnyxStatus />
+      </View>
+      <View style={$canvasContainer}>
+        <Canvas />
+      </View>
+      <View style={$chatContainer}>
+        <LlamaRNExample />
+      </View>
     </View>
   )
 })
@@ -18,7 +24,33 @@ export const OnyxScreen = observer(function OnyxScreen() {
 const $container: ViewStyle = {
   flex: 1,
   backgroundColor: '#000',
-  paddingTop: 0,
+}
+
+const $statusContainer: ViewStyle = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 2,
+}
+
+const $canvasContainer: ViewStyle = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 1,
+}
+
+const $chatContainer: ViewStyle = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 3,
+  backgroundColor: 'transparent',
 }
 
 export default OnyxScreen
