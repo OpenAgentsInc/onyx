@@ -1,6 +1,5 @@
 import { ModelDownloader } from "../ModelDownloader"
 import { ModelManager } from "../ModelManager"
-import { useCallback } from "react"
 import type { LlamaContext } from 'llama.rn'
 
 export type DownloadProgress = {
@@ -11,15 +10,13 @@ export type DownloadProgress = {
 
 // Simple throttle function
 const throttle = (func: Function, limit: number) => {
-  let inThrottle: boolean
-  let lastResult: any
-  return (...args: any[]) => {
-    if (!inThrottle) {
-      inThrottle = true
-      lastResult = func(...args)
-      setTimeout(() => (inThrottle = false), limit)
+  let lastRun = 0
+  return function (...args: any[]) {
+    const now = Date.now()
+    if (lastRun + limit < now) {
+      func.apply(this, args)
+      lastRun = now
     }
-    return lastResult
   }
 }
 
@@ -34,28 +31,21 @@ export function useModelDownload() {
     onInitProgress?: (progress: number) => void
   ): Promise<LlamaContext> => {
     try {
-      // Create throttled progress handler
-      const throttledProgress = useCallback(
-        throttle((progress: number, received: number, total: number) => {
-          console.log('Download progress:', progress, received, total)
-          onDownloadProgress?.({ percentage: progress, received, total })
-        }, 250), // Update at most every 250ms
-        []
-      )
+      // Create throttled progress handlers
+      const throttledDownloadProgress = throttle((progress: number, received: number, total: number) => {
+        console.log('Download progress:', progress, received, total)
+        onDownloadProgress?.({ percentage: progress, received, total })
+      }, 250) // Update at most every 250ms
+
+      const throttledInitProgress = throttle((progress: number) => {
+        onInitProgress?.(progress)
+      }, 250)
 
       // Download model
       const modelFile = await downloader.downloadModel(
         repoId,
         filename,
-        throttledProgress
-      )
-
-      // Initialize model with throttled progress
-      const throttledInitProgress = useCallback(
-        throttle((progress: number) => {
-          onInitProgress?.(progress)
-        }, 250),
-        []
+        throttledDownloadProgress
       )
 
       // Initialize model
