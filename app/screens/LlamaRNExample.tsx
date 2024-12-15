@@ -10,6 +10,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context"
 import { Bubble } from "@/components/Bubble"
 import { DEFAULT_MODEL } from "@/features/llama/constants"
 import { useModelDownload } from "@/features/llama/hooks/useModelDownload"
+import { modelStore } from "@/features/llama/stores/modelStore"
 import { useLlamaChat } from "@/hooks/useLlamaChat"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colorsDark"
@@ -101,7 +102,8 @@ const renderBubble = ({
 }) => <Bubble child={child} message={message} />
 
 export function LlamaRNExample() {
-  const [context, setContext] = useState<LlamaContext | undefined>(undefined)
+  // const [context, setContext] = useState<LlamaContext | undefined>(undefined)
+  const context = modelStore.context
   const { downloadAndInitModel, downloadProgress, initProgress, error } = useModelDownload()
 
   const [inferencing, setInferencing] = useState<boolean>(false)
