@@ -2,11 +2,11 @@ import { Audio } from "expo-av"
 import { useEffect, useRef } from "react"
 import { Alert } from "react-native"
 import { useStores } from "../models"
-import { useSharedChat } from "./useSharedChat"
+import { useLlamaChat } from "./useLlamaChat"
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
-  const { append } = useSharedChat()
+  const { addUserMessage } = useLlamaChat()
   const recordingRef = useRef<Audio.Recording | null>(null)
 
   useEffect(() => {
@@ -93,12 +93,8 @@ export function useAudioRecorder() {
         console.log("Transcription result:", transcription)
 
         if (transcription) {
-          Alert.alert(transcription)
-          // console.log("Appending transcription to chat:", transcription)
-          await append({
-            role: 'user',
-            content: transcription,
-          })
+          // Instead of using append, we now use addUserMessage
+          addUserMessage(transcription)
         }
       } catch (err) {
         console.error('Failed to process recording:', err)
