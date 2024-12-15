@@ -1,17 +1,20 @@
-import { observer } from 'mobx-react-lite'
-import React, { useRef, useState } from 'react'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { Chat } from '@flyerhq/react-native-chat-ui'
-import { colors } from '@/theme/colorsDark'
-import { SYSTEM_MESSAGE } from '@/features/llama/constants'
-import { useLlamaChat } from '@/hooks/useLlamaChat'
-import { useMessageHandler } from '@/hooks/useMessageHandler'
-import { useStores } from '@/models'
-import { ChatBubble } from './ChatBubble'
-import { monoTheme } from './ChatTheme'
-import { handleCommand } from '@/services/llama/LlamaCommands'
-import { pickModel } from '@/services/llama/LlamaFileUtils'
-import { getModelInfo, initializeLlamaContext, handleContextRelease } from '@/services/llama/LlamaContext'
+import { observer } from "mobx-react-lite"
+import React, { useRef, useState } from "react"
+import { SafeAreaProvider } from "react-native-safe-area-context"
+import { SYSTEM_MESSAGE } from "@/features/llama/constants"
+import { useLlamaChat } from "@/hooks/useLlamaChat"
+import { useMessageHandler } from "@/hooks/useMessageHandler"
+import { useStores } from "@/models"
+import { handleCommand } from "@/services/llama/LlamaCommands"
+import {
+  getModelInfo, handleContextRelease, initializeLlamaContext
+} from "@/services/llama/LlamaContext"
+import { pickModel } from "@/services/llama/LlamaFileUtils"
+import { colors } from "@/theme/colorsDark"
+import { Chat } from "@flyerhq/react-native-chat-ui"
+import { ChatBubble } from "./ChatBubble"
+import { monoTheme } from "./ChatTheme"
+
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 import type { ChatMessage } from '@/services/llama/LlamaTypes'
 
@@ -178,8 +181,8 @@ export const ChatContainer = observer(function ChatContainer() {
       console.log(
         'Formatted:',
         `"${formattedChat}"`,
-        '\nTokenize:',
-        tokens,
+        // '\nTokenize:',
+        // tokens,
         `(${tokens?.length} tokens)`,
       )
 

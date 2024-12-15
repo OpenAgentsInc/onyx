@@ -82,6 +82,7 @@ export const useToolExecution = (toolService: ToolService) => {
       value: message,
       important: true
     })
+    console.log('message text:', message.text)
 
     try {
       // Process any tool calls in the text
