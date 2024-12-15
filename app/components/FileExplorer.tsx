@@ -66,7 +66,7 @@ export const FileExplorer = observer(({ onSelectFile }: FileExplorerProps) => {
     if (!resource.mime_type) {
       // It's a directory - extract relative path from URI
       const url = new URL(resource.uri);
-      const rootPath = '/Users/christopherdavid/code/pylon/';
+      const rootPath = '/home/atlantispleb/code/pylon/';
       const relativePath = url.pathname.replace(rootPath, '');
       setCurrentPath(relativePath || '.');
     } else if (onSelectFile) {
