@@ -3,7 +3,7 @@ import React from "react"
 import { View, ViewStyle } from "react-native"
 import { Canvas } from "@/components/Canvas"
 import { OnyxStatus } from "@/components/OnyxStatus"
-import { ChatContainer } from "@/components/chat/ChatContainer"
+import { ToolEnabledChatContainer } from "@/components/chat/ToolEnabledChatContainer"
 
 export const OnyxScreen = observer(function OnyxScreen() {
   return (
@@ -12,7 +12,7 @@ export const OnyxScreen = observer(function OnyxScreen() {
         <Canvas />
       </View>
       <View style={$chatContainer}>
-        <ChatContainer />
+        <ToolEnabledChatContainer />
       </View>
       <View style={$statusContainer}>
         <OnyxStatus />
