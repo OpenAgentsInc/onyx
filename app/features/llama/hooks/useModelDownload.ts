@@ -1,5 +1,6 @@
-import { ModelDownloader } from '../ModelDownloader'
-import { ModelManager } from '../ModelManager'
+import { ModelDownloader } from "../ModelDownloader"
+import { ModelManager } from "../ModelManager"
+
 import type { LlamaContext } from 'llama.rn'
 
 export type DownloadProgress = {
@@ -24,6 +25,7 @@ export function useModelDownload() {
         repoId,
         filename,
         (progress, received, total) => {
+          console.log('Download progress:', progress, received, total)
           onDownloadProgress?.({ percentage: progress, received, total })
         }
       )

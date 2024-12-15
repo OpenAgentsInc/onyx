@@ -496,7 +496,7 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
       ?.completion(
         {
           messages: msgs,
-          n_predict: 100,
+          n_predict: 1000,
           grammar,
           seed: -1,
           n_probs: 0,
