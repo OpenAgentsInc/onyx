@@ -1,6 +1,6 @@
 import json5 from "json5"
 import {
-    convertJsonSchemaToGrammar, initLlama, loadLlamaModelInfo
+  convertJsonSchemaToGrammar, initLlama, loadLlamaModelInfo
 } from "llama.rn"
 import React, { useRef, useState } from "react"
 import { KeyboardAvoidingView, Platform, View } from "react-native"
@@ -10,6 +10,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context"
 import { Bubble } from "@/components/Bubble"
 import { DEFAULT_MODEL } from "@/features/llama/constants"
 import { useModelDownload } from "@/features/llama/hooks/useModelDownload"
+import { useLlamaChat } from "@/hooks/useLlamaChat"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colorsDark"
 import { Chat, darkTheme } from "@flyerhq/react-native-chat-ui"
@@ -26,7 +27,7 @@ const monoTheme: Theme = {
     ...darkTheme.colors,
     primary: colors.palette.neutral800, // Light text
     secondary: colors.palette.neutral400, // Dimmed text
-    background: colors.palette.neutral100, // Dark background
+    background: 'transparent', // colors.palette.neutral100, // Dark background
     inputBackground: colors.palette.neutral200, // Input background
     inputText: colors.palette.neutral800, // Input text
     error: colors.palette.neutral600, // Error messages
@@ -635,6 +636,13 @@ export function LlamaRNExample() {
     }
   }, [error])
 
+
+  const llamaChat = useLlamaChat()
+  // After messages state is set up:
+  React.useEffect(() => {
+    llamaChat.setAddMessageCallback(addMessage)
+    llamaChat.setMessages(messages)
+  }, [messages])
 
   return (
     <SafeAreaProvider>
