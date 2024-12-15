@@ -18,7 +18,14 @@ export const Bubble = ({
   const currentUserIsAuthor = user?.id === message.author.id
   const { copyable, timings } = message.metadata || {}
 
-  const Container: React.ComponentClass<any> = copyable ? TouchableOpacity : View
+  const Container: React.ComponentClass<any> = TouchableOpacity
+
+  const handleLongPress = () => {
+    if (message.type === 'text') {
+      Clipboard.setString(message.text)
+    }
+  }
+
   return (
     <Container
       style={{
@@ -36,10 +43,8 @@ export const Bubble = ({
         borderRadius: theme.borders.messageBorderRadius,
         overflow: 'hidden',
       }}
-      onPress={() => {
-        if (message.type !== 'text') return
-        Clipboard.setString(message.text);
-      }}
+      onLongPress={handleLongPress}
+      delayLongPress={500}
     >
       {child}
       {timings && (
