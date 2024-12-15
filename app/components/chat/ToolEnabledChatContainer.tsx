@@ -15,6 +15,7 @@ import { pickModel } from '@/services/llama/LlamaFileUtils';
 import { getModelInfo, initializeLlamaContext, handleContextRelease } from '@/services/llama/LlamaContext';
 import { ToolService } from '@/services/tools';
 import { WebSocketService } from '@/services/websocket/WebSocketService';
+import { pylonConfig } from '@/config/websocket';
 import type { MessageType } from '@flyerhq/react-native-chat-ui';
 import type { ChatMessage } from '@/services/llama/LlamaTypes';
 
@@ -30,11 +31,7 @@ export const ToolEnabledChatContainer = observer(function ToolEnabledChatContain
   const context = modelStore.context;
 
   // Initialize services
-  const [wsService] = useState(() => new WebSocketService({
-    url: 'ws://localhost:3000',
-    reconnectInterval: 5000,
-    maxReconnectAttempts: 5
-  }));
+  const [wsService] = useState(() => new WebSocketService(pylonConfig));
   const [toolService] = useState(() => new ToolService(wsService));
   const { processMessage } = useToolExecution(toolService);
 
