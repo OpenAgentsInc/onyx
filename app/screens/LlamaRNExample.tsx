@@ -389,6 +389,7 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
         conversationId: conversationIdRef.current,
       },
     }
+    console.log("Created text message:", textMessage)
 
     const id = randId()
     const createdAt = Date.now()
@@ -414,6 +415,7 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
       { role: 'user', content: message.text },
     ]
     addMessage(textMessage)
+    console.log('setting inferencing')
     setInferencing(true)
     // Test area
     {
@@ -600,11 +602,9 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
   }, [context, addMessage, setInferencing, addSystemMessage, conversationIdRef])
 
   React.useEffect(() => {
-    const handler = async (message: MessageType.PartialText) => {
-      await handleSendPress(message)
-    }
-    messageHandler.setHandleMessage(handler)
-  }, []) // Empty dependency array
+    console.log("Setting up message handler")
+    messageHandler.setHandleMessage(handleSendPress)
+  }, [handleSendPress]) // Empty dependency array to run only once
 
   const llamaChat = useLlamaChat()
   // After messages state is set up:
