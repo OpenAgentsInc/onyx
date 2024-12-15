@@ -81,7 +81,14 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
       // Send each message to the chat
       if (result.messages) {
         for (const msg of result.messages) {
-          await sendMessage(msg.content)
+          // Handle different content types according to MCP spec
+          if (msg.content.type === 'text') {
+            await sendMessage(msg.content.text)
+          } else if (msg.content.type === 'resource') {
+            // For resource content, we may want to format it differently
+            const resourceContent = `Resource: ${msg.content.uri}\n${msg.content.content || ''}`
+            await sendMessage(resourceContent)
+          }
         }
       }
       
