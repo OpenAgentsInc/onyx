@@ -4,6 +4,9 @@ import { colorsDark } from "@/theme"
 import { useAppTheme } from "@/utils/useAppTheme"
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs"
 import { Icon } from "./Icon"
+import useAudioRecorder from "@/hooks/useAudioRecorder"
+import { api } from "@/services/api/api"
+import { useCallback } from "react"
 
 const ONYX_BUTTON_SIZE = 65
 
@@ -12,6 +15,18 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
     theme: { colors },
   } = useAppTheme()
   const { bottom } = useSafeAreaInsets()
+  const { isRecording, toggleRecording } = useAudioRecorder()
+
+  const handlePress = useCallback(async () => {
+    const uri = await toggleRecording()
+    if (uri) {
+      // When recording stops, send to API
+      const result = await api.sendAudioRecording(uri)
+      if (!result.ok) {
+        console.error("Failed to send recording:", result.error)
+      }
+    }
+  }, [toggleRecording])
 
   return (
     <View style={[$tabBar, { paddingBottom: bottom, height: bottom + 55 }]}>
@@ -22,30 +37,18 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 
         if (!isOnyxTab) return null
 
-        const onPress = () => {
-          const event = navigation.emit({
-            type: 'tabPress',
-            target: route.key,
-            canPreventDefault: true,
-          })
-
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name)
-          }
-        }
-
         return (
           <View key={route.key} style={$onyxContainer}>
             <View style={[$onyxButtonBorder, isFocused && $onyxButtonBorderActive]}>
               <TouchableOpacity
-                onPress={onPress}
-                style={$onyxButton}
+                onPress={handlePress}
+                style={[$onyxButton, isRecording && $onyxButtonRecording]}
                 activeOpacity={0.8}
               >
                 <Icon
                   icon="mic"
                   size={36}
-                  color={isFocused ? colors.tint : colors.tintInactive}
+                  color={isRecording ? colors.error : (isFocused ? colors.tint : colors.tintInactive)}
                   style={{ borderRadius: 12, marginTop: -1 }}
                 />
               </TouchableOpacity>
@@ -115,4 +118,8 @@ const $onyxButton: ViewStyle = {
   justifyContent: 'center',
   alignItems: 'center',
   backgroundColor: 'black',
+}
+
+const $onyxButtonRecording: ViewStyle = {
+  backgroundColor: '#330000',
 }
