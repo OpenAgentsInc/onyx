@@ -5,7 +5,6 @@ import { useAppTheme } from "@/utils/useAppTheme"
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs"
 import { Icon } from "./Icon"
 import { useAudioRecorder } from "@/hooks/useAudioRecorder"
-import { api } from "@/services/api/api"
 import { useCallback } from "react"
 
 const ONYX_BUTTON_SIZE = 65
@@ -18,14 +17,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
   const { isRecording, toggleRecording } = useAudioRecorder()
 
   const handlePress = useCallback(async () => {
-    const uri = await toggleRecording()
-    if (uri) {
-      // When recording stops, send to API
-      const result = await api.sendAudioRecording(uri)
-      if (!result.ok) {
-        console.error("Failed to send recording:", result.error)
-      }
-    }
+    await toggleRecording()
   }, [toggleRecording])
 
   return (
