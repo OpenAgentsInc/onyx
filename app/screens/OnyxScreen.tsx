@@ -3,19 +3,10 @@ import React from "react"
 import { View, ViewStyle } from "react-native"
 import { Canvas } from "@/components/Canvas"
 import { OnyxStatus } from "@/components/OnyxStatus"
-import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
-interface OnyxScreenProps {
-  visible?: boolean
-}
-
-export const OnyxScreen = observer(function OnyxScreen({ visible = true }: OnyxScreenProps) {
-  const $topInset = useSafeAreaInsetsStyle(["top"])
-
-  if (!visible) return null
-
+export const OnyxScreen = observer(function OnyxScreen() {
   return (
-    <View style={[$container, $topInset]}>
+    <View style={[$container]}>
       <OnyxStatus />
       <Canvas />
     </View>
@@ -25,8 +16,7 @@ export const OnyxScreen = observer(function OnyxScreen({ visible = true }: OnyxS
 const $container: ViewStyle = {
   flex: 1,
   backgroundColor: '#000',
-  padding: 16,
-  paddingTop: 0, // Removed paddingTop since OnyxStatus will handle the spacing
+  paddingTop: 0,
 }
 
 export default OnyxScreen
