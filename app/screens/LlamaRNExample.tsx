@@ -9,7 +9,7 @@ import ReactNativeBlobUtil from "react-native-blob-util"
 import DocumentPicker from "react-native-document-picker"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { Bubble } from "@/components/Bubble"
-import { DEFAULT_MODEL } from "@/features/llama/constants"
+import { DEFAULT_MODEL, SYSTEM_MESSAGE } from "@/features/llama/constants"
 import { useModelDownload } from "@/features/llama/hooks/useModelDownload"
 import { useLlamaChat } from "@/hooks/useLlamaChat"
 import { useMessageHandler } from "@/hooks/useMessageHandler"
@@ -87,11 +87,7 @@ const user = { id: 'y9d7f8pgn' }
 const systemId = 'h3o3lc5xj'
 const system = { id: systemId }
 
-const systemMessage = {
-  role: 'system',
-  content:
-    'This is a conversation between user and assistant, a friendly chatbot.\n\n',
-}
+const systemMessage = SYSTEM_MESSAGE
 
 const defaultConversationId = 'default'
 
@@ -266,6 +262,8 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
   }
 
   const handleSendPress = async (message: MessageType.PartialText) => {
+
+    console.log("trying to send message: ", message)
 
     if (!context) {
       addSystemMessage('Please load a model first')
