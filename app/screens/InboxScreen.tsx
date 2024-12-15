@@ -8,9 +8,10 @@ import { ChatMessage } from "@/components/ChatMessage"
 import { FileExplorer } from "@/components/FileExplorer"
 import { AppStackScreenProps } from "@/navigators"
 import { useOllamaChat } from "@/services/ollama/useOllamaChat"
-import { usePrompts } from "@/services/prompts/usePrompts"
+import { useWebSocket } from "@/services/websocket/useWebSocket"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colorsDark"
+import { pylonConfig } from "@/config/websocket"
 
 interface InboxScreenProps extends AppStackScreenProps<"Inbox"> { }
 
@@ -24,18 +25,14 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
     connected: chatConnected,
   } = useOllamaChat()
 
-  const {
-    getPrompt,
-    isLoading: promptLoading,
-    error: promptError,
-    connected: promptConnected,
-  } = usePrompts()
+  const { readResource } = useWebSocket(pylonConfig)
 
   const inputRef = useRef<TextInput>(null)
   const scrollViewRef = useRef<ScrollView>(null)
   const [inputText, setInputText] = useState("")
   const [showFilePicker, setShowFilePicker] = useState(false)
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const handleSend = useCallback(async () => {
     if (!inputText.trim() || chatLoading) return
@@ -56,7 +53,7 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
     if (resource.mime_type) {
       // It's a file, not a directory
       const url = new URL(resource.uri)
-      const rootPath = '/Users/christopherdavid/code/pylon/'
+      const rootPath = '/home/atlantispleb/code/pylon/'
       const relativePath = url.pathname.replace(rootPath, '')
       setSelectedFile(relativePath)
       setShowFilePicker(false)
@@ -64,28 +61,39 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
   }, [])
 
   const handleCodeReviewPrompt = useCallback(async () => {
-    if (promptLoading || chatLoading || !selectedFile) return
+    if (chatLoading || loading || !selectedFile) return
 
+    setLoading(true)
     try {
-      const result = await getPrompt('code_review', {
-        file_path: selectedFile,
-        style_guide: 'React Native best practices'
-      })
+      // First read the file content
+      const fileContent = await readResource(selectedFile)
       
-      // Add the response messages to the chat
-      if (result.messages) {
-        for (const msg of result.messages) {
-          await sendMessage(msg.content)
-        }
-      }
-      
+      // Send the code review prompt with file content
+      const prompt = `You are a code reviewer examining the following file: ${selectedFile}
+
+Please review this code following best practices and suggest improvements for:
+1. Performance
+2. Code organization
+3. React/TypeScript usage
+4. Error handling
+5. UI/UX patterns
+
+Format your response with clear sections and code examples where relevant.
+
+Here's the file content:
+
+${fileContent.content}
+`
+      await sendMessage(prompt)
       scrollViewRef.current?.scrollToEnd({ animated: true })
     } catch (err) {
       console.error('Failed to send code review prompt:', err)
+    } finally {
+      setLoading(false)
     }
-  }, [promptLoading, chatLoading, selectedFile, getPrompt, sendMessage])
+  }, [chatLoading, loading, selectedFile, readResource, sendMessage])
 
-  if (!chatConnected || !promptConnected) {
+  if (!chatConnected) {
     return (
       <Screen style={styles.root} preset="fixed">
         <View style={styles.disconnectedContainer}>
@@ -112,7 +120,7 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
         <TouchableOpacity
           style={[styles.promptButton, !selectedFile && styles.promptButtonDisabled]}
           onPress={() => setShowFilePicker(true)}
-          disabled={promptLoading || chatLoading}
+          disabled={chatLoading || loading}
         >
           <Text style={[styles.promptButtonText, !selectedFile && styles.promptButtonTextDisabled]}>
             {selectedFile ? `Review: ${selectedFile}` : 'Select File to Review'}
@@ -120,11 +128,11 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
         </TouchableOpacity>
         {selectedFile && (
           <TouchableOpacity
-            style={[styles.promptButton, (promptLoading || chatLoading) && styles.promptButtonDisabled]}
+            style={[styles.promptButton, (chatLoading || loading) && styles.promptButtonDisabled]}
             onPress={handleCodeReviewPrompt}
-            disabled={promptLoading || chatLoading}
+            disabled={chatLoading || loading}
           >
-            <Text style={[styles.promptButtonText, (promptLoading || chatLoading) && styles.promptButtonTextDisabled]}>
+            <Text style={[styles.promptButtonText, (chatLoading || loading) && styles.promptButtonTextDisabled]}>
               Start Review
             </Text>
           </TouchableOpacity>
@@ -135,14 +143,14 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
         {messages.map((msg, index) => (
           <ChatMessage key={index} message={msg} />
         ))}
-        {(chatLoading || promptLoading) && (
+        {(chatLoading || loading) && (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>...</Text>
           </View>
         )}
-        {(chatError || promptError) && (
+        {chatError && (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{chatError || promptError}</Text>
+            <Text style={styles.errorText}>{chatError}</Text>
           </View>
         )}
       </View>
