@@ -67,7 +67,7 @@ app/
 │   │   └── ErrorBoundary.tsx # Error boundary component
 │   ├── HomeScreen.tsx     # Home tab screen
 │   ├── LoginScreen.tsx    # Login screen
-│   ├── OnyxScreen.tsx     # Main Onyx interface
+│   ├── OnyxScreen.tsx     # Main Onyx interface with chat
 │   ├── ProfileScreen.tsx  # Profile tab screen
 │   ├── UpdaterScreen.tsx  # App updater screen
 │   ├── WalletScreen.tsx   # Wallet tab screen
