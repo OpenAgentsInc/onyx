@@ -290,6 +290,7 @@ export function Canvas() {
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: -55,
     flex: 1,
     width: '100%',
     height: '100%',

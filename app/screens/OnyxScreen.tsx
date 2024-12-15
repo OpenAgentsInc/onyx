@@ -24,18 +24,7 @@ const $container: ViewStyle = {
   flex: 1,
   backgroundColor: '#000',
   padding: 16,
-  paddingTop: 96, // Significantly increased from 46
-}
-
-const $fileExplorer: ViewStyle = {
-  position: 'absolute',
-  top: 60,
-  left: 8,
-  right: 8,
-  bottom: 8,
-  backgroundColor: '#1a1a1a',
-  borderRadius: 8,
-  overflow: 'hidden',
+  paddingTop: 96,
 }
 
 export default OnyxScreen
