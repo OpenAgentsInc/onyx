@@ -1,5 +1,4 @@
 import { MessageType } from "@flyerhq/react-native-chat-ui"
-import { useRef, useEffect } from "react"
 
 // Create a singleton instance that persists across hook instances
 let globalHandler: ((message: MessageType.PartialText) => Promise<void>) | null = null
@@ -28,15 +27,6 @@ export const useMessageHandler = () => {
       console.error("Error in handleMessage:", err)
     }
   }
-
-  // Clean up handler when all instances are unmounted
-  useEffect(() => {
-    return () => {
-      if (!document.querySelector('[data-testid="llama-example"]')) {
-        globalHandler = null
-      }
-    }
-  }, [])
 
   return {
     setHandleMessage,
