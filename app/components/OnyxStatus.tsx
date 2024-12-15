@@ -4,13 +4,16 @@ import { Text } from "@/components"
 import { colorsDark } from "@/theme"
 import { useModelDownload } from "@/features/llama/hooks/useModelDownload"
 import { DEFAULT_MODEL } from "@/features/llama/constants"
+import { modelStore } from "@/features/llama/stores/modelStore"
+import { observer } from "mobx-react-lite"
 
-export function OnyxStatus() {
+export const OnyxStatus = observer(function OnyxStatus() {
   const { downloadAndInitModel, downloadProgress, initProgress, error } = useModelDownload()
 
   const handleDownload = async () => {
     try {
-      await downloadAndInitModel(DEFAULT_MODEL.repoId, DEFAULT_MODEL.filename)
+      const context = await downloadAndInitModel(DEFAULT_MODEL.repoId, DEFAULT_MODEL.filename)
+      modelStore.setContext(context)
     } catch (err: any) {
       console.error('Download failed:', err)
     }
@@ -24,6 +27,7 @@ export function OnyxStatus() {
       return `Downloading: ${percentage}% (${mb(received)}MB / ${mb(total)}MB)`
     }
     if (initProgress) return `Initializing: ${initProgress}%`
+    if (modelStore.context) return 'Model loaded'
     return 'Model not loaded'
   }
 
@@ -35,7 +39,7 @@ export function OnyxStatus() {
         <Text preset="default" style={$text}>
           {getStatusText()}
         </Text>
-        {!isLoading && !error && (
+        {!isLoading && !modelStore.context && !error && (
           <TouchableOpacity onPress={handleDownload} style={$button}>
             <Text style={$buttonText}>Download Model</Text>
           </TouchableOpacity>
@@ -44,7 +48,7 @@ export function OnyxStatus() {
       </View>
     </View>
   )
-}
+})
 
 const $container: ViewStyle = {
   backgroundColor: "black",
