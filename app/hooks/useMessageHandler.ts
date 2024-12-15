@@ -1,23 +1,18 @@
 import { MessageType } from "@flyerhq/react-native-chat-ui"
-import { useRef } from "react"
+import { useRef, useEffect } from "react"
 
-type HandleMessageFunction = (message: MessageType.PartialText) => Promise<void>
+// Create a singleton instance that persists across hook instances
+let globalHandler: ((message: MessageType.PartialText) => Promise<void>) | null = null
 
 export const useMessageHandler = () => {
-  // Use a ref to store the callback to prevent unnecessary re-renders
-  const callbackRef = useRef<HandleMessageFunction | null>(null)
-
-  const setHandleMessage = (callback: HandleMessageFunction) => {
-    // Only update if the callback is different
-    if (callbackRef.current !== callback) {
-      console.log("Setting new message handler")
-      callbackRef.current = callback
-    }
+  const setHandleMessage = (callback: (message: MessageType.PartialText) => Promise<void>) => {
+    console.log("Setting message handler")
+    globalHandler = callback
   }
 
   const handleMessage = async (text: string) => {
     console.log("handleMessage called with:", text)
-    if (!callbackRef.current) {
+    if (!globalHandler) {
       console.error('No message handler set')
       return
     }
@@ -28,11 +23,20 @@ export const useMessageHandler = () => {
         type: 'text'
       }
       console.log("Calling message handler with:", partialMessage)
-      await callbackRef.current(partialMessage)
+      await globalHandler(partialMessage)
     } catch (err) {
       console.error("Error in handleMessage:", err)
     }
   }
+
+  // Clean up handler when all instances are unmounted
+  useEffect(() => {
+    return () => {
+      if (!document.querySelector('[data-testid="llama-example"]')) {
+        globalHandler = null
+      }
+    }
+  }, [])
 
   return {
     setHandleMessage,
