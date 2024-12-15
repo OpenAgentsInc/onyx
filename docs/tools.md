@@ -1,179 +1,177 @@
 # Tool Support for Llama Chat Model
 
-This document outlines the implementation plan for adding tool support to the llama chat model in Onyx, following the Model Context Protocol (MCP) specification.
+This document outlines the implementation of tool support in the Onyx mobile app, following the Model Context Protocol (MCP) specification.
 
 ## Overview
 
-Tool support will allow the llama model to perform actions through a standardized interface following the MCP tools specification. The implementation will be local-first, with potential for remote tool execution in the future via WebSocket.
+Tool support allows the llama model to perform actions through a standardized interface following the MCP tools specification. The implementation is local-first, with filesystem operations handled via WebSocket connection to Pylon.
 
-## MCP Tool Interface
+## Current Implementation
 
-### Tool Definition
+### Tool Service
+Located in `app/services/tools/ToolService.ts`:
 ```typescript
-interface Tool {
-  name: string;          // Required: Unique identifier for the tool
-  description?: string;  // Optional: Human-readable description
-  inputSchema: {         // Required: JSON Schema for parameters
-    type: "object",
-    properties: {        // Tool-specific parameters
-      [key: string]: {
-        type: string,
-        description?: string,
-        // Additional JSON Schema properties
-      }
-    },
-    required?: string[]  // Array of required parameter names
-  }
-}
-```
+export class ToolService {
+  private tools: Map<string, Tool> = new Map();
+  private wsService: WebSocketService;
 
-### Tool Request/Response
-```typescript
-// Tool Call Request
-interface CallToolRequest {
-  method: "tools/call";
-  params: {
-    name: string;      // Tool name to call
-    arguments?: any;   // Tool parameters matching inputSchema
-  }
-}
-
-// Tool Call Response
-interface CallToolResult {
-  content: Array<{     // Required: Array of content items
-    type: "text" | "image" | "resource";
-    text?: string;     // For text content
-    data?: string;     // For base64 image data
-    mimeType?: string; // For images/resources
-    resource?: {       // For embedded resources
-      uri: string;
-      text?: string;
-      blob?: string;
-    }
-  }>;
-  isError?: boolean;   // Optional: true if tool execution failed
-  _meta?: any;        // Optional: Additional metadata
-}
-```
-
-## Architecture
-
-### ToolService
-```typescript
-interface ToolService {
   // Tool registration and management
   registerTool(tool: Tool): void;
   unregisterTool(name: string): void;
   listTools(): Tool[];
   
   // Tool execution
-  executeTool(name: string, params: any): Promise<CallToolResult>;
+  executeTool(name: string, params: any): Promise<ToolResult>;
   
   // Tool validation
   validateToolInput(name: string, params: any): boolean;
-  
-  // MCP protocol methods
-  handleToolsListRequest(): Promise<ListToolsResult>;
-  handleToolCallRequest(request: CallToolRequest): Promise<CallToolResult>;
 }
 ```
 
-### Integration with LlamaContext
+### Available Tools
 
-The ToolService will be integrated with LlamaContext to:
-1. Expose available tools via system prompt
-2. Parse and validate tool calls from model output
-3. Execute tools and incorporate results into conversation
-4. Handle tool errors appropriately
+Currently implemented filesystem tools:
 
-## Implementation Plan
-
-1. Create base ToolService class in app/services/tools/
-2. Implement MCP-compliant tool interfaces
-3. Add tool registration and validation logic
-4. Implement basic tools:
-   - Calculator
-   - Time/date functions
-   - File system operations
-   - Web search (if available)
-5. Integrate with LlamaContext
-6. Add UI components for tool management
-
-## Tool Definition Example
-
+1. list_directory
 ```typescript
-const calculatorTool: Tool = {
-  name: "calculator",
-  description: "Perform basic mathematical calculations",
+{
+  name: "list_directory",
+  description: "List contents of a directory",
   inputSchema: {
     type: "object",
     properties: {
-      expression: {
+      path: {
         type: "string",
-        description: "Mathematical expression to evaluate"
+        description: "Directory path to list (relative to workspace root)"
       }
     },
-    required: ["expression"]
+    required: ["path"]
   }
-};
+}
 ```
 
-## System Prompt Integration
-
-Tools will be described to the model via system prompt following MCP format:
-
+2. read_file
+```typescript
+{
+  name: "read_file",
+  description: "Read contents of a file",
+  inputSchema: {
+    type: "object",
+    properties: {
+      path: {
+        type: "string",
+        description: "File path to read (relative to workspace root)"
+      }
+    },
+    required: ["path"]
+  }
+}
 ```
-Available tools:
 
-calculator: Perform basic mathematical calculations
+### Integration with Chat
+
+The tool system is integrated into the chat flow through several components:
+
+1. System Prompt (in `app/features/llama/constants.ts`):
+```typescript
+export const SYSTEM_MESSAGE = {
+  role: 'system',
+  content: `...
+You have access to the following tools:
+
+list_directory: List contents of a directory
 Input schema: {
   "type": "object",
   "properties": {
-    "expression": {
+    "path": {
       "type": "string",
-      "description": "Mathematical expression to evaluate"
+      "description": "Directory path to list"
     }
   },
-  "required": ["expression"]
+  "required": ["path"]
 }
 
-To use a tool, respond with:
+read_file: Read contents of a file...
+...`
+}
+```
+
+2. Tool Execution Hook (in `app/hooks/useToolExecution.ts`):
+```typescript
+export const useToolExecution = (toolService: ToolService) => {
+  // Process text for tool calls and execute them
+  const processToolCalls = async (text: string): Promise<string>;
+  
+  // Process a message and handle any tool calls
+  const processMessage = async (
+    message: ChatMessage,
+    addMessage: (msg: ChatMessage) => void
+  ): Promise<ChatMessage>;
+};
+```
+
+3. Tool-Enabled Chat Container (in `app/components/chat/ToolEnabledChatContainer.tsx`):
+- Integrates with WebSocket service
+- Handles tool execution in chat flow
+- Processes model responses for tool calls
+- Manages tool results in conversation
+
+## Flow Example
+
+When a user asks about files/directories:
+
+1. User Input:
+```
+"What files are in the root directory?"
+```
+
+2. Model Response with Tool Call:
+```
+Let me check the contents of the root directory.
 <tool>
 {
-  "name": "calculator",
+  "name": "list_directory",
   "arguments": {
-    "expression": "2 + 2"
+    "path": "."
   }
 }
 </tool>
 ```
 
+3. Tool Execution Result:
+```
+Contents of .:
+📁 app
+📁 docs
+📁 assets
+📄 README.md
+```
+
+4. Final Model Response:
+```
+The root directory contains:
+- Three folders: 'app', 'docs', and 'assets'
+- A README.md file
+```
+
 ## Error Handling
 
-Following MCP spec:
-1. Tool execution errors are returned in the result object with isError: true
-2. Tool not found/validation errors are returned as MCP protocol errors
-3. Results always include content array with error details
-4. Error messages are LLM-friendly to allow self-correction
+1. Tool Execution Errors:
+- Invalid parameters
+- File/directory not found
+- Permission issues
+- Network errors (WebSocket)
 
-Example error response:
+2. Error Response Format:
 ```typescript
 {
   content: [{
     type: "text",
-    text: "Error: Invalid expression '2 +'- Expression is incomplete"
+    text: "Error: Invalid path 'nonexistent/path'"
   }],
   isError: true
 }
 ```
-
-## Security Considerations
-
-1. Input validation using JSON Schema
-2. Tool execution permissions
-3. Resource usage limits
-4. Sandboxing for file/system operations
-5. Rate limiting for network operations
 
 ## Directory Structure
 
@@ -182,52 +180,74 @@ app/
 ├── services/
 │   ├── tools/
 │   │   ├── ToolService.ts       # Core tool service
-│   │   ├── ToolRegistry.ts      # Tool registration
-│   │   ├── ToolValidator.ts     # Input validation
-│   │   ├── ToolExecutor.ts      # Tool execution
-│   │   ├── tools/              # Built-in tools
-│   │   │   ├── calculator.ts
-│   │   │   ├── datetime.ts
-│   │   │   └── filesystem.ts
-│   │   └── types.ts            # Type definitions
+│   │   ├── types.ts            # Tool interfaces
+│   │   └── index.ts            # Exports
 │   └── llama/
 │       └── LlamaContext.ts      # Updated with tool support
+├── hooks/
+│   └── useToolExecution.ts     # Tool execution hook
+└── components/
+    └── chat/
+        └── ToolEnabledChatContainer.tsx  # Chat with tools
 ```
 
 ## WebSocket Integration
 
-The WebSocket service will be extended to support MCP tool protocol:
+Tools communicate with Pylon via WebSocket for filesystem operations:
 
 ```typescript
 // In WebSocketService.ts
 interface WebSocketService {
-  // Existing methods...
-  
-  // Tool methods
-  listTools(): Promise<ListToolsResult>;
-  callTool(name: string, params: any): Promise<CallToolResult>;
-  
-  // Tool change notifications
-  onToolListChanged(handler: () => void): () => void;
+  // Resource methods used by tools
+  listResources(path: string): Promise<Resource[]>;
+  readResource(path: string): Promise<ResourceContent>;
 }
 ```
 
-## Next Steps
+## Future Improvements
 
-1. Create MCP-compliant ToolService implementation
-2. Add basic tools with proper schemas
-3. Update LlamaContext for tool support
-4. Implement tool parsing and execution
-5. Add WebSocket protocol support
-6. Add tool management UI
+1. Additional Tools:
+   - File search
+   - File write/create
+   - Directory creation
+   - File metadata
 
-## MCP Compliance Notes
+2. Enhanced Features:
+   - Tool result caching
+   - Progress reporting
+   - Batch operations
+   - Tool composition
 
-1. All tool definitions must include required inputSchema
-2. Tool results must return content array
-3. Error handling follows MCP conventions
-4. Support for tool list change notifications
-5. Proper JSON-RPC message formatting
-6. Support for pagination in tool listing
-7. Tool descriptions are optional but recommended
-8. Support for metadata in responses
+3. Security:
+   - Path validation
+   - Access control
+   - Rate limiting
+   - Resource limits
+
+4. UI Improvements:
+   - Tool usage indicators
+   - Progress visualization
+   - Error displays
+   - Tool management interface
+
+## Testing
+
+To test the tool system:
+
+1. Prerequisites:
+   - Pylon server running
+   - WebSocket connection established
+   - Model loaded in Onyx
+
+2. Test Cases:
+   - Directory listing
+   - File reading
+   - Error handling
+   - Tool parameter validation
+
+3. Example Commands:
+   ```
+   "Show me what's in the docs folder"
+   "What's in the README.md file?"
+   "List all TypeScript files in the app directory"
+   ```
