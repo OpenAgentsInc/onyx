@@ -2,11 +2,10 @@ import { Audio } from "expo-av"
 import { useEffect, useRef } from "react"
 import { Alert } from "react-native"
 import { useStores } from "../models"
-import { useSharedChat } from "./useSharedChat"
+import { api } from "@/services/api/api"
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
-  const { append } = useSharedChat()
   const recordingRef = useRef<Audio.Recording | null>(null)
 
   useEffect(() => {
@@ -86,22 +85,17 @@ export function useAudioRecorder() {
         playsInSilentModeIOS: false,
       })
 
-      try {
-        recordingStore.setProp("isTranscribing", true)
-        const transcription = await recordingStore.transcribeRecording()
-        if (transcription) {
-          // Use append from shared hook
-          console.log("Appending transcription:", transcription)
-          await append({
-            role: 'user',
-            content: transcription,
-          })
+      if (uri) {
+        try {
+          const result = await api.sendAudioRecording(uri)
+          if (!result.ok) {
+            console.error('Failed to send recording:', result.error)
+            Alert.alert('Error', 'Failed to send recording')
+          }
+        } catch (err) {
+          console.error('Failed to send recording:', err)
+          Alert.alert('Error', 'Failed to send recording')
         }
-      } catch (err) {
-        console.error('Failed to process recording:', err)
-        Alert.alert('Error', 'Failed to process recording')
-      } finally {
-        recordingStore.setProp("isTranscribing", false)
       }
 
       return uri || undefined
