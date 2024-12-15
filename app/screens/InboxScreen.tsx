@@ -25,7 +25,7 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
     connected: chatConnected,
   } = useOllamaChat()
 
-  const { readResource } = useWebSocket(pylonConfig)
+  const { sendMessage: sendWsMessage } = useWebSocket(pylonConfig)
 
   const inputRef = useRef<TextInput>(null)
   const scrollViewRef = useRef<ScrollView>(null)
@@ -65,33 +65,33 @@ export const InboxScreen: FC<InboxScreenProps> = observer(function InboxScreen()
 
     setLoading(true)
     try {
-      // First read the file content
-      const fileContent = await readResource(selectedFile)
+      // Get the prompt result
+      const result = await sendWsMessage({
+        jsonrpc: '2.0',
+        method: 'prompts/get',
+        params: {
+          name: 'code_review',
+          arguments: {
+            file_path: selectedFile,
+            style_guide: 'React Native best practices'
+          }
+        }
+      })
+
+      // Send each message to the chat
+      if (result.messages) {
+        for (const msg of result.messages) {
+          await sendMessage(msg.content)
+        }
+      }
       
-      // Send the code review prompt with file content
-      const prompt = `You are a code reviewer examining the following file: ${selectedFile}
-
-Please review this code following best practices and suggest improvements for:
-1. Performance
-2. Code organization
-3. React/TypeScript usage
-4. Error handling
-5. UI/UX patterns
-
-Format your response with clear sections and code examples where relevant.
-
-Here's the file content:
-
-${fileContent.content}
-`
-      await sendMessage(prompt)
       scrollViewRef.current?.scrollToEnd({ animated: true })
     } catch (err) {
       console.error('Failed to send code review prompt:', err)
     } finally {
       setLoading(false)
     }
-  }, [chatLoading, loading, selectedFile, readResource, sendMessage])
+  }, [chatLoading, loading, selectedFile, sendWsMessage, sendMessage])
 
   if (!chatConnected) {
     return (
