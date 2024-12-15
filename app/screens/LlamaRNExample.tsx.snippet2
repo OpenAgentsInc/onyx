@@ -1,0 +1,24 @@
+// At the top, add:
+import { useStores } from "@/models"
+
+// Inside the component:
+const { modelStore } = useStores()
+
+// Replace all instances of context with modelStore.context
+// For example:
+if (!modelStore.context) {
+  addSystemMessage('Please load a model first')
+  return
+}
+
+// Update the textInputProps to:
+textInputProps={{
+  editable: true,
+  placeholder: !modelStore.context
+    ? 'Load model to start chatting'
+    : 'Type your message here',
+  style: {
+    color: colors.palette.neutral800,
+    backgroundColor: colors.palette.neutral200,
+  }
+}}

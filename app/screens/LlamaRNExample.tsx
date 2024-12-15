@@ -1,15 +1,19 @@
 import json5 from "json5"
 import {
-    convertJsonSchemaToGrammar, initLlama, loadLlamaModelInfo
+  convertJsonSchemaToGrammar, initLlama, loadLlamaModelInfo
 } from "llama.rn"
+import { observer } from "mobx-react-lite"
 import React, { useRef, useState } from "react"
 import { KeyboardAvoidingView, Platform, View } from "react-native"
 import ReactNativeBlobUtil from "react-native-blob-util"
 import DocumentPicker from "react-native-document-picker"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { Bubble } from "@/components/Bubble"
-import { DEFAULT_MODEL } from "@/features/llama/constants"
+import { DEFAULT_MODEL, SYSTEM_MESSAGE } from "@/features/llama/constants"
 import { useModelDownload } from "@/features/llama/hooks/useModelDownload"
+import { useLlamaChat } from "@/hooks/useLlamaChat"
+import { useMessageHandler } from "@/hooks/useMessageHandler"
+import { useStores } from "@/models"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colorsDark"
 import { Chat, darkTheme } from "@flyerhq/react-native-chat-ui"
@@ -26,7 +30,7 @@ const monoTheme: Theme = {
     ...darkTheme.colors,
     primary: colors.palette.neutral800, // Light text
     secondary: colors.palette.neutral400, // Dimmed text
-    background: colors.palette.neutral100, // Dark background
+    background: 'transparent', // colors.palette.neutral100, // Dark background
     inputBackground: colors.palette.neutral200, // Input background
     inputText: colors.palette.neutral800, // Input text
     error: colors.palette.neutral600, // Error messages
@@ -83,11 +87,7 @@ const user = { id: 'y9d7f8pgn' }
 const systemId = 'h3o3lc5xj'
 const system = { id: systemId }
 
-const systemMessage = {
-  role: 'system',
-  content:
-    'This is a conversation between user and assistant, a friendly chatbot.\n\n',
-}
+const systemMessage = SYSTEM_MESSAGE
 
 const defaultConversationId = 'default'
 
@@ -99,25 +99,27 @@ const renderBubble = ({
   message: MessageType.Any
 }) => <Bubble child={child} message={message} />
 
-export function LlamaRNExample() {
-  const [context, setContext] = useState<LlamaContext | undefined>(undefined)
-  const { downloadAndInitModel, downloadProgress, initProgress, error } = useModelDownload()
+export const LlamaRNExample = observer(function LlamaRNExample() {
+  const messageHandler = useMessageHandler()
+  // const [context, setContext] = useState<LlamaContext | undefined>(undefined)
+  const { modelStore } = useStores()
+  const context = modelStore.context
 
   const [inferencing, setInferencing] = useState<boolean>(false)
   const [messages, setMessages] = useState<MessageType.Any[]>([])
 
   const conversationIdRef = useRef<string>(defaultConversationId)
 
-  const addMessage = (message: MessageType.Any, batching = false) => {
+  const addMessage = React.useCallback((message: MessageType.Any, batching = false) => {
     if (batching) {
       // This can avoid the message duplication in a same batch
       setMessages([message, ...messages])
     } else {
       setMessages((msgs) => [message, ...msgs])
     }
-  }
+  }, [messages])
 
-  const addSystemMessage = (text: string, metadata = {}) => {
+  const addSystemMessage = React.useCallback((text: string, metadata = {}) => {
     const textMessage: MessageType.Text = {
       author: system,
       createdAt: Date.now(),
@@ -128,7 +130,7 @@ export function LlamaRNExample() {
     }
     addMessage(textMessage)
     return textMessage.id
-  }
+  }, [addMessage])
 
   const handleReleaseContext = async () => {
     if (!context) return
@@ -136,7 +138,7 @@ export function LlamaRNExample() {
     context
       .release()
       .then(() => {
-        setContext(undefined)
+        modelStore.setContext(null) // Instead of setContext(undefined)
         addSystemMessage('Context released!')
       })
       .catch((err) => {
@@ -188,7 +190,7 @@ export function LlamaRNExample() {
     )
       .then((ctx) => {
         const t1 = Date.now()
-        setContext(ctx)
+        modelStore.setContext(ctx)
         addSystemMessage(
           `Context initialized!\n\nLoad time: ${t1 - t0}ms\nGPU: ${ctx.gpu ? 'YES' : 'NO'
           } (${ctx.reasonNoGPU})\nChat Template: ${ctx.model.isChatTemplateSupported ? 'YES' : 'NO'
@@ -259,24 +261,12 @@ export function LlamaRNExample() {
     handleInitContext(modelFile, loraFile)
   }
 
-  const handleSendPress = async (message: MessageType.PartialText) => {
+  const handleSendPress = React.useCallback(async (message: MessageType.PartialText) => {
+
+    console.log("trying to send message: ", message)
 
     if (!context) {
-      if (message.text === '/download') {
-        try {
-          addSystemMessage('Starting model download...')
-          const newContext = await downloadAndInitModel(
-            DEFAULT_MODEL.repoId,
-            DEFAULT_MODEL.filename
-          )
-          setContext(newContext)
-          addSystemMessage('Model ready! You can start chatting.')
-        } catch (err: any) {
-          addSystemMessage(`Download failed: ${err.message}`)
-        }
-        return
-      }
-      addSystemMessage('Please load a model first using the file icon or type /download')
+      addSystemMessage('Please load a model first')
       return
     }
 
@@ -399,6 +389,7 @@ export function LlamaRNExample() {
         conversationId: conversationIdRef.current,
       },
     }
+    console.log("Created text message:", textMessage)
 
     const id = randId()
     const createdAt = Date.now()
@@ -424,6 +415,7 @@ export function LlamaRNExample() {
       { role: 'user', content: message.text },
     ]
     addMessage(textMessage)
+    console.log('setting inferencing')
     setInferencing(true)
     // Test area
     {
@@ -504,7 +496,7 @@ export function LlamaRNExample() {
       ?.completion(
         {
           messages: msgs,
-          n_predict: 100,
+          n_predict: 1000,
           grammar,
           seed: -1,
           n_probs: 0,
@@ -607,34 +599,19 @@ export function LlamaRNExample() {
         setInferencing(false)
         addSystemMessage(`Completion failed: ${e.message}`)
       })
-  }
+  }, [context, addMessage, setInferencing, addSystemMessage, conversationIdRef])
 
-  // Show download progress
   React.useEffect(() => {
-    if (downloadProgress) {
-      const { percentage, received, total } = downloadProgress
-      const mb = (bytes: number) => (bytes / 1024 / 1024).toFixed(1)
-      addSystemMessage(
-        `Downloading: ${percentage}% (${mb(received)}MB / ${mb(total)}MB)`,
-        { progress: true }
-      )
-    }
-  }, [downloadProgress])
+    console.log("Setting up message handler")
+    messageHandler.setHandleMessage(handleSendPress)
+  }, [handleSendPress]) // Empty dependency array to run only once
 
-  // Show initialization progress
+  const llamaChat = useLlamaChat()
+  // After messages state is set up:
   React.useEffect(() => {
-    if (initProgress) {
-      addSystemMessage(`Initializing model... ${initProgress}%`)
-    }
-  }, [initProgress])
-
-  // Show errors
-  React.useEffect(() => {
-    if (error) {
-      addSystemMessage(`Error: ${error}`)
-    }
-  }, [error])
-
+    llamaChat.setAddMessageCallback(addMessage)
+    llamaChat.setMessages(messages)
+  }, [messages])
 
   return (
     <SafeAreaProvider>
@@ -646,12 +623,13 @@ export function LlamaRNExample() {
         user={{ id: 'user' }}
         onAttachmentPress={!context ? handlePickModel : undefined}
         flatListProps={{
+          // @ts-ignore
           marginBottom: 60
         }}
         textInputProps={{
           editable: true,
           placeholder: !context
-            ? 'Type /download or press file icon to load model'
+            ? 'Load model to start chatting'
             : 'Type your message here',
           style: {
             color: colors.palette.neutral800,
@@ -662,4 +640,4 @@ export function LlamaRNExample() {
       />
     </SafeAreaProvider>
   )
-}
+})

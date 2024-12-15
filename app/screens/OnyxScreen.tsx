@@ -1,27 +1,21 @@
 import { observer } from "mobx-react-lite"
 import React from "react"
 import { View, ViewStyle } from "react-native"
-import { Text } from "@/components"
 import { Canvas } from "@/components/Canvas"
-import { PylonOverlay } from "@/components/PylonOverlay"
-import { FileExplorer } from "@/components/FileExplorer"
-import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
+import { OnyxStatus } from "@/components/OnyxStatus"
+import { LlamaRNExample } from "./LlamaRNExample"
 
-interface OnyxScreenProps {
-  visible?: boolean
-}
-
-export const OnyxScreen = observer(function OnyxScreen({ visible = true }: OnyxScreenProps) {
-  const $topInset = useSafeAreaInsetsStyle(["top"])
-
-  if (!visible) return null
-
+export const OnyxScreen = observer(function OnyxScreen() {
   return (
-    <View style={[$container, $topInset]}>
-      <Canvas />
-      <PylonOverlay />
-      <View style={$fileExplorer}>
-        <FileExplorer />
+    <View style={$container}>
+      <View style={$canvasContainer}>
+        <Canvas />
+      </View>
+      <View style={$chatContainer}>
+        <LlamaRNExample />
+      </View>
+      <View style={$statusContainer}>
+        <OnyxStatus />
       </View>
     </View>
   )
@@ -30,18 +24,34 @@ export const OnyxScreen = observer(function OnyxScreen({ visible = true }: OnyxS
 const $container: ViewStyle = {
   flex: 1,
   backgroundColor: '#000',
-  padding: 16,
 }
 
-const $fileExplorer: ViewStyle = {
+const $statusContainer: ViewStyle = {
   position: 'absolute',
-  top: 60,
-  left: 8,
-  right: 8,
-  bottom: 8,
-  backgroundColor: '#1a1a1a',
-  borderRadius: 8,
-  overflow: 'hidden',
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 4, // Increased to be above chat
+}
+
+const $canvasContainer: ViewStyle = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 1,
+}
+
+const $chatContainer: ViewStyle = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 3,
+  backgroundColor: 'transparent',
+  paddingTop: 40, // Add padding to avoid overlap with status bar
 }
 
 export default OnyxScreen

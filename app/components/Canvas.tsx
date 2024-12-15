@@ -39,7 +39,7 @@ export function Canvas() {
 
     if (gem) {
       // Gentle floating motion
-      gem.position.y = Math.sin(Date.now() * 0.001) * 0.1;
+      gem.position.y = 0.8 + Math.sin(Date.now() * 0.001) * 0.1; // Base Y position increased to 0.8
       gem.rotation.y += 0.005;
     }
 
@@ -155,11 +155,12 @@ export function Canvas() {
       1000
     );
     camera.position.z = 3.5;
-    camera.position.y = 1.5;
-    camera.lookAt(0, 0, 0);
+    camera.position.y = 0.5; // Lowered from 1.0 to move orb up in view
+    camera.lookAt(0, 0.8, 0); // Looking at a higher point
 
     // Create gem group
     const gemGroup = new THREE.Group();
+    gemGroup.position.y = 0.8; // Increased from 0.3 to move gem up significantly
 
     // Main gem body
     const gemGeometry = createGemGeometry();
@@ -211,26 +212,26 @@ export function Canvas() {
 
     // Glow light (front)
     const glowLight = new THREE.PointLight(0xffffff, 1.5, 10);
-    glowLight.position.set(0, 0, 2);
+    glowLight.position.set(0, 0.8, 2); // Adjusted Y position
     scene.add(glowLight);
 
     // Pulse light (back)
     const pulseLight = new THREE.PointLight(0xffffff, 1.0, 8);
-    pulseLight.position.set(0, 0, -2);
+    pulseLight.position.set(0, 0.8, -2); // Adjusted Y position
     scene.add(pulseLight);
 
     // Rim light (moving spotlight)
     const rimLight = new THREE.SpotLight(0xffffff, 2, 10, Math.PI / 4, 0.5, 1);
-    rimLight.position.set(3, 2, 0);
+    rimLight.position.set(3, 2.8, 0); // Adjusted Y position
     scene.add(rimLight);
 
     // Additional fill lights
     const fillLight1 = new THREE.PointLight(0xffffff, 0.5, 10);
-    fillLight1.position.set(-2, 1, 2);
+    fillLight1.position.set(-2, 1.8, 2); // Adjusted Y position
     scene.add(fillLight1);
 
     const fillLight2 = new THREE.PointLight(0xffffff, 0.5, 10);
-    fillLight2.position.set(2, -1, -2);
+    fillLight2.position.set(2, -0.2, -2); // Adjusted Y position
     scene.add(fillLight2);
 
     // Add everything to scene
