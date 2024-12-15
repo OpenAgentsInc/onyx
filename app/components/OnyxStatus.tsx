@@ -4,47 +4,46 @@ import { Text } from "@/components"
 import { colorsDark } from "@/theme"
 import { useModelDownload } from "@/features/llama/hooks/useModelDownload"
 import { DEFAULT_MODEL } from "@/features/llama/constants"
-import { modelStore } from "@/features/llama/stores/modelStore"
 import { observer } from "mobx-react-lite"
+import { useStores } from "@/models"
 
 export const OnyxStatus = observer(function OnyxStatus() {
-  const { downloadAndInitModel, downloadProgress, initProgress, error } = useModelDownload()
+  const { modelStore } = useStores()
+  const { downloadAndInitModel } = useModelDownload()
 
   const handleDownload = async () => {
     try {
-      const context = await downloadAndInitModel(DEFAULT_MODEL.repoId, DEFAULT_MODEL.filename)
+      modelStore.setIsDownloading(true)
+      modelStore.setError(null)
+      const context = await downloadAndInitModel(
+        DEFAULT_MODEL.repoId,
+        DEFAULT_MODEL.filename,
+        (progress) => modelStore.setDownloadProgress(progress),
+        (progress) => modelStore.setInitProgress(progress)
+      )
       modelStore.setContext(context)
     } catch (err: any) {
       console.error('Download failed:', err)
+      modelStore.setError(err.message)
+    } finally {
+      modelStore.setIsDownloading(false)
+      modelStore.setDownloadProgress(null)
+      modelStore.setInitProgress(null)
     }
   }
-
-  const getStatusText = () => {
-    if (error) return `Error: ${error}`
-    if (downloadProgress) {
-      const { percentage, received, total } = downloadProgress
-      const mb = (bytes: number) => (bytes / 1024 / 1024).toFixed(1)
-      return `Downloading: ${percentage}% (${mb(received)}MB / ${mb(total)}MB)`
-    }
-    if (initProgress) return `Initializing: ${initProgress}%`
-    if (modelStore.context) return 'Model loaded'
-    return 'Model not loaded'
-  }
-
-  const isLoading = !!downloadProgress || !!initProgress
 
   return (
     <View style={$container}>
       <View style={$row}>
         <Text preset="default" style={$text}>
-          {getStatusText()}
+          {modelStore.statusText}
         </Text>
-        {!isLoading && !modelStore.context && !error && (
+        {!modelStore.isLoading && !modelStore.context && !modelStore.error && (
           <TouchableOpacity onPress={handleDownload} style={$button}>
             <Text style={$buttonText}>Download Model</Text>
           </TouchableOpacity>
         )}
-        {isLoading && <ActivityIndicator style={$spinner} color="white" />}
+        {modelStore.isLoading && <ActivityIndicator style={$spinner} color="white" />}
       </View>
     </View>
   )
