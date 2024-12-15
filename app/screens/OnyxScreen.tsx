@@ -24,6 +24,7 @@ const $container: ViewStyle = {
   flex: 1,
   backgroundColor: '#000',
   padding: 16,
+  paddingTop: 46, // Increased top padding
 }
 
 const $fileExplorer: ViewStyle = {
