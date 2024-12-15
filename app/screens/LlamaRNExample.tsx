@@ -104,7 +104,6 @@ const renderBubble = ({
 export function LlamaRNExample() {
   // const [context, setContext] = useState<LlamaContext | undefined>(undefined)
   const { modelStore } = useStores()
-  const { downloadAndInitModel, downloadProgress, initProgress, error } = useModelDownload()
   const context = modelStore.context
 
   const [inferencing, setInferencing] = useState<boolean>(false)
@@ -140,7 +139,7 @@ export function LlamaRNExample() {
     context
       .release()
       .then(() => {
-        setContext(undefined)
+        modelStore.setContext(null) // Instead of setContext(undefined)
         addSystemMessage('Context released!')
       })
       .catch((err) => {
@@ -192,7 +191,7 @@ export function LlamaRNExample() {
     )
       .then((ctx) => {
         const t1 = Date.now()
-        setContext(ctx)
+        modelStore.setContext(ctx)
         addSystemMessage(
           `Context initialized!\n\nLoad time: ${t1 - t0}ms\nGPU: ${ctx.gpu ? 'YES' : 'NO'
           } (${ctx.reasonNoGPU})\nChat Template: ${ctx.model.isChatTemplateSupported ? 'YES' : 'NO'
@@ -599,33 +598,6 @@ export function LlamaRNExample() {
       })
   }
 
-  // Show download progress
-  React.useEffect(() => {
-    if (downloadProgress) {
-      const { percentage, received, total } = downloadProgress
-      const mb = (bytes: number) => (bytes / 1024 / 1024).toFixed(1)
-      addSystemMessage(
-        `Downloading: ${percentage}% (${mb(received)}MB / ${mb(total)}MB)`,
-        { progress: true }
-      )
-    }
-  }, [downloadProgress])
-
-  // Show initialization progress
-  React.useEffect(() => {
-    if (initProgress) {
-      addSystemMessage(`Initializing model... ${initProgress}%`)
-    }
-  }, [initProgress])
-
-  // Show errors
-  React.useEffect(() => {
-    if (error) {
-      addSystemMessage(`Error: ${error}`)
-    }
-  }, [error])
-
-
   const llamaChat = useLlamaChat()
   // After messages state is set up:
   React.useEffect(() => {
@@ -643,7 +615,9 @@ export function LlamaRNExample() {
         user={{ id: 'user' }}
         onAttachmentPress={!context ? handlePickModel : undefined}
         flatListProps={{
-          marginBottom: 60
+          contentContainerStyle: {
+            paddingBottom: 60
+          }
         }}
         textInputProps={{
           editable: true,
