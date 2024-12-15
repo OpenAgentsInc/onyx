@@ -33,19 +33,8 @@ const monoTheme: Theme = {
     inputBackground: colors.palette.neutral200, // Input background
     inputText: colors.palette.neutral800, // Input text
     error: colors.palette.neutral600, // Error messages
-    // userAvatarBackground: colors.palette.neutral300,
-    // userAvatarText: colors.palette.neutral100,
     receivedMessageDocumentIcon: colors.palette.neutral600,
-    // receivedMessageText: colors.palette.neutral800,
-    // receivedMessageTextLink: colors.palette.neutral600,
-    // receivedMessageTimestamp: colors.palette.neutral500,
-    // receivedMessageBackground: colors.palette.neutral100,
     sentMessageDocumentIcon: colors.palette.neutral300,
-    // sentMessageText: colors.palette.neutral100,
-    // sentMessageTextLink: colors.palette.neutral300,
-    // sentMessageTimestamp: colors.palette.neutral400,
-    // sentMessageBackground: colors.palette.neutral300,
-    // typingIndicator: colors.palette.neutral600,
   },
   borders: {
     ...darkTheme.borders,
@@ -75,19 +64,11 @@ const monoTheme: Theme = {
   }
 }
 
-const BottomPadding = () => (
-  <View style={{ height: 80 }} />
-)
-
 const randId = () => Math.random().toString(36).substr(2, 9)
-
 const user = { id: 'y9d7f8pgn' }
-
 const systemId = 'h3o3lc5xj'
 const system = { id: systemId }
-
 const systemMessage = SYSTEM_MESSAGE
-
 const defaultConversationId = 'default'
 
 const renderBubble = ({
@@ -261,9 +242,6 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
   }
 
   const handleSendPress = React.useCallback(async (message: MessageType.PartialText) => {
-
-    console.log("trying to send message: ", message)
-
     if (!context) {
       addSystemMessage('Please load a model first')
       return
@@ -388,7 +366,6 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
         conversationId: conversationIdRef.current,
       },
     }
-    console.log("Created text message:", textMessage)
 
     const id = randId()
     const createdAt = Date.now()
@@ -635,7 +612,6 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
             backgroundColor: colors.palette.neutral200,
           }
         }}
-      // customBottomComponent={BottomPadding}
       />
     </SafeAreaProvider>
   )
