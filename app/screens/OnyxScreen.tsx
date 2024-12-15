@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite"
 import React from "react"
 import { View, ViewStyle } from "react-native"
 import { Canvas } from "@/components/Canvas"
+import { OnyxStatus } from "@/components/OnyxStatus"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
 interface OnyxScreenProps {
@@ -15,6 +16,7 @@ export const OnyxScreen = observer(function OnyxScreen({ visible = true }: OnyxS
 
   return (
     <View style={[$container, $topInset]}>
+      <OnyxStatus />
       <Canvas />
     </View>
   )
@@ -24,7 +26,7 @@ const $container: ViewStyle = {
   flex: 1,
   backgroundColor: '#000',
   padding: 16,
-  paddingTop: 96,
+  paddingTop: 0, // Removed paddingTop since OnyxStatus will handle the spacing
 }
 
 export default OnyxScreen
