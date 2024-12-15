@@ -12,6 +12,7 @@ import { Bubble } from "@/components/Bubble"
 import { DEFAULT_MODEL } from "@/features/llama/constants"
 import { useModelDownload } from "@/features/llama/hooks/useModelDownload"
 import { useLlamaChat } from "@/hooks/useLlamaChat"
+import { useMessageHandler } from "@/hooks/useMessageHandler"
 import { useStores } from "@/models"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colorsDark"
@@ -103,6 +104,7 @@ const renderBubble = ({
 }) => <Bubble child={child} message={message} />
 
 export const LlamaRNExample = observer(function LlamaRNExample() {
+  const messageHandler = useMessageHandler()
   // const [context, setContext] = useState<LlamaContext | undefined>(undefined)
   const { modelStore } = useStores()
   const context = modelStore.context
@@ -598,6 +600,10 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
         addSystemMessage(`Completion failed: ${e.message}`)
       })
   }
+
+  React.useEffect(() => {
+    messageHandler.setHandleMessage(handleSendPress)
+  }, [])
 
   const llamaChat = useLlamaChat()
   // After messages state is set up:
