@@ -8,14 +8,14 @@ import { LlamaRNExample } from "./LlamaRNExample"
 export const OnyxScreen = observer(function OnyxScreen() {
   return (
     <View style={$container}>
-      <View style={$statusContainer}>
-        <OnyxStatus />
-      </View>
       <View style={$canvasContainer}>
         <Canvas />
       </View>
       <View style={$chatContainer}>
         <LlamaRNExample />
+      </View>
+      <View style={$statusContainer}>
+        <OnyxStatus />
       </View>
     </View>
   )
@@ -31,7 +31,7 @@ const $statusContainer: ViewStyle = {
   top: 0,
   left: 0,
   right: 0,
-  zIndex: 2,
+  zIndex: 4, // Increased to be above chat
 }
 
 const $canvasContainer: ViewStyle = {
@@ -51,6 +51,7 @@ const $chatContainer: ViewStyle = {
   bottom: 0,
   zIndex: 3,
   backgroundColor: 'transparent',
+  paddingTop: 40, // Add padding to avoid overlap with status bar
 }
 
 export default OnyxScreen
