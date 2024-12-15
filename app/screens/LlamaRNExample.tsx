@@ -261,7 +261,7 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
     handleInitContext(modelFile, loraFile)
   }
 
-  const handleSendPress = async (message: MessageType.PartialText) => {
+  const handleSendPress = React.useCallback(async (message: MessageType.PartialText) => {
 
     console.log("trying to send message: ", message)
 
@@ -597,11 +597,12 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
         setInferencing(false)
         addSystemMessage(`Completion failed: ${e.message}`)
       })
-  }
+  }, [context, addMessage, setInferencing, conversationIdRef])
 
   React.useEffect(() => {
+    console.log("Registering message handler")
     messageHandler.setHandleMessage(handleSendPress)
-  }, [])
+  }, [handleSendPress]) // Now depends on the memoized function
 
   const llamaChat = useLlamaChat()
   // After messages state is set up:
