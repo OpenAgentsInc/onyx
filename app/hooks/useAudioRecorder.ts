@@ -91,9 +91,10 @@ export function useAudioRecorder() {
         console.log("Starting transcription...")
         const transcription = await recordingStore.transcribeRecording()
         console.log("Transcription result:", transcription)
-        
+
         if (transcription) {
-          console.log("Appending transcription to chat:", transcription)
+          Alert.alert(transcription)
+          // console.log("Appending transcription to chat:", transcription)
           await append({
             role: 'user',
             content: transcription,
