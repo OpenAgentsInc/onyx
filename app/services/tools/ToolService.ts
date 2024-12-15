@@ -137,12 +137,12 @@ export class ToolService {
       const listing = resources.map(resource => {
         const isDirectory = !resource.mime_type;
         return `${isDirectory ? "📁" : "📄"} ${resource.name}`;
-      }).join("\\n");
+      }).join("\n");
 
       return {
         content: [{
           type: "text",
-          text: `Contents of ${path}:\\n${listing}`
+          text: `Contents of ${path}:\n${listing}`
         }]
       };
     } catch (error) {
@@ -160,7 +160,7 @@ export class ToolService {
     try {
       const result = await this.wsService.readResource(path);
       
-      if (!result.contents || result.contents.length === 0) {
+      if (!result || !Array.isArray(result) || result.length === 0) {
         return {
           content: [{
             type: "text",
@@ -170,28 +170,20 @@ export class ToolService {
         };
       }
 
-      const content = result.contents[0];
-      
-      // Handle text content
-      if ("text" in content) {
-        return {
-          content: [{
-            type: "text",
-            text: content.text
-          }]
-        };
+      // Handle the new response format
+      const firstResult = result[0];
+      if (firstResult && 'Text' in firstResult) {
+        const textContent = firstResult.Text;
+        if (textContent && textContent.text) {
+          return {
+            content: [{
+              type: "text",
+              text: textContent.text
+            }]
+          };
+        }
       }
       
-      // Handle binary content
-      if ("blob" in content) {
-        return {
-          content: [{
-            type: "text",
-            text: `File "${path}" contains binary data (${content.mimeType})`
-          }]
-        };
-      }
-
       return {
         content: [{
           type: "text",
@@ -199,6 +191,7 @@ export class ToolService {
         }],
         isError: true
       };
+
     } catch (error) {
       return {
         content: [{
