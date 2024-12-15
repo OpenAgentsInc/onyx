@@ -4,7 +4,7 @@ import { colorsDark } from "@/theme"
 import { useAppTheme } from "@/utils/useAppTheme"
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs"
 import { Icon } from "./Icon"
-import useAudioRecorder from "@/hooks/useAudioRecorder"
+import { useAudioRecorder } from "@/hooks/useAudioRecorder"
 import { api } from "@/services/api/api"
 import { useCallback } from "react"
 
