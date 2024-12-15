@@ -1,6 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { AuthenticationStoreModel } from "./AuthenticationStore"
 import { ChatStoreModel } from "./ChatStore"
+import { ModelStoreModel } from "./ModelStore"
 import { RecordingStoreModel } from "./RecordingStore"
 import { UserStoreModel } from "./UserStore"
 import { WalletStoreModel } from "./WalletStore"
@@ -19,6 +20,7 @@ export const RootStoreModel = types.model("RootStore").props({
     transactions: [],
   }),
   userStore: types.optional(UserStoreModel, {}),
+  modelStore: types.optional(ModelStoreModel, {}),
 })
 
 /**
