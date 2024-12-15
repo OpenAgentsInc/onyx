@@ -5,14 +5,32 @@ import { ChatMessage } from '@/services/llama/LlamaTypes';
 export const useToolExecution = (toolService: ToolService) => {
   // Process text for tool calls and execute them
   const processToolCalls = useCallback(async (text: string): Promise<string> => {
-    const toolRegex = /<tool>([\s\S]*?)<\/tool>/g;
+    // Match both complete and incomplete tool calls
+    const toolRegex = /<tool>([\s\S]*?)(?:<\/tool>|$)/g;
     let result = text;
     let match;
 
     while ((match = toolRegex.exec(text)) !== null) {
       try {
-        // Parse tool call
-        const toolCall = JSON.parse(match[1]);
+        // Get the tool call content
+        let toolCallText = match[1].trim();
+        
+        // Try to parse the JSON, handling incomplete JSON
+        let toolCall;
+        try {
+          toolCall = JSON.parse(toolCallText);
+        } catch (e) {
+          // If JSON is incomplete, try to fix common issues
+          if (toolCallText.endsWith('}')) {
+            toolCall = JSON.parse(toolCallText);
+          } else if (toolCallText.includes('"arguments": {')) {
+            // Add missing closing braces
+            toolCallText += '}}';
+            toolCall = JSON.parse(toolCallText);
+          } else {
+            throw e;
+          }
+        }
         
         // Execute tool
         const toolResult = await toolService.executeTool(
