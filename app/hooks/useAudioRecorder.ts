@@ -2,12 +2,10 @@ import { Audio } from "expo-av"
 import { useEffect, useRef } from "react"
 import { Alert } from "react-native"
 import { useStores } from "../models"
-import { useLlamaChat } from "./useLlamaChat"
 import { useMessageHandler } from "./useMessageHandler"
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
-  const { addUserMessage } = useLlamaChat()
   const { handleMessage } = useMessageHandler()
   const recordingRef = useRef<Audio.Recording | null>(null)
 
@@ -95,9 +93,7 @@ export function useAudioRecorder() {
         console.log("Transcription result:", transcription)
 
         if (transcription) {
-          // Add message to chat UI
-          addUserMessage(transcription)
-          // Trigger AI response
+          // Only trigger the message handler, which will handle adding to chat
           await handleMessage(transcription)
         }
       } catch (err) {
