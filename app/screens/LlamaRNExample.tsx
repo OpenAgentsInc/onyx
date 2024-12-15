@@ -616,9 +616,8 @@ export const LlamaRNExample = observer(function LlamaRNExample() {
         user={{ id: 'user' }}
         onAttachmentPress={!context ? handlePickModel : undefined}
         flatListProps={{
-          contentContainerStyle: {
-            paddingBottom: 60
-          }
+          // @ts-ignore
+          marginBottom: 60
         }}
         textInputProps={{
           editable: true,
