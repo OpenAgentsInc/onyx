@@ -2,6 +2,7 @@ import json5 from "json5"
 import {
   convertJsonSchemaToGrammar, initLlama, loadLlamaModelInfo
 } from "llama.rn"
+import { observer } from "mobx-react-lite"
 import React, { useRef, useState } from "react"
 import { KeyboardAvoidingView, Platform, View } from "react-native"
 import ReactNativeBlobUtil from "react-native-blob-util"
@@ -101,7 +102,7 @@ const renderBubble = ({
   message: MessageType.Any
 }) => <Bubble child={child} message={message} />
 
-export function LlamaRNExample() {
+export const LlamaRNExample = observer(function LlamaRNExample() {
   // const [context, setContext] = useState<LlamaContext | undefined>(undefined)
   const { modelStore } = useStores()
   const context = modelStore.context
@@ -633,4 +634,4 @@ export function LlamaRNExample() {
       />
     </SafeAreaProvider>
   )
-}
+})
