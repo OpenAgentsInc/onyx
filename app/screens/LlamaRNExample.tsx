@@ -263,21 +263,7 @@ export function LlamaRNExample() {
   const handleSendPress = async (message: MessageType.PartialText) => {
 
     if (!context) {
-      if (message.text === '/download') {
-        try {
-          addSystemMessage('Starting model download...')
-          const newContext = await downloadAndInitModel(
-            DEFAULT_MODEL.repoId,
-            DEFAULT_MODEL.filename
-          )
-          setContext(newContext)
-          addSystemMessage('Model ready! You can start chatting.')
-        } catch (err: any) {
-          addSystemMessage(`Download failed: ${err.message}`)
-        }
-        return
-      }
-      addSystemMessage('Please load a model first using the file icon or type /download')
+      addSystemMessage('Please load a model first')
       return
     }
 
@@ -659,7 +645,7 @@ export function LlamaRNExample() {
         textInputProps={{
           editable: true,
           placeholder: !context
-            ? 'Type /download or press file icon to load model'
+            ? 'Load model to start chatting'
             : 'Type your message here',
           style: {
             color: colors.palette.neutral800,
