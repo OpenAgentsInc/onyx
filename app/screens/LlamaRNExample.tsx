@@ -4,13 +4,12 @@ import {
 } from "llama.rn"
 import { observer } from "mobx-react-lite"
 import React, { useRef, useState } from "react"
-import { KeyboardAvoidingView, Platform, View } from "react-native"
+import { Platform, View } from "react-native"
 import ReactNativeBlobUtil from "react-native-blob-util"
 import DocumentPicker from "react-native-document-picker"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { Bubble } from "@/components/Bubble"
-import { DEFAULT_MODEL, SYSTEM_MESSAGE } from "@/features/llama/constants"
-import { useModelDownload } from "@/features/llama/hooks/useModelDownload"
+import { SYSTEM_MESSAGE } from "@/features/llama/constants"
 import { useLlamaChat } from "@/hooks/useLlamaChat"
 import { useMessageHandler } from "@/hooks/useMessageHandler"
 import { useStores } from "@/models"
@@ -21,7 +20,7 @@ import { Chat, darkTheme } from "@flyerhq/react-native-chat-ui"
 import type { ReactNode } from 'react'
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import type { MessageType, Theme } from '@flyerhq/react-native-chat-ui'
-import type { LlamaContext } from 'llama.rn'
+
 const { dirs } = ReactNativeBlobUtil.fs
 
 const monoTheme: Theme = {
