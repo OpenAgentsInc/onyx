@@ -8,6 +8,8 @@
 import { ApisauceInstance, create } from "apisauce"
 import Config from "../../config"
 import type { ApiConfig } from "./api.types"
+import { Platform } from "react-native"
+import * as FileSystem from "expo-file-system"
 
 /**
  * Configuring the apisauce instance.
@@ -37,6 +39,43 @@ export class Api {
         Accept: "application/json",
       },
     })
+  }
+
+  /**
+   * Send an audio recording to the API
+   */
+  async sendAudioRecording(uri: string): Promise<{ ok: boolean; data?: any; error?: string }> {
+    try {
+      // For demo purposes, we'll just mock the API call
+      console.log("Sending audio recording:", uri)
+      
+      // In a real implementation, you would:
+      // 1. Read the file
+      // const audioData = await FileSystem.readAsStringAsync(uri, {
+      //   encoding: FileSystem.EncodingType.Base64,
+      // })
+      
+      // 2. Send to server
+      // const response = await this.apisauce.post("/audio", {
+      //   audio: audioData,
+      //   timestamp: new Date().toISOString(),
+      // })
+
+      // Mock successful response
+      return {
+        ok: true,
+        data: {
+          message: "Audio recording received successfully",
+          timestamp: new Date().toISOString(),
+        },
+      }
+    } catch (error) {
+      console.error("Error sending audio recording:", error)
+      return {
+        ok: false,
+        error: "Failed to send audio recording",
+      }
+    }
   }
 }
 
