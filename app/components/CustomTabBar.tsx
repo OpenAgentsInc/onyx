@@ -18,6 +18,9 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key]
         const isFocused = state.index === index
+        const isOnyxTab = route.name === 'Onyx'
+
+        if (!isOnyxTab) return null
 
         const onPress = () => {
           const event = navigation.emit({
@@ -31,61 +34,23 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
           }
         }
 
-        // Determine if this is the middle (Onyx) tab
-        const isOnyxTab = route.name === 'Onyx'
-
-        // Get the appropriate icon name based on the route
-        const getIconName = () => {
-          switch (route.name) {
-            case 'Home':
-              return 'home'
-            case 'Marketplace':
-              return 'storefront'
-            case 'Onyx':
-              return 'mic'
-            case 'Notifications':
-              return 'notifications'
-            case 'Inbox':
-              return 'mail-outline'
-            default:
-              return 'home'
-          }
-        }
-
-        if (isOnyxTab) {
-          return (
-            <View key={route.key} style={$onyxContainer}>
-              <View style={[$onyxButtonBorder, isFocused && $onyxButtonBorderActive]}>
-                <TouchableOpacity
-                  onPress={onPress}
-                  style={$onyxButton}
-                  activeOpacity={0.8}
-                >
-                  <Icon
-                    icon={getIconName()}
-                    size={36}
-                    color={isFocused ? colors.tint : colors.tintInactive}
-                    style={{ borderRadius: 12, marginTop: -1 }}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          )
-        }
-
         return (
-          <TouchableOpacity
-            key={route.key}
-            onPress={onPress}
-            style={$tabButton}
-            activeOpacity={0.8}
-          >
-            <Icon
-              icon={getIconName()}
-              color={isFocused ? colors.tint : colors.tintInactive}
-              size={28}
-            />
-          </TouchableOpacity>
+          <View key={route.key} style={$onyxContainer}>
+            <View style={[$onyxButtonBorder, isFocused && $onyxButtonBorderActive]}>
+              <TouchableOpacity
+                onPress={onPress}
+                style={$onyxButton}
+                activeOpacity={0.8}
+              >
+                <Icon
+                  icon="mic"
+                  size={36}
+                  color={isFocused ? colors.tint : colors.tintInactive}
+                  style={{ borderRadius: 12, marginTop: -1 }}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
         )
       })}
     </View>
