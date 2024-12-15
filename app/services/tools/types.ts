@@ -47,13 +47,13 @@ export interface ListToolsResult {
 // Filesystem tool definitions
 export const LIST_DIRECTORY_TOOL: Tool = {
   name: "list_directory",
-  description: "List contents of a directory",
+  description: "List contents of a directory. Use '.' for current directory, '..' for parent directory, or a relative path like 'docs' or 'app/components'.",
   inputSchema: {
     type: "object",
     properties: {
       path: {
         type: "string",
-        description: "Directory path to list (relative to workspace root)"
+        description: "Directory path relative to workspace root. Use '.' for current directory."
       }
     },
     required: ["path"]
@@ -62,13 +62,13 @@ export const LIST_DIRECTORY_TOOL: Tool = {
 
 export const READ_FILE_TOOL: Tool = {
   name: "read_file",
-  description: "Read contents of a file",
+  description: "Read contents of a file using relative paths like 'README.md' or 'docs/tools.md'.",
   inputSchema: {
     type: "object",
     properties: {
       path: {
         type: "string",
-        description: "File path to read (relative to workspace root)"
+        description: "File path relative to workspace root"
       }
     },
     required: ["path"]
