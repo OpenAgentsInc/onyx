@@ -36,7 +36,7 @@ export const TransactionsList: FC = observer(function TransactionsList() {
               </View>
               <View style={$transactionRight}>
                 <Text
-                  text={`${tx.type === "send" ? "-" : "+"}${tx.amount} sats`}
+                  text={`${tx.type === "send" ? "-" : "+"}${tx.amount} ₿`}
                   style={[$transactionAmount, tx.type === "send" ? $sendText : $receiveText]}
                 />
                 {tx.status === "pending" && (
