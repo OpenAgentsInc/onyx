@@ -22,7 +22,7 @@ Input schema: {
   "properties": {
     "path": {
       "type": "string",
-      "description": "Directory path to list (relative to workspace root)"
+      "description": "Directory path relative to workspace root. Use '.' for current directory."
     }
   },
   "required": ["path"]
@@ -34,11 +34,22 @@ Input schema: {
   "properties": {
     "path": {
       "type": "string",
-      "description": "File path to read (relative to workspace root)"
+      "description": "File path relative to workspace root"
     }
   },
   "required": ["path"]
 }
+
+Important path guidelines:
+1. Always use relative paths from the workspace root
+2. Use '.' to refer to the current directory
+3. Use '..' to go up one directory
+4. Examples:
+   - "." for current directory
+   - "docs" for docs folder
+   - "app/components" for components folder
+   - "README.md" for root README file
+   - "docs/tools.md" for a file in docs folder
 
 To use a tool, include a tool call in your response like this:
 <tool>
