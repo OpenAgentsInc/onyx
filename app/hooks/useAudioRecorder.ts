@@ -3,10 +3,12 @@ import { useEffect, useRef } from "react"
 import { Alert } from "react-native"
 import { useStores } from "../models"
 import { useLlamaChat } from "./useLlamaChat"
+import { useMessageHandler } from "./useMessageHandler"
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
   const { addUserMessage } = useLlamaChat()
+  const { handleMessage } = useMessageHandler()
   const recordingRef = useRef<Audio.Recording | null>(null)
 
   useEffect(() => {
@@ -93,8 +95,10 @@ export function useAudioRecorder() {
         console.log("Transcription result:", transcription)
 
         if (transcription) {
-          // Instead of using append, we now use addUserMessage
+          // Add message to chat UI
           addUserMessage(transcription)
+          // Trigger AI response
+          await handleMessage(transcription)
         }
       } catch (err) {
         console.error('Failed to process recording:', err)
