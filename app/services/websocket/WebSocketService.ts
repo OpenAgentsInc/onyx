@@ -1,5 +1,8 @@
-import { WebSocketConfig, WebSocketMessage, ConnectionState, AskMessage, ResponseMessage, AuthMessage } from '../../types/websocket';
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction } from "mobx"
+import {
+  AskMessage, AuthMessage, ConnectionState, ResponseMessage, WebSocketConfig,
+  WebSocketMessage
+} from "../../types/websocket"
 
 export class WebSocketService {
   private ws: WebSocket | null = null;
@@ -9,7 +12,7 @@ export class WebSocketService {
   private responseHandlers: Map<string, (response: any) => void> = new Map();
   private messageId = 0;
   private cleanupCallbacks: (() => void)[] = [];
-  
+
   state: ConnectionState = {
     connected: false,
     connecting: false
@@ -40,13 +43,13 @@ export class WebSocketService {
       console.log('Already connected or connecting, current state:', this.state);
       return;
     }
-    
+
     this.setState({ connecting: true });
-    console.log('Connecting to WebSocket...');
-    
+    console.log('Connecting to WebSocket...', this.config.url);
+
     try {
       this.ws = new WebSocket(this.config.url);
-      
+
       this.ws.onopen = () => {
         console.log('WebSocket connection opened, sending initialize message');
         // Send initialize message when connection opens
@@ -88,7 +91,7 @@ export class WebSocketService {
         console.log('WebSocket message received:', event.data);
         this.handleMessage(event);
       };
-      
+
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       console.error('WebSocket connection error:', error);
@@ -168,10 +171,10 @@ export class WebSocketService {
       1015: 'TLS handshake'
     };
 
-    const reason = event.code in codes 
+    const reason = event.code in codes
       ? `${codes[event.code]}${event.reason ? `: ${event.reason}` : ''}`
       : `Unknown error ${event.code}${event.reason ? `: ${event.reason}` : ''}`;
-      
+
     console.log('WebSocket closed:', reason);
     this.setState({
       error: `Connection closed - ${reason}`,

@@ -13,6 +13,7 @@ onyx/
 ├── docs/                    # Documentation
 │   ├── hierarchy.md        # Project structure documentation
 │   ├── websockets.md       # WebSocket implementation docs
+│   ├── llama.md           # Llama integration docs
 │   └── mcp/               # Model Context Protocol docs
 ├── test/                    # Test configurations and mocks
 ├── android/                 # Android-specific native code
@@ -43,6 +44,10 @@ app/
 │   │   ├── Checkbox.tsx   # Checkbox component
 │   │   ├── Radio.tsx     # Radio button component
 │   │   └── Toggle.tsx    # Base toggle component
+│   ├── chat/              # Chat components
+│   │   ├── ChatBubble.tsx # Chat bubble rendering
+│   │   ├── ChatContainer.tsx # Main chat container
+│   │   └── ChatTheme.ts  # Chat UI theming
 │   ├── VectorIcon.tsx     # Vector icon component
 │   └── index.ts           # Components barrel file
 ├── config/                 # App configuration
@@ -62,7 +67,7 @@ app/
 │   │   └── ErrorBoundary.tsx # Error boundary component
 │   ├── HomeScreen.tsx     # Home tab screen
 │   ├── LoginScreen.tsx    # Login screen
-│   ├── OnyxScreen.tsx     # Main Onyx interface
+│   ├── OnyxScreen.tsx     # Main Onyx interface with chat
 │   ├── ProfileScreen.tsx  # Profile tab screen
 │   ├── UpdaterScreen.tsx  # App updater screen
 │   ├── WalletScreen.tsx   # Wallet tab screen
@@ -70,6 +75,11 @@ app/
 │   └── index.ts          # Screens barrel file
 ├── services/              # External services and APIs
 │   ├── api/              # REST API services
+│   ├── llama/            # Llama integration services
+│   │   ├── LlamaTypes.ts # Type definitions
+│   │   ├── LlamaContext.ts # Context management
+│   │   ├── LlamaCommands.ts # Command handling
+│   │   └── LlamaFileUtils.ts # File utilities
 │   ├── mcp/              # Model Context Protocol services
 │   │   ├── client/       # MCP client implementation
 │   │   │   ├── OnyxMCPClient.ts
@@ -131,6 +141,7 @@ assets/
 docs/
 ├── hierarchy.md         # Project structure documentation
 ├── websockets.md        # WebSocket implementation details
+├── llama.md            # Llama integration documentation
 └── mcp/                # Model Context Protocol documentation
     ├── README.md       # MCP overview
     ├── architecture.md # Architecture documentation
@@ -148,6 +159,12 @@ docs/
 ### app/components
 Contains reusable UI components that are used across different screens. Each component is typically self-contained with its own styles and logic.
 
+### app/components/chat
+Contains chat-specific components for the Llama integration:
+- Chat UI components
+- Message rendering
+- Theme configuration
+
 ### app/navigators
 Contains navigation configuration using React Navigation. Defines the app's navigation structure and screen hierarchy.
 
@@ -156,6 +173,13 @@ Contains the main screen components. Each screen represents a full-page view in 
 
 ### app/services
 Contains service integrations, API clients, and other external service interfaces.
+
+#### app/services/llama
+Contains Llama integration files:
+- Type definitions
+- Context management
+- Command handling
+- File utilities
 
 #### app/services/mcp
 Contains Model Context Protocol implementation:
@@ -170,10 +194,10 @@ Contains Model Context Protocol implementation:
 
 #### app/services/websocket
 Contains WebSocket implementation files:
-- `WebSocketService.ts`: Core WebSocket functionality
-- `types.ts`: TypeScript interfaces and types
-- `useWebSocket.ts`: React hook for WebSocket usage
-- `index.ts`: Barrel file for WebSocket exports
+- Core WebSocket functionality
+- TypeScript interfaces and types
+- React hook for WebSocket usage
+- Barrel file for WebSocket exports
 
 ### app/config
 Contains configuration files including WebSocket settings and environment variables.
@@ -200,45 +224,5 @@ Contains Ignite CLI templates for generating new components, screens, and other 
 
 ### android/ & ios/
 Contains native code and configurations for each platform.
-
-## WebSocket-Related Files
-
-The WebSocket implementation is organized across several files:
-
-1. **Service Implementation**
-   - `app/services/websocket/WebSocketService.ts`
-   - `app/services/websocket/types.ts`
-   - `app/services/websocket/useWebSocket.ts`
-   - `app/services/websocket/index.ts`
-
-2. **Configuration**
-   - `app/config/websocket.ts`
-
-3. **Documentation**
-   - `docs/websockets.md`
-
-4. **Integration**
-   - `app/screens/ChatScreen.tsx`
-
-## MCP-Related Files
-
-The Model Context Protocol implementation is organized across several modules:
-
-1. **Core Implementation**
-   - `app/services/mcp/client/` - Core client implementation
-   - `app/services/mcp/transport/` - Transport layer
-   - `app/services/mcp/cache/` - Caching system
-   - `app/services/mcp/storage/` - Persistent storage
-
-2. **Mobile Features**
-   - `app/services/mcp/sync/` - Background synchronization
-   - `app/services/mcp/offline/` - Offline support
-   - `app/services/mcp/network/` - Network optimization
-
-3. **React Integration**
-   - `app/services/mcp/hooks/` - React hooks
-
-4. **Documentation**
-   - `docs/mcp/` - MCP documentation
 
 This structure follows the Ignite boilerplate conventions while incorporating custom additions for the Onyx project. The organization emphasizes modularity, reusability, and clear separation of concerns.
