@@ -3,12 +3,14 @@ import React from "react"
 import { View, ViewStyle } from "react-native"
 import { Canvas } from "@/components/Canvas"
 import { OnyxStatus } from "@/components/OnyxStatus"
+import { LlamaRNExample } from "./LlamaRNExample"
 
 export const OnyxScreen = observer(function OnyxScreen() {
   return (
     <View style={[$container]}>
       <OnyxStatus />
       <Canvas />
+      <LlamaRNExample />
     </View>
   )
 })
