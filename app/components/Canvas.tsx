@@ -155,11 +155,12 @@ export function Canvas() {
       1000
     );
     camera.position.z = 3.5;
-    camera.position.y = 1.5;
+    camera.position.y = 1.0; // Lowered from 1.5 to move orb up in view
     camera.lookAt(0, 0, 0);
 
     // Create gem group
     const gemGroup = new THREE.Group();
+    gemGroup.position.y = 0.3; // Added to move gem up slightly
 
     // Main gem body
     const gemGeometry = createGemGeometry();
