@@ -2,26 +2,27 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { withSetPropAction } from "./helpers/withSetPropAction"
 import { LlamaContext } from "llama.rn"
 
+const DownloadProgressModel = types.model({
+  percentage: types.number,
+  received: types.number,
+  total: types.number,
+})
+
 export const ModelStoreModel = types
   .model("ModelStore")
   .props({
     isDownloading: false,
     isInitializing: false,
-    downloadProgress: types.maybeNull(
-      types.model({
-        percentage: types.number,
-        received: types.number,
-        total: types.number,
-      })
-    ),
+    downloadProgress: types.maybeNull(DownloadProgressModel),
     initProgress: types.maybeNull(types.number),
     error: types.maybeNull(types.string),
   })
+  .volatile(() => ({
+    _context: null as LlamaContext | null,
+  }))
   .actions(withSetPropAction)
   .actions((store) => ({
     setContext(context: LlamaContext | null) {
-      // Since LlamaContext is a class instance and not serializable,
-      // we store it in a volatile field
       store._context = context
     },
     setDownloadProgress(progress: { percentage: number; received: number; total: number } | null) {
@@ -58,9 +59,6 @@ export const ModelStoreModel = types
       if (store._context) return 'Model loaded'
       return 'Model not loaded'
     },
-  }))
-  .volatile((self) => ({
-    _context: null as LlamaContext | null,
   }))
 
 export interface ModelStore extends Instance<typeof ModelStoreModel> { }
