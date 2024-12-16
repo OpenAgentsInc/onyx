@@ -1,40 +1,36 @@
-import { Platform } from 'react-native'
-import { initLlama, loadLlamaModelInfo } from 'llama.rn'
-import type { DocumentPickerResponse } from 'react-native-document-picker'
-import type { LlamaContext } from './LlamaTypes'
+import { DocumentPickerResponse } from 'react-native-document-picker'
+import { LlamaContext } from './LlamaTypes'
+import RNLlama from 'llama.rn'
 
-export const getModelInfo = async (model: string) => {
-  const t0 = Date.now()
-  const info = await loadLlamaModelInfo(model)
-  console.log(`Model info (took ${Date.now() - t0}ms): `, info)
-  return info
+export const getModelInfo = async (modelPath: string) => {
+  return RNLlama.getModelInfo(modelPath)
 }
 
 export const initializeLlamaContext = async (
-  file: DocumentPickerResponse,
-  loraFile: DocumentPickerResponse | null,
-  onProgress: (progress: number) => void
+  modelFile: DocumentPickerResponse,
+  options: any,
+  progressCallback: (progress: number) => void,
 ): Promise<LlamaContext> => {
-  return initLlama(
-    {
-      model: file.uri,
-      use_mlock: true,
-      n_gpu_layers: Platform.OS === 'ios' ? 99 : 0, // > 0: enable GPU
-      lora_list: loraFile ? [{ path: loraFile.uri, scaled: 1.0 }] : undefined,
-    },
-    onProgress
-  )
+  const ctx = await RNLlama.initContext(modelFile.uri, {
+    n_ctx: 2048,
+    n_batch: 512,
+    n_threads: 6,
+    n_gpu_layers: 99,
+    ...options,
+  }, progressCallback)
+
+  return new LlamaContext(ctx)
 }
 
 export const handleContextRelease = async (
   context: LlamaContext | null,
-  onRelease: () => void,
-  onError: (error: any) => void
+  onSuccess: () => void,
+  onError: (err: any) => void,
 ) => {
   if (!context) return
   try {
     await context.release()
-    onRelease()
+    onSuccess()
   } catch (err) {
     onError(err)
   }
