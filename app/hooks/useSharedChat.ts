@@ -20,6 +20,11 @@ export function useSharedChat() {
   } = useVercelChat({
     fetch: (input, init) => {
       console.log('fetching', input, init)
+      console.tron.display({
+        name: 'fetch',
+        value: { input, init },
+        preview: 'fetch',
+      })
       return Promise.resolve(new Response(JSON.stringify({
         messages: [
           { role: 'user', content: 'Hello!' },
