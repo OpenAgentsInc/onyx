@@ -98,7 +98,7 @@ export const RecordButtonOverlay: FC = () => {
 
 const $container: ViewStyle = {
   position: "absolute",
-  bottom: 20,
+  bottom: 55, // Updated from 20 to 55
   left: 0,
   right: 0,
   alignItems: "center",
