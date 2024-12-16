@@ -15,8 +15,8 @@ export const RecordButtonOverlay: FC = () => {
   const {
     theme: { colors: themeColors },
   } = useAppTheme()
-  const { isRecording, toggleRecording, recordingUri } = useAudioRecorder()
-  const { append, isLoading: isModelLoading } = useLlamaContext()
+  const { isRecording, toggleRecording } = useAudioRecorder()
+  const { isLoading: isModelLoading } = useLlamaContext()
   const { recordingStore } = useStores()
   const scaleAnim = useRef(new Animated.Value(1)).current
 
@@ -49,26 +49,8 @@ export const RecordButtonOverlay: FC = () => {
 
   const handlePress = useCallback(async () => {
     if (isModelLoading) return // Prevent recording while model is loading
-    
-    const uri = await toggleRecording()
-    
-    if (uri && !isRecording) {
-      try {
-        recordingStore.setProp("isTranscribing", true)
-        console.log("Starting transcription...")
-        const transcription = await recordingStore.transcribeRecording()
-        console.log("Transcription result:", transcription)
-
-        if (transcription) {
-          await append({ role: "user", content: transcription })
-        }
-      } catch (err) {
-        console.error('Failed to process recording:', err)
-      } finally {
-        recordingStore.setProp("isTranscribing", false)
-      }
-    }
-  }, [toggleRecording, isRecording, append, recordingStore, isModelLoading])
+    await toggleRecording()
+  }, [toggleRecording, isModelLoading])
 
   return (
     <View style={$container}>
