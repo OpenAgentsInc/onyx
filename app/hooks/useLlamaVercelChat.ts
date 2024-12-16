@@ -4,8 +4,15 @@ import { SYSTEM_MESSAGE } from "@/features/llama/constants"
 import { handleCommand } from "@/services/llama/LlamaCommands"
 import { getModelInfo, initializeLlamaContext } from "@/services/llama/LlamaContext"
 import { LlamaModelManager } from "@/services/llama/LlamaModelManager"
+import type { LlamaContext } from "@/services/llama/LlamaTypes"
 
 const randId = () => Math.random().toString(36).substr(2, 9)
+
+interface ChatResponse {
+  role: string
+  content: string
+  id: string
+}
 
 export function useLlamaVercelChat() {
   const { modelStore } = useStores()
@@ -39,16 +46,18 @@ export function useLlamaVercelChat() {
       console.log("Initializing context...")
 
       const t0 = Date.now()
-      const ctx = await initializeLlamaContext(
-        { uri: modelPath },
-        null,
-        (progress) => {
-          console.log(`Initializing context... ${progress}%`)
-        }
-      )
+      const ctx = await initializeLlamaContext({
+        uri: modelPath,
+        name: "model.gguf",
+        size: 0,
+        type: "application/octet-stream",
+        fileCopyUri: null,
+      }, null, (progress) => {
+        console.log(`Initializing context... ${progress}%`)
+      })
 
       const t1 = Date.now()
-      modelStore.setContext(ctx)
+      modelStore.setContext(ctx as unknown as LlamaContext)
       modelManager.setContext(ctx)
       hasInitializedRef.current = true
       console.log(
@@ -79,12 +88,12 @@ export function useLlamaVercelChat() {
   }, [])
 
   const append = useCallback(
-    async (message: { role: string; content: string }) => {
+    async (message: { role: string; content: string }): Promise<ChatResponse | undefined> => {
       if (!context) {
         if (!hasInitializedRef.current) {
           await initializeModel()
         }
-        return
+        return undefined
       }
 
       setInferencing(true)
@@ -93,14 +102,14 @@ export function useLlamaVercelChat() {
         if (message.content.startsWith("/")) {
           const isCommand = await handleCommand(
             message.content,
-            context,
+            context as unknown as LlamaContext,
             inferencing,
             console.log,
             () => {
               conversationIdRef.current = randId()
             }
           )
-          if (isCommand) return
+          if (isCommand) return undefined
         }
 
         const msgs = [
@@ -154,9 +163,11 @@ export function useLlamaVercelChat() {
             id: randId(),
           }
         }
+        return undefined
       } catch (e: any) {
         console.error("Completion error:", e)
         setError(new Error(`Completion failed: ${e.message}`))
+        return undefined
       } finally {
         setInferencing(false)
       }
