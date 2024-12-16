@@ -1,10 +1,12 @@
+import { releaseAllLlama } from "llama.rn"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useStores } from "@/models"
 import { SYSTEM_MESSAGE } from "@/features/llama/constants"
+import { useStores } from "@/models"
 import { handleCommand } from "@/services/llama/LlamaCommands"
-import { getModelInfo, initializeLlamaContext } from "@/services/llama/LlamaContext"
+import {
+  getModelInfo, initializeLlamaContext
+} from "@/services/llama/LlamaContext"
 import { LlamaModelManager } from "@/services/llama/LlamaModelManager"
-import { releaseAllContexts } from "llama.rn"
 
 const randId = () => Math.random().toString(36).substr(2, 9)
 
@@ -26,9 +28,9 @@ export function useLlamaVercelChat() {
 
   // Release all contexts on mount and unmount
   useEffect(() => {
-    releaseAllContexts().catch(console.error)
+    releaseAllLlama().catch(console.error)
     return () => {
-      releaseAllContexts().catch(console.error)
+      releaseAllLlama().catch(console.error)
     }
   }, [])
 
@@ -36,7 +38,7 @@ export function useLlamaVercelChat() {
     if (isInitializing || hasInitializedRef.current) return
     setIsInitializing(true)
     modelStore.setIsInitializing(true)
-    
+
     try {
       // Release any existing context first
       await modelManager.releaseContext()
@@ -76,8 +78,7 @@ export function useLlamaVercelChat() {
       modelManager.setContext(ctx)
       hasInitializedRef.current = true
       console.log(
-        `Context initialized! Load time: ${t1 - t0}ms GPU: ${ctx.gpu ? "YES" : "NO"} (${
-          ctx.reasonNoGPU
+        `Context initialized! Load time: ${t1 - t0}ms GPU: ${ctx.gpu ? "YES" : "NO"} (${ctx.reasonNoGPU
         }) Chat Template: ${ctx.model.isChatTemplateSupported ? "YES" : "NO"}`
       )
     } catch (err: any) {
