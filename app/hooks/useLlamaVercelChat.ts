@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useStores } from "@/models"
 import { SYSTEM_MESSAGE } from "@/features/llama/constants"
 import { handleCommand } from "@/services/llama/LlamaCommands"
-import { getModelInfo, initializeLlamaContext, handleContextRelease } from "@/services/llama/LlamaContext"
+import { getModelInfo, initializeLlamaContext } from "@/services/llama/LlamaContext"
 import { LlamaModelManager } from "@/services/llama/LlamaModelManager"
 
 const randId = () => Math.random().toString(36).substr(2, 9)
@@ -22,6 +22,9 @@ export function useLlamaVercelChat() {
     setIsInitializing(true)
     
     try {
+      // Release any existing context first
+      await modelManager.releaseContext()
+
       const modelPath = await modelManager.ensureModelExists((progress) => {
         console.log(`Model download progress: ${progress}%`)
       })
@@ -44,6 +47,7 @@ export function useLlamaVercelChat() {
 
       const t1 = Date.now()
       modelStore.setContext(ctx)
+      modelManager.setContext(ctx)
       hasInitializedRef.current = true
       console.log(
         `Context initialized! Load time: ${t1 - t0}ms GPU: ${ctx.gpu ? "YES" : "NO"} (${
@@ -66,17 +70,7 @@ export function useLlamaVercelChat() {
     }
     return () => {
       // Cleanup
-      if (context) {
-        handleContextRelease(
-          context,
-          () => {
-            modelStore.setContext(null)
-            hasInitializedRef.current = false
-            console.log("Context released!")
-          },
-          (err) => console.error(`Context release failed: ${err}`)
-        )
-      }
+      modelManager.releaseContext()
     }
   }, [])
 
