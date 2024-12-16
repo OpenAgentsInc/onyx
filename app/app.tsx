@@ -37,7 +37,7 @@ import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import { customFontsToLoad } from "./theme"
 import { loadDateFnsLocale } from "./utils/formatDate"
 import * as storage from "./utils/storage"
-import { LlamaProvider } from "./context/LlamaContext"
+import { LlamaProvider } from "./services/llama/LlamaContext"
 
 global.Buffer = Buffer;
 
