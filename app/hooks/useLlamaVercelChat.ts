@@ -4,7 +4,7 @@ import { SYSTEM_MESSAGE } from "@/features/llama/constants"
 import { handleCommand } from "@/services/llama/LlamaCommands"
 import { getModelInfo, initializeLlamaContext } from "@/services/llama/LlamaContext"
 import { LlamaModelManager } from "@/services/llama/LlamaModelManager"
-import type { LlamaContext } from "llama.rn"
+import { LlamaContext } from "@/services/llama/LlamaTypes"
 
 const randId = () => Math.random().toString(36).substr(2, 9)
 
@@ -57,7 +57,7 @@ export function useLlamaVercelChat() {
       })
 
       const t1 = Date.now()
-      modelStore.setContext(ctx)
+      modelStore.setContext(new LlamaContext(ctx))
       modelManager.setContext(ctx)
       hasInitializedRef.current = true
       console.log(
