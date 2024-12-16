@@ -7,7 +7,7 @@ import { useAppTheme } from "@/utils/useAppTheme"
 import { useStores } from "@/models"
 import { StatusIndicator } from "./StatusIndicator"
 import { colors } from "@/theme"
-import { useLlamaContext } from "@/context/LlamaContext"
+import { useLlamaContext } from "@/services/llama/LlamaContext"
 
 const BUTTON_SIZE = 65
 
