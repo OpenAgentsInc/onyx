@@ -29,6 +29,8 @@ export function useLlamaVercelChat() {
   // Release all contexts on unmount
   useEffect(() => {
     return () => {
+      // Only schedule context release on unmount
+      modelManager.scheduleContextRelease()
       releaseAllLlama().catch(console.error)
     }
   }, [])
@@ -190,8 +192,7 @@ export function useLlamaVercelChat() {
         return undefined
       } finally {
         setInferencing(false)
-        // Schedule context release after completion
-        modelManager.scheduleContextRelease()
+        // Removed context release scheduling from here
       }
     },
     [inferencing]
