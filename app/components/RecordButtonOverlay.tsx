@@ -4,6 +4,8 @@ import { Icon } from "./Icon"
 import { useAudioRecorder } from "@/hooks/useAudioRecorder"
 import { useCallback, useEffect, useRef } from "react"
 import { useAppTheme } from "@/utils/useAppTheme"
+import { useLlamaVercelChat } from "@/hooks/useLlamaVercelChat"
+import { useStores } from "@/models"
 
 const BUTTON_SIZE = 65
 
@@ -11,7 +13,9 @@ export const RecordButtonOverlay: FC = () => {
   const {
     theme: { colors },
   } = useAppTheme()
-  const { isRecording, toggleRecording } = useAudioRecorder()
+  const { isRecording, toggleRecording, recordingUri } = useAudioRecorder()
+  const { append, handleModelInit } = useLlamaVercelChat()
+  const { recordingStore } = useStores()
   const scaleAnim = useRef(new Animated.Value(1)).current
 
   useEffect(() => {
@@ -40,13 +44,31 @@ export const RecordButtonOverlay: FC = () => {
   }, [isRecording])
 
   const handlePress = useCallback(async () => {
-    await toggleRecording()
-  }, [toggleRecording])
+    const uri = await toggleRecording()
+    
+    if (uri && !isRecording) {
+      try {
+        recordingStore.setProp("isTranscribing", true)
+        console.log("Starting transcription...")
+        const transcription = await recordingStore.transcribeRecording()
+        console.log("Transcription result:", transcription)
+
+        if (transcription) {
+          await append({ role: "user", content: transcription })
+        }
+      } catch (err) {
+        console.error('Failed to process recording:', err)
+      } finally {
+        recordingStore.setProp("isTranscribing", false)
+      }
+    }
+  }, [toggleRecording, isRecording, append, recordingStore])
 
   return (
     <View style={$container}>
       <TouchableOpacity
         onPress={handlePress}
+        onLongPress={handleModelInit}
         style={$buttonContainer}
         activeOpacity={0.8}
       >
