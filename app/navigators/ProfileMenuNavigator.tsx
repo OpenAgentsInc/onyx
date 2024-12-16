@@ -1,8 +1,9 @@
-import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
-import { CompositeScreenProps } from "@react-navigation/native"
-import { MainTabScreenProps } from "./MainNavigator"
 import { ProfileScreen } from "@/screens/ProfileScreen"
-import { UpdaterScreen } from "@/screens/UpdaterScreen"
+import { CompositeScreenProps } from "@react-navigation/native"
+import {
+  createNativeStackNavigator, NativeStackScreenProps
+} from "@react-navigation/native-stack"
+import { MainTabScreenProps } from "./MainNavigator"
 
 export type ProfileMenuParamList = {
   ProfileHome: undefined
@@ -25,7 +26,6 @@ export function ProfileMenuNavigator() {
       initialRouteName="ProfileHome"
     >
       <Stack.Screen name="ProfileHome" component={ProfileScreen} />
-      <Stack.Screen name="Updater" component={UpdaterScreen} />
     </Stack.Navigator>
   )
 }

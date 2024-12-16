@@ -37,10 +37,11 @@ import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import { customFontsToLoad } from "./theme"
 import { loadDateFnsLocale } from "./utils/formatDate"
 import * as storage from "./utils/storage"
+import { LlamaProvider } from "./services/llama/LlamaContext"
 
 global.Buffer = Buffer;
 
-export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE_2b"
+export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE_2c"
 
 // Web linking configuration
 const prefix = Linking.createURL("/")
@@ -132,11 +133,13 @@ function App(props: AppProps) {
         <WalletProvider>
           <RelayProvider>
             <KeyboardProvider>
-              <AppNavigator
-                linking={linking}
-                initialState={initialNavigationState}
-                onStateChange={onNavigationStateChange}
-              />
+              <LlamaProvider>
+                <AppNavigator
+                  linking={linking}
+                  initialState={initialNavigationState}
+                  onStateChange={onNavigationStateChange}
+                />
+              </LlamaProvider>
             </KeyboardProvider>
           </RelayProvider>
         </WalletProvider>

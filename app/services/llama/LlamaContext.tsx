@@ -1,5 +1,8 @@
-import { Platform } from 'react-native'
-import { initLlama, loadLlamaModelInfo } from 'llama.rn'
+import { initLlama, loadLlamaModelInfo } from "llama.rn"
+import React, { createContext, useContext } from "react"
+import { Platform } from "react-native"
+import { useLlamaVercelChat } from "@/hooks/useLlamaVercelChat"
+
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import type { LlamaContext } from './LlamaTypes'
 
@@ -38,4 +41,26 @@ export const handleContextRelease = async (
   } catch (err) {
     onError(err)
   }
+}
+
+// React Context for Llama
+type LlamaContextType = ReturnType<typeof useLlamaVercelChat>
+const LlamaReactContext = createContext<LlamaContextType | null>(null)
+
+export function LlamaProvider({ children }: { children: React.ReactNode }) {
+  const llamaChat = useLlamaVercelChat()
+
+  return (
+    <LlamaReactContext.Provider value={llamaChat}>
+      {children}
+    </LlamaReactContext.Provider>
+  )
+}
+
+export function useLlamaContext() {
+  const context = useContext(LlamaReactContext)
+  if (!context) {
+    throw new Error('useLlamaContext must be used within a LlamaProvider')
+  }
+  return context
 }

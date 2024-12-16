@@ -1,6 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { withSetPropAction } from "./helpers/withSetPropAction"
-import { LlamaContext } from "llama.rn"
+import type { LlamaContext } from "llama.rn"
 
 const DownloadProgressModel = types.model({
   percentage: types.number,
@@ -11,8 +11,8 @@ const DownloadProgressModel = types.model({
 export const ModelStoreModel = types
   .model("ModelStore")
   .props({
-    isDownloading: false,
-    isInitializing: false,
+    isDownloading: types.optional(types.boolean, false),
+    isInitializing: types.optional(types.boolean, false),
     downloadProgress: types.maybeNull(DownloadProgressModel),
     initProgress: types.maybeNull(types.number),
     error: types.maybeNull(types.string),
