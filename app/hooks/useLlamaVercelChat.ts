@@ -15,9 +15,10 @@ export function useLlamaVercelChat() {
   const [isInitializing, setIsInitializing] = useState(false)
   const conversationIdRef = useRef<string>("default")
   const modelManager = LlamaModelManager.getInstance()
+  const hasInitializedRef = useRef(false)
 
   const initializeModel = async () => {
-    if (isInitializing) return
+    if (isInitializing || context || hasInitializedRef.current) return
     setIsInitializing(true)
     
     try {
@@ -28,18 +29,6 @@ export function useLlamaVercelChat() {
       if (!modelPath) {
         throw new Error("Failed to get model path")
       }
-
-      await handleContextRelease(
-        context,
-        () => {
-          modelStore.setContext(null)
-          console.log("Context released!")
-        },
-        (err) => {
-          console.error(`Context release failed: ${err}`)
-          setError(new Error(`Context release failed: ${err}`))
-        }
-      )
 
       await getModelInfo(modelPath)
       console.log("Initializing context...")
@@ -55,6 +44,7 @@ export function useLlamaVercelChat() {
 
       const t1 = Date.now()
       modelStore.setContext(ctx)
+      hasInitializedRef.current = true
       console.log(
         `Context initialized! Load time: ${t1 - t0}ms GPU: ${ctx.gpu ? "YES" : "NO"} (${
           ctx.reasonNoGPU
@@ -63,6 +53,7 @@ export function useLlamaVercelChat() {
     } catch (err: any) {
       console.error("Context initialization failed:", err)
       setError(new Error(`Context initialization failed: ${err.message}`))
+      hasInitializedRef.current = false
     } finally {
       setIsInitializing(false)
     }
@@ -70,15 +61,31 @@ export function useLlamaVercelChat() {
 
   // Auto-initialize on mount
   useEffect(() => {
-    if (!context && !isInitializing) {
+    if (!hasInitializedRef.current) {
       initializeModel()
     }
-  }, [context])
+    return () => {
+      // Cleanup
+      if (context) {
+        handleContextRelease(
+          context,
+          () => {
+            modelStore.setContext(null)
+            hasInitializedRef.current = false
+            console.log("Context released!")
+          },
+          (err) => console.error(`Context release failed: ${err}`)
+        )
+      }
+    }
+  }, [])
 
   const append = useCallback(
     async (message: { role: string; content: string }) => {
       if (!context) {
-        await initializeModel()
+        if (!hasInitializedRef.current) {
+          await initializeModel()
+        }
         return
       }
 
