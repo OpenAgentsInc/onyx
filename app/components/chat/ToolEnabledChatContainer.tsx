@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Chat } from '@flyerhq/react-native-chat-ui';
 import { colors } from '@/theme/colorsDark';
@@ -9,6 +9,7 @@ import { monoTheme } from './ChatTheme';
 import { useLlamaVercelChat } from '@/hooks/useLlamaVercelChat';
 import type { MessageType } from '@flyerhq/react-native-chat-ui';
 import type { ChatMessage } from '@/services/llama/LlamaTypes';
+import { StyleSheet } from 'react-native';
 
 const randId = () => Math.random().toString(36).substr(2, 9);
 const user = { id: 'y9d7f8pgn' };
@@ -58,7 +59,7 @@ export const ToolEnabledChatContainer = observer(function ToolEnabledChatContain
       text: message.text,
       type: 'text',
       metadata: {
-        contextId: context?.id,
+        contextId: context?.id?.toString(),
         conversationId: conversationIdRef.current,
       },
     };
@@ -74,7 +75,7 @@ export const ToolEnabledChatContainer = observer(function ToolEnabledChatContain
         text: response.content,
         type: 'text',
         metadata: {
-          contextId: context?.id,
+          contextId: context?.id?.toString(),
           conversationId: conversationIdRef.current,
         },
       };
@@ -94,7 +95,7 @@ export const ToolEnabledChatContainer = observer(function ToolEnabledChatContain
         user={{ id: 'user' }}
         onAttachmentPress={!context ? handleModelInit : undefined}
         flatListProps={{
-          marginBottom: 60
+          style: styles.flatList,
         }}
         textInputProps={{
           editable: true,
@@ -109,4 +110,10 @@ export const ToolEnabledChatContainer = observer(function ToolEnabledChatContain
       />
     </SafeAreaProvider>
   );
+});
+
+const styles = StyleSheet.create({
+  flatList: {
+    marginBottom: 60,
+  },
 });
