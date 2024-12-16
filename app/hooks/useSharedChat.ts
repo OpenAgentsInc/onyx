@@ -2,7 +2,7 @@ import { runInAction } from "mobx"
 import { useCallback } from "react"
 import { useStores } from "../models"
 import { Message } from "../models/ChatStore"
-import { useLlamaContext } from "@/context/LlamaContext"
+import { useLlamaContext } from "@/services/llama/LlamaContext"
 
 // Create a shared hook that wraps the Llama chat functionality
 export function useSharedChat() {
