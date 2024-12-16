@@ -63,7 +63,7 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
 
       // Set up periodic refresh
       const interval = setInterval(() => {
-        console.log("[MoneySmall] Periodic balance fetch")
+        // console.log("[MoneySmall] Periodic balance fetch")
         fetchBalanceInfo()
       }, 60000) //
 
