@@ -2,11 +2,11 @@ import { Audio } from "expo-av"
 import { useEffect, useRef } from "react"
 import { Alert } from "react-native"
 import { useStores } from "../models"
-import { useMessageHandler } from "./useMessageHandler"
+import { useLlamaContext } from "@/services/llama/LlamaContext"
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
-  const { handleMessage } = useMessageHandler()
+  const { append } = useLlamaContext()
   const recordingRef = useRef<Audio.Recording | null>(null)
 
   useEffect(() => {
@@ -93,8 +93,8 @@ export function useAudioRecorder() {
         console.log("Transcription result:", transcription)
 
         if (transcription) {
-          // Only trigger the message handler, which will handle adding to chat
-          await handleMessage(transcription)
+          // Send directly to Llama chat
+          await append({ role: "user", content: transcription })
         }
       } catch (err) {
         console.error('Failed to process recording:', err)
