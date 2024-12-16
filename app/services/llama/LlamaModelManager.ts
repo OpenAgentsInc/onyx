@@ -10,7 +10,9 @@ export class LlamaModelManager {
   private isDownloading = false
   private downloadProgress = 0
   private modelPath: string | null = null
-  private currentContext: any = null // Store current context reference
+  private currentContext: any = null
+  private isReleasing = false
+  private releasePromise: Promise<void> | null = null
 
   private constructor() {}
 
@@ -22,25 +24,55 @@ export class LlamaModelManager {
   }
 
   setContext(context: any) {
+    if (this.currentContext && this.currentContext !== context) {
+      console.warn("Setting new context before releasing old one")
+    }
     this.currentContext = context
   }
 
-  async releaseContext() {
-    if (this.currentContext) {
-      await handleContextRelease(
+  async releaseContext(): Promise<void> {
+    if (this.isReleasing) {
+      return this.releasePromise!
+    }
+
+    if (!this.currentContext) {
+      return Promise.resolve()
+    }
+
+    this.isReleasing = true
+    this.releasePromise = new Promise((resolve, reject) => {
+      handleContextRelease(
         this.currentContext,
         () => {
           console.log("Context released successfully")
           this.currentContext = null
+          this.isReleasing = false
+          resolve()
         },
-        (err) => console.error("Failed to release context:", err)
+        (err) => {
+          console.error("Failed to release context:", err)
+          this.isReleasing = false
+          // Don't reject, just resolve and continue
+          resolve()
+        }
       )
+    })
+
+    return this.releasePromise
+  }
+
+  async waitForRelease(): Promise<void> {
+    if (this.isReleasing && this.releasePromise) {
+      await this.releasePromise
     }
   }
 
   async ensureModelExists(
     progressCallback?: (progress: number) => void
   ): Promise<string> {
+    // Wait for any pending release to complete
+    await this.waitForRelease()
+
     // If we already have the model path, return it
     if (this.modelPath) {
       return this.modelPath
@@ -103,5 +135,9 @@ export class LlamaModelManager {
 
   isModelDownloading(): boolean {
     return this.isDownloading
+  }
+
+  hasActiveContext(): boolean {
+    return this.currentContext !== null
   }
 }
