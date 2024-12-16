@@ -37,6 +37,7 @@ import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import { customFontsToLoad } from "./theme"
 import { loadDateFnsLocale } from "./utils/formatDate"
 import * as storage from "./utils/storage"
+import { LlamaProvider } from "./context/LlamaContext"
 
 global.Buffer = Buffer;
 
@@ -132,11 +133,13 @@ function App(props: AppProps) {
         <WalletProvider>
           <RelayProvider>
             <KeyboardProvider>
-              <AppNavigator
-                linking={linking}
-                initialState={initialNavigationState}
-                onStateChange={onNavigationStateChange}
-              />
+              <LlamaProvider>
+                <AppNavigator
+                  linking={linking}
+                  initialState={initialNavigationState}
+                  onStateChange={onNavigationStateChange}
+                />
+              </LlamaProvider>
             </KeyboardProvider>
           </RelayProvider>
         </WalletProvider>
