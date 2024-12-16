@@ -4,10 +4,10 @@ import { Icon } from "./Icon"
 import { useAudioRecorder } from "@/hooks/useAudioRecorder"
 import { useCallback, useEffect, useRef } from "react"
 import { useAppTheme } from "@/utils/useAppTheme"
-import { useLlamaVercelChat } from "@/hooks/useLlamaVercelChat"
 import { useStores } from "@/models"
 import { StatusIndicator } from "./StatusIndicator"
 import { colors } from "@/theme"
+import { useLlamaContext } from "@/context/LlamaContext"
 
 const BUTTON_SIZE = 65
 
@@ -16,7 +16,7 @@ export const RecordButtonOverlay: FC = () => {
     theme: { colors: themeColors },
   } = useAppTheme()
   const { isRecording, toggleRecording, recordingUri } = useAudioRecorder()
-  const { append, isLoading: isModelLoading } = useLlamaVercelChat()
+  const { append, isLoading: isModelLoading } = useLlamaContext()
   const { recordingStore } = useStores()
   const scaleAnim = useRef(new Animated.Value(1)).current
 
