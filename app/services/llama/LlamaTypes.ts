@@ -1,5 +1,6 @@
 import type { LlamaContext as NativeLlamaContext } from "llama.rn"
 import type { CompletionParams, TokenData, NativeCompletionResult, NativeTokenizeResult, NativeSessionLoadResult, EmbeddingParams, NativeEmbeddingResult } from "llama.rn"
+import RNLlama from "llama.rn"
 
 export interface BenchResult {
   modelDesc: string
@@ -32,54 +33,82 @@ export class LlamaContext {
   }
 
   async loadSession(filepath: string): Promise<NativeSessionLoadResult> {
-    throw new Error("Not implemented")
+    let path = filepath
+    if (path.startsWith('file://')) path = path.slice(7)
+    return RNLlama.loadSession(this.id, path)
   }
 
   async saveSession(filepath: string, options?: { tokenSize: number }): Promise<number> {
-    throw new Error("Not implemented")
+    return RNLlama.saveSession(this.id, filepath, options?.tokenSize || -1)
   }
 
   async getFormattedChat(messages: RNLlamaOAICompatibleMessage[], template?: string): Promise<string> {
-    throw new Error("Not implemented")
+    return RNLlama.getFormattedChat(this.id, messages, template)
   }
 
   async completion(params: CompletionParams, callback?: (data: TokenData) => void): Promise<NativeCompletionResult> {
-    throw new Error("Not implemented")
+    let finalPrompt = params.prompt
+    if (params.messages) {
+      finalPrompt = await this.getFormattedChat(params.messages, params.chatTemplate)
+    }
+
+    if (!finalPrompt) throw new Error('Prompt is required')
+    return RNLlama.completion(this.id, {
+      ...params,
+      prompt: finalPrompt,
+      emit_partial_completion: !!callback,
+    })
   }
 
   async stopCompletion(): Promise<void> {
-    throw new Error("Not implemented")
+    return RNLlama.stopCompletion(this.id)
   }
 
   async tokenize(text: string): Promise<NativeTokenizeResult> {
-    throw new Error("Not implemented")
+    return RNLlama.tokenize(this.id, text)
   }
 
   async detokenize(tokens: number[]): Promise<string> {
-    throw new Error("Not implemented")
+    return RNLlama.detokenize(this.id, tokens)
   }
 
   async embedding(text: string, params?: EmbeddingParams): Promise<NativeEmbeddingResult> {
-    throw new Error("Not implemented")
+    return RNLlama.embedding(this.id, text, params || {})
   }
 
   async bench(pp: number, tg: number, pl: number, nr: number): Promise<BenchResult> {
-    throw new Error("Not implemented")
+    const result = await RNLlama.bench(this.id, pp, tg, pl, nr)
+    const [modelDesc, modelSize, modelNParams, ppAvg, ppStd, tgAvg, tgStd] = JSON.parse(result)
+    return {
+      modelDesc,
+      modelSize,
+      modelNParams,
+      ppAvg,
+      ppStd,
+      tgAvg,
+      tgStd,
+    }
   }
 
   async applyLoraAdapters(loraList: Array<{ path: string; scaled?: number }>): Promise<void> {
-    throw new Error("Not implemented")
+    let loraAdapters: Array<{ path: string; scaled?: number }> = []
+    if (loraList)
+      loraAdapters = loraList.map((l) => ({
+        path: l.path.replace(/file:\/\//, ''),
+        scaled: l.scaled,
+      }))
+    return RNLlama.applyLoraAdapters(this.id, loraAdapters)
   }
 
   async removeLoraAdapters(): Promise<void> {
-    throw new Error("Not implemented")
+    return RNLlama.removeLoraAdapters(this.id)
   }
 
   async getLoadedLoraAdapters(): Promise<Array<{ path: string; scaled?: number }>> {
-    throw new Error("Not implemented")
+    return RNLlama.getLoadedLoraAdapters(this.id)
   }
 
   async release(): Promise<void> {
-    throw new Error("Not implemented")
+    return RNLlama.releaseContext(this.id)
   }
 }
