@@ -1,6 +1,7 @@
 import ReactNativeBlobUtil from 'react-native-blob-util'
 import { Platform } from 'react-native'
 import { copyFileIfNeeded } from './LlamaFileUtils'
+import { handleContextRelease } from './LlamaContext'
 
 const DEFAULT_MODEL_URL = 'https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf'
 
@@ -9,6 +10,7 @@ export class LlamaModelManager {
   private isDownloading = false
   private downloadProgress = 0
   private modelPath: string | null = null
+  private currentContext: any = null // Store current context reference
 
   private constructor() {}
 
@@ -17,6 +19,23 @@ export class LlamaModelManager {
       LlamaModelManager.instance = new LlamaModelManager()
     }
     return LlamaModelManager.instance
+  }
+
+  setContext(context: any) {
+    this.currentContext = context
+  }
+
+  async releaseContext() {
+    if (this.currentContext) {
+      await handleContextRelease(
+        this.currentContext,
+        () => {
+          console.log("Context released successfully")
+          this.currentContext = null
+        },
+        (err) => console.error("Failed to release context:", err)
+      )
+    }
   }
 
   async ensureModelExists(
