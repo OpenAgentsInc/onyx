@@ -1,4 +1,3 @@
-import { fetch as expoFetch } from "expo/fetch"
 import { runInAction } from "mobx"
 import { useCallback, useEffect } from "react"
 import { useChat as useVercelChat } from "@ai-sdk/react"
