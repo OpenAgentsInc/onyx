@@ -1,11 +1,12 @@
-import { FC } from "react"
-import { TouchableOpacity, Animated, View, ViewStyle, StyleSheet } from "react-native"
-import { Icon } from "./Icon"
+import { FC, useCallback, useEffect, useRef } from "react"
+import {
+  Animated, StyleSheet, TouchableOpacity, View, ViewStyle
+} from "react-native"
 import { useAudioRecorder } from "@/hooks/useAudioRecorder"
-import { useCallback, useEffect, useRef } from "react"
-import { useAppTheme } from "@/utils/useAppTheme"
 import { useLlamaVercelChat } from "@/hooks/useLlamaVercelChat"
 import { useStores } from "@/models"
+import { useAppTheme } from "@/utils/useAppTheme"
+import { Icon } from "./Icon"
 
 const BUTTON_SIZE = 65
 
@@ -45,7 +46,7 @@ export const RecordButtonOverlay: FC = () => {
 
   const handlePress = useCallback(async () => {
     const uri = await toggleRecording()
-    
+
     if (uri && !isRecording) {
       try {
         recordingStore.setProp("isTranscribing", true)
@@ -97,7 +98,7 @@ export const RecordButtonOverlay: FC = () => {
 
 const $container: ViewStyle = {
   position: "absolute",
-  bottom: 20,
+  bottom: 50,
   left: 0,
   right: 0,
   alignItems: "center",
