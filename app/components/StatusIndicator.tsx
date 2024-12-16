@@ -1,6 +1,8 @@
 import { FC } from "react"
-import { View, Text, ViewStyle, TextStyle, ActivityIndicator } from "react-native"
-import { colors } from "@/theme"
+import {
+  ActivityIndicator, Text, TextStyle, View, ViewStyle
+} from "react-native"
+import { colors, typography } from "@/theme"
 
 interface StatusIndicatorProps {
   isModelLoading?: boolean
@@ -47,4 +49,5 @@ const $spinner: ViewStyle = {
 const $text: TextStyle = {
   color: "#fff",
   fontSize: 14,
+  fontFamily: typography.primary.light,
 }
