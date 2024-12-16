@@ -10,7 +10,7 @@ export { CommunityScreen } from "./CommunityScreen"
 export { OnyxScreen } from "./OnyxScreen"
 export { WalletScreen } from "./WalletScreen"
 export { ProfileScreen } from "./ProfileScreen"
-export { UpdaterScreen } from "./UpdaterScreen"
+
 export * from "./BackupWalletScreen"
 export * from "./RestoreWalletScreen"
 export * from "./SendScreen"
