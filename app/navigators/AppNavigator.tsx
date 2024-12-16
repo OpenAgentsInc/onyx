@@ -29,6 +29,8 @@ export type AppStackParamList = {
   Receive: undefined
   Login: undefined
   Welcome: undefined
+  OnyxFull: undefined
+  Profile: undefined
   Chat: undefined
   EventReferences: { event: FeedEvent }
 }
@@ -60,8 +62,9 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName="Main"
+      initialRouteName="OnyxFull"
     >
+      <Stack.Screen name="OnyxFull" component={Screens.OnyxFullScreen} />
       <Stack.Screen name="Main" component={MainNavigator} />
       <Stack.Screen name="Login" component={Screens.LoginScreen} />
       <Stack.Screen name="Profile" component={ProfileMenuNavigator}
