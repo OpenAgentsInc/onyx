@@ -1,12 +1,11 @@
-import { FC, useCallback, useEffect, useRef } from "react"
-import {
-  Animated, StyleSheet, TouchableOpacity, View, ViewStyle
-} from "react-native"
+import { FC } from "react"
+import { TouchableOpacity, Animated, View, ViewStyle, StyleSheet } from "react-native"
+import { Icon } from "./Icon"
 import { useAudioRecorder } from "@/hooks/useAudioRecorder"
+import { useCallback, useEffect, useRef } from "react"
+import { useAppTheme } from "@/utils/useAppTheme"
 import { useLlamaVercelChat } from "@/hooks/useLlamaVercelChat"
 import { useStores } from "@/models"
-import { useAppTheme } from "@/utils/useAppTheme"
-import { Icon } from "./Icon"
 
 const BUTTON_SIZE = 65
 
@@ -15,7 +14,7 @@ export const RecordButtonOverlay: FC = () => {
     theme: { colors },
   } = useAppTheme()
   const { isRecording, toggleRecording, recordingUri } = useAudioRecorder()
-  const { append, handleModelInit } = useLlamaVercelChat()
+  const { append, isLoading } = useLlamaVercelChat()
   const { recordingStore } = useStores()
   const scaleAnim = useRef(new Animated.Value(1)).current
 
@@ -45,8 +44,10 @@ export const RecordButtonOverlay: FC = () => {
   }, [isRecording])
 
   const handlePress = useCallback(async () => {
+    if (isLoading) return // Prevent recording while model is loading
+    
     const uri = await toggleRecording()
-
+    
     if (uri && !isRecording) {
       try {
         recordingStore.setProp("isTranscribing", true)
@@ -63,13 +64,12 @@ export const RecordButtonOverlay: FC = () => {
         recordingStore.setProp("isTranscribing", false)
       }
     }
-  }, [toggleRecording, isRecording, append, recordingStore])
+  }, [toggleRecording, isRecording, append, recordingStore, isLoading])
 
   return (
     <View style={$container}>
       <TouchableOpacity
         onPress={handlePress}
-        onLongPress={handleModelInit}
         style={$buttonContainer}
         activeOpacity={0.8}
       >
@@ -83,7 +83,7 @@ export const RecordButtonOverlay: FC = () => {
             ]}
           />
         )}
-        <View style={[$button, isRecording && $buttonRecording]}>
+        <View style={[$button, isRecording && $buttonRecording, isLoading && $buttonLoading]}>
           <Icon
             icon="mic"
             size={36}
@@ -98,7 +98,7 @@ export const RecordButtonOverlay: FC = () => {
 
 const $container: ViewStyle = {
   position: "absolute",
-  bottom: 50,
+  bottom: 20,
   left: 0,
   right: 0,
   alignItems: "center",
@@ -148,4 +148,10 @@ const $buttonRecording: ViewStyle = {
   shadowOpacity: 0.4,
   shadowRadius: 8,
   elevation: 8,
+}
+
+const $buttonLoading: ViewStyle = {
+  backgroundColor: "#333",
+  borderColor: "#999",
+  opacity: 0.5,
 }
