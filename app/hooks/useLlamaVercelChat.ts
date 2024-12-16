@@ -4,7 +4,7 @@ import { SYSTEM_MESSAGE } from "@/features/llama/constants"
 import { handleCommand } from "@/services/llama/LlamaCommands"
 import { getModelInfo, initializeLlamaContext } from "@/services/llama/LlamaContext"
 import { LlamaModelManager } from "@/services/llama/LlamaModelManager"
-import type { LlamaContext } from "@/services/llama/LlamaTypes"
+import type { LlamaContext } from "llama.rn"
 
 const randId = () => Math.random().toString(36).substr(2, 9)
 
@@ -16,7 +16,7 @@ interface ChatResponse {
 
 export function useLlamaVercelChat() {
   const { modelStore } = useStores()
-  const context = modelStore.context
+  const context = modelStore.context as LlamaContext
   const [inferencing, setInferencing] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [isInitializing, setIsInitializing] = useState(false)
@@ -57,7 +57,7 @@ export function useLlamaVercelChat() {
       })
 
       const t1 = Date.now()
-      modelStore.setContext(ctx as unknown as LlamaContext)
+      modelStore.setContext(ctx)
       modelManager.setContext(ctx)
       hasInitializedRef.current = true
       console.log(
@@ -102,7 +102,7 @@ export function useLlamaVercelChat() {
         if (message.content.startsWith("/")) {
           const isCommand = await handleCommand(
             message.content,
-            context as unknown as LlamaContext,
+            context,
             inferencing,
             console.log,
             () => {
