@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { View, ViewStyle } from "react-native"
 import { Canvas } from "@/components/Canvas"
+import { ChatOverlay } from "@/components/ChatOverlay"
 import { useAutoUpdate } from "@/hooks/useAutoUpdate"
 import { AppStackScreenProps } from "@/navigators"
 
@@ -13,6 +14,7 @@ export const OnyxFullScreen: FC<OnyxFullScreenProps> = observer(function OnyxFul
   return (
     <View style={$root}>
       <Canvas />
+      <ChatOverlay />
     </View>
   )
 })

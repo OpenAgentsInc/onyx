@@ -18,8 +18,17 @@ export function useSharedChat() {
     append,
     isLoading,
   } = useVercelChat({
-    fetch: expoFetch as unknown as typeof globalThis.fetch,
-    api: 'https://pro.openagents.com/api/chat-app',
+    fetch: (input, init) => {
+      console.log('fetching', input, init)
+      return Promise.resolve({
+        json: () => Promise.resolve({
+          messages: [
+            { role: 'user', content: 'Hello!' },
+            { role: 'agent', content: 'Hi there!' },
+          ],
+        }),
+      })
+    },
     onError: error => console.error(error, 'ERROR'),
   })
 
