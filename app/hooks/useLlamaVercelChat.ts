@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useStores } from "@/models"
 import { SYSTEM_MESSAGE } from "@/features/llama/constants"
 import { handleCommand } from "@/services/llama/LlamaCommands"
-import { pickModel } from "@/services/llama/LlamaFileUtils"
 import { getModelInfo, initializeLlamaContext, handleContextRelease } from "@/services/llama/LlamaContext"
+import { LlamaModelManager } from "@/services/llama/LlamaModelManager"
 
 const randId = () => Math.random().toString(36).substr(2, 9)
 
@@ -12,12 +12,22 @@ export function useLlamaVercelChat() {
   const context = modelStore.context
   const [inferencing, setInferencing] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+  const [isInitializing, setIsInitializing] = useState(false)
   const conversationIdRef = useRef<string>("default")
+  const modelManager = LlamaModelManager.getInstance()
 
-  const handleModelInit = async () => {
+  const initializeModel = async () => {
+    if (isInitializing) return
+    setIsInitializing(true)
+    
     try {
-      const modelFile = await pickModel((text) => console.log(text))
-      if (!modelFile) return
+      const modelPath = await modelManager.ensureModelExists((progress) => {
+        console.log(`Model download progress: ${progress}%`)
+      })
+
+      if (!modelPath) {
+        throw new Error("Failed to get model path")
+      }
 
       await handleContextRelease(
         context,
@@ -31,13 +41,17 @@ export function useLlamaVercelChat() {
         }
       )
 
-      await getModelInfo(modelFile.uri)
+      await getModelInfo(modelPath)
       console.log("Initializing context...")
 
       const t0 = Date.now()
-      const ctx = await initializeLlamaContext(modelFile, null, (progress) => {
-        console.log(`Initializing context... ${progress}%`)
-      })
+      const ctx = await initializeLlamaContext(
+        { uri: modelPath },
+        null,
+        (progress) => {
+          console.log(`Initializing context... ${progress}%`)
+        }
+      )
 
       const t1 = Date.now()
       modelStore.setContext(ctx)
@@ -49,13 +63,22 @@ export function useLlamaVercelChat() {
     } catch (err: any) {
       console.error("Context initialization failed:", err)
       setError(new Error(`Context initialization failed: ${err.message}`))
+    } finally {
+      setIsInitializing(false)
     }
   }
+
+  // Auto-initialize on mount
+  useEffect(() => {
+    if (!context && !isInitializing) {
+      initializeModel()
+    }
+  }, [context])
 
   const append = useCallback(
     async (message: { role: string; content: string }) => {
       if (!context) {
-        await handleModelInit()
+        await initializeModel()
         return
       }
 
@@ -139,7 +162,7 @@ export function useLlamaVercelChat() {
   return {
     append,
     error,
-    isLoading: inferencing,
-    handleModelInit,
+    isLoading: inferencing || isInitializing,
+    handleModelInit: initializeModel,
   }
 }
