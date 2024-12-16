@@ -3,6 +3,7 @@ import { FC } from "react"
 import { View, ViewStyle } from "react-native"
 import { Canvas } from "@/components/Canvas"
 import { ChatOverlay } from "@/components/ChatOverlay"
+import { RecordButtonOverlay } from "@/components/RecordButtonOverlay"
 import { useAutoUpdate } from "@/hooks/useAutoUpdate"
 import { AppStackScreenProps } from "@/navigators"
 
@@ -15,6 +16,7 @@ export const OnyxFullScreen: FC<OnyxFullScreenProps> = observer(function OnyxFul
     <View style={$root}>
       <Canvas />
       <ChatOverlay />
+      <RecordButtonOverlay />
     </View>
   )
 })
