@@ -26,9 +26,8 @@ export function useLlamaVercelChat() {
   const modelManager = LlamaModelManager.getInstance()
   const hasInitializedRef = useRef(false)
 
-  // Release all contexts on mount and unmount
+  // Release all contexts on unmount
   useEffect(() => {
-    releaseAllLlama().catch(console.error)
     return () => {
       releaseAllLlama().catch(console.error)
     }
@@ -97,22 +96,22 @@ export function useLlamaVercelChat() {
     }
   }
 
-  // Auto-initialize on mount
+  // Auto-initialize on mount if no context exists
   useEffect(() => {
     if (!hasInitializedRef.current && !modelManager.hasActiveContext()) {
       initializeModel()
-    }
-    return () => {
-      // Cleanup
-      modelManager.releaseContext()
     }
   }, [])
 
   const append = useCallback(
     async (message: { role: string; content: string }): Promise<ChatResponse | undefined> => {
-      if (!context) {
+      // Get the context from the model manager, which will update its last used timestamp
+      const ctx = modelManager.getContext()
+      
+      if (!ctx) {
         if (!hasInitializedRef.current) {
           await initializeModel()
+          return undefined
         }
         return undefined
       }
@@ -123,7 +122,7 @@ export function useLlamaVercelChat() {
         if (message.content.startsWith("/")) {
           const isCommand = await handleCommand(
             message.content,
-            context,
+            ctx,
             inferencing,
             console.log,
             () => {
@@ -138,8 +137,8 @@ export function useLlamaVercelChat() {
           { role: "user", content: message.content },
         ]
 
-        const formattedChat = (await context?.getFormattedChat(msgs)) || ""
-        const { tokens } = (await context?.tokenize(formattedChat)) || {}
+        const formattedChat = (await ctx?.getFormattedChat(msgs)) || ""
+        const { tokens } = (await ctx?.tokenize(formattedChat)) || {}
         console.log(
           "Formatted:",
           `"${formattedChat}"`,
@@ -149,7 +148,7 @@ export function useLlamaVercelChat() {
         )
 
         let fullResponse = ""
-        const completionResult = await context?.completion(
+        const completionResult = await ctx?.completion(
           {
             messages: msgs,
             n_predict: 1000,
@@ -191,9 +190,11 @@ export function useLlamaVercelChat() {
         return undefined
       } finally {
         setInferencing(false)
+        // Schedule context release after completion
+        modelManager.scheduleContextRelease()
       }
     },
-    [context, inferencing]
+    [inferencing]
   )
 
   return {
