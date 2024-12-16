@@ -1,13 +1,13 @@
 import { runInAction } from "mobx"
-import { useCallback, useEffect } from "react"
+import { useCallback } from "react"
 import { useStores } from "../models"
 import { Message } from "../models/ChatStore"
-import { useLlamaVercelChat } from "./useLlamaVercelChat"
+import { useLlamaContext } from "@/context/LlamaContext"
 
 // Create a shared hook that wraps the Llama chat functionality
 export function useSharedChat() {
   const { chatStore } = useStores()
-  const { append, error, isLoading, handleModelInit } = useLlamaVercelChat()
+  const { append, error, isLoading, handleModelInit } = useLlamaContext()
 
   // Wrap append to ensure correct typing and store sync
   const appendMessage = useCallback(async (message: { role: Message["role"]; content: string }) => {
