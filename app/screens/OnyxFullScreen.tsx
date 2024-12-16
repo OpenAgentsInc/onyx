@@ -16,19 +16,15 @@ export const OnyxFullScreen: FC<OnyxFullScreenProps> = observer(function OnyxFul
   useAutoUpdate();
 
   return (
-    <Screen style={$root} preset="fixed">
-      <View style={$canvasContainer}>
-        <Canvas />
-      </View>
-    </Screen>
+    <View style={$root}>
+      <Canvas />
+    </View>
   )
 })
 
 const $root: ViewStyle = {
   flex: 1,
-}
-
-const $canvasContainer: ViewStyle = {
+  backgroundColor: 'black',
   position: 'absolute',
   top: 0,
   left: 0,

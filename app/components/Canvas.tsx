@@ -19,9 +19,9 @@ export function Canvas() {
   const rimLightRef = useRef<THREE.SpotLight>();
   const animationFrameRef = useRef<number>();
 
-  // if (isEmulator()) {
-  //   return <View style={styles.container} />;
-  // }
+  if (isEmulator()) {
+    return <View style={styles.container} />;
+  }
 
   const animate = useCallback(() => {
     if (!mountedRef.current || !isFocused) {
