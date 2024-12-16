@@ -1,7 +1,7 @@
 import { initLlama, loadLlamaModelInfo } from "llama.rn"
+import React, { createContext, useContext } from "react"
 import { Platform } from "react-native"
-import React, { createContext, useContext } from 'react'
-import { useLlamaVercelChat } from '@/hooks/useLlamaVercelChat'
+import { useLlamaVercelChat } from "@/hooks/useLlamaVercelChat"
 
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import type { LlamaContext } from './LlamaTypes'
@@ -49,7 +49,7 @@ const LlamaReactContext = createContext<LlamaContextType | null>(null)
 
 export function LlamaProvider({ children }: { children: React.ReactNode }) {
   const llamaChat = useLlamaVercelChat()
-  
+
   return (
     <LlamaReactContext.Provider value={llamaChat}>
       {children}
