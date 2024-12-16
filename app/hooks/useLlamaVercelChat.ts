@@ -18,12 +18,14 @@ export function useLlamaVercelChat() {
   const hasInitializedRef = useRef(false)
 
   const initializeModel = async () => {
-    if (isInitializing || context || hasInitializedRef.current) return
+    if (isInitializing || hasInitializedRef.current) return
     setIsInitializing(true)
     
     try {
       // Release any existing context first
       await modelManager.releaseContext()
+      // Wait for release to complete
+      await modelManager.waitForRelease()
 
       const modelPath = await modelManager.ensureModelExists((progress) => {
         console.log(`Model download progress: ${progress}%`)
@@ -58,6 +60,8 @@ export function useLlamaVercelChat() {
       console.error("Context initialization failed:", err)
       setError(new Error(`Context initialization failed: ${err.message}`))
       hasInitializedRef.current = false
+      modelStore.setContext(null)
+      await modelManager.releaseContext()
     } finally {
       setIsInitializing(false)
     }
@@ -65,7 +69,7 @@ export function useLlamaVercelChat() {
 
   // Auto-initialize on mount
   useEffect(() => {
-    if (!hasInitializedRef.current) {
+    if (!hasInitializedRef.current && !modelManager.hasActiveContext()) {
       initializeModel()
     }
     return () => {
