@@ -3,11 +3,13 @@ import { useEffect, useRef } from "react"
 import { Alert } from "react-native"
 import { useStores } from "../models"
 import { useLlamaContext } from "@/services/llama/LlamaContext"
+import { LlamaModelManager } from "@/services/llama/LlamaModelManager"
 
 export function useAudioRecorder() {
   const { recordingStore } = useStores()
   const { append } = useLlamaContext()
   const recordingRef = useRef<Audio.Recording | null>(null)
+  const modelManager = LlamaModelManager.getInstance()
 
   useEffect(() => {
     const cleanup = async () => {
@@ -93,6 +95,8 @@ export function useAudioRecorder() {
         console.log("Transcription result:", transcription)
 
         if (transcription) {
+          // Touch the context before using it
+          modelManager.touchContext()
           // Send directly to Llama chat
           await append({ role: "user", content: transcription })
         }
