@@ -1,25 +1,45 @@
 import { FC } from "react"
-import { TouchableOpacity, Animated, View, ViewStyle, StyleSheet } from "react-native"
+import { TouchableOpacity, Animated, View, ViewStyle } from "react-native"
 import { Icon } from "./Icon"
 import { useAudioRecorder } from "@/hooks/useAudioRecorder"
 import { useCallback, useEffect, useRef } from "react"
 import { useAppTheme } from "@/utils/useAppTheme"
 import { useLlamaVercelChat } from "@/hooks/useLlamaVercelChat"
 import { useStores } from "@/models"
+import { StatusIndicator } from "./StatusIndicator"
+import { colors } from "@/theme"
 
 const BUTTON_SIZE = 65
 
 export const RecordButtonOverlay: FC = () => {
   const {
-    theme: { colors },
+    theme: { colors: themeColors },
   } = useAppTheme()
   const { isRecording, toggleRecording, recordingUri } = useAudioRecorder()
-  const { append, isLoading } = useLlamaVercelChat()
+  const { append, isLoading: isModelLoading } = useLlamaVercelChat()
   const { recordingStore } = useStores()
   const scaleAnim = useRef(new Animated.Value(1)).current
+  const pulseAnim = useRef(new Animated.Value(1)).current
 
   useEffect(() => {
     if (isRecording) {
+      // Pulse animation for recording state
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.2,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start()
+
+      // Scale animation for border
       Animated.loop(
         Animated.sequence([
           Animated.timing(scaleAnim, {
@@ -35,16 +55,24 @@ export const RecordButtonOverlay: FC = () => {
         ])
       ).start()
     } else {
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }).start()
+      // Reset animations
+      Animated.parallel([
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start()
     }
   }, [isRecording])
 
   const handlePress = useCallback(async () => {
-    if (isLoading) return // Prevent recording while model is loading
+    if (isModelLoading) return // Prevent recording while model is loading
     
     const uri = await toggleRecording()
     
@@ -64,10 +92,14 @@ export const RecordButtonOverlay: FC = () => {
         recordingStore.setProp("isTranscribing", false)
       }
     }
-  }, [toggleRecording, isRecording, append, recordingStore, isLoading])
+  }, [toggleRecording, isRecording, append, recordingStore, isModelLoading])
 
   return (
     <View style={$container}>
+      <StatusIndicator 
+        isModelLoading={isModelLoading}
+        isTranscribing={recordingStore.isTranscribing}
+      />
       <TouchableOpacity
         onPress={handlePress}
         style={$buttonContainer}
@@ -83,14 +115,23 @@ export const RecordButtonOverlay: FC = () => {
             ]}
           />
         )}
-        <View style={[$button, isRecording && $buttonRecording, isLoading && $buttonLoading]}>
+        <Animated.View 
+          style={[
+            $button, 
+            isRecording && $buttonRecording, 
+            isModelLoading && $buttonLoading,
+            isRecording && {
+              transform: [{ scale: pulseAnim }],
+            },
+          ]}
+        >
           <Icon
             icon="mic"
             size={36}
-            color={isRecording ? colors.error : colors.tint}
+            color={isRecording ? "#fff" : themeColors.tint}
             style={{ borderRadius: 12, marginTop: -1 }}
           />
-        </View>
+        </Animated.View>
       </TouchableOpacity>
     </View>
   )
@@ -98,7 +139,7 @@ export const RecordButtonOverlay: FC = () => {
 
 const $container: ViewStyle = {
   position: "absolute",
-  bottom: 55, // Updated from 20 to 55
+  bottom: 55,
   left: 0,
   right: 0,
   alignItems: "center",
@@ -115,11 +156,12 @@ const $buttonContainer: ViewStyle = {
 
 const $recordingBorder: ViewStyle = {
   position: "absolute",
-  width: BUTTON_SIZE,
-  height: BUTTON_SIZE,
-  borderRadius: BUTTON_SIZE / 2,
+  width: BUTTON_SIZE + 10,
+  height: BUTTON_SIZE + 10,
+  borderRadius: (BUTTON_SIZE + 10) / 2,
   borderWidth: 2,
-  borderColor: "#ff0000",
+  borderColor: colors.error,
+  backgroundColor: "rgba(255,0,0,0.1)",
 }
 
 const $button: ViewStyle = {
@@ -142,11 +184,11 @@ const $button: ViewStyle = {
 }
 
 const $buttonRecording: ViewStyle = {
-  backgroundColor: "#330000",
-  borderColor: "#ff0000",
-  shadowColor: "#ff0000",
-  shadowOpacity: 0.4,
-  shadowRadius: 8,
+  backgroundColor: colors.error,
+  borderColor: "#fff",
+  shadowColor: colors.error,
+  shadowOpacity: 0.6,
+  shadowRadius: 16,
   elevation: 8,
 }
 
