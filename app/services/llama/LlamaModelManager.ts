@@ -13,6 +13,8 @@ export class LlamaModelManager {
   private currentContext: any = null
   private isReleasing = false
   private releasePromise: Promise<void> | null = null
+  private contextReleaseTimeout: NodeJS.Timeout | null = null
+  private lastUsedTimestamp: number = 0
 
   private constructor() {}
 
@@ -28,6 +30,21 @@ export class LlamaModelManager {
       console.warn("Setting new context before releasing old one")
     }
     this.currentContext = context
+    this.lastUsedTimestamp = Date.now()
+    
+    // Clear any pending release
+    if (this.contextReleaseTimeout) {
+      clearTimeout(this.contextReleaseTimeout)
+      this.contextReleaseTimeout = null
+    }
+  }
+
+  touchContext() {
+    this.lastUsedTimestamp = Date.now()
+    if (this.contextReleaseTimeout) {
+      clearTimeout(this.contextReleaseTimeout)
+      this.contextReleaseTimeout = null
+    }
   }
 
   async releaseContext(): Promise<void> {
@@ -36,6 +53,13 @@ export class LlamaModelManager {
     }
 
     if (!this.currentContext) {
+      return Promise.resolve()
+    }
+
+    // If context was used in the last 5 minutes, don't release it
+    const timeSinceLastUse = Date.now() - this.lastUsedTimestamp
+    if (timeSinceLastUse < 5 * 60 * 1000) {
+      console.log("Context recently used, skipping release")
       return Promise.resolve()
     }
 
@@ -59,6 +83,19 @@ export class LlamaModelManager {
     })
 
     return this.releasePromise
+  }
+
+  scheduleContextRelease() {
+    if (this.contextReleaseTimeout) {
+      clearTimeout(this.contextReleaseTimeout)
+    }
+
+    // Schedule release after 5 minutes of inactivity
+    this.contextReleaseTimeout = setTimeout(() => {
+      if (Date.now() - this.lastUsedTimestamp > 5 * 60 * 1000) {
+        this.releaseContext()
+      }
+    }, 5 * 60 * 1000)
   }
 
   async waitForRelease(): Promise<void> {
@@ -139,5 +176,10 @@ export class LlamaModelManager {
 
   hasActiveContext(): boolean {
     return this.currentContext !== null
+  }
+
+  getContext(): any {
+    this.touchContext() // Update last used timestamp
+    return this.currentContext
   }
 }
