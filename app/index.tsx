@@ -1,6 +1,6 @@
 'use dom';
 
-import * as React from 'react';
+import * as React from "react"
 
 const styles = {
   card: {
@@ -85,22 +85,22 @@ const Card: React.FC<CardProps> = ({ children, mode, title }) => {
 export default function Index() {
   return (
     <div style={styles.container}>
-      <Card title="Recent Drone Sightings">
+      <Card title="Recent Sightings">
         <p style={styles.text}>January 15, 2024 - Multiple drones spotted over Denver airspace</p>
         <p style={styles.text}>January 14, 2024 - Unidentified drone activity reported near LAX</p>
         <p style={styles.text}>January 12, 2024 - Drone swarm observed in rural Colorado</p>
       </Card>
-      
+
       <div style={{ height: 20 }} />
-      
+
       <Card title="Latest Analysis">
         <p style={styles.text}>Pattern suggests coordinated activity across multiple states</p>
         <p style={styles.text}>Most sightings occur between 2-4am local time</p>
         <p style={styles.text}>Average flight duration: 45 minutes</p>
       </Card>
-      
+
       <div style={{ height: 20 }} />
-      
+
       <Card title="Community Reports">
         <p style={styles.text}>87 verified sightings this month</p>
         <p style={styles.text}>23 pending verification</p>
