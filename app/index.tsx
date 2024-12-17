@@ -1,4 +1,5 @@
 import { Text, View } from "react-native"
+import { typography } from "@/theme/typography"
 
 export default function Index() {
   return (
@@ -13,6 +14,8 @@ export default function Index() {
       <Text
         style={{
           color: "white",
+          fontFamily: typography.primary.bold,
+          fontSize: 24,
         }}
       >
         Onyx
