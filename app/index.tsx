@@ -7,9 +7,16 @@ export default function Index() {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "black",
       }}
     >
-      <Text>Onyx</Text>
+      <Text
+        style={{
+          color: "white",
+        }}
+      >
+        Onyx
+      </Text>
     </View>
-  );
+  )
 }
