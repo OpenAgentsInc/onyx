@@ -9,7 +9,14 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "build": "yarn build:ios:prod",
+    "build:ios:prod": "eas build --profile production --platform ios",
+    "prebuild:clean": "npx expo prebuild --clean",
+    "submit:ios": "eas submit -p ios",
+    "update:prod": "eas update --channel production --environment production --message",
+    "t": "tsc --noEmit",
+    "doctor": "npx expo-doctor"
   },
   "jest": {
     "preset": "jest-expo"
