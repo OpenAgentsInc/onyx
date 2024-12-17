@@ -1,3 +1,4 @@
+import * as React from "react"
 import { useFonts } from "expo-font"
 import { Stack } from "expo-router"
 import { useAutoUpdate } from "@/lib/useAutoUpdate"
@@ -13,11 +14,21 @@ const globalStyles = `
     font-family: jetBrainsMonoRegular, monospace;
     height: 100%;
     overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
   
   #root {
     height: 100%;
     overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
   
   * {
