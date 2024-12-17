@@ -4,13 +4,25 @@ import * as React from 'react';
 import { typography } from "@/theme/typography";
 
 const styles = {
+  root: {
+    margin: 0,
+    padding: 0,
+    backgroundColor: '#000',
+    minHeight: '100vh',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflowY: 'auto',
+  },
   card: {
     position: 'relative',
     display: 'block',
     padding: '0 1ch calc(8px * 1.5) 1ch',
     backgroundColor: '#000',
     color: '#fff',
-    fontFamily: typography.primary.normal,
+    fontFamily: 'jetBrainsMonoRegular, monospace',
   },
   children: {
     boxShadow: 'inset 1px 0 0 0 #fff, inset -1px 0 0 0 #fff, 0 1px 0 0 #fff',
@@ -42,20 +54,47 @@ const styles = {
     fontSize: '16px',
     fontWeight: 400,
     margin: 0,
-    fontFamily: typography.primary.bold,
+    fontFamily: 'jetBrainsMonoBold, monospace',
     color: '#fff',
   },
   container: {
     padding: '20px',
     backgroundColor: '#000',
-    minHeight: '100vh',
+    height: '100%',
   },
   text: {
-    fontFamily: typography.primary.normal,
+    fontFamily: 'jetBrainsMonoRegular, monospace',
     margin: '8px 0',
     color: '#fff',
+    fontSize: '14px',
   }
 };
+
+// Add global styles to fix background and scrolling issues
+const globalStyles = `
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    color: #fff;
+    font-family: jetBrainsMonoRegular, monospace;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  * {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+`;
 
 interface CardProps {
   children?: React.ReactNode;
@@ -81,29 +120,41 @@ const Card: React.FC<CardProps> = ({ children, mode, title }) => {
 };
 
 export default function Index() {
+  // Inject global styles
+  React.useEffect(() => {
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = globalStyles;
+    document.head.appendChild(styleSheet);
+    return () => {
+      document.head.removeChild(styleSheet);
+    };
+  }, []);
+
   return (
-    <div style={styles.container}>
-      <Card title="Recent Drone Sightings">
-        <p style={styles.text}>January 15, 2024 - Multiple drones spotted over Denver airspace</p>
-        <p style={styles.text}>January 14, 2024 - Unidentified drone activity reported near LAX</p>
-        <p style={styles.text}>January 12, 2024 - Drone swarm observed in rural Colorado</p>
-      </Card>
-      
-      <div style={{ height: 20 }} />
-      
-      <Card title="Latest Analysis">
-        <p style={styles.text}>Pattern suggests coordinated activity across multiple states</p>
-        <p style={styles.text}>Most sightings occur between 2-4am local time</p>
-        <p style={styles.text}>Average flight duration: 45 minutes</p>
-      </Card>
-      
-      <div style={{ height: 20 }} />
-      
-      <Card title="Community Reports">
-        <p style={styles.text}>87 verified sightings this month</p>
-        <p style={styles.text}>23 pending verification</p>
-        <p style={styles.text}>12 video submissions under review</p>
-      </Card>
+    <div style={styles.root}>
+      <div style={styles.container}>
+        <Card title="Recent Drone Sightings">
+          <p style={styles.text}>January 15, 2024 - Multiple drones spotted over Denver airspace</p>
+          <p style={styles.text}>January 14, 2024 - Unidentified drone activity reported near LAX</p>
+          <p style={styles.text}>January 12, 2024 - Drone swarm observed in rural Colorado</p>
+        </Card>
+        
+        <div style={{ height: 20 }} />
+        
+        <Card title="Latest Analysis">
+          <p style={styles.text}>Pattern suggests coordinated activity across multiple states</p>
+          <p style={styles.text}>Most sightings occur between 2-4am local time</p>
+          <p style={styles.text}>Average flight duration: 45 minutes</p>
+        </Card>
+        
+        <div style={{ height: 20 }} />
+        
+        <Card title="Community Reports">
+          <p style={styles.text}>87 verified sightings this month</p>
+          <p style={styles.text}>23 pending verification</p>
+          <p style={styles.text}>12 video submissions under review</p>
+        </Card>
+      </div>
     </div>
   );
 }
