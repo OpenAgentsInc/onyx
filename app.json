@@ -16,7 +16,7 @@
       "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/69b52e85-13c8-439b-be19-8d2580e481fc"
     },
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "jsEngine": "hermes",
     "assetBundlePatterns": [
       "**/*"
@@ -38,15 +38,9 @@
       ]
     },
     "ios": {
-      "icon": "./assets/images/app-icon-ios.png",
+      "icon": "./assets/images/app-icon-all.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.openagents.onyx",
-      "splash": {
-        "image": "./assets/images/splash-logo-ios-mobile.png",
-        "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#191015"
-      },
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -61,13 +55,21 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-localization",
       "expo-font",
       "expo-secure-store",
       [
         "expo-av",
         {
           "microphonePermission": "Allow Onyx to access your microphone for voice recording."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000000"
         }
       ]
     ],
