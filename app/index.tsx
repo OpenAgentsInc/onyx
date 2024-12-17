@@ -20,8 +20,9 @@ const styles = {
   },
   action: {
     display: 'flex',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'space-between',
+    marginTop: '-7px',
   },
   left: {
     minWidth: '10%',
@@ -44,6 +45,7 @@ const styles = {
     fontFamily: 'jetBrainsMonoBold, monospace',
     color: '#fff',
     minWidth: 'fit-content',
+    lineHeight: '14px',
   },
   container: {
     padding: '20px',
