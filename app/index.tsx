@@ -7,11 +7,31 @@ import { useChat } from "@ai-sdk/react"
 export default function App() {
   // console.log("trying with chat endpoint", process.env.CHAT_ENDPOINT)
   const { messages, error, handleInputChange, input, handleSubmit } = useChat({
+    fetch: (input, init) => {
+      console.log("going to do this custom.", input)
+
+      // return new dummy lpaceholder Response, no fetch, but make it a PRomise
+      // return PromiseResponse.json("Bad Request", { status: 400 });
+
+      return new Promise((resolve, reject) => {
+        fetch("http://localhost:3000/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            messages: [{ "content": "Test", "createdAt": "2024-12-17T23:30:51.184Z", "experimental_attachments": undefined, "id": "asxCPGOEBLXL5cYk", "role": "user" }]
+          }),
+        })
+          .then(res => res.json())
+          .then(resolve)
+          .catch(reject);
+      })
+    },
     // fetch: expoFetch as unknown as typeof globalThis.fetch,
     // api: generateAPIUrl('/api/chat'),
-    // api: "https://pro.openagents.com/api/chat-app",
     // api: process.env.CHAT_ENDPOINT!,
-    api: "http://localhost:3000/api/chat",
+    // api: "http://localhost:3000/api/chat",
     onError: error => console.error(error, 'ERROR'),
     // streamProtocol: 'text'
   });
