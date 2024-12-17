@@ -830,6 +830,11 @@
   dependencies:
     "@types/hammerjs" "^2.0.36"
 
+"@expo-google-fonts/jetbrains-mono@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/jetbrains-mono/-/jetbrains-mono-0.2.3.tgz#792308dcf5abac363c16bc067bb71f09c87daeee"
+  integrity sha512-TlAlQzlDYT/cwg3kjME54P/iOl5dxv+EZ0iYSMZ6+3Jhw0oImBI/BVPVKLP+KT+sAs8ze1FvGTYXrtfiYolxtw==
+
 "@expo/bunyan@^4.0.0":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@expo/bunyan/-/bunyan-4.0.1.tgz#ab9e17e36c71c704a0ce72168378a487368da736"
