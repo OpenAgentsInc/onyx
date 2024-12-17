@@ -76,6 +76,7 @@ const styles = {
     letterSpacing: '1px',
     transition: '200ms ease all',
     cursor: 'pointer',
+    whiteSpace: 'nowrap',
   },
   buttonPrimary: {
     backgroundColor: '#fff',
@@ -155,7 +156,7 @@ export default function Index() {
         <p style={styles.text}>January 12, 2024 - Drone swarm observed in rural Colorado</p>
         <div style={styles.buttonContainer}>
           <Button theme="PRIMARY" onClick={() => console.log('View Details')}>View Details</Button>
-          <Button theme="SECONDARY" onClick={() => console.log('Report Similar')}>Report Similar</Button>
+          <Button theme="SECONDARY" onClick={() => console.log('Report')}>Report</Button>
         </div>
       </Card>
       
@@ -166,8 +167,8 @@ export default function Index() {
         <p style={styles.text}>Most sightings occur between 2-4am local time</p>
         <p style={styles.text}>Average flight duration: 45 minutes</p>
         <div style={styles.buttonContainer}>
-          <Button theme="PRIMARY" onClick={() => console.log('View Full Analysis')}>View Full Analysis</Button>
-          <Button theme="SECONDARY" isDisabled>Download Data</Button>
+          <Button theme="PRIMARY" onClick={() => console.log('View Full Analysis')}>View Analysis</Button>
+          <Button theme="SECONDARY" isDisabled>Download</Button>
         </div>
       </Card>
       
@@ -178,7 +179,7 @@ export default function Index() {
         <p style={styles.text}>23 pending verification</p>
         <p style={styles.text}>12 video submissions under review</p>
         <div style={styles.buttonContainer}>
-          <Button theme="PRIMARY" onClick={() => console.log('Submit Report')}>Submit Report</Button>
+          <Button theme="PRIMARY" onClick={() => console.log('Submit Report')}>Submit</Button>
           <Button theme="SECONDARY" onClick={() => console.log('View All')}>View All</Button>
         </div>
       </Card>
