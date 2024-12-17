@@ -93,3 +93,4 @@ web-build/
 dist/
 
 .env
+.env.local
