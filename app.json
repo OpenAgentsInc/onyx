@@ -38,7 +38,7 @@
       ]
     },
     "ios": {
-      "icon": "./assets/images/app-icon-ios.png",
+      "icon": "./assets/images/app-icon-all.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.openagents.onyx",
       "splash": {
