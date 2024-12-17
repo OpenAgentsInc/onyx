@@ -1,6 +1,6 @@
 'use dom';
 
-import * as React from "react"
+import * as React from 'react';
 
 const styles = {
   card: {
@@ -56,7 +56,70 @@ const styles = {
     margin: '8px 0',
     color: '#fff',
     fontSize: '14px',
+  },
+  buttonRoot: {
+    verticalAlign: 'top',
+    display: 'inline-block',
+    fontWeight: 400,
+    textAlign: 'center',
+    margin: '0',
+    outline: '0',
+    border: '0',
+    fontFamily: 'jetBrainsMonoRegular, monospace',
+    width: '100%',
+    fontSize: '16px',
+    lineHeight: '2em',
+    minHeight: '32px',
+    padding: '0 2ch',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    transition: '200ms ease all',
+    cursor: 'pointer',
+  },
+  buttonPrimary: {
+    backgroundColor: '#fff',
+    color: '#000',
+  },
+  buttonSecondary: {
+    backgroundColor: '#000',
+    color: '#fff',
+    boxShadow: 'inset 0 0 0 1px #fff',
+  },
+  buttonDisabled: {
+    backgroundColor: '#333',
+    color: '#666',
+    cursor: 'not-allowed',
+  },
+  buttonContainer: {
+    marginTop: '20px',
+    display: 'flex',
+    gap: '10px',
   }
+};
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  theme?: 'PRIMARY' | 'SECONDARY';
+  isDisabled?: boolean;
+  children?: React.ReactNode;
+}
+
+const Button: React.FC<ButtonProps> = ({ theme = 'PRIMARY', isDisabled, children, style, ...rest }) => {
+  const buttonStyle = {
+    ...styles.buttonRoot,
+    ...(theme === 'PRIMARY' ? styles.buttonPrimary : styles.buttonSecondary),
+    ...(isDisabled ? styles.buttonDisabled : {}),
+    ...style,
+  };
+
+  if (isDisabled) {
+    return <div style={buttonStyle}>{children}</div>;
+  }
+
+  return (
+    <button style={buttonStyle} role="button" tabIndex={0} disabled={isDisabled} {...rest}>
+      {children}
+    </button>
+  );
 };
 
 interface CardProps {
@@ -85,26 +148,38 @@ const Card: React.FC<CardProps> = ({ children, mode, title }) => {
 export default function Index() {
   return (
     <div style={styles.container}>
-      <Card title="Recent Sightings">
+      <Card title="Recent Drone Sightings">
         <p style={styles.text}>January 15, 2024 - Multiple drones spotted over Denver airspace</p>
         <p style={styles.text}>January 14, 2024 - Unidentified drone activity reported near LAX</p>
         <p style={styles.text}>January 12, 2024 - Drone swarm observed in rural Colorado</p>
+        <div style={styles.buttonContainer}>
+          <Button theme="PRIMARY" onClick={() => console.log('View Details')}>View Details</Button>
+          <Button theme="SECONDARY" onClick={() => console.log('Report Similar')}>Report Similar</Button>
+        </div>
       </Card>
-
+      
       <div style={{ height: 20 }} />
-
+      
       <Card title="Latest Analysis">
         <p style={styles.text}>Pattern suggests coordinated activity across multiple states</p>
         <p style={styles.text}>Most sightings occur between 2-4am local time</p>
         <p style={styles.text}>Average flight duration: 45 minutes</p>
+        <div style={styles.buttonContainer}>
+          <Button theme="PRIMARY" onClick={() => console.log('View Full Analysis')}>View Full Analysis</Button>
+          <Button theme="SECONDARY" isDisabled>Download Data</Button>
+        </div>
       </Card>
-
+      
       <div style={{ height: 20 }} />
-
+      
       <Card title="Community Reports">
         <p style={styles.text}>87 verified sightings this month</p>
         <p style={styles.text}>23 pending verification</p>
         <p style={styles.text}>12 video submissions under review</p>
+        <div style={styles.buttonContainer}>
+          <Button theme="PRIMARY" onClick={() => console.log('Submit Report')}>Submit Report</Button>
+          <Button theme="SECONDARY" onClick={() => console.log('View All')}>View All</Button>
+        </div>
       </Card>
     </div>
   );
