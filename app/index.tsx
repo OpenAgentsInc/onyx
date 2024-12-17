@@ -1,16 +1,19 @@
 'use dom';
 
 import * as React from 'react';
+import { typography } from "@/theme/typography";
 
 const styles = {
   card: {
     position: 'relative',
     display: 'block',
     padding: '0 1ch calc(8px * 1.5) 1ch',
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
+    color: '#fff',
+    fontFamily: typography.primary.normal,
   },
   children: {
-    boxShadow: 'inset 1px 0 0 0 #000, inset -1px 0 0 0 #000, 0 1px 0 0 #000',
+    boxShadow: 'inset 1px 0 0 0 #fff, inset -1px 0 0 0 #fff, 0 1px 0 0 #fff',
     display: 'block',
     padding: 'calc(8px * 1.5) 2ch calc(16px * 1.5) 2ch',
     overflowX: 'auto',
@@ -24,13 +27,13 @@ const styles = {
   left: {
     minWidth: '10%',
     width: '100%',
-    boxShadow: 'inset 1px 0 0 0 #000, inset 0 1px 0 0 #000',
+    boxShadow: 'inset 1px 0 0 0 #fff, inset 0 1px 0 0 #fff',
     padding: 'calc(8px * 1.5) 2ch 0px 1ch',
   },
   right: {
     minWidth: '10%',
     width: '100%',
-    boxShadow: 'inset -1px 0 0 0 #000, inset 0 1px 0 0 #000',
+    boxShadow: 'inset -1px 0 0 0 #fff, inset 0 1px 0 0 #fff',
     padding: 'calc(8px * 1.5) 2ch 0px 1ch',
   },
   title: {
@@ -39,11 +42,18 @@ const styles = {
     fontSize: '16px',
     fontWeight: 400,
     margin: 0,
+    fontFamily: typography.primary.bold,
+    color: '#fff',
   },
   container: {
     padding: '20px',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000',
     minHeight: '100vh',
+  },
+  text: {
+    fontFamily: typography.primary.normal,
+    margin: '8px 0',
+    color: '#fff',
   }
 };
 
@@ -74,25 +84,25 @@ export default function Index() {
   return (
     <div style={styles.container}>
       <Card title="Recent Drone Sightings">
-        <p>January 15, 2024 - Multiple drones spotted over Denver airspace</p>
-        <p>January 14, 2024 - Unidentified drone activity reported near LAX</p>
-        <p>January 12, 2024 - Drone swarm observed in rural Colorado</p>
+        <p style={styles.text}>January 15, 2024 - Multiple drones spotted over Denver airspace</p>
+        <p style={styles.text}>January 14, 2024 - Unidentified drone activity reported near LAX</p>
+        <p style={styles.text}>January 12, 2024 - Drone swarm observed in rural Colorado</p>
       </Card>
       
       <div style={{ height: 20 }} />
       
       <Card title="Latest Analysis">
-        <p>Pattern suggests coordinated activity across multiple states</p>
-        <p>Most sightings occur between 2-4am local time</p>
-        <p>Average flight duration: 45 minutes</p>
+        <p style={styles.text}>Pattern suggests coordinated activity across multiple states</p>
+        <p style={styles.text}>Most sightings occur between 2-4am local time</p>
+        <p style={styles.text}>Average flight duration: 45 minutes</p>
       </Card>
       
       <div style={{ height: 20 }} />
       
       <Card title="Community Reports">
-        <p>87 verified sightings this month</p>
-        <p>23 pending verification</p>
-        <p>12 video submissions under review</p>
+        <p style={styles.text}>87 verified sightings this month</p>
+        <p style={styles.text}>23 pending verification</p>
+        <p style={styles.text}>12 video submissions under review</p>
       </Card>
     </div>
   );
