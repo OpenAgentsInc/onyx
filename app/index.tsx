@@ -38,11 +38,12 @@ const styles = {
   title: {
     flexShrink: 0,
     padding: '0 1ch',
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: 400,
     margin: 0,
     fontFamily: 'jetBrainsMonoBold, monospace',
     color: '#fff',
+    minWidth: 'fit-content',
   },
   container: {
     padding: '20px',
@@ -67,9 +68,9 @@ const styles = {
     border: '0',
     fontFamily: 'jetBrainsMonoRegular, monospace',
     width: '100%',
-    fontSize: '16px',
-    lineHeight: '2em',
-    minHeight: '32px',
+    fontSize: '12px',
+    lineHeight: '32px',
+    height: '32px',
     padding: '0 2ch',
     textTransform: 'uppercase',
     letterSpacing: '1px',
@@ -148,7 +149,7 @@ const Card: React.FC<CardProps> = ({ children, mode, title }) => {
 export default function Index() {
   return (
     <div style={styles.container}>
-      <Card title="Recent Drone Sightings">
+      <Card title="Drone Sightings">
         <p style={styles.text}>January 15, 2024 - Multiple drones spotted over Denver airspace</p>
         <p style={styles.text}>January 14, 2024 - Unidentified drone activity reported near LAX</p>
         <p style={styles.text}>January 12, 2024 - Drone swarm observed in rural Colorado</p>
