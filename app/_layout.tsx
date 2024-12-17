@@ -3,5 +3,5 @@ import { useAutoUpdate } from "@/lib/useAutoUpdate"
 
 export default function RootLayout() {
   useAutoUpdate()
-  return <Stack />;
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
