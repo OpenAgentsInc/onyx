@@ -1,42 +1,61 @@
-import KeyService from './KeyService'
+import { keyService } from './KeyService'
+import { breezService } from './breez/breezService'
 
-class ServiceManager {
-  private static instance: ServiceManager
+class ServiceManagerImpl {
   private isInitialized = false
-  
-  private constructor() {}
-  
-  static getInstance(): ServiceManager {
-    if (!ServiceManager.instance) {
-      ServiceManager.instance = new ServiceManager()
-    }
-    return ServiceManager.instance
-  }
+  private initializationPromise: Promise<void> | null = null
 
   async initializeServices(): Promise<void> {
-    if (this.isInitialized) return
-
-    try {
-      // Critical services first
-      await KeyService.initialize()
-      
-      // Then parallel initialization of non-critical services
-      await Promise.all([
-        // Add other service initializations here
-        // StorageService.initialize(),
-        // NetworkService.initialize()
-      ])
-
-      this.isInitialized = true
-    } catch (error) {
-      console.error('Failed to initialize services:', error)
-      throw error
+    // If already initializing, wait for that to complete
+    if (this.initializationPromise) {
+      return this.initializationPromise
     }
+
+    // If already initialized, return immediately
+    if (this.isInitialized) {
+      return Promise.resolve()
+    }
+
+    this.initializationPromise = (async () => {
+      try {
+        // Initialize KeyService first
+        await keyService.initialize()
+
+        // Get mnemonic from KeyService
+        const mnemonic = await keyService.getMnemonic()
+
+        // Initialize BreezService with mnemonic from KeyService
+        await breezService.initialize({
+          mnemonic,
+          network: 'TESTNET', // TODO: Make configurable
+          apiKey: process.env.BREEZ_API_KEY
+        })
+
+        this.isInitialized = true
+        console.log('All services initialized successfully')
+      } catch (err) {
+        console.error('Service initialization error:', err)
+        this.isInitialized = false
+        throw err
+      } finally {
+        this.initializationPromise = null
+      }
+    })()
+
+    return this.initializationPromise
   }
 
   isReady(): boolean {
     return this.isInitialized
   }
+
+  async reset(): Promise<void> {
+    // Reset all services in reverse order
+    await breezService.disconnect()
+    await keyService.reset()
+    this.isInitialized = false
+  }
 }
 
-export default ServiceManager.getInstance()
+// Export a singleton instance
+export const serviceManager = new ServiceManagerImpl()
