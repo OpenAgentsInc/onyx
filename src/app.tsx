@@ -1,11 +1,12 @@
-import * as React from 'react';
-import { AppRegistry, StatusBar } from 'react-native';
-import Router from '@/components/Router';
+import { StatusBar } from "expo-status-bar"
+import * as React from "react"
+import { AppRegistry } from "react-native"
+import Router from "@/components/Router"
 
 function App() {
   return (
     <>
-      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      <StatusBar style="light" />
       <Router />
     </>
   );
