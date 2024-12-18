@@ -25,7 +25,7 @@ const tableStyles = {
 };
 
 interface DataTableProps {
-  data: string[][];
+  data: (string | React.ReactElement)[][];
 }
 
 export function DataTable({ data }: DataTableProps) {

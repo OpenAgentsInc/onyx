@@ -15,7 +15,6 @@
     "build:ios:prod": "eas build --profile production --platform ios",
     "prebuild:clean": "npx expo prebuild --clean --platform ios",
     "submit:ios": "eas submit -p ios",
-    "update:prod": "eas update --channel production --environment production --message",
     "t": "tsc --noEmit",
     "doctor": "npx expo-doctor",
     "copyrepo": "cd ~/code && node md.js ./onyx && cat combined.md | pbcopy"
@@ -24,6 +23,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@breeztech/react-native-breez-sdk-liquid": "^0.5.1",
     "@expo-google-fonts/jetbrains-mono": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.0.0",
@@ -42,7 +42,6 @@
     "expo-status-bar": "~2.0.0",
     "expo-symbols": "~0.2.0",
     "expo-system-ui": "~4.0.6",
-    "expo-updates": "~0.26.10",
     "expo-web-browser": "~14.0.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
