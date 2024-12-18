@@ -1,9 +1,9 @@
 'use dom';
 
-import React from "react"
-import { View } from "react-native"
+import * as React from "react"
 import { useNavigation } from "@react-navigation/native"
 import Card from "@/components/Card"
+import Button from "@/components/Button"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
 
 export default function Onboarding3() {
@@ -17,43 +17,38 @@ export default function Onboarding3() {
 
   const styles = {
     container: {
-      flex: 1,
       backgroundColor: '#000',
-      padding: 20,
-      minHeight: 500,
-      maxWidth: 800,
-      marginHorizontal: 'auto',
-    },
-    text: {
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
+      minHeight: '100vh',
+      padding: '20px',
+      maxWidth: '800px',
+      margin: '0 auto',
+    },
+    text: {
       fontSize: '14px',
       lineHeight: '1.5',
     },
+    buttonContainer: {
+      marginTop: '20px',
+    }
   }
 
   return (
-    <View style={styles.container}>
+    <div style={styles.container}>
       <Card title="Ready to Start">
         <p style={styles.text}>
           You're all set! Let's get started.
         </p>
-        <button 
-          onClick={handleComplete}
-          style={{
-            backgroundColor: '#007AFF',
-            color: '#fff',
-            padding: '10px 20px',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            marginTop: '20px',
-            fontFamily: 'jetBrainsMonoRegular, monospace',
-          }}
-        >
-          Get Started
-        </button>
+        <div style={styles.buttonContainer}>
+          <Button 
+            theme="PRIMARY"
+            onClick={handleComplete}
+          >
+            Get Started
+          </Button>
+        </div>
       </Card>
-    </View>
+    </div>
   )
 }
