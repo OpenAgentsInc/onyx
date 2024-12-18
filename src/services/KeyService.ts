@@ -18,45 +18,56 @@ class KeyServiceImpl {
   private initializationPromise: Promise<void> | null = null
 
   async initialize(config?: KeyServiceConfig): Promise<void> {
+    console.log('KeyService: Starting initialization...')
+    
     // If already initializing, wait for that to complete
     if (this.initializationPromise) {
+      console.log('KeyService: Already initializing, waiting...')
       return this.initializationPromise
     }
 
     // If already initialized, return immediately
     if (this.isInitializedFlag && this.mnemonic) {
+      console.log('KeyService: Already initialized')
       return Promise.resolve()
     }
 
     this.initializationPromise = (async () => {
       try {
+        console.log('KeyService: Checking for stored mnemonic...')
         // First try to load existing mnemonic from storage
         let mnemonic = await AsyncStorage.getItem(MNEMONIC_STORAGE_KEY)
 
         // If no stored mnemonic, check for config
         if (!mnemonic && config?.existingMnemonic) {
+          console.log('KeyService: Using provided mnemonic from config')
           mnemonic = config.existingMnemonic
         }
 
         // If still no mnemonic, generate a new one
         if (!mnemonic) {
+          console.log('KeyService: Generating new mnemonic')
           mnemonic = generateMnemonic(wordlist)
+        } else {
+          console.log('KeyService: Using existing mnemonic')
         }
 
         // Validate the mnemonic
+        console.log('KeyService: Validating mnemonic...')
         if (!validateMnemonic(mnemonic, wordlist)) {
           throw new Error('Invalid mnemonic')
         }
 
         // Store the mnemonic
+        console.log('KeyService: Storing mnemonic...')
         await AsyncStorage.setItem(MNEMONIC_STORAGE_KEY, mnemonic)
         
         this.mnemonic = mnemonic
         this.isInitializedFlag = true
 
-        console.log('KeyService initialized successfully')
+        console.log('KeyService: Initialization complete')
       } catch (err) {
-        console.error('KeyService initialization error:', err)
+        console.error('KeyService: Initialization error:', err)
         this.isInitializedFlag = false
         this.mnemonic = null
         throw err
@@ -70,11 +81,13 @@ class KeyServiceImpl {
 
   private ensureInitialized() {
     if (!this.isInitializedFlag || !this.mnemonic) {
+      console.error('KeyService: Attempted to use service before initialization')
       throw new Error('KeyService not initialized')
     }
   }
 
   async getMnemonic(): Promise<string> {
+    console.log('KeyService: Getting mnemonic...')
     this.ensureInitialized()
     return this.mnemonic!
   }
@@ -84,9 +97,11 @@ class KeyServiceImpl {
   }
 
   async reset(): Promise<void> {
+    console.log('KeyService: Resetting...')
     await AsyncStorage.removeItem(MNEMONIC_STORAGE_KEY)
     this.mnemonic = null
     this.isInitializedFlag = false
+    console.log('KeyService: Reset complete')
   }
 }
 
