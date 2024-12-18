@@ -1,13 +1,14 @@
 import * as React from "react"
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { useInitStore } from '../store/useInitStore'
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { typography } from "@/theme/typography"
+import { useInitStore } from "../store/useInitStore"
 
 interface InitializationGuardProps {
   children: React.ReactNode
   fallback?: React.ReactNode
 }
 
-export default function InitializationGuard({ 
+export default function InitializationGuard({
   children,
   fallback = <Text style={styles.text}>Initializing Onyx...</Text>
 }: InitializationGuardProps) {
@@ -24,7 +25,7 @@ export default function InitializationGuard({
         <View style={styles.content}>
           <Text style={styles.heading}>Initialization Error</Text>
           <Text style={styles.text}>{errorMessage}</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => initialize()}
             style={styles.button}
           >
@@ -64,13 +65,13 @@ const styles = StyleSheet.create({
   heading: {
     color: '#fff',
     fontSize: 20,
-    fontFamily: 'jetBrainsMonoRegular',
+    fontFamily: typography.primary.medium,
     marginBottom: 10,
   },
   text: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'jetBrainsMonoRegular',
+    fontFamily: typography.primary.medium,
     textAlign: 'center',
   },
   button: {
@@ -85,6 +86,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'jetBrainsMonoRegular',
+    fontFamily: typography.primary.medium,
   }
 })
