@@ -20,10 +20,6 @@ export default function TabLayout() {
           fontFamily: 'jetBrainsMonoRegular',
           fontSize: 12,
         },
-        // Add these to ensure no white flash
-        contentStyle: {
-          backgroundColor: '#000',
-        },
         headerStyle: {
           backgroundColor: '#000',
         },
