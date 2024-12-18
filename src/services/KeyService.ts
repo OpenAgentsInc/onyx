@@ -29,8 +29,9 @@ class KeyServiceImpl {
     this.initializationPromise = (async () => {
       try {
         console.log('KeyService: Checking for stored mnemonic...')
-        // First try to load existing mnemonic from secure storage
+        // First try to load existing mnemonic from storage
         let mnemonic = await secureStorage.getMnemonic()
+        console.log('KeyService: Storage check complete')
 
         // If no stored mnemonic, check for config
         if (!mnemonic && config?.existingMnemonic) {
@@ -55,6 +56,7 @@ class KeyServiceImpl {
         // Store the mnemonic
         console.log('KeyService: Storing mnemonic...')
         await secureStorage.setMnemonic(mnemonic)
+        console.log('KeyService: Mnemonic stored')
         
         this.mnemonic = mnemonic
         this.isInitializedFlag = true
