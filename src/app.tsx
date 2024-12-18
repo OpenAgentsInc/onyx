@@ -6,14 +6,8 @@ import { AppRegistry, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
 import Router from "@/navigation/Router"
 import InitializationGuard from "./components/InitializationGuard"
-import { clearAllStorage } from "./utils/clearStorage"
 
 function App() {
-  React.useEffect(() => {
-    // Clear storage on app start (temporary fix)
-    clearAllStorage()
-  }, [])
-
   return (
     <View style={$container}>
       <StatusBar style="light" />
