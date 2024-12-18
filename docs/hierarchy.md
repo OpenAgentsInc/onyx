@@ -1,100 +1,70 @@
-# App Directory Structure
+# Project File Hierarchy
 
 ```
-onyx/
-├── app/                              # Main application directory
-│   ├── _layout.tsx                   # Root layout with font loading and navigation setup
-│   └── index.tsx                     # Main screen with drone sightings dashboard
-│
-├── assets/                           # Static assets directory
-│   └── images/                       # Image assets
-│       └── icon.png                  # App icon
-│
-├── components/                       # Reusable UI components
-│   ├── Button.tsx                    # Sacred-inspired button with primary/secondary themes
-│   └── Card.tsx                      # Sacred-inspired card with title and content sections
-│
-├── docs/                            # Documentation directory
-│   ├── hierarchy.md                  # This file - directory structure documentation
-│   └── srcl.md                       # Sacred Component Library integration guide
-│
-├── lib/                             # Utility functions and hooks
-│   └── useAutoUpdate.ts              # Hook for handling OTA updates
-│
-├── theme/                           # Theme configuration
-│   └── typography.ts                 # Font definitions and typography settings
-│
-├── app.json                         # Expo app configuration
-├── package.json                     # Project dependencies and scripts
-├── tsconfig.json                    # TypeScript configuration
-└── README.md                        # Project overview and setup instructions
+src/
+├── app/
+│   ├── _layout.tsx               # Root layout with navigation logic and font loading
+│   ├── (tabs)/                   # Tab navigation group
+│   │   ├── _layout.tsx          # Tab navigation configuration
+│   │   ├── index.tsx            # Tab index (redirects to marketplace)
+│   │   ├── marketplace.tsx      # Marketplace tab screen
+│   │   ├── analysis.tsx         # Analysis tab screen
+│   │   ├── community.tsx        # Community tab screen
+│   │   └── feedback.tsx         # Feedback tab screen
+│   ├── onboarding/              # Onboarding flow group
+│   │   ├── _layout.tsx          # Onboarding navigation configuration
+│   │   ├── index.tsx            # Onboarding index (redirects to first screen)
+│   │   ├── Onboarding1.tsx      # First onboarding screen
+│   │   ├── Onboarding2.tsx      # Second onboarding screen
+│   │   └── Onboarding3.tsx      # Third onboarding screen
+│   └── old/                     # Legacy files
+├── store/
+│   └── useOnboardingStore.ts    # Zustand store for onboarding state
+└── theme/
+    └── typography.ts            # Font configuration
+
+Key Files:
+- src/app/_layout.tsx: Main navigation logic, font loading, and onboarding state management
+- src/app/(tabs)/_layout.tsx: Tab bar configuration and tab screen definitions
+- src/app/onboarding/_layout.tsx: Onboarding flow navigation configuration
+- src/store/useOnboardingStore.ts: Persistent storage for onboarding state
+
+Navigation Flow:
+1. Root layout (_layout.tsx) checks onboarding state
+2. If not onboarded:
+   - Redirects to /onboarding
+   - Index redirects to Onboarding1
+   - User progresses through Onboarding1-3
+3. If onboarded:
+   - Redirects to /(tabs)
+   - Index redirects to marketplace tab
+
+File Details:
+
+## Root Layout (_layout.tsx)
+- Handles font loading
+- Manages navigation based on onboarding state
+- Uses Slot for rendering child routes
+- Provides ThemeProvider context
+
+## Tab Navigation ((tabs)/_layout.tsx)
+- Configures bottom tab bar
+- Defines tab screens and icons
+- Handles tab-specific navigation
+- Marketplace is the default tab
+
+## Onboarding Flow (onboarding/*)
+- _layout.tsx: Stack navigator for onboarding screens
+- index.tsx: Redirects to first onboarding screen
+- Onboarding1-3.tsx: Sequential onboarding screens
+- Uses static Link navigation between screens
+
+## State Management
+- useOnboardingStore.ts: Zustand store with persistence
+- Tracks onboarding completion state
+- Used by root layout for navigation decisions
+
+## Theme Configuration
+- typography.ts: Font family definitions
+- Used by root layout for font loading
 ```
-
-## Key Directories
-
-### /app
-The main application directory using Expo Router's file-based routing system. Each file corresponds to a route in the app.
-
-### /assets
-Static assets like images, fonts, and other media files. Assets here are automatically included in the app bundle.
-
-### /components
-Reusable UI components, primarily adapted from the Sacred Component Library. Each component is self-contained with its styles and types.
-
-### /docs
-Project documentation including:
-- Component integration guides
-- Directory structure
-- Best practices
-- Setup instructions
-
-### /lib
-Utility functions, custom hooks, and shared logic that can be used across the app.
-
-### /theme
-Theme-related configuration including typography, colors, and other design tokens.
-
-## Key Files
-
-### Root Files
-- `app.json` - Expo configuration including name, version, and platform-specific settings
-- `package.json` - Project dependencies, scripts, and metadata
-- `tsconfig.json` - TypeScript compiler configuration
-- `README.md` - Project overview and getting started guide
-
-### App Files
-- `app/_layout.tsx` - Root layout component handling navigation and font loading
-- `app/index.tsx` - Main screen component with drone sightings dashboard
-
-### Component Files
-- `components/Button.tsx` - Reusable button component with multiple themes
-- `components/Card.tsx` - Card component for displaying grouped content
-
-### Theme Files
-- `theme/typography.ts` - Font family definitions and typography configuration
-
-### Utility Files
-- `lib/useAutoUpdate.ts` - Hook for handling over-the-air updates
-
-## Future Directories
-
-As the app grows, we may add:
-
-```
-onyx/
-├── api/                             # API integration and data fetching
-├── contexts/                        # React Context providers
-├── hooks/                           # Custom React hooks
-├── types/                           # TypeScript type definitions
-├── utils/                           # Utility functions
-└── store/                          # State management
-```
-
-## Adding New Files
-
-When adding new files:
-1. Place components in `/components`
-2. Place hooks in `/lib` or future `/hooks` directory
-3. Place types in component files or future `/types` directory
-4. Place documentation in `/docs`
-5. Update this hierarchy document accordingly
