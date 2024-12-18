@@ -1,5 +1,5 @@
 import { useFonts } from "expo-font"
-import { Stack } from "expo-router"
+import { Stack, useRouter } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
 import { StatusBar } from "expo-status-bar"
 import { useEffect } from "react"
@@ -13,7 +13,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded] = useFonts(customFontsToLoad);
   const isOnboarded = useOnboardingStore(state => state.isOnboarded)
-  console.log("isOnboarded", isOnboarded)
+  console.log("Root layout - isOnboarded:", isOnboarded)
 
   useEffect(() => {
     if (loaded) {
@@ -34,13 +34,14 @@ export default function RootLayout() {
             backgroundColor: '#000',
           },
         }}>
-        {isOnboarded ? (
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+        {/* {isOnboarded ? (
           // User is onboarded -> show main tabs directly
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         ) : (
           // User not onboarded -> show onboarding stack
           <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-        )}
+        )} */}
       </Stack>
       <StatusBar style="light" />
     </ThemeProvider>
