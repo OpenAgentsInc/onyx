@@ -12,11 +12,14 @@ export default function InitializationGuard({
   children,
   fallback = <div>Initializing Onyx...</div>
 }: InitializationGuardProps) {
-  const { initialize, isInitialized, isInitializing, errorMessage } = useInitStore()
+  const { isInitialized, isInitializing, errorMessage } = useInitStore()
+  // Get initialize separately to avoid it being in dependency array
+  const initialize = useInitStore(state => state.initialize)
 
   useEffect(() => {
+    // Call initialize without adding it to deps
     initialize().catch(console.error)
-  }, [initialize])
+  }, []) // Empty dependency array
 
   if (errorMessage) {
     return (
