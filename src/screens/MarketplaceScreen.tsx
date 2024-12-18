@@ -1,10 +1,13 @@
 'use dom'
 
 import React from 'react'
-import { Text, TextStyle } from 'react-native'
+import { Text, TextStyle, View } from 'react-native'
 import Card from '@/components/Card'
+import { useNostr } from '@/services/hooks/useNostr'
 
 export default function MarketplaceScreen() {
+  const { npub, isLoading, error } = useNostr()
+
   const styles = {
     container: {
       backgroundColor: '#000',
@@ -20,7 +23,18 @@ export default function MarketplaceScreen() {
       lineHeight: 1.5,
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
-    } as TextStyle
+    } as TextStyle,
+    footer: {
+      marginTop: 'auto',
+      paddingTop: 20,
+      borderTop: '1px solid #333',
+    },
+    nostrKey: {
+      fontSize: 12,
+      color: '#666',
+      fontFamily: 'jetBrainsMonoRegular, monospace',
+      wordBreak: 'break-all' as const,
+    }
   }
 
   return (
@@ -30,6 +44,16 @@ export default function MarketplaceScreen() {
           Welcome to the Onyx Marketplace
         </Text>
       </Card>
+
+      <View style={styles.footer}>
+        {isLoading ? (
+          <Text style={styles.nostrKey}>Loading Nostr key...</Text>
+        ) : error ? (
+          <Text style={styles.nostrKey}>Error loading Nostr key: {error}</Text>
+        ) : npub ? (
+          <Text style={styles.nostrKey}>Nostr: {npub}</Text>
+        ) : null}
+      </View>
     </div>
   )
 }
