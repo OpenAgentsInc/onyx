@@ -11,10 +11,12 @@ export function useNostr() {
 
   useEffect(() => {
     let mounted = true
+    console.log('useNostr: Effect running, isInitialized:', isInitialized)
 
     const loadKeys = async () => {
       // Don't try to load keys until services are initialized
       if (!isInitialized) {
+        console.log('useNostr: Services not initialized yet')
         if (mounted) {
           setIsLoading(true)
           setError(null)
@@ -22,13 +24,16 @@ export function useNostr() {
         return
       }
 
+      console.log('useNostr: Attempting to load Nostr keys...')
       try {
         const nostrKeys = await nostrService.getKeys()
+        console.log('useNostr: Successfully loaded keys')
         if (mounted) {
           setKeys(nostrKeys)
           setError(null)
         }
       } catch (err) {
+        console.error('useNostr: Error loading keys:', err)
         if (mounted) {
           setError(err instanceof Error ? err.message : 'Failed to load Nostr keys')
           setKeys(null)
