@@ -2,7 +2,8 @@ import { StatusBar } from "expo-status-bar"
 import * as React from "react"
 import { AppRegistry, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
-import Router from "@/components/Router"
+import Router from "@/navigation/Router"
+import { InitializationGuard } from "./components/InitializationGuard"
 
 function App() {
   return (
@@ -12,7 +13,9 @@ function App() {
         <Canvas />
       </View>
       <View style={$routerContainer}>
-        <Router />
+        <InitializationGuard>
+          <Router />
+        </InitializationGuard>
       </View>
     </View>
   );
