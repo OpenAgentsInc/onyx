@@ -1,25 +1,35 @@
+'use dom'
+
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { Text, TextStyle } from 'react-native'
+import Card from '@/components/Card'
 
 export default function FeedbackScreen() {
+  const styles = {
+    container: {
+      backgroundColor: '#000',
+      color: '#fff',
+      fontFamily: 'jetBrainsMonoRegular, monospace',
+      minHeight: '100vh',
+      padding: '20px',
+      maxWidth: '800px',
+      margin: '0 auto',
+    },
+    text: {
+      fontSize: 14,
+      lineHeight: 1.5,
+      color: '#fff',
+      fontFamily: 'jetBrainsMonoRegular, monospace',
+    } as TextStyle
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Feedback Screen</Text>
-    </View>
+    <div style={styles.container}>
+      <Card title="Feedback">
+        <Text style={styles.text}>
+          Share Your Feedback
+        </Text>
+      </Card>
+    </div>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-    padding: 20,
-    minHeight: 500,
-    maxWidth: 800,
-    marginHorizontal: 'auto',
-  },
-  text: {
-    color: '#fff',
-    fontFamily: 'jetBrainsMonoRegular',
-  }
-})
