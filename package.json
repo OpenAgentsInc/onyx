@@ -24,6 +24,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@breeztech/react-native-breez-sdk-liquid": "^0.5.1",
     "@expo-google-fonts/jetbrains-mono": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.0.0",
