@@ -1,0 +1,45 @@
+'use dom';
+
+import * as React from "react"
+import { useRouterStore } from "@/store/useRouterStore"
+import { useOnboardingStore } from "@/store/useOnboardingStore"
+import Onboarding1 from "@/onboarding/Onboarding1"
+import Onboarding2 from "@/onboarding/Onboarding2"
+import Onboarding3 from "@/onboarding/Onboarding3"
+import MarketplaceScreen from "@/screens/MarketplaceScreen"
+import AnalysisScreen from "@/screens/AnalysisScreen"
+import CommunityScreen from "@/screens/CommunityScreen"
+import FeedbackScreen from "@/screens/FeedbackScreen"
+
+export default function Router() {
+  const currentRoute = useRouterStore(state => state.currentRoute)
+  const isOnboarded = useOnboardingStore(state => state.isOnboarded)
+
+  // If not onboarded, show onboarding flow
+  if (!isOnboarded) {
+    switch (currentRoute) {
+      case 'Onboarding1':
+        return <Onboarding1 />
+      case 'Onboarding2':
+        return <Onboarding2 />
+      case 'Onboarding3':
+        return <Onboarding3 />
+      default:
+        return <Onboarding1 />
+    }
+  }
+
+  // If onboarded, show main screens
+  switch (currentRoute) {
+    case 'Marketplace':
+      return <MarketplaceScreen />
+    case 'Analysis':
+      return <AnalysisScreen />
+    case 'Community':
+      return <CommunityScreen />
+    case 'Feedback':
+      return <FeedbackScreen />
+    default:
+      return <MarketplaceScreen />
+  }
+}
