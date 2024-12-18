@@ -1,25 +1,44 @@
-import * as React from "react"
+// app/_layout.tsx
+
+'use client';
+
+import AppLoading from "expo-app-loading" // Make sure to install expo-app-loading
 import { useFonts } from "expo-font"
-import { Stack } from "expo-router"
-import { useAutoUpdate } from "@/lib/useAutoUpdate"
+import { Tabs } from "expo-router"
+import { StatusBar } from "expo-status-bar"
+import { useAutoUpdate } from "@/lib/useAutoUpdate" // Optional, from previous setup
 import { customFontsToLoad } from "@/theme/typography"
 
 export default function RootLayout() {
-  const [areFontsLoaded, fontLoadError] = useFonts(customFontsToLoad)
-  useAutoUpdate()
+  // Load fonts using customFontsToLoad
+  const [fontsLoaded] = useFonts(customFontsToLoad);
 
-  if (!areFontsLoaded && !fontLoadError) {
-    return null
+  useAutoUpdate(); // Optional
+
+  if (!fontsLoaded) {
+    return <AppLoading />;
   }
 
   return (
-    <Stack 
-      screenOptions={{ 
-        headerShown: false,
-        contentStyle: {
-          backgroundColor: '#000',
-        }
-      }} 
-    />
-  )
+    <>
+      <StatusBar style="light" />
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: { backgroundColor: '#000' },
+          tabBarActiveTintColor: '#fff',
+          tabBarInactiveTintColor: '#888',
+          tabBarLabelStyle: {
+            fontFamily: 'jetBrainsMonoRegular',
+            fontSize: 12,
+          },
+        }}
+      >
+        <Tabs.Screen name="tabs/marketplace" options={{ title: 'Marketplace' }} />
+        <Tabs.Screen name="tabs/analysis" options={{ title: 'Analysis' }} />
+        <Tabs.Screen name="tabs/community" options={{ title: 'Community' }} />
+        <Tabs.Screen name="tabs/feedback" options={{ title: 'Feedback' }} />
+      </Tabs>
+    </>
+  );
 }
