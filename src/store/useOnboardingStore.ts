@@ -14,7 +14,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       setOnboarded: () => set({ isOnboarded: true }),
     }),
     {
-      name: 'onyx-onboarding-7e',
+      name: 'onyx-onboarding',
       storage: createJSONStorage(() => AsyncStorage),
     }
   )
