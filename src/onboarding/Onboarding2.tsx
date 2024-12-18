@@ -1,20 +1,48 @@
-import React from "react"
-import { Pressable, Text, View } from "react-native"
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation } from '@react-navigation/native'
+import { View, Text, Pressable, StyleSheet } from 'react-native'
 
-export default function Onboarding2Screen() {
+export default function Onboarding2() {
   const navigation = useNavigation()
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ color: '#fff', fontFamily: 'jetBrainsMonoRegular', fontSize: 16, marginBottom: 20 }}>
-        Here's how to use Onyx's voice commands...
+    <View style={styles.container}>
+      <Text style={styles.title}>Secure Data Analysis</Text>
+      <Text style={styles.description}>
+        Analyze your data with powerful tools while maintaining privacy
       </Text>
-      <Pressable onPress={() => navigation.navigate('Onboarding3')}>
-        <Text style={{ color: '#fff', fontFamily: 'jetBrainsMonoRegular', fontSize: 16 }}>
-          Next
-        </Text>
+      <Pressable 
+        onPress={() => navigation.navigate('Onboarding3' as never)}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Next</Text>
       </Pressable>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  description: {
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+})
