@@ -8,6 +8,7 @@ import { customFontsToLoad } from "@/theme/typography"
 import { DarkTheme, NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+import { registerRootComponent } from 'expo';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync()
@@ -51,7 +52,7 @@ function OnboardingNavigator() {
   )
 }
 
-export default function App() {
+function App() {
   const [loaded] = useFonts(customFontsToLoad)
   const isOnboarded = useOnboardingStore((state) => state.isOnboarded)
 
@@ -76,3 +77,5 @@ export default function App() {
     </NavigationContainer>
   )
 }
+
+export default registerRootComponent(App);
