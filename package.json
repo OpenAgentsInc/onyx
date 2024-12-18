@@ -15,7 +15,6 @@
     "build:ios:prod": "eas build --profile production --platform ios",
     "prebuild:clean": "npx expo prebuild --clean --platform ios",
     "submit:ios": "eas submit -p ios",
-    "update:prod": "eas update --channel production --environment production --message",
     "t": "tsc --noEmit",
     "doctor": "npx expo-doctor",
     "copyrepo": "cd ~/code && node md.js ./onyx && cat combined.md | pbcopy"
