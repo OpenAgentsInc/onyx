@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   return (
@@ -32,6 +33,9 @@ export default function TabLayout() {
         options={{
           title: 'Marketplace',
           headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="store" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -39,6 +43,9 @@ export default function TabLayout() {
         options={{
           title: 'Analysis',
           headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="chart-box" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -46,6 +53,9 @@ export default function TabLayout() {
         options={{
           title: 'Community',
           headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-group" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -53,6 +63,9 @@ export default function TabLayout() {
         options={{
           title: 'Feedback',
           headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="message-text" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
