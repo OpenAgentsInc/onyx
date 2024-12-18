@@ -1,11 +1,9 @@
-'use dom';
-
 import { router } from "expo-router"
 import * as React from "react"
 
 export default function TabIndexScreen() {
   React.useEffect(() => {
-    // Redirect to marketplace screen
+    // Redirect to first onboarding screen
     router.replace('/onboarding/Onboarding1');
   }, []);
 
