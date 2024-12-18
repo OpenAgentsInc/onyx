@@ -1,18 +1,18 @@
 'use dom';
 
 import * as React from "react"
-import { useNavigation } from "@react-navigation/native"
+import { useRouter } from "next/navigation"
 import Card from "@/components/Card"
 import Button from "@/components/Button"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
 
 export default function Onboarding3() {
-  const navigation = useNavigation()
+  const router = useRouter()
   const setOnboarded = useOnboardingStore(state => state.setOnboarded)
 
   const handleComplete = () => {
     setOnboarded()
-    navigation.navigate('Marketplace' as never)
+    router.push('/marketplace')
   }
 
   const styles = {
