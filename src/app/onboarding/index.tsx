@@ -1,5 +1,6 @@
 import { router } from "expo-router"
 import * as React from "react"
+import { View } from 'react-native'
 
 export default function TabIndexScreen() {
   React.useEffect(() => {
@@ -7,13 +8,11 @@ export default function TabIndexScreen() {
     router.replace('/onboarding/Onboarding1');
   }, []);
 
-  const styles = {
-    container: {
-      backgroundColor: '#000',
-      minHeight: '100vh',
-    },
-  };
-
   // Return a black screen while redirecting
-  return <div style={styles.container} />;
+  return (
+    <View style={{
+      backgroundColor: '#000',
+      flex: 1,
+    }} />
+  );
 }
