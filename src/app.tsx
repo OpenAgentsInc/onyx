@@ -1,13 +1,18 @@
-import "./utils/crypto-polyfill"
-import "text-encoding-polyfill"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
 import { AppRegistry, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
+import DOMWrapper from "@/components/DOMWrapper"
 import Router from "@/navigation/Router"
 import InitializationGuard from "./components/InitializationGuard"
+import { clearAllStorage } from "./utils/clearStorage"
 
 function App() {
+  React.useEffect(() => {
+    // Clear storage on app start (temporary fix)
+    clearAllStorage()
+  }, [])
+
   return (
     <View style={$container}>
       <StatusBar style="light" />
@@ -16,7 +21,9 @@ function App() {
       </View>
       <View style={$routerContainer}>
         <InitializationGuard>
-          <Router />
+          <DOMWrapper>
+            <Router />
+          </DOMWrapper>
         </InitializationGuard>
       </View>
     </View>
