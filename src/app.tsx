@@ -2,28 +2,28 @@ import { useFonts } from "expo-font"
 import * as SplashScreen from "expo-splash-screen"
 import { StatusBar } from "expo-status-bar"
 import { useEffect } from "react"
-import { View } from "react-native"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
 import { customFontsToLoad } from "@/theme/typography"
 import { DarkTheme, NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { registerRootComponent } from 'expo';
+import { registerRootComponent } from 'expo'
+import { useNavigation } from '@react-navigation/native'
+
+// Import screens
+import Onboarding1Screen from "./onboarding/Onboarding1"
+import Onboarding2Screen from "./onboarding/Onboarding2"
+import Onboarding3Screen from "./onboarding/Onboarding3"
+import MarketplaceScreen from "./screens/MarketplaceScreen"
+import AnalysisScreen from "./screens/AnalysisScreen"
+import CommunityScreen from "./screens/CommunityScreen"
+import FeedbackScreen from "./screens/FeedbackScreen"
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync()
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
-
-// Placeholder components - replace with actual screens
-const MarketplaceScreen = () => <View />
-const AnalysisScreen = () => <View />
-const CommunityScreen = () => <View />
-const FeedbackScreen = () => <View />
-const Onboarding1Screen = () => <View />
-const Onboarding2Screen = () => <View />
-const Onboarding3Screen = () => <View />
 
 function TabNavigator() {
   return (
@@ -43,11 +43,26 @@ function TabNavigator() {
 }
 
 function OnboardingNavigator() {
+  const navigation = useNavigation()
+  const setOnboarded = useOnboardingStore(state => state.setOnboarded)
+
+  const handleFinishOnboarding = () => {
+    setOnboarded()
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
+    })
+  }
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Onboarding1" component={Onboarding1Screen} />
       <Stack.Screen name="Onboarding2" component={Onboarding2Screen} />
-      <Stack.Screen name="Onboarding3" component={Onboarding3Screen} />
+      <Stack.Screen 
+        name="Onboarding3" 
+        component={Onboarding3Screen}
+        initialParams={{ onFinish: handleFinishOnboarding }}
+      />
     </Stack.Navigator>
   )
 }
