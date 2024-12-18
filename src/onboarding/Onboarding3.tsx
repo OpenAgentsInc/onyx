@@ -1,27 +1,55 @@
-import React from "react"
-import { Pressable, Text, View } from "react-native"
-import { useNavigation } from "@react-navigation/native"
-import { useOnboardingStore } from "@/store/useOnboardingStore"
+import { useNavigation } from '@react-navigation/native'
+import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { useOnboardingStore } from '../store/useOnboardingStore'
 
-export default function Onboarding3Screen() {
+export default function Onboarding3() {
   const navigation = useNavigation()
-  const setOnboarded = useOnboardingStore(state => state.setOnboarded)
+  const completeOnboarding = useOnboardingStore(state => state.completeOnboarding)
 
-  const finishOnboarding = () => {
-    setOnboarded()
-    // The onboarding state change will trigger the root navigator to show Main
+  const handleComplete = () => {
+    completeOnboarding()
+    navigation.navigate('Marketplace' as never)
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ color: '#fff', fontFamily: 'jetBrainsMonoRegular', fontSize: 16, marginBottom: 20 }}>
-        You're all set! Let's get started.
+    <View style={styles.container}>
+      <Text style={styles.title}>Ready to Start</Text>
+      <Text style={styles.description}>
+        You're all set to explore Onyx's powerful features
       </Text>
-      <Pressable onPress={finishOnboarding}>
-        <Text style={{ color: '#fff', fontFamily: 'jetBrainsMonoRegular', fontSize: 16 }}>
-          Done
-        </Text>
+      <Pressable 
+        onPress={handleComplete}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Get Started</Text>
       </Pressable>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  description: {
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+})
