@@ -1,5 +1,3 @@
-// app/_layout.tsx
-
 'use client';
 
 import AppLoading from "expo-app-loading" // Make sure to install expo-app-loading
@@ -25,12 +23,23 @@ export default function RootLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarStyle: { backgroundColor: '#000' },
+          tabBarStyle: { 
+            backgroundColor: '#000',
+            borderTopWidth: 0, // Remove top border
+          },
           tabBarActiveTintColor: '#fff',
           tabBarInactiveTintColor: '#888',
           tabBarLabelStyle: {
             fontFamily: 'jetBrainsMonoRegular',
             fontSize: 12,
+          },
+          // Add these to style the navigation container
+          contentStyle: {
+            backgroundColor: '#000',
+          },
+          // Style the header (even though it's hidden, this prevents any white flash)
+          headerStyle: {
+            backgroundColor: '#000',
           },
         }}
       >
