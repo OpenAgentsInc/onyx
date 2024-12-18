@@ -12,7 +12,7 @@ export default function Onboarding1Screen() {
       </Text>
       <Button
         title="Next"
-        onPress={() => router.push('/onboarding/Onboarding2Screen')}
+        onPress={() => router.push('/onboarding/Onboarding2')}
       />
     </View>
   )
