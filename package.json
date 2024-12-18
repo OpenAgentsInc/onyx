@@ -2,6 +2,7 @@
   "name": "onyx",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -61,5 +62,12 @@
     "react-test-renderer": "18.3.1",
     "typescript": "^5.3.3"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "listUnknownPackages": false
+      }
+    }
+  }
 }
