@@ -1,19 +1,13 @@
-'use dom';
+'use dom'
 
 import * as React from "react"
-import Card from "@/components/Card"
+import { Text, TextStyle, View, Image } from "react-native"
 import Button from "@/components/Button"
+import Card from "@/components/Card"
 import { useRouterStore } from "@/store/useRouterStore"
-import { useOnboardingStore } from "@/store/useOnboardingStore"
 
 export default function Onboarding3() {
-  const navigate = useRouterStore(state => state.navigate)
-  const setOnboarded = useOnboardingStore(state => state.setOnboarded)
-
-  const handleComplete = () => {
-    setOnboarded()
-    navigate('Marketplace')
-  }
+  const navigate = useRouterStore(state => state.navigate);
 
   const styles = {
     container: {
@@ -26,29 +20,51 @@ export default function Onboarding3() {
       margin: '0 auto',
     },
     text: {
-      fontSize: '14px',
-      lineHeight: '1.5',
+      fontSize: 14,
+      lineHeight: 1.5,
+      color: '#fff',
+      fontFamily: 'jetBrainsMonoRegular, monospace',
+      marginBottom: 12,
+    } as TextStyle,
+    orbContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginVertical: 24,
     },
     buttonContainer: {
       marginTop: '20px',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
     }
   }
 
   return (
     <div style={styles.container}>
-      <Card title="Ready to Start">
-        <p style={styles.text}>
-          You're all set! Let's get started.
-        </p>
-        <div style={styles.buttonContainer}>
-          <Button 
-            theme="PRIMARY"
-            onClick={handleComplete}
+      <Card title="Meet the Onyx Orb">
+        <Text style={styles.text}>
+          This orb represents Onyx. When it pulses, it's thinking!
+        </Text>
+        <View style={styles.orbContainer}>
+          {/* TODO: Add Onyx orb image/animation */}
+        </View>
+        <Text style={styles.text}>
+          Tap the orb to reveal more details or trigger certain actions.
+        </Text>
+        <View style={styles.buttonContainer}>
+          <Button
+            theme="SECONDARY"
+            onClick={() => navigate('Onboarding2')}
           >
-            Get Started
+            Back
           </Button>
-        </div>
+          <Button
+            theme="PRIMARY"
+            onClick={() => navigate('Onboarding4')}
+          >
+            Next
+          </Button>
+        </View>
       </Card>
     </div>
-  )
+  );
 }
