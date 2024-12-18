@@ -1,17 +1,12 @@
-import * as React from "react"
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { typography } from "@/theme/typography"
-import { useInitStore } from "../store/useInitStore"
+import * as React from 'react'
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
+import { useInitStore } from '../store/useInitStore'
 
 interface InitializationGuardProps {
   children: React.ReactNode
-  fallback?: React.ReactNode
 }
 
-export default function InitializationGuard({
-  children,
-  fallback = <Text style={styles.text}>Initializing Onyx...</Text>
-}: InitializationGuardProps) {
+export default function InitializationGuard({ children }: InitializationGuardProps) {
   const { isInitialized, isInitializing, errorMessage } = useInitStore()
   const initialize = useInitStore(state => state.initialize)
 
@@ -25,12 +20,12 @@ export default function InitializationGuard({
         <View style={styles.content}>
           <Text style={styles.heading}>Initialization Error</Text>
           <Text style={styles.text}>{errorMessage}</Text>
-          <TouchableOpacity
-            onPress={() => initialize()}
+          <Text 
             style={styles.button}
+            onPress={() => initialize()}
           >
-            <Text style={styles.buttonText}>Retry</Text>
-          </TouchableOpacity>
+            Retry
+          </Text>
         </View>
       </View>
     )
@@ -39,7 +34,8 @@ export default function InitializationGuard({
   if (isInitializing || !isInitialized) {
     return (
       <View style={styles.container}>
-        {fallback}
+        <ActivityIndicator size="large" color="#fff" />
+        <Text style={styles.text}>Initializing Onyx...</Text>
       </View>
     )
   }
@@ -65,13 +61,13 @@ const styles = StyleSheet.create({
   heading: {
     color: '#fff',
     fontSize: 20,
-    fontFamily: typography.primary.medium,
+    fontFamily: 'jetBrainsMonoRegular',
     marginBottom: 10,
   },
   text: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: typography.primary.medium,
+    fontFamily: 'jetBrainsMonoRegular',
     textAlign: 'center',
   },
   button: {
@@ -82,10 +78,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#666',
-  },
-  buttonText: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: typography.primary.medium,
+    fontFamily: 'jetBrainsMonoRegular',
   }
 })
