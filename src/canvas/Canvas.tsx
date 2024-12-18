@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from "react"
 import { StyleSheet, View } from "react-native"
 import * as THREE from "three"
 import { isEmulator } from "@/utils/isEmulator"
-import { useIsFocused } from "@react-navigation/native"
+import { useIsFocused } from "@/utils/useIsFocused"
 import { MinimalCanvas } from "./types"
 
 export function Canvas() {

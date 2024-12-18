@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Onboarding1 from "@/onboarding/Onboarding1"
+import Onboarding10 from "@/onboarding/Onboarding10"
 import Onboarding2 from "@/onboarding/Onboarding2"
 import Onboarding3 from "@/onboarding/Onboarding3"
 import Onboarding4 from "@/onboarding/Onboarding4"
@@ -10,7 +11,6 @@ import Onboarding6 from "@/onboarding/Onboarding6"
 import Onboarding7 from "@/onboarding/Onboarding7"
 import Onboarding8 from "@/onboarding/Onboarding8"
 import Onboarding9 from "@/onboarding/Onboarding9"
-import Onboarding10 from "@/onboarding/Onboarding10"
 import AnalysisScreen from "@/screens/AnalysisScreen"
 import CommunityScreen from "@/screens/CommunityScreen"
 import FeedbackScreen from "@/screens/FeedbackScreen"
@@ -74,7 +74,7 @@ export default function Router() {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'black',
+      backgroundColor: 'transparent',
       width: '100vw',
       height: '100vh'
     }}>
