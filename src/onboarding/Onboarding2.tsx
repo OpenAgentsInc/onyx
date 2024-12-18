@@ -1,7 +1,7 @@
 'use dom'
 
 import * as React from "react"
-import { Text, TextStyle, View } from "react-native"
+import { Text, TextStyle, View, ViewStyle } from "react-native"
 import Button from "@/components/Button"
 import Card from "@/components/Card"
 import { useRouterStore } from "@/store/useRouterStore"
@@ -15,8 +15,8 @@ export default function Onboarding2() {
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
       minHeight: '100vh',
-      padding: '20px',
-      maxWidth: '800px',
+      padding: 20,
+      maxWidth: 800,
       margin: '0 auto',
     },
     text: {
@@ -25,7 +25,6 @@ export default function Onboarding2() {
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
       marginBottom: 24,
-      display: 'block',
     } as TextStyle,
     example: {
       fontSize: 16,
@@ -39,20 +38,19 @@ export default function Onboarding2() {
       marginBottom: 24,
       borderWidth: 1,
       borderColor: '#333',
-      display: 'block',
     } as TextStyle,
     cardContent: {
       padding: 24,
       backgroundColor: '#111',
       borderRadius: 12,
       marginBottom: 24,
-    },
+    } as ViewStyle,
     buttonContainer: {
       marginTop: 32,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: 'row' as const,
+      justifyContent: 'space-between' as const,
       gap: 16,
-    }
+    } as ViewStyle
   }
 
   return (
