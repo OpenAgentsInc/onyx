@@ -24,49 +24,64 @@ export default function Onboarding2() {
       lineHeight: 1.5,
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
-      marginBottom: 12,
-    },
+      marginBottom: 24,
+    } as TextStyle,
     example: {
       fontSize: 16,
       color: '#4CAF50',
       fontFamily: 'jetBrainsMonoRegular, monospace',
-      padding: '12px',
-      backgroundColor: '#1A1A1A',
-      borderRadius: '4px',
-      marginVertical: 16,
+      padding: 16,
+      backgroundColor: 'rgba(26, 26, 26, 0.8)',
+      borderRadius: 8,
+      marginTop: 24,
+      marginBottom: 24,
+      borderWidth: 1,
+      borderColor: '#333',
+    } as TextStyle,
+    cardContent: {
+      padding: 24,
+      backgroundColor: '#111',
+      borderRadius: 12,
+      marginBottom: 24,
     },
     buttonContainer: {
-      marginTop: '20px',
+      marginTop: 32,
       flexDirection: 'row',
       justifyContent: 'space-between',
+      gap: 16,
     }
   }
 
   return (
     <div style={styles.container}>
       <Card title="Voice Commands">
-        <Text style={styles.text}>
-          You speak, Onyx listens and responds.
-        </Text>
-        <Text style={styles.example}>
-          "Tell me about recent drone sightings in Colorado."
-        </Text>
-        <Text style={styles.text}>
-          Your voice is automatically transcribed and integrated into the chat interface.
-        </Text>
-        <View style={styles.buttonContainer}>
-          <Button
-            theme="SECONDARY"
-            onClick={() => navigate('Onboarding1')}
-          >
-            Back
-          </Button>
-          <Button
-            theme="PRIMARY"
-            onClick={() => navigate('Onboarding3')}
-          >
-            Next
-          </Button>
+        <View style={styles.cardContent}>
+          <Text style={styles.text}>
+            You speak, Onyx listens and responds.
+          </Text>
+          
+          <Text style={styles.example}>
+            "Tell me about recent drone sightings in Colorado."
+          </Text>
+          
+          <Text style={styles.text}>
+            Your voice is automatically transcribed and integrated into the chat interface.
+          </Text>
+          
+          <View style={styles.buttonContainer}>
+            <Button
+              theme="SECONDARY"
+              onClick={() => navigate('Onboarding1')}
+            >
+              Back
+            </Button>
+            <Button
+              theme="PRIMARY"
+              onClick={() => navigate('Onboarding3')}
+            >
+              Next
+            </Button>
+          </View>
         </View>
       </Card>
     </div>
