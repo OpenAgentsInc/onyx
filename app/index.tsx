@@ -3,6 +3,7 @@
 import * as React from "react"
 import Button from "@/components/Button"
 import Card from "@/components/Card"
+import { DataTable } from "@/components/DataTable"
 import TextArea from "@/components/TextArea"
 
 const styles = {
@@ -34,43 +35,39 @@ const styles = {
   }
 };
 
+const sampleData = [
+  ['REQUEST ID', 'DESCRIPTION', 'STATUS', 'BID (SATS)'],
+  ['2458', 'Daily COVID-19 case counts in California (CSV)', 'Pending offers', '1500'],
+  ['2460', 'Historical Bitcoin price data (Jan 2020 - Dec 2021, JSON)', 'Offer from @dataNode99', '2000'],
+];
+
 export default function Index() {
   const [requestText, setRequestText] = React.useState('');
 
   return (
     <div style={styles.container}>
-      <Card title="Data Marketplace Demo">
+      <Card title="Onyx Data Marketplace">
         <p style={styles.text}>
-          Welcome to the Onyx Data Marketplace! Here you can request any type of data—structured files, analytics, reports—and pay providers who fulfill your request with Bitcoin over Lightning.
+          Welcome to the Onyx Data Marketplace! Here you can request any type of data—structured files, analytics,
+          reports—and pay providers who fulfill your request with Bitcoin over Lightning.
         </p>
         <p style={styles.text}>
-          Below are sample listings and your request panel. Post a data request, view open bids, or accept a provider's result.
+          Post a new data request, view active requests and bids, then accept a provider's result to pay them.
         </p>
       </Card>
 
       <div style={{ height: 20 }} />
 
       <Card title="Active Data Requests">
-        <p style={styles.text}>
-          <strong>Request #2458:</strong> "Daily COVID-19 case counts in California (CSV format)"
-        </p>
-        <p style={styles.text}>Status: Pending provider offers</p>
-        <p style={styles.text}>Offered Bid: 1500 sats</p>
+        <p style={styles.text}>Below is a summary of your currently active data requests:</p>
+        <DataTable data={sampleData} />
         <div style={styles.buttonContainer}>
-          <Button theme="PRIMARY" onClick={() => console.log('View Request #2458')}>View</Button>
-          <Button theme="SECONDARY" onClick={() => console.log('Increase Bid')}>Increase Bid</Button>
-        </div>
-
-        <hr style={styles.hr} />
-
-        <p style={styles.text}>
-          <strong>Request #2460:</strong> "Historical Bitcoin price data (Jan 2020 - Dec 2021) in JSON"
-        </p>
-        <p style={styles.text}>Status: Offer received by @dataNode99</p>
-        <p style={styles.text}>Offered Bid: 2000 sats</p>
-        <div style={styles.buttonContainer}>
-          <Button theme="PRIMARY" onClick={() => console.log('Accept Offer from @dataNode99')}>Accept Offer</Button>
-          <Button theme="SECONDARY" onClick={() => console.log('View Provider Reputation')}>Provider Info</Button>
+          <Button theme="PRIMARY" onClick={() => console.log('View Selected Request')}>
+            View Selected
+          </Button>
+          <Button theme="SECONDARY" onClick={() => console.log('Increase Bid')}>
+            Increase Bid
+          </Button>
         </div>
       </Card>
 
@@ -78,7 +75,8 @@ export default function Index() {
 
       <Card title="Submit a New Data Request">
         <p style={styles.text}>
-          Describe the data you need. Include format, desired date range, and any special requirements. Set a bid to attract providers.
+          Describe the data you need. For example: "Daily weather data for Denver, CO (Jan 1, 2023 - Feb 1, 2023, CSV)"
+          and how many sats you're willing to pay.
         </p>
 
         <div style={styles.textAreaContainer}>
