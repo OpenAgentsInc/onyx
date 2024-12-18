@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
-import { AppRegistry } from "react-native"
+import { AppRegistry, View } from "react-native"
 import Router from "@/components/Router"
 
 function App() {
@@ -8,6 +8,7 @@ function App() {
     <>
       <StatusBar style="light" />
       <Router />
+      <View style={{ flex: 1, backgroundColor: 'black' }} />
     </>
   );
 }
