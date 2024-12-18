@@ -26,14 +26,21 @@ export const useInitStore = create<InitState & InitActions>()(
       ...initialState,
       
       initialize: async () => {
-        if (get().isInitializing || get().isInitialized) return
+        console.log('InitStore: Starting initialization...')
+        if (get().isInitializing || get().isInitialized) {
+          console.log('InitStore: Already initializing or initialized')
+          return
+        }
         
         set({ isInitializing: true, errorMessage: null })
         
         try {
+          console.log('InitStore: Calling ServiceManager.initializeServices()')
           await serviceManager.initializeServices()
+          console.log('InitStore: Services initialized successfully')
           set({ isInitialized: true, errorMessage: null })
         } catch (error) {
+          console.error('InitStore: Initialization error:', error)
           const message = error instanceof Error ? error.message : 'Unknown error during initialization'
           set({ errorMessage: message })
           throw error
@@ -43,6 +50,7 @@ export const useInitStore = create<InitState & InitActions>()(
       },
 
       reset: () => {
+        console.log('InitStore: Resetting...')
         serviceManager.reset().catch(console.error)
         set(initialState)
       }
