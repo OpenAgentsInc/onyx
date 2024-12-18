@@ -4,11 +4,12 @@ import * as React from "react"
 import Button from "@/components/Button"
 import Card from "@/components/Card"
 import { useRouterStore } from "@/store/useRouterStore"
+import { CSSProperties } from "react"
 
 export default function Onboarding2() {
   const navigate = useRouterStore(state => state.navigate);
 
-  const styles = {
+  const styles: Record<string, CSSProperties> = {
     container: {
       backgroundColor: '#000',
       color: '#fff',
@@ -48,7 +49,7 @@ export default function Onboarding2() {
     buttonContainer: {
       marginTop: '32px',
       display: 'flex',
-      flexDirection: 'row',
+      flexDirection: 'row' as const,
       justifyContent: 'space-between',
       gap: '16px',
     }
