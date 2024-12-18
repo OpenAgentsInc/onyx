@@ -1,6 +1,5 @@
-'use dom'
-
-import { useEffect } from 'react'
+import * as React from "react"
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { useInitStore } from '../store/useInitStore'
 
 interface InitializationGuardProps {
@@ -10,72 +9,82 @@ interface InitializationGuardProps {
 
 export default function InitializationGuard({ 
   children,
-  fallback = <div>Initializing Onyx...</div>
+  fallback = <Text style={styles.text}>Initializing Onyx...</Text>
 }: InitializationGuardProps) {
   const { isInitialized, isInitializing, errorMessage } = useInitStore()
-  // Get initialize separately to avoid it being in dependency array
   const initialize = useInitStore(state => state.initialize)
 
-  useEffect(() => {
-    // Call initialize without adding it to deps
+  React.useEffect(() => {
     initialize().catch(console.error)
-  }, []) // Empty dependency array
+  }, [])
 
   if (errorMessage) {
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#000',
-        color: '#fff',
-        padding: '20px',
-        textAlign: 'center'
-      }}>
-        <div>
-          <h2>Initialization Error</h2>
-          <p>{errorMessage}</p>
-          <button 
-            onClick={() => initialize()}
-            style={{
-              padding: '10px 20px',
-              marginTop: '20px',
-              backgroundColor: '#333',
-              border: '1px solid #666',
-              borderRadius: '4px',
-              color: '#fff',
-              cursor: 'pointer'
-            }}
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.heading}>Initialization Error</Text>
+          <Text style={styles.text}>{errorMessage}</Text>
+          <TouchableOpacity 
+            onPress={() => initialize()}
+            style={styles.button}
           >
-            Retry
-          </button>
-        </div>
-      </div>
+            <Text style={styles.buttonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     )
   }
 
   if (isInitializing || !isInitialized) {
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#000'
-      }}>
+      <View style={styles.container}>
         {fallback}
-      </div>
+      </View>
     )
   }
 
   return children
 }
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  content: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  heading: {
+    color: '#fff',
+    fontSize: 20,
+    fontFamily: 'jetBrainsMonoRegular',
+    marginBottom: 10,
+  },
+  text: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'jetBrainsMonoRegular',
+    textAlign: 'center',
+  },
+  button: {
+    marginTop: 20,
+    backgroundColor: '#333',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#666',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'jetBrainsMonoRegular',
+  }
+})
