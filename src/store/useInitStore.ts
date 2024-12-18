@@ -6,7 +6,7 @@ import ServiceManager from '../services/ServiceManager'
 interface InitState {
   isInitialized: boolean
   isInitializing: boolean
-  errorMessage: string | null // Store error message instead of Error object
+  errorMessage: string | null
 }
 
 interface InitActions {
@@ -49,7 +49,7 @@ export const useInitStore = create<InitState & InitActions>()(
     {
       name: 'onyx-init-store',
       storage: createJSONStorage(() => AsyncStorage),
-      // Only persist these fields
+      // Only persist isInitialized and errorMessage
       partialize: (state) => ({
         isInitialized: state.isInitialized,
         errorMessage: state.errorMessage
