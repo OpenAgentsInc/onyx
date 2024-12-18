@@ -25,7 +25,9 @@
   "dependencies": {
     "@breeztech/react-native-breez-sdk-liquid": "^0.5.1",
     "@expo-google-fonts/jetbrains-mono": "^0.2.3",
+    "@expo/metro-runtime": "~4.0.0",
     "@expo/vector-icons": "^14.0.2",
+    "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
     "@react-navigation/native-stack": "^7.0.0",
