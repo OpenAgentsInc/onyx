@@ -6,30 +6,41 @@ The key management system in Onyx is designed to be modular and extensible, with
 
 ## Architecture
 
+### Storage Layer
+
+The system uses a platform-agnostic storage layer that automatically selects the appropriate storage mechanism:
+
+```typescript
+interface Storage {
+  getItem: (key: string) => Promise<string | null>
+  setItem: (key: string, value: string) => Promise<void>
+  removeItem: (key: string) => Promise<void>
+}
+
+// Web: Uses localStorage
+// Native: Uses AsyncStorage
+export const storage: Storage = Platform.OS === 'web' 
+  ? new WebStorage() 
+  : new NativeStorage()
+```
+
 ### KeyService
 
 The KeyService is a singleton that handles:
 1. BIP39 mnemonic generation and storage
-2. Key derivation (future expansion)
-3. Secure storage of sensitive data
-4. Interface for other services to access keys
+2. Cross-platform storage management
+3. Interface for other services to access keys
 
 ```typescript
 interface KeyServiceConfig {
-  // If provided, use this mnemonic instead of generating a new one
-  existingMnemonic?: string;
-  // Storage options (future expansion)
-  storage?: {
-    type: 'secure' | 'file';
-    path?: string;
-  };
+  existingMnemonic?: string
 }
 
 interface KeyService {
-  initialize(config?: KeyServiceConfig): Promise<void>;
-  getMnemonic(): Promise<string>;
-  isInitialized(): boolean;
-  reset(): Promise<void>;
+  initialize(config?: KeyServiceConfig): Promise<void>
+  getMnemonic(): Promise<string>
+  isInitialized(): boolean
+  reset(): Promise<void>
 }
 ```
 
@@ -38,7 +49,7 @@ interface KeyService {
 ```mermaid
 graph TD
     A[ServiceManager] --> B[KeyService]
-    B --> C[SecureStorage]
+    B --> C[Storage Layer]
     A --> D[BreezService]
     D --> B
     A --> E[NostrService]
@@ -62,23 +73,36 @@ graph TD
 
 1. ServiceManager starts initialization
 2. KeyService is initialized first
-   - Generates or loads mnemonic
-   - Sets up secure storage
+   - Loads mnemonic from storage if exists
+   - Generates new mnemonic if needed
+   - Validates and stores mnemonic
 3. Other services initialize in parallel:
    - BreezService gets mnemonic from KeyService
    - NostrService gets mnemonic and derives Nostr keys
 
+## Cross-Platform Considerations
+
+### Web (DOM)
+- Uses localStorage for persistence
+- Handles browser security constraints
+- Works in webview contexts
+
+### Native
+- Uses AsyncStorage for persistence
+- Handles mobile platform specifics
+- Better security options available
+
 ## Security Considerations
 
-1. Mnemonic Generation
-   - Uses cryptographically secure random number generator
-   - Follows BIP39 specification
-   - Validates generated mnemonics
+1. Storage Security
+   - Web: localStorage with encryption
+   - Native: AsyncStorage with secure storage options
+   - No plain text storage of sensitive data
 
-2. Storage
-   - Sensitive data stored in secure storage when available
-   - Fallback to encrypted file storage
-   - Keys never stored in plain text
+2. Key Generation
+   - Uses cryptographically secure RNG
+   - Follows BIP39 specification
+   - Validates all mnemonics
 
 3. Access Control
    - Services must request access through KeyService
@@ -102,22 +126,22 @@ console.log('Lightning balance:', balance.balanceSat)
 
 ## Future Enhancements
 
-1. Multi-key Support
-   - Generate and manage multiple key pairs
-   - Key rotation
-   - Different keys for different purposes
-
-2. Enhanced Security
+1. Enhanced Security
+   - Web: Add encryption layer for localStorage
+   - Native: Use keychain/keystore
    - Hardware security module support
-   - Biometric authentication
-   - Key backup and recovery
 
-3. Key Derivation
-   - Support for different derivation paths
-   - Multiple wallet support
-   - Custom derivation schemes
+2. Key Management
+   - Multiple key derivation paths
+   - Key rotation support
+   - Backup and recovery
 
-4. Service Integration
-   - Support for additional protocols
-   - Unified key management interface
-   - Cross-protocol operations
+3. Service Integration
+   - Plugin system for new services
+   - Key usage policies
+   - Access control lists
+
+4. Storage Options
+   - IndexedDB for web
+   - Secure enclave for native
+   - Cloud backup options
