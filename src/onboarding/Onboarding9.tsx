@@ -1,16 +1,16 @@
 'use dom'
 
 import * as React from "react"
-import { Text, TextStyle, View } from "react-native"
 import Button from "@/components/Button"
 import Card from "@/components/Card"
 import { useRouterStore } from "@/store/useRouterStore"
+import { CSSProperties } from "react"
 
 export default function Onboarding9() {
   const navigate = useRouterStore(state => state.navigate);
   const [isRecording, setIsRecording] = React.useState(false);
 
-  const styles = {
+  const styles: Record<string, CSSProperties> = {
     container: {
       backgroundColor: '#000',
       color: '#fff',
@@ -21,69 +21,76 @@ export default function Onboarding9() {
       margin: '0 auto',
     },
     text: {
-      fontSize: 14,
-      lineHeight: 24,
+      fontSize: '14px',
+      lineHeight: '24px',
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
-      marginBottom: 24,
+      marginBottom: '24px',
       display: 'block',
-    } as TextStyle,
+    },
     prompt: {
-      fontSize: 16,
-      lineHeight: 24,
+      fontSize: '16px',
+      lineHeight: '24px',
       color: '#4CAF50',
       fontFamily: 'jetBrainsMonoRegular, monospace',
-      padding: 16,
+      padding: '16px',
       backgroundColor: 'rgba(26, 26, 26, 0.8)',
-      borderRadius: 8,
-      marginTop: 24,
-      marginBottom: 24,
-      borderWidth: 1,
-      borderColor: '#333',
+      borderRadius: '8px',
+      marginTop: '24px',
+      marginBottom: '24px',
+      border: '1px solid #333',
       display: 'block',
-    } as TextStyle,
-    cardContent: {
-      padding: 24,
-      backgroundColor: '#111',
-      borderRadius: 12,
-      marginBottom: 24,
     },
-    buttonContainer: {
-      marginTop: 32,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      gap: 16,
+    cardContent: {
+      padding: '24px',
+      backgroundColor: '#111',
+      borderRadius: '12px',
+      marginBottom: '24px',
     },
     recordButton: {
-      marginTop: 24,
-      marginBottom: 24,
-      padding: 16,
+      marginTop: '24px',
+      marginBottom: '24px',
+      padding: '16px',
       backgroundColor: isRecording ? '#ff4444' : '#4CAF50',
-      borderRadius: 8,
-      alignItems: 'center',
+      borderRadius: '8px',
+      textAlign: 'center',
       cursor: 'pointer',
+      transition: 'background-color 0.2s ease',
+      color: '#fff',
+      fontFamily: 'jetBrainsMonoRegular, monospace',
+      fontSize: '14px',
+      border: 'none',
+      width: '100%',
+    },
+    buttonContainer: {
+      marginTop: '32px',
+      display: 'flex',
+      flexDirection: 'row' as const,
+      justifyContent: 'space-between',
+      gap: '16px',
     }
   }
 
   return (
     <div style={styles.container}>
       <Card title="Try a Command">
-        <View style={styles.cardContent}>
-          <Text style={styles.text}>
+        <div style={styles.cardContent}>
+          <p style={styles.text}>
             Try a voice command now!
-          </Text>
+          </p>
           
-          <Text style={styles.prompt}>
+          <p style={styles.prompt}>
             Ask: "What drone data is available for January 2024 in Denver?"
-          </Text>
+          </p>
           
-          <View style={styles.recordButton} onClick={() => setIsRecording(!isRecording)}>
-            <Text style={styles.text}>
-              {isRecording ? 'Stop Recording' : 'Start Recording'}
-            </Text>
-          </View>
+          <button 
+            style={styles.recordButton}
+            onClick={() => setIsRecording(!isRecording)}
+          >
+            {isRecording ? 'Stop Recording' : 'Start Recording'}
+          </button>
           
-          <View style={styles.buttonContainer}>
+          <div style={styles.buttonContainer}>
             <Button
               theme="SECONDARY"
               onClick={() => navigate('Onboarding8')}
@@ -93,11 +100,12 @@ export default function Onboarding9() {
             <Button
               theme="PRIMARY"
               onClick={() => navigate('Onboarding10')}
+              disabled={isRecording}
             >
               {isRecording ? 'Please stop recording first' : 'Skip'}
             </Button>
-          </View>
-        </View>
+          </div>
+        </div>
       </Card>
     </div>
   );
