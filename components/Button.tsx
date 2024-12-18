@@ -1,13 +1,14 @@
 'use dom';
 
 import * as React from 'react';
+import type { CSSProperties } from 'react';
 
 const styles = {
   buttonRoot: {
     verticalAlign: 'top',
     display: 'inline-block',
     fontWeight: 400,
-    textAlign: 'center',
+    textAlign: 'center' as const,
     margin: '0',
     outline: '0',
     border: '0',
@@ -17,11 +18,11 @@ const styles = {
     lineHeight: '32px',
     height: '32px',
     padding: '0 2ch',
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
     letterSpacing: '1px',
     transition: '200ms ease all',
     cursor: 'pointer',
-    whiteSpace: 'nowrap',
+    whiteSpace: 'nowrap' as const,
   },
   buttonPrimary: {
     backgroundColor: '#fff',
@@ -37,7 +38,7 @@ const styles = {
     color: '#666',
     cursor: 'not-allowed',
   },
-};
+} satisfies Record<string, CSSProperties>;
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   theme?: 'PRIMARY' | 'SECONDARY';
@@ -46,7 +47,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button: React.FC<ButtonProps> = ({ theme = 'PRIMARY', isDisabled, children, style, ...rest }) => {
-  const buttonStyle = {
+  const buttonStyle: CSSProperties = {
     ...styles.buttonRoot,
     ...(theme === 'PRIMARY' ? styles.buttonPrimary : styles.buttonSecondary),
     ...(isDisabled ? styles.buttonDisabled : {}),
