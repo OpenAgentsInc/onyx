@@ -1,11 +1,11 @@
-import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { create } from "zustand"
+import { createJSONStorage, persist } from "zustand/middleware"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
-type Route = 
-  | 'Onboarding1' 
-  | 'Onboarding2' 
-  | 'Onboarding3' 
+type Route =
+  | 'Onboarding1'
+  | 'Onboarding2'
+  | 'Onboarding3'
   | 'Onboarding4'
   | 'Onboarding5'
   | 'Onboarding6'
@@ -13,9 +13,9 @@ type Route =
   | 'Onboarding8'
   | 'Onboarding9'
   | 'Onboarding10'
-  | 'Marketplace' 
-  | 'Analysis' 
-  | 'Community' 
+  | 'Marketplace'
+  | 'Analysis'
+  | 'Community'
   | 'Feedback'
   | 'WalletSetup'
 
@@ -34,11 +34,11 @@ export const useRouterStore = create<RouterState & RouterActions>()(
       navigate: (to) => set({ currentRoute: to }),
     }),
     {
-      name: 'onyx-router',
+      name: 'onyx-router-3',
       storage: createJSONStorage(() => AsyncStorage),
       // Only persist the currentRoute, not the navigate function
-      partialize: (state) => ({ 
-        currentRoute: state.currentRoute 
+      partialize: (state) => ({
+        currentRoute: state.currentRoute
       }),
     }
   )

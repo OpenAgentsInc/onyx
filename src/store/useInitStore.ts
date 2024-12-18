@@ -1,7 +1,7 @@
-import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import ServiceManager from '../services/ServiceManager'
+import { create } from "zustand"
+import { createJSONStorage, persist } from "zustand/middleware"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import ServiceManager from "../services/ServiceManager"
 
 interface InitState {
   isInitialized: boolean
@@ -24,12 +24,12 @@ export const useInitStore = create<InitState & InitActions>()(
   persist(
     (set, get) => ({
       ...initialState,
-      
+
       initialize: async () => {
         if (get().isInitializing || get().isInitialized) return
-        
+
         set({ isInitializing: true, errorMessage: null })
-        
+
         try {
           await ServiceManager.initializeServices()
           set({ isInitialized: true, errorMessage: null })
@@ -47,7 +47,7 @@ export const useInitStore = create<InitState & InitActions>()(
       }
     }),
     {
-      name: 'onyx-init-store',
+      name: 'onyx-init-store-2',
       storage: createJSONStorage(() => AsyncStorage),
       // Only persist isInitialized and errorMessage
       partialize: (state) => ({
