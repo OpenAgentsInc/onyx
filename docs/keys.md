@@ -2,7 +2,7 @@
 
 ## Overview
 
-The key management system in Onyx is designed to be modular and extensible, with a core KeyService that manages BIP39 mnemonics and derived keys. This service acts as the foundation for other services (like BreezService) that need cryptographic keys.
+The key management system in Onyx is designed to be modular and extensible, with a core KeyService that manages BIP39 mnemonics and derived keys. This service acts as the foundation for other services (like BreezService and NostrService) that need cryptographic keys.
 
 ## Architecture
 
@@ -41,7 +41,22 @@ graph TD
     B --> C[SecureStorage]
     A --> D[BreezService]
     D --> B
+    A --> E[NostrService]
+    E --> B
 ```
+
+## Key Derivation
+
+### Breez Keys
+- Uses BIP39 mnemonic directly
+- Handles its own derivation internally
+- Used for Lightning Network operations
+
+### Nostr Keys
+- Derives keys by hashing the mnemonic
+- Uses SHA256 for private key generation
+- Generates bech32-encoded npub/nsec
+- Used for Nostr protocol operations
 
 ## Initialization Flow
 
@@ -49,8 +64,9 @@ graph TD
 2. KeyService is initialized first
    - Generates or loads mnemonic
    - Sets up secure storage
-3. Other services (like BreezService) get mnemonic from KeyService
-4. Each service handles its own initialization with the provided keys
+3. Other services initialize in parallel:
+   - BreezService gets mnemonic from KeyService
+   - NostrService gets mnemonic and derives Nostr keys
 
 ## Security Considerations
 
@@ -72,16 +88,16 @@ graph TD
 ## Usage Example
 
 ```typescript
-// Initialize key service
-await keyService.initialize()
+// Initialize services
+await serviceManager.initializeServices()
 
-// Initialize Breez with mnemonic from key service
-const mnemonic = await keyService.getMnemonic()
-await breezService.initialize({
-  mnemonic,
-  network: 'TESTNET',
-  apiKey: process.env.BREEZ_API_KEY
-})
+// Access Nostr keys
+const nostrKeys = await nostrService.getKeys()
+console.log('Nostr public key:', nostrKeys.npub)
+
+// Access Breez
+const balance = await breezService.getBalance()
+console.log('Lightning balance:', balance.balanceSat)
 ```
 
 ## Future Enhancements
@@ -100,3 +116,8 @@ await breezService.initialize({
    - Support for different derivation paths
    - Multiple wallet support
    - Custom derivation schemes
+
+4. Service Integration
+   - Support for additional protocols
+   - Unified key management interface
+   - Cross-protocol operations
