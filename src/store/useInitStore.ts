@@ -21,6 +21,8 @@ const initialState: InitState = {
   errorMessage: null,
 }
 
+let isRehydrating = false
+
 export const useInitStore = create<InitState & InitActions>()(
   persist(
     (set, get) => ({
@@ -75,11 +77,15 @@ export const useInitStore = create<InitState & InitActions>()(
           return
         }
 
-        console.log('InitStore: Rehydrated from storage, state:', state)
-        
-        // Always start in uninitialized state after rehydration
-        useInitStore.setState({ isInitialized: false, isInitializing: true })
+        // Prevent multiple rehydrations from reinitializing
+        if (isRehydrating) {
+          console.log('InitStore: Already rehydrating, skipping...')
+          return
+        }
 
+        console.log('InitStore: Rehydrated from storage, state:', state)
+        isRehydrating = true
+        
         try {
           console.log('InitStore: Reinitializing services after rehydration...')
           await serviceManager.initializeServices()
@@ -92,6 +98,8 @@ export const useInitStore = create<InitState & InitActions>()(
             isInitializing: false,
             errorMessage: error instanceof Error ? error.message : 'Error reinitializing services'
           })
+        } finally {
+          isRehydrating = false
         }
       }
     }
