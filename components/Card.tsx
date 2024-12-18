@@ -1,6 +1,6 @@
 'use dom';
 
-import * as React from 'react';
+import * as React from "react"
 
 const styles = {
   card: {
@@ -42,6 +42,7 @@ const styles = {
     fontSize: '14px',
     fontWeight: 400,
     margin: 0,
+    marginTop: -7,
     fontFamily: 'jetBrainsMonoBold, monospace',
     color: '#fff',
     minWidth: 'fit-content',
