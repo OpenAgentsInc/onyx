@@ -1,7 +1,7 @@
-import { create } from "zustand"
-import { createJSONStorage, persist } from "zustand/middleware"
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import ServiceManager from "../services/ServiceManager"
+import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { serviceManager } from '../services/ServiceManager'
 
 interface InitState {
   isInitialized: boolean
@@ -24,14 +24,14 @@ export const useInitStore = create<InitState & InitActions>()(
   persist(
     (set, get) => ({
       ...initialState,
-
+      
       initialize: async () => {
         if (get().isInitializing || get().isInitialized) return
-
+        
         set({ isInitializing: true, errorMessage: null })
-
+        
         try {
-          await ServiceManager.initializeServices()
+          await serviceManager.initializeServices()
           set({ isInitialized: true, errorMessage: null })
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Unknown error during initialization'
@@ -43,13 +43,13 @@ export const useInitStore = create<InitState & InitActions>()(
       },
 
       reset: () => {
+        serviceManager.reset().catch(console.error)
         set(initialState)
       }
     }),
     {
-      name: 'onyx-init-store-2',
+      name: 'onyx-init-store',
       storage: createJSONStorage(() => AsyncStorage),
-      // Only persist isInitialized and errorMessage
       partialize: (state) => ({
         isInitialized: state.isInitialized,
         errorMessage: state.errorMessage
