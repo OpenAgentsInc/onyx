@@ -1,15 +1,15 @@
 'use dom'
 
 import * as React from "react"
-import { Text, TextStyle, View } from "react-native"
 import Button from "@/components/Button"
 import Card from "@/components/Card"
 import { useRouterStore } from "@/store/useRouterStore"
+import { CSSProperties } from "react"
 
 export default function Onboarding1() {
   const navigate = useRouterStore(state => state.navigate);
 
-  const styles = {
+  const styles: Record<string, CSSProperties> = {
     container: {
       backgroundColor: '#000',
       color: '#fff',
@@ -20,41 +20,55 @@ export default function Onboarding1() {
       margin: '0 auto',
     },
     text: {
-      fontSize: 14,
-      lineHeight: 1.5,
+      fontSize: '14px',
+      lineHeight: '24px',
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
-      marginBottom: 12,
-    } as TextStyle,
+      marginBottom: '24px',
+      display: 'block',
+    },
     description: {
-      fontSize: 16,
-      lineHeight: 1.6,
+      fontSize: '16px',
+      lineHeight: '24px',
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
-      marginBottom: 20,
-    } as TextStyle,
+      marginBottom: '20px',
+      display: 'block',
+    },
+    cardContent: {
+      padding: '24px',
+      backgroundColor: '#111',
+      borderRadius: '12px',
+      marginBottom: '24px',
+    },
     buttonContainer: {
-      marginTop: '20px',
+      marginTop: '32px',
+      display: 'flex',
+      flexDirection: 'row' as const,
+      justifyContent: 'flex-end',
+      gap: '16px',
     }
   }
 
   return (
     <div style={styles.container}>
       <Card title="Welcome to Onyx">
-        <Text style={styles.description}>
-          Onyx is your voice-driven AI agent that can find and process information from a decentralized network.
-        </Text>
-        <Text style={styles.text}>
-          No coding needed - just speak your commands and Onyx will handle the rest.
-        </Text>
-        <View style={styles.buttonContainer}>
-          <Button
-            theme="PRIMARY"
-            onClick={() => navigate('Onboarding2')}
-          >
-            Next
-          </Button>
-        </View>
+        <div style={styles.cardContent}>
+          <p style={styles.description}>
+            Onyx is your voice-driven AI agent that can find and process information from a decentralized network.
+          </p>
+          <p style={styles.text}>
+            No coding needed - just speak your commands and Onyx will handle the rest.
+          </p>
+          <div style={styles.buttonContainer}>
+            <Button
+              theme="PRIMARY"
+              onClick={() => navigate('Onboarding2')}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       </Card>
     </div>
   );
