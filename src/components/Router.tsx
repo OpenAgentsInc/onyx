@@ -16,31 +16,48 @@ export default function Router() {
   // const isOnboarded = useOnboardingStore(state => state.isOnboarded)
   const isOnboarded = false
 
-  // If not onboarded, show onboarding flow
-  if (!isOnboarded) {
+  const renderContent = () => {
+    // If not onboarded, show onboarding flow
+    if (!isOnboarded) {
+      switch (currentRoute) {
+        case 'Onboarding1':
+          return <Onboarding1 />
+        case 'Onboarding2':
+          return <Onboarding2 />
+        case 'Onboarding3':
+          return <Onboarding3 />
+        default:
+          return <Onboarding1 />
+      }
+    }
+
+    // If onboarded, show main screens
     switch (currentRoute) {
-      case 'Onboarding1':
-        return <Onboarding1 />
-      case 'Onboarding2':
-        return <Onboarding2 />
-      case 'Onboarding3':
-        return <Onboarding3 />
+      case 'Marketplace':
+        return <MarketplaceScreen />
+      case 'Analysis':
+        return <AnalysisScreen />
+      case 'Community':
+        return <CommunityScreen />
+      case 'Feedback':
+        return <FeedbackScreen />
       default:
-        return <Onboarding1 />
+        return <MarketplaceScreen />
     }
   }
 
-  // If onboarded, show main screens
-  switch (currentRoute) {
-    case 'Marketplace':
-      return <MarketplaceScreen />
-    case 'Analysis':
-      return <AnalysisScreen />
-    case 'Community':
-      return <CommunityScreen />
-    case 'Feedback':
-      return <FeedbackScreen />
-    default:
-      return <MarketplaceScreen />
-  }
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'black',
+      width: '100vw',
+      height: '100vh'
+    }}>
+      {renderContent()}
+    </div>
+  )
 }
