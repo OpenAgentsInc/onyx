@@ -2,69 +2,84 @@
 
 ```
 src/
-├── app/
-│   ├── _layout.tsx               # Root layout with navigation logic and font loading
-│   ├── (tabs)/                   # Tab navigation group
-│   │   ├── _layout.tsx          # Tab navigation configuration
-│   │   ├── index.tsx            # Tab index (redirects to marketplace)
-│   │   ├── marketplace.tsx      # Marketplace tab screen
-│   │   ├── analysis.tsx         # Analysis tab screen
-│   │   ├── community.tsx        # Community tab screen
-│   │   └── feedback.tsx         # Feedback tab screen
-│   ├── onboarding/              # Onboarding flow group
-│   │   ├── _layout.tsx          # Onboarding navigation configuration
-│   │   ├── index.tsx            # Onboarding index (redirects to first screen)
-│   │   ├── Onboarding1.tsx      # First onboarding screen
-│   │   ├── Onboarding2.tsx      # Second onboarding screen
-│   │   └── Onboarding3.tsx      # Third onboarding screen
-│   └── old/                     # Legacy files
+├── app.tsx                    # Root app component with navigation container and font loading
+├── navigation/               # Navigation configuration
+│   ├── RootNavigator.tsx    # Root navigation logic and onboarding state management
+│   ├── TabNavigator.tsx     # Tab bar configuration with icons
+│   └── OnboardingNavigator.tsx # Onboarding flow navigation
+├── screens/                 # Main tab screens
+│   ├── MarketplaceScreen.tsx # Marketplace tab with data requests
+│   ├── AnalysisScreen.tsx   # Analysis tab with data visualization
+│   ├── CommunityScreen.tsx  # Community tab with reports
+│   └── FeedbackScreen.tsx   # Feedback submission screen
+├── onboarding/             # Onboarding flow screens
+│   ├── Onboarding1.tsx     # First onboarding screen
+│   ├── Onboarding2.tsx     # Second onboarding screen
+│   └── Onboarding3.tsx     # Third onboarding screen
 ├── store/
-│   └── useOnboardingStore.ts    # Zustand store for onboarding state
+│   └── useOnboardingStore.ts # Zustand store for onboarding state
+├── components/             # Shared UI components
+│   ├── Badge.tsx          # Badge component for status indicators
+│   ├── Button.tsx         # Common button component
+│   ├── Card.tsx          # Card container component
+│   ├── Checkbox.tsx      # Checkbox input component
+│   ├── DataTable.tsx     # Table component for data display
+│   ├── RadioButtonGroup.tsx # Radio button group component
+│   └── TextArea.tsx      # Text input component
 └── theme/
-    └── typography.ts            # Font configuration
+    └── typography.ts      # Font configuration
 
 Key Files:
-- src/app/_layout.tsx: Main navigation logic, font loading, and onboarding state management
-- src/app/(tabs)/_layout.tsx: Tab bar configuration and tab screen definitions
-- src/app/onboarding/_layout.tsx: Onboarding flow navigation configuration
+- src/app.tsx: Main app component with navigation setup and font loading
+- src/navigation/RootNavigator.tsx: Main navigation logic and onboarding state management
+- src/navigation/TabNavigator.tsx: Tab bar configuration with screens and icons
 - src/store/useOnboardingStore.ts: Persistent storage for onboarding state
 
 Navigation Flow:
-1. Root layout (_layout.tsx) checks onboarding state
+1. Root navigator checks onboarding state
 2. If not onboarded:
-   - Redirects to /onboarding
-   - Index redirects to Onboarding1
+   - Shows OnboardingNavigator
    - User progresses through Onboarding1-3
+   - After completion, state is updated
 3. If onboarded:
-   - Redirects to /(tabs)
-   - Index redirects to marketplace tab
+   - Shows TabNavigator
+   - Default tab is Marketplace
 
 File Details:
 
-## Root Layout (_layout.tsx)
+## Root App (app.tsx)
 - Handles font loading
-- Manages navigation based on onboarding state
-- Uses Slot for rendering child routes
+- Provides NavigationContainer
+- Manages splash screen
 - Provides ThemeProvider context
 
-## Tab Navigation ((tabs)/_layout.tsx)
-- Configures bottom tab bar
-- Defines tab screens and icons
-- Handles tab-specific navigation
-- Marketplace is the default tab
+## Navigation
+- RootNavigator: Manages onboarding state and main navigation flow
+- TabNavigator: Configures bottom tab bar with icons
+- OnboardingNavigator: Manages onboarding screen flow
 
-## Onboarding Flow (onboarding/*)
-- _layout.tsx: Stack navigator for onboarding screens
-- index.tsx: Redirects to first onboarding screen
-- Onboarding1-3.tsx: Sequential onboarding screens
-- Uses static Link navigation between screens
+## Screens
+- MarketplaceScreen: Data request marketplace with active requests
+- AnalysisScreen: Data analysis tools and visualization
+- CommunityScreen: Community reports and verification
+- FeedbackScreen: User feedback submission
+
+## Onboarding Flow
+- Sequential screens introducing app features
+- Prevents back navigation
+- Updates persistent state on completion
 
 ## State Management
-- useOnboardingStore.ts: Zustand store with persistence
+- useOnboardingStore: Zustand store with AsyncStorage persistence
 - Tracks onboarding completion state
-- Used by root layout for navigation decisions
+- Used by root navigator for routing decisions
 
 ## Theme Configuration
 - typography.ts: Font family definitions
-- Used by root layout for font loading
+- Used by root app for font loading
+
+## Components
+- Shared UI components used across screens
+- Consistent styling and behavior
+- Dark theme optimized
 ```
