@@ -1,5 +1,5 @@
 import { useFonts } from "expo-font"
-import { Redirect, Stack } from "expo-router"
+import { Slot, useRouter, useSegments } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
 import { StatusBar } from "expo-status-bar"
 import { useEffect } from "react"
@@ -12,8 +12,11 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded] = useFonts(customFontsToLoad);
+  const segments = useSegments();
+  const router = useRouter();
   const isOnboarded = useOnboardingStore(state => state.isOnboarded)
   console.log("Root layout - isOnboarded:", isOnboarded)
+  console.log("Current segments:", segments)
 
   useEffect(() => {
     if (loaded) {
@@ -21,27 +24,21 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  useEffect(() => {
+    if (!isOnboarded && segments[0] !== 'onboarding') {
+      router.replace('/onboarding');
+    } else if (isOnboarded && segments[0] !== '(tabs)') {
+      router.replace('/(tabs)');
+    }
+  }, [isOnboarded, segments]);
+
   if (!loaded) {
     return null;
   }
 
-  // Handle the redirect
-  if (!isOnboarded) {
-    return <Redirect href="/onboarding" />;
-  }
-
   return (
     <ThemeProvider value={DarkTheme}>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: {
-            backgroundColor: '#000',
-          },
-        }}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-      </Stack>
+      <Slot />
       <StatusBar style="light" />
     </ThemeProvider>
   );
