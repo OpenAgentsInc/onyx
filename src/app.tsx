@@ -1,4 +1,5 @@
 import "./utils/crypto-polyfill"
+import "text-encoding-polyfill"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
 import { AppRegistry, View, ViewStyle } from "react-native"
