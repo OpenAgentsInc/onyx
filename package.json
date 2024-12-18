@@ -2,6 +2,7 @@
   "name": "onyx",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -16,7 +17,8 @@
     "submit:ios": "eas submit -p ios",
     "update:prod": "eas update --channel production --environment production --message",
     "t": "tsc --noEmit",
-    "doctor": "npx expo-doctor"
+    "doctor": "npx expo-doctor",
+    "copyrepo": "cd ~/code && node md.js ./onyx && cat combined.md | pbcopy"
   },
   "jest": {
     "preset": "jest-expo"
@@ -27,6 +29,7 @@
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
     "expo": "~52.0.19",
+    "expo-app-loading": "^2.1.1",
     "expo-av": "~15.0.1",
     "expo-blur": "~14.0.1",
     "expo-constants": "~17.0.3",
@@ -61,5 +64,12 @@
     "react-test-renderer": "18.3.1",
     "typescript": "^5.3.3"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "listUnknownPackages": false
+      }
+    }
+  }
 }

@@ -1,16 +1,39 @@
-import { Stack } from "expo-router"
-import { useAutoUpdate } from "@/lib/useAutoUpdate"
-import { useFonts } from "expo-font"
-import { customFontsToLoad } from "@/theme/typography"
-import { useEffect, useState } from "react"
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { customFontsToLoad } from "@/theme/typography";
+
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [areFontsLoaded, fontLoadError] = useFonts(customFontsToLoad)
-  useAutoUpdate()
+  const [loaded] = useFonts(customFontsToLoad);
 
-  if (!areFontsLoaded && !fontLoadError) {
-    return null
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />
+  return (
+    <ThemeProvider value={DarkTheme}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: {
+            backgroundColor: '#000',
+          },
+        }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+      <StatusBar style="light" />
+    </ThemeProvider>
+  );
 }
