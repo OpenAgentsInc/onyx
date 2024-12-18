@@ -1,10 +1,13 @@
-'use dom';
+import * as React from 'react';
+import { AppRegistry } from 'react-native';
+import Router from '@/components/Router';
 
-import * as React from "react"
-import Router from "@/components/Router"
-
-export default function App() {
+function App() {
   return (
     <Router />
-  )
+  );
 }
+
+AppRegistry.registerComponent('onyx', () => App);
+
+export default App;
