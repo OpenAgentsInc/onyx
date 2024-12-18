@@ -4,128 +4,264 @@ We're using components from the [Sacred Component Library](https://github.com/in
 
 ## Current Implementation
 
-We've adapted the Sacred Card component for use in our app with these modifications:
-- Converted SCSS modules to inline styles
-- Adapted for dark theme (white text on black background)
-- Integrated JetBrains Mono font from our typography system
-- Removed DOM-specific code for cross-platform compatibility
+We have adapted these Sacred components:
 
-Example usage:
+### Button
 ```typescript
+// components/Button.tsx
 'use dom';
 
-const Card = ({ title, children }) => {
-  return (
-    <article style={styles.card}>
-      <header style={styles.action}>
-        <div style={styles.left} aria-hidden="true"></div>
-        <h2 style={styles.title}>{title}</h2>
-        <div style={styles.right} aria-hidden="true"></div>
-      </header>
-      <section style={styles.children}>{children}</section>
-    </article>
-  );
+interface ButtonProps {
+  theme?: 'PRIMARY' | 'SECONDARY';
+  isDisabled?: boolean;
+  children?: React.ReactNode;
+}
+
+const Button: React.FC<ButtonProps> = ({ theme = 'PRIMARY', isDisabled, children }) => {
+  // ...
 };
 ```
 
-## Guidelines for Adding New Components
+### Card
+```typescript
+// components/Card.tsx
+'use dom';
 
-When pulling in additional components from Sacred:
+interface CardProps {
+  title?: string;
+  mode?: 'left' | 'right';
+  children?: React.ReactNode;
+}
+
+const Card: React.FC<CardProps> = ({ title, mode, children }) => {
+  // ...
+};
+```
+
+## Adding New Components
+
+When adding a new component from Sacred, follow these steps:
 
 1. **Component Selection**
-   - Browse the Sacred repo's `components/` directory
-   - Look for components that match our terminal-inspired aesthetic
-   - Prefer simpler components that don't rely heavily on DOM APIs
+   ```bash
+   # Browse Sacred's components directory
+   components/
+   ├── Button.tsx        # Already implemented
+   ├── Card.tsx         # Already implemented
+   ├── ListItem.tsx     # Potential next component
+   ├── Badge.tsx        # Potential next component
+   └── ...
+   ```
 
-2. **Adaptation Process**
-   - Copy the component's core structure
-   - Convert SCSS modules to inline styles
-   - Remove any DOM-specific code (document, window, etc.)
-   - Use our typography system (JetBrains Mono fonts)
-   - Maintain dark theme colors (black backgrounds, white text/borders)
+2. **File Creation**
+   ```bash
+   # Create new component file in our components directory
+   components/
+   ├── Button.tsx
+   ├── Card.tsx
+   └── NewComponent.tsx  # New file
+   ```
 
-3. **Cross-Platform Considerations**
-   - Avoid using DOM-specific features outside 'use dom' files
-   - Test component in both web and native environments
-   - Keep styles simple and compatible with React Native's style system
-   - Use flexbox for layouts when possible
+3. **Basic Structure**
+   ```typescript
+   'use dom';
+   
+   import * as React from 'react';
+   
+   const styles = {
+     // Convert SCSS to inline styles
+     root: {
+       // Base styles
+     },
+     variants: {
+       // Different states/variants
+     }
+   };
+   
+   interface Props {
+     // TypeScript interface
+   }
+   
+   const Component: React.FC<Props> = ({ ...props }) => {
+     return (
+       // JSX
+     );
+   };
+   
+   export default Component;
+   ```
 
-4. **Style Conversion Example**
-   From SCSS:
+4. **Style Conversion**
+   - Convert SCSS to inline styles
+   - Use our monospace font
+   - Maintain dark theme
+   
+   From Sacred SCSS:
    ```scss
-   .card {
-     position: relative;
-     display: block;
-     padding: 0 1ch calc(8px * var(--theme-line-height-base)) 1ch;
+   .root {
+     font-family: var(--font-family-mono);
+     padding: calc(var(--base) * 2);
+     border: 1px solid var(--border);
    }
    ```
-   To inline styles:
+   
+   To our inline styles:
    ```typescript
    const styles = {
-     card: {
-       position: 'relative',
-       display: 'block',
-       padding: '0 1ch calc(8px * 1.5) 1ch',
-       backgroundColor: '#000',
-       color: '#fff',
+     root: {
        fontFamily: 'jetBrainsMonoRegular, monospace',
+       padding: 'calc(8px * 2)',
+       boxShadow: 'inset 0 0 0 1px #fff',
      }
    };
    ```
 
 5. **Font Usage**
-   - Use 'jetBrainsMonoRegular' for normal text
-   - Use 'jetBrainsMonoBold' for headings and emphasis
-   - Don't rely on font-weight variations beyond Regular and Bold
+   ```typescript
+   // Use these font families consistently
+   const fonts = {
+     normal: 'jetBrainsMonoRegular, monospace',
+     bold: 'jetBrainsMonoBold, monospace',
+   };
+   ```
 
-## Styling Patterns
+6. **Color Scheme**
+   ```typescript
+   // Use these colors consistently
+   const colors = {
+     background: '#000',
+     text: '#fff',
+     border: '#fff',
+     disabled: '#333',
+     disabledText: '#666',
+   };
+   ```
 
-Maintain these consistent patterns when adapting components:
+## Component Guidelines
 
-```typescript
-const styles = {
-  // Container elements
-  container: {
-    backgroundColor: '#000',
-    minHeight: '100vh',
-    maxWidth: '800px',
-    margin: '0 auto',
-    padding: '20px',
-  },
-  
-  // Text elements
-  text: {
-    fontFamily: 'jetBrainsMonoRegular, monospace',
-    color: '#fff',
-    fontSize: '14px',
-    margin: '8px 0',
-  },
-  
-  // Borders and dividers
-  border: {
-    boxShadow: 'inset 1px 0 0 0 #fff',  // Single white line
-  }
-};
-```
+1. **File Structure**
+   ```typescript
+   'use dom';  // Always include this
+   
+   import * as React from 'react';
+   
+   // Styles object
+   const styles = {};
+   
+   // TypeScript interface
+   interface Props {}
+   
+   // Component
+   const Component = () => {};
+   
+   export default Component;
+   ```
 
-## Future Considerations
+2. **Style Patterns**
+   ```typescript
+   const styles = {
+     // Base styles
+     root: {
+       fontFamily: 'jetBrainsMonoRegular, monospace',
+       color: '#fff',
+       backgroundColor: '#000',
+     },
+     
+     // Interactive states
+     interactive: {
+       cursor: 'pointer',
+       transition: '200ms ease all',
+     },
+     
+     // Borders
+     border: {
+       boxShadow: 'inset 0 0 0 1px #fff',
+     },
+   };
+   ```
 
-Components we might want to adapt next:
-- `Button.tsx` for consistent action buttons
-- `ListItem.tsx` for structured data display
-- `Badge.tsx` for status indicators
-- `ActionBar.tsx` for command interfaces
-- `Message.tsx` for system notifications
+3. **Props Pattern**
+   ```typescript
+   interface Props {
+     // Required props first
+     title: string,
+     // Optional props with ?
+     theme?: 'PRIMARY' | 'SECONDARY',
+     // React standards last
+     children?: React.ReactNode,
+     style?: React.CSSProperties,
+   }
+   ```
 
-When adding new components:
-1. Start with the simplest version that works
-2. Add features incrementally as needed
-3. Document any DOM-specific features or limitations
-4. Keep the terminal-inspired aesthetic consistent
-5. Test thoroughly in both web and native environments
+## Testing New Components
+
+1. Create a test implementation in app/index.tsx
+2. Test all variants and states
+3. Verify dark theme consistency
+4. Check font rendering
+5. Test responsive behavior
+
+## Next Components to Add
+
+Priority order for future components:
+1. ListItem - For structured data display
+2. Badge - For status indicators
+3. ActionBar - For command interfaces
+4. Message - For system notifications
+5. Input - For form fields
+
+## Common Adaptations
+
+1. **Font Replacement**
+   ```typescript
+   // Sacred
+   fontFamily: 'var(--font-family-mono)'
+   // Our version
+   fontFamily: 'jetBrainsMonoRegular, monospace'
+   ```
+
+2. **Color Scheme**
+   ```typescript
+   // Sacred
+   color: 'var(--theme-text)'
+   backgroundColor: 'var(--theme-background)'
+   // Our version
+   color: '#fff'
+   backgroundColor: '#000'
+   ```
+
+3. **Borders**
+   ```typescript
+   // Sacred
+   border: '1px solid var(--theme-border)'
+   // Our version
+   boxShadow: 'inset 0 0 0 1px #fff'
+   ```
 
 ## Resources
 
 - [Sacred Component Library](https://github.com/internet-development/www-sacred)
 - [Expo DOM Components Guide](https://docs.expo.dev/guides/dom-components/)
 - [React Native Style Guide](https://reactnative.dev/docs/style)
+
+## Troubleshooting
+
+Common issues and solutions:
+
+1. **Text Wrapping in Buttons**
+   ```typescript
+   // Add to prevent text wrapping
+   whiteSpace: 'nowrap'
+   ```
+
+2. **Border Alignment**
+   ```typescript
+   // Use negative margin to adjust alignment
+   marginTop: '-7px'  // Example for card titles
+   ```
+
+3. **Font Loading**
+   ```typescript
+   // Ensure font is loaded before rendering
+   fontFamily: 'jetBrainsMonoRegular, monospace'
+   ```
