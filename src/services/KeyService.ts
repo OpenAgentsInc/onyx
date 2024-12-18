@@ -1,8 +1,6 @@
 import { generateMnemonic, validateMnemonic } from '@scure/bip39'
 import { wordlist } from '@scure/bip39/wordlists/english'
-import { storage } from './storage'
-
-const MNEMONIC_STORAGE_KEY = '@onyx/mnemonic'
+import { secureStorage } from './secure-storage'
 
 interface KeyServiceConfig {
   existingMnemonic?: string
@@ -31,8 +29,8 @@ class KeyServiceImpl {
     this.initializationPromise = (async () => {
       try {
         console.log('KeyService: Checking for stored mnemonic...')
-        // First try to load existing mnemonic from storage
-        let mnemonic = await storage.getItem(MNEMONIC_STORAGE_KEY)
+        // First try to load existing mnemonic from secure storage
+        let mnemonic = await secureStorage.getMnemonic()
 
         // If no stored mnemonic, check for config
         if (!mnemonic && config?.existingMnemonic) {
@@ -56,7 +54,7 @@ class KeyServiceImpl {
 
         // Store the mnemonic
         console.log('KeyService: Storing mnemonic...')
-        await storage.setItem(MNEMONIC_STORAGE_KEY, mnemonic)
+        await secureStorage.setMnemonic(mnemonic)
         
         this.mnemonic = mnemonic
         this.isInitializedFlag = true
@@ -94,7 +92,7 @@ class KeyServiceImpl {
 
   async reset(): Promise<void> {
     console.log('KeyService: Resetting...')
-    await storage.removeItem(MNEMONIC_STORAGE_KEY)
+    await secureStorage.removeMnemonic()
     this.mnemonic = null
     this.isInitializedFlag = false
     console.log('KeyService: Reset complete')
