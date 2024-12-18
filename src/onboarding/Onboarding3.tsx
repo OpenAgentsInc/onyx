@@ -1,17 +1,18 @@
-import { useRouter } from "expo-router"
 import React from "react"
-import { Button, Text, View } from "react-native"
-import { useOnboardingStore } from "../../store/useOnboardingStore"
+import { Pressable, Text, View } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import { useOnboardingStore } from "@/store/useOnboardingStore"
 
 export default function Onboarding3Screen() {
-  const router = useRouter()
+  const navigation = useNavigation()
   const setOnboarded = useOnboardingStore(state => state.setOnboarded)
 
   const finishOnboarding = () => {
-    console.log('Finishing onboarding...')
     setOnboarded()
-    // After setting onboarded, redirect to main app content
-    router.replace('/(tabs)/marketplace')
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
+    })
   }
 
   return (
@@ -19,10 +20,11 @@ export default function Onboarding3Screen() {
       <Text style={{ color: '#fff', fontFamily: 'jetBrainsMonoRegular', fontSize: 16, marginBottom: 20 }}>
         You're all set! Let's get started.
       </Text>
-      <Button
-        title="Done"
-        onPress={finishOnboarding}
-      />
+      <Pressable onPress={finishOnboarding}>
+        <Text style={{ color: '#fff', fontFamily: 'jetBrainsMonoRegular', fontSize: 16 }}>
+          Done
+        </Text>
+      </Pressable>
     </View>
   )
 }
