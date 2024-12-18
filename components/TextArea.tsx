@@ -58,6 +58,7 @@ const styles = {
     lineHeight: 1.5,
     fontSize: '16px',
     fontFamily: 'jetBrainsMonoRegular, monospace',
+    WebkitTextFillColor: 'transparent',
   },
 } satisfies Record<string, CSSProperties>;
 
@@ -234,6 +235,11 @@ const TextArea: React.FC<TextAreaProps> = ({
         onChange={onHandleChange}
         onSelect={onHandleSelect}
         onClick={onHandleClick}
+        spellCheck={false}
+        autoCorrect="off"
+        autoCapitalize="off"
+        autoComplete="off"
+        data-gramm="false"
         {...rest}
       />
     </div>
