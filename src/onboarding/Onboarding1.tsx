@@ -1,8 +1,8 @@
 'use dom';
 
 import * as React from "react"
-import Card from "@/components/Card"
 import Button from "@/components/Button"
+import Card from "@/components/Card"
 import { useRouterStore } from "@/store/useRouterStore"
 
 export default function Onboarding1() {
@@ -34,7 +34,7 @@ export default function Onboarding1() {
           Welcome to Onyx! Let's get started with a brief intro.
         </p>
         <div style={styles.buttonContainer}>
-          <Button 
+          <Button
             theme="PRIMARY"
             onClick={() => navigate('Onboarding2')}
           >
