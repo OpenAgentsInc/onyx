@@ -7,6 +7,10 @@ import Onboarding3 from "@/onboarding/Onboarding3"
 import Onboarding4 from "@/onboarding/Onboarding4"
 import Onboarding5 from "@/onboarding/Onboarding5"
 import Onboarding6 from "@/onboarding/Onboarding6"
+import Onboarding7 from "@/onboarding/Onboarding7"
+import Onboarding8 from "@/onboarding/Onboarding8"
+import Onboarding9 from "@/onboarding/Onboarding9"
+import Onboarding10 from "@/onboarding/Onboarding10"
 import AnalysisScreen from "@/screens/AnalysisScreen"
 import CommunityScreen from "@/screens/CommunityScreen"
 import FeedbackScreen from "@/screens/FeedbackScreen"
@@ -35,6 +39,14 @@ export default function Router() {
           return <Onboarding5 />
         case 'Onboarding6':
           return <Onboarding6 />
+        case 'Onboarding7':
+          return <Onboarding7 />
+        case 'Onboarding8':
+          return <Onboarding8 />
+        case 'Onboarding9':
+          return <Onboarding9 />
+        case 'Onboarding10':
+          return <Onboarding10 />
         default:
           return <Onboarding1 />
       }
