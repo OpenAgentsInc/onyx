@@ -13,8 +13,8 @@ import { useRouterStore } from "@/store/useRouterStore"
 
 export default function Router() {
   const currentRoute = useRouterStore(state => state.currentRoute)
-  // const isOnboarded = useOnboardingStore(state => state.isOnboarded)
-  const isOnboarded = false
+  const isOnboarded = useOnboardingStore(state => state.isOnboarded)
+  // const isOnboarded = false
 
   const renderContent = () => {
     // If not onboarded, show onboarding flow
