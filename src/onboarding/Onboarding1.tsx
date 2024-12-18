@@ -24,6 +24,14 @@ export default function Onboarding1() {
       lineHeight: 1.5,
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
+      marginBottom: 12,
+    } as TextStyle,
+    description: {
+      fontSize: 16,
+      lineHeight: 1.6,
+      color: '#fff',
+      fontFamily: 'jetBrainsMonoRegular, monospace',
+      marginBottom: 20,
     } as TextStyle,
     buttonContainer: {
       marginTop: '20px',
@@ -33,8 +41,11 @@ export default function Onboarding1() {
   return (
     <div style={styles.container}>
       <Card title="Welcome to Onyx">
+        <Text style={styles.description}>
+          Onyx is your voice-driven AI agent that can find and process information from a decentralized network.
+        </Text>
         <Text style={styles.text}>
-          Welcome to Onyx! Let's get started with a brief intro.
+          No coding needed - just speak your commands and Onyx will handle the rest.
         </Text>
         <View style={styles.buttonContainer}>
           <Button
