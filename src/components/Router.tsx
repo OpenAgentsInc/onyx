@@ -4,6 +4,9 @@ import * as React from "react"
 import Onboarding1 from "@/onboarding/Onboarding1"
 import Onboarding2 from "@/onboarding/Onboarding2"
 import Onboarding3 from "@/onboarding/Onboarding3"
+import Onboarding4 from "@/onboarding/Onboarding4"
+import Onboarding5 from "@/onboarding/Onboarding5"
+import Onboarding6 from "@/onboarding/Onboarding6"
 import AnalysisScreen from "@/screens/AnalysisScreen"
 import CommunityScreen from "@/screens/CommunityScreen"
 import FeedbackScreen from "@/screens/FeedbackScreen"
@@ -26,6 +29,12 @@ export default function Router() {
           return <Onboarding2 />
         case 'Onboarding3':
           return <Onboarding3 />
+        case 'Onboarding4':
+          return <Onboarding4 />
+        case 'Onboarding5':
+          return <Onboarding5 />
+        case 'Onboarding6':
+          return <Onboarding6 />
         default:
           return <Onboarding1 />
       }
