@@ -1,32 +1,41 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import ServiceManager from '../services/ServiceManager'
 
 interface InitState {
   isInitialized: boolean
   isInitializing: boolean
-  error: Error | null
+  errorMessage: string | null // Store error message instead of Error object
+}
+
+interface InitActions {
   initialize: () => Promise<void>
   reset: () => void
 }
 
-export const useInitStore = create<InitState>()(
+const initialState: InitState = {
+  isInitialized: false,
+  isInitializing: false,
+  errorMessage: null,
+}
+
+export const useInitStore = create<InitState & InitActions>()(
   persist(
     (set, get) => ({
-      isInitialized: false,
-      isInitializing: false,
-      error: null,
+      ...initialState,
       
       initialize: async () => {
         if (get().isInitializing || get().isInitialized) return
         
-        set({ isInitializing: true })
+        set({ isInitializing: true, errorMessage: null })
         
         try {
           await ServiceManager.initializeServices()
-          set({ isInitialized: true, error: null })
+          set({ isInitialized: true, errorMessage: null })
         } catch (error) {
-          set({ error: error as Error })
+          const message = error instanceof Error ? error.message : 'Unknown error during initialization'
+          set({ errorMessage: message })
           throw error
         } finally {
           set({ isInitializing: false })
@@ -34,11 +43,17 @@ export const useInitStore = create<InitState>()(
       },
 
       reset: () => {
-        set({ isInitialized: false, isInitializing: false, error: null })
+        set(initialState)
       }
     }),
     {
       name: 'onyx-init-store',
+      storage: createJSONStorage(() => AsyncStorage),
+      // Only persist these fields
+      partialize: (state) => ({
+        isInitialized: state.isInitialized,
+        errorMessage: state.errorMessage
+      })
     }
   )
 )
