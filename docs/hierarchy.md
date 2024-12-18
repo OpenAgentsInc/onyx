@@ -2,77 +2,44 @@
 
 ```
 src/
-├── app.tsx                    # Root app component with navigation container and font loading
-├── navigation/               # Navigation configuration
-│   ├── RootNavigator.tsx    # Root navigation logic and onboarding state management
-│   ├── TabNavigator.tsx     # Tab bar configuration with icons
-│   └── OnboardingNavigator.tsx # Onboarding flow navigation
-├── screens/                 # Main tab screens (using DOM components)
-│   ├── MarketplaceScreen.tsx # Marketplace tab with data requests
-│   ├── AnalysisScreen.tsx   # Analysis tab with data visualization
-│   ├── CommunityScreen.tsx  # Community tab with reports
-│   └── FeedbackScreen.tsx   # Feedback submission screen
-├── onboarding/             # Onboarding flow screens (using DOM components)
-│   ├── Onboarding1.tsx     # First onboarding screen
-│   ├── Onboarding2.tsx     # Second onboarding screen
-│   └── Onboarding3.tsx     # Third onboarding screen
-├── store/
-│   ├── useOnboardingStore.ts # Zustand store for onboarding state
-│   └── useRouterStore.ts    # Zustand store for navigation state
-├── components/             # Shared UI components
-│   ├── Badge.tsx          # Badge component for status indicators
-│   ├── Button.tsx         # Common button component
-│   ├── Card.tsx          # Card container component
-│   ├── Checkbox.tsx      # Checkbox input component
-│   ├── DataTable.tsx     # Table component for data display
-│   ├── RadioButtonGroup.tsx # Radio button group component
-│   └── TextArea.tsx      # Text input component
-└── theme/
-    └── typography.ts      # Font configuration
+├── app.tsx                     # Root app component with navigation container and font loading
+├── canvas/                     # Three.js canvas components
+│   ├── Canvas.tsx              # Canvas and Orb
+│   ├── index.ts                # Exports
+│   └── types.ts                # Canvas types
+├── components/                 # Shared UI components
+│   ├── Badge.tsx               # Badge component for status indicators
+│   ├── Button.tsx              # Common button component
+│   ├── Card.tsx                # Card container component
+│   ├── Checkbox.tsx            # Checkbox input component
+│   ├── DataTable.tsx           # Table component for data display
+│   ├── RadioButtonGroup.tsx    # Radio button group component
+│   └── TextArea.tsx            # Text input component
+├── navigation/                 # Navigation configuration
+│   └── Router.tsx              # Custom router using Zustand
+├── onboarding/                 # Onboarding flow screens (using DOM components)
+│   ├── Onboarding1.tsx         # First onboarding screen
+│   ├── Onboarding{2-9}.tsx     # Second through ninth onboarding screen
+│   └── Onboarding10.tsx        # Final onboarding screen
+├── screens/                    # Main tab screens (using DOM components)
+│   ├── AnalysisScreen.tsx      # Analysis tab with data visualization
+│   ├── CommunityScreen.tsx     # Community tab with reports
+│   ├── FeedbackScreen.tsx      # Feedback submission screen
+│   └── MarketplaceScreen.tsx   # Marketplace tab with data requests
+├── store/                      # Zustand stores
+│   ├── useOnboardingStore.ts   # Onboarding state
+│   └── useRouterStore.ts       # Navigation state
+├── theme/
+│   └── typography.ts           # Font configuration
+└── utils/
+    ├── isEmulator.ts           # Check if we're running in emulator
+    └── useIsFocused.ts         # Hook to see if app is focused
 
 Key Files:
 - src/app.tsx: Main app component with navigation setup and font loading
-- src/navigation/RootNavigator.tsx: Main navigation logic and onboarding state management
-- src/navigation/TabNavigator.tsx: Tab bar configuration with screens and icons
+- src/navigation/Router.tsx/RootNavigator.tsx: Main navigation logic and onboarding state management
 - src/store/useOnboardingStore.ts: Persistent storage for onboarding state
 - src/store/useRouterStore.ts: Navigation state management
-
-Navigation Flow:
-1. Root navigator checks onboarding state
-2. If not onboarded:
-   - Shows OnboardingNavigator
-   - User progresses through Onboarding1-3
-   - After completion, state is updated
-3. If onboarded:
-   - Shows TabNavigator
-   - Default tab is Marketplace
-
-File Details:
-
-## Root App (app.tsx)
-- Handles font loading
-- Provides NavigationContainer
-- Manages splash screen
-- Provides ThemeProvider context
-
-## Navigation
-- RootNavigator: Manages onboarding state and main navigation flow
-- TabNavigator: Configures bottom tab bar with icons
-- OnboardingNavigator: Manages onboarding screen flow
-
-## Screens (DOM Components)
-- MarketplaceScreen: Data request marketplace with active requests
-  - Uses Card component for layout
-  - Consistent styling with other screens
-- AnalysisScreen: Data analysis tools and visualization
-  - Uses Card component for layout
-  - Data visualization dashboard
-- CommunityScreen: Community reports and verification
-  - Uses Card component for layout
-  - Community hub interface
-- FeedbackScreen: User feedback submission
-  - Uses Card component for layout
-  - Feedback form interface
 
 ## Onboarding Flow (DOM Components)
 - Sequential screens introducing app features
