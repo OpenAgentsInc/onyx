@@ -9,11 +9,7 @@ export default function Onboarding3Screen() {
 
   const finishOnboarding = () => {
     setOnboarded()
-    // Reset to root navigator with Main as the active screen
-    navigation.getParent()?.reset({
-      index: 0,
-      routes: [{ name: 'Main' }],
-    })
+    // The onboarding state change will trigger the root navigator to show Main
   }
 
   return (
