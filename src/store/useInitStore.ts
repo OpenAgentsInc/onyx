@@ -12,6 +12,7 @@ interface InitState {
 interface InitActions {
   initialize: () => Promise<void>
   reset: () => void
+  setInitialized: (value: boolean) => void
 }
 
 const initialState: InitState = {
@@ -25,6 +26,11 @@ export const useInitStore = create<InitState & InitActions>()(
     (set, get) => ({
       ...initialState,
       
+      setInitialized: (value: boolean) => {
+        console.log('InitStore: Setting isInitialized to', value)
+        set({ isInitialized: value })
+      },
+
       initialize: async () => {
         console.log('InitStore: Starting initialization...')
         if (get().isInitializing) {
@@ -32,8 +38,6 @@ export const useInitStore = create<InitState & InitActions>()(
           return
         }
         
-        // Even if isInitialized is true, we need to reinitialize services
-        // because they don't persist their state
         set({ isInitializing: true, errorMessage: null })
         
         try {
@@ -44,7 +48,7 @@ export const useInitStore = create<InitState & InitActions>()(
         } catch (error) {
           console.error('InitStore: Initialization error:', error)
           const message = error instanceof Error ? error.message : 'Unknown error during initialization'
-          set({ errorMessage: message })
+          set({ errorMessage: message, isInitialized: false })
           throw error
         } finally {
           set({ isInitializing: false })
@@ -65,13 +69,28 @@ export const useInitStore = create<InitState & InitActions>()(
         errorMessage: state.errorMessage
       }),
       // When store is hydrated from storage, we need to initialize services
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => async (state, error) => {
+        if (error) {
+          console.error('InitStore: Error rehydrating:', error)
+          return
+        }
+
         console.log('InitStore: Rehydrated from storage, state:', state)
-        if (state?.isInitialized) {
-          console.log('InitStore: Was initialized, reinitializing services...')
-          // Need to initialize services even if we were previously initialized
-          serviceManager.initializeServices().catch(error => {
-            console.error('InitStore: Error reinitializing services after rehydration:', error)
+        
+        // Always start in uninitialized state after rehydration
+        useInitStore.setState({ isInitialized: false, isInitializing: true })
+
+        try {
+          console.log('InitStore: Reinitializing services after rehydration...')
+          await serviceManager.initializeServices()
+          console.log('InitStore: Services reinitialized successfully')
+          useInitStore.setState({ isInitialized: true, isInitializing: false })
+        } catch (error) {
+          console.error('InitStore: Error reinitializing services:', error)
+          useInitStore.setState({ 
+            isInitialized: false, 
+            isInitializing: false,
+            errorMessage: error instanceof Error ? error.message : 'Error reinitializing services'
           })
         }
       }
