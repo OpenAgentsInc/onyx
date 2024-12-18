@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import TextArea from '@/components/TextArea';
 
 const styles = {
   container: {
@@ -22,10 +23,15 @@ const styles = {
     marginTop: '20px',
     display: 'flex',
     gap: '10px',
+  },
+  textAreaContainer: {
+    marginTop: '20px',
   }
 };
 
 export default function Index() {
+  const [reportText, setReportText] = React.useState('');
+
   return (
     <div style={styles.container}>
       <Card title="Drone Sightings">
@@ -56,8 +62,34 @@ export default function Index() {
         <p style={styles.text}>87 verified sightings this month</p>
         <p style={styles.text}>23 pending verification</p>
         <p style={styles.text}>12 video submissions under review</p>
+        
+        <div style={styles.textAreaContainer}>
+          <TextArea
+            placeholder="Enter your report details..."
+            value={reportText}
+            onChange={(e) => setReportText(e.target.value)}
+            autoPlay="Spotted three drones hovering at approximately 500ft altitude..."
+            style={{
+              minHeight: '100px',
+              boxShadow: 'inset 0 0 0 1px #fff',
+              padding: '12px',
+              color: '#fff',
+              fontFamily: 'jetBrainsMonoRegular, monospace',
+              fontSize: '14px',
+            }}
+          />
+        </div>
+        
         <div style={styles.buttonContainer}>
-          <Button theme="PRIMARY" onClick={() => console.log('Submit Report')}>Submit</Button>
+          <Button 
+            theme="PRIMARY" 
+            onClick={() => {
+              console.log('Submitting report:', reportText);
+              setReportText('');
+            }}
+          >
+            Submit
+          </Button>
           <Button theme="SECONDARY" onClick={() => console.log('View All')}>View All</Button>
         </div>
       </Card>
