@@ -1,5 +1,6 @@
 import { keyService } from './KeyService'
 import { breezService } from './breez/breezService'
+import { nostrService } from './nostr/nostrService'
 
 class ServiceManagerImpl {
   private isInitialized = false
@@ -24,12 +25,17 @@ class ServiceManagerImpl {
         // Get mnemonic from KeyService
         const mnemonic = await keyService.getMnemonic()
 
-        // Initialize BreezService with mnemonic from KeyService
-        await breezService.initialize({
-          mnemonic,
-          network: 'TESTNET', // TODO: Make configurable
-          apiKey: process.env.BREEZ_API_KEY
-        })
+        // Initialize services that depend on the mnemonic
+        await Promise.all([
+          // Initialize BreezService with mnemonic from KeyService
+          breezService.initialize({
+            mnemonic,
+            network: 'TESTNET', // TODO: Make configurable
+            apiKey: process.env.BREEZ_API_KEY
+          }),
+          // Initialize NostrService
+          nostrService.initialize()
+        ])
 
         this.isInitialized = true
         console.log('All services initialized successfully')
