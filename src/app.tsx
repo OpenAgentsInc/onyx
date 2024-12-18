@@ -1,32 +1,10 @@
-import { useFonts } from "expo-font"
-import * as SplashScreen from "expo-splash-screen"
-import { StatusBar } from "expo-status-bar"
-import { useEffect } from "react"
-import { customFontsToLoad } from "@/theme/typography"
-import { DarkTheme, NavigationContainer } from "@react-navigation/native"
-import { registerRootComponent } from 'expo'
-import { RootNavigator } from "./navigation/RootNavigator"
+'use dom';
 
-// Prevent splash screen from auto-hiding
-SplashScreen.preventAutoHideAsync()
+import * as React from "react"
+import Router from "@/components/Router"
 
-function App() {
-  const [loaded] = useFonts(customFontsToLoad)
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync()
-    }
-  }, [loaded])
-
-  if (!loaded) return null
-
+export default function App() {
   return (
-    <NavigationContainer theme={DarkTheme}>
-      <RootNavigator />
-      <StatusBar style="light" />
-    </NavigationContainer>
+    <Router />
   )
 }
-
-export default registerRootComponent(App)
