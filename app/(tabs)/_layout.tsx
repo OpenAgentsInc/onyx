@@ -1,3 +1,5 @@
+'use dom';
+
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 
@@ -46,6 +48,12 @@ export default function TabLayout() {
         options={{
           title: 'Feedback',
           headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="index"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
