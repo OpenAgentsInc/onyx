@@ -1,10 +1,7 @@
-import "@/utils/crypto-polyfill"
-import "text-encoding-polyfill"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
 import { AppRegistry, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
-import DOMWrapper from "@/components/DOMWrapper"
 import Router from "@/navigation/Router"
 import InitializationGuard from "./components/InitializationGuard"
 import { clearAllStorage } from "./utils/clearStorage"
@@ -23,9 +20,7 @@ function App() {
       </View>
       <View style={$routerContainer}>
         <InitializationGuard>
-          <DOMWrapper>
-            <Router />
-          </DOMWrapper>
+          <Router />
         </InitializationGuard>
       </View>
     </View>
