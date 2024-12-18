@@ -14,14 +14,13 @@ import Onboarding9 from "@/onboarding/Onboarding9"
 import AnalysisScreen from "@/screens/AnalysisScreen"
 import CommunityScreen from "@/screens/CommunityScreen"
 import FeedbackScreen from "@/screens/FeedbackScreen"
-import MarketplaceScreen from "@/screens/MarketplaceScreen"
+import MarketplaceScreenWrapper from "@/screens/MarketplaceScreenWrapper"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
 import { useRouterStore } from "@/store/useRouterStore"
 
 export default function Router() {
   const currentRoute = useRouterStore(state => state.currentRoute)
   const isOnboarded = useOnboardingStore(state => state.isOnboarded)
-  // const isOnboarded = false
 
   const renderContent = () => {
     // If not onboarded, show onboarding flow
@@ -55,7 +54,7 @@ export default function Router() {
     // If onboarded, show main screens
     switch (currentRoute) {
       case 'Marketplace':
-        return <MarketplaceScreen />
+        return <MarketplaceScreenWrapper />
       case 'Analysis':
         return <AnalysisScreen />
       case 'Community':
@@ -63,7 +62,7 @@ export default function Router() {
       case 'Feedback':
         return <FeedbackScreen />
       default:
-        return <MarketplaceScreen />
+        return <MarketplaceScreenWrapper />
     }
   }
 
