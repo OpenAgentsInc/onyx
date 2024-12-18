@@ -1,6 +1,6 @@
 {
   "name": "onyx",
-  "main": "./index.js",
+  "main": "src/app.tsx",
   "version": "1.0.0",
   "license": "AGPL-3.0-only",
   "scripts": {
