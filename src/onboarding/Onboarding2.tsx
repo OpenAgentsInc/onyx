@@ -21,13 +21,15 @@ export default function Onboarding2() {
     },
     text: {
       fontSize: 14,
-      lineHeight: 1.5,
+      lineHeight: 24,
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
       marginBottom: 24,
+      display: 'block',
     } as TextStyle,
     example: {
       fontSize: 16,
+      lineHeight: 24,
       color: '#4CAF50',
       fontFamily: 'jetBrainsMonoRegular, monospace',
       padding: 16,
@@ -37,6 +39,7 @@ export default function Onboarding2() {
       marginBottom: 24,
       borderWidth: 1,
       borderColor: '#333',
+      display: 'block',
     } as TextStyle,
     cardContent: {
       padding: 24,
