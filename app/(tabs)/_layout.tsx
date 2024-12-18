@@ -1,5 +1,3 @@
-'use dom';
-
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 
@@ -20,6 +18,13 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           fontFamily: 'jetBrainsMonoRegular',
           fontSize: 12,
+        },
+        // Add these to ensure no white flash
+        contentStyle: {
+          backgroundColor: '#000',
+        },
+        headerStyle: {
+          backgroundColor: '#000',
         },
       }}>
       <Tabs.Screen
