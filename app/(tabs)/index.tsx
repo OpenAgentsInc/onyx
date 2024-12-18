@@ -1,8 +1,6 @@
-'use client';
 'use dom';
 
 import * as React from "react"
-import { View, Text } from 'react-native';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 
@@ -15,10 +13,10 @@ export default function TabIndexScreen() {
   const styles = {
     container: {
       backgroundColor: '#000',
-      flex: 1,
+      minHeight: '100vh',
     },
   };
 
   // Return a black screen while redirecting
-  return <View style={styles.container} />;
+  return <div style={styles.container} />;
 }
