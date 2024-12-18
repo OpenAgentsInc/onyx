@@ -1,24 +1,24 @@
-'use dom'
+'use client'
 
-import { useEffect } from "react"
-import { useInitStore } from "../store/useInitStore"
+import { useEffect } from 'react'
+import { useInitStore } from '../store/useInitStore'
 
 interface InitializationGuardProps {
   children: React.ReactNode
   fallback?: React.ReactNode
 }
 
-export default function InitializationGuard({
+export function InitializationGuard({ 
   children,
   fallback = <div>Initializing Onyx...</div>
 }: InitializationGuardProps) {
-  const { initialize, isInitialized, isInitializing, error } = useInitStore()
+  const { initialize, isInitialized, isInitializing, errorMessage } = useInitStore()
 
   useEffect(() => {
     initialize().catch(console.error)
   }, [initialize])
 
-  if (error) {
+  if (errorMessage) {
     return (
       <div style={{
         position: 'fixed',
@@ -36,8 +36,8 @@ export default function InitializationGuard({
       }}>
         <div>
           <h2>Initialization Error</h2>
-          <p>{error.message}</p>
-          <button
+          <p>{errorMessage}</p>
+          <button 
             onClick={() => initialize()}
             style={{
               padding: '10px 20px',
