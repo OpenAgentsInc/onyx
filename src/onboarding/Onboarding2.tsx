@@ -1,12 +1,12 @@
 'use dom';
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
 import Card from "@/components/Card"
 import Button from "@/components/Button"
+import { useRouterStore } from "@/store/useRouterStore"
 
 export default function Onboarding2() {
-  const router = useRouter()
+  const navigate = useRouterStore(state => state.navigate)
 
   const styles = {
     container: {
@@ -36,7 +36,7 @@ export default function Onboarding2() {
         <div style={styles.buttonContainer}>
           <Button 
             theme="PRIMARY"
-            onClick={() => router.push('/onboarding3')}
+            onClick={() => navigate('Onboarding3')}
           >
             Next
           </Button>
