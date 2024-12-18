@@ -1,6 +1,7 @@
 'use dom';
 
-import * as React from 'react';
+import * as React from "react"
+
 import type { CSSProperties } from 'react';
 
 const styles = {
@@ -43,6 +44,7 @@ const styles = {
     fontSize: '14px',
     fontWeight: 400,
     margin: 0,
+    marginTop: '-7px',
     fontFamily: 'jetBrainsMonoBold, monospace',
     color: '#fff',
     minWidth: 'fit-content',
