@@ -3,7 +3,7 @@ import * as React from "react"
 import { AppRegistry, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
 import Router from "@/navigation/Router"
-import { InitializationGuard } from "./components/InitializationGuard"
+import InitializationGuard from "./components/InitializationGuard"
 
 function App() {
   return (
