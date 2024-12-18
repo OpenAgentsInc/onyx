@@ -9,9 +9,9 @@ export default function OnboardingLayout() {
         contentStyle: { backgroundColor: '#000' },
       }}
     >
-      <Stack.Screen name="FirstOnboardingScreen" options={{ title: 'Welcome' }} />
-      <Stack.Screen name="SecondOnboardingScreen" options={{ title: 'Intro' }} />
-      <Stack.Screen name="LastOnboardingScreen" options={{ title: 'Finish' }} />
+      <Stack.Screen name="Onboarding1Screen" options={{ title: 'Welcome' }} />
+      <Stack.Screen name="Onboarding2Screen" options={{ title: 'Intro' }} />
+      <Stack.Screen name="Onboarding3Screen" options={{ title: 'Finish' }} />
     </Stack>
   )
 }
