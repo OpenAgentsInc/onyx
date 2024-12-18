@@ -27,11 +27,13 @@ export const useInitStore = create<InitState & InitActions>()(
       
       initialize: async () => {
         console.log('InitStore: Starting initialization...')
-        if (get().isInitializing || get().isInitialized) {
-          console.log('InitStore: Already initializing or initialized')
+        if (get().isInitializing) {
+          console.log('InitStore: Already initializing')
           return
         }
         
+        // Even if isInitialized is true, we need to reinitialize services
+        // because they don't persist their state
         set({ isInitializing: true, errorMessage: null })
         
         try {
@@ -61,7 +63,18 @@ export const useInitStore = create<InitState & InitActions>()(
       partialize: (state) => ({
         isInitialized: state.isInitialized,
         errorMessage: state.errorMessage
-      })
+      }),
+      // When store is hydrated from storage, we need to initialize services
+      onRehydrateStorage: () => (state) => {
+        console.log('InitStore: Rehydrated from storage, state:', state)
+        if (state?.isInitialized) {
+          console.log('InitStore: Was initialized, reinitializing services...')
+          // Need to initialize services even if we were previously initialized
+          serviceManager.initializeServices().catch(error => {
+            console.error('InitStore: Error reinitializing services after rehydration:', error)
+          })
+        }
+      }
     }
   )
 )
