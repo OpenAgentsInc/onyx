@@ -1,55 +1,59 @@
-import { useNavigation } from '@react-navigation/native'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
-import { useOnboardingStore } from '../store/useOnboardingStore'
+'use dom';
+
+import React from "react"
+import { View } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import Card from "@/components/Card"
+import { useOnboardingStore } from "@/store/useOnboardingStore"
 
 export default function Onboarding3() {
   const navigation = useNavigation()
-  const completeOnboarding = useOnboardingStore(state => state.completeOnboarding)
+  const setOnboarded = useOnboardingStore(state => state.setOnboarded)
 
   const handleComplete = () => {
-    completeOnboarding()
+    setOnboarded()
     navigation.navigate('Marketplace' as never)
+  }
+
+  const styles = {
+    container: {
+      flex: 1,
+      backgroundColor: '#000',
+      padding: 20,
+      minHeight: 500,
+      maxWidth: 800,
+      marginHorizontal: 'auto',
+    },
+    text: {
+      color: '#fff',
+      fontFamily: 'jetBrainsMonoRegular, monospace',
+      fontSize: '14px',
+      lineHeight: '1.5',
+    },
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Ready to Start</Text>
-      <Text style={styles.description}>
-        You're all set to explore Onyx's powerful features
-      </Text>
-      <Pressable 
-        onPress={handleComplete}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Get Started</Text>
-      </Pressable>
+      <Card title="Ready to Start">
+        <p style={styles.text}>
+          You're all set! Let's get started.
+        </p>
+        <button 
+          onClick={handleComplete}
+          style={{
+            backgroundColor: '#007AFF',
+            color: '#fff',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            marginTop: '20px',
+            fontFamily: 'jetBrainsMonoRegular, monospace',
+          }}
+        >
+          Get Started
+        </button>
+      </Card>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  description: {
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-  },
-})
