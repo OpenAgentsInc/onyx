@@ -23,6 +23,7 @@ const styles = {
     transition: '200ms ease all',
     cursor: 'pointer',
     whiteSpace: 'nowrap' as const,
+    WebkitTapHighlightColor: 'transparent',
   },
   buttonPrimary: {
     backgroundColor: '#fff',
@@ -40,6 +41,13 @@ const styles = {
   },
 } satisfies Record<string, CSSProperties>;
 
+// Add global styles for active state
+const globalStyles = `
+  button:active {
+    opacity: 0.8;
+  }
+`;
+
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   theme?: 'PRIMARY' | 'SECONDARY';
   isDisabled?: boolean;
@@ -47,6 +55,16 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button: React.FC<ButtonProps> = ({ theme = 'PRIMARY', isDisabled, children, style, ...rest }) => {
+  // Add global styles on mount
+  React.useEffect(() => {
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = globalStyles;
+    document.head.appendChild(styleSheet);
+    return () => {
+      document.head.removeChild(styleSheet);
+    };
+  }, []);
+
   const buttonStyle: CSSProperties = {
     ...styles.buttonRoot,
     ...(theme === 'PRIMARY' ? styles.buttonPrimary : styles.buttonSecondary),
