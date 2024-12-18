@@ -1,10 +1,13 @@
 'use dom';
 
 import * as React from "react"
+import { AlertBanner } from "@/components/AlertBanner"
 import { Badge } from "@/components/Badge"
 import Button from "@/components/Button"
 import Card from "@/components/Card"
+import { Checkbox } from "@/components/Checkbox"
 import { DataTable } from "@/components/DataTable"
+import { RadioButtonGroup } from "@/components/RadioButtonGroup"
 import TextArea from "@/components/TextArea"
 
 const styles = {
@@ -14,13 +17,14 @@ const styles = {
     minHeight: '100vh',
     maxWidth: '800px',
     margin: '0 auto',
-    overflowX: 'hidden', // ensure no horizontal overflow
+    overflowX: 'hidden' as const,
   },
   text: {
     fontFamily: 'jetBrainsMonoRegular, monospace',
     margin: '8px 0',
     color: '#fff',
     fontSize: '14px',
+    lineHeight: '1.5',
   },
   buttonContainer: {
     marginTop: '20px',
@@ -31,6 +35,12 @@ const styles = {
   textAreaContainer: {
     marginTop: '20px',
   },
+  sectionTitle: {
+    fontFamily: 'jetBrainsMonoBold, monospace',
+    fontSize: '16px',
+    color: '#fff',
+    margin: '12px 0',
+  }
 };
 
 const droneRequestData = [
@@ -56,14 +66,14 @@ export default function Index() {
     <div style={styles.container}>
       <Card title="Onyx Data Marketplace">
         <p style={styles.text}>
-          Welcome to the Onyx Data Marketplace! Here you can request drone sighting datasets—structured files with timestamps and coordinates—and pay providers who fulfill your request with Bitcoin over Lightning.
+          Welcome to the Onyx Data Marketplace! Here you can request drone sighting datasets—structured files with timestamps, coordinates, and notes—and pay providers who fulfill your request with Bitcoin over Lightning.
         </p>
         <p style={styles.text}>
-          Post a new data request, view active requests and offers, then accept a provider's result and pay them.
+          Post a new data request, view active requests and offers, and accept a provider's result to finalize payment.
         </p>
       </Card>
 
-      <div style={{ height: 20 }} />
+      <AlertBanner type="SUCCESS">System stable: New drone datasets available from multiple providers.</AlertBanner>
 
       <Card title="Active Drone Data Requests">
         <p style={styles.text}>Below is a summary of your currently active requests:</p>
@@ -78,12 +88,9 @@ export default function Index() {
         </div>
       </Card>
 
-      <div style={{ height: 20 }} />
-
       <Card title="Submit a New Drone Data Request">
         <p style={styles.text}>
-          Describe the drone data you need. For example: "I need a CSV file of daily drone sightings
-          in Denver, CO from January 2024, including timestamps and coordinates."
+          Describe the data you need. For example: "A CSV of daily drone sightings in Denver, CO (January 2024), with timestamps and coordinates."
         </p>
 
         <div style={styles.textAreaContainer}>
@@ -91,7 +98,7 @@ export default function Index() {
             placeholder="Enter your drone data request details..."
             value={requestText}
             onChange={(e) => setRequestText(e.target.value)}
-            autoPlay="I need a CSV file of daily drone sightings in Denver, CO (January 2024)..."
+            autoPlay="I need a CSV file of daily drone sightings in Denver, CO (January 2024) including timestamps..."
             style={{
               minHeight: '100px',
               boxShadow: 'inset 0 0 0 1px #fff',
@@ -116,6 +123,28 @@ export default function Index() {
           <Button theme="SECONDARY" onClick={() => console.log('View Marketplace')}>View Marketplace</Button>
         </div>
       </Card>
+
+      <div style={styles.sectionTitle}>Preferences</div>
+      <p style={styles.text}>
+        Customize your request: Choose data format, anonymity level, and verification requirements.
+      </p>
+      <RadioButtonGroup
+        options={[
+          { value: 'csv', label: 'CSV Format' },
+          { value: 'json', label: 'JSON Format' },
+          { value: 'xml', label: 'XML Format' },
+        ]}
+        defaultValue="csv"
+      />
+
+      <p style={styles.text}>Do you want to include video evidence if available?</p>
+      <Checkbox name="videoEvidence" defaultChecked={true}>
+        Include Drone Video Evidence
+      </Checkbox>
+
+      <p style={styles.text}>
+        Once ready, post your updated request or revisit the active requests above.
+      </p>
     </div>
   );
 }
