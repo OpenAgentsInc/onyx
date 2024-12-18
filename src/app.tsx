@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { AppRegistry } from 'react-native';
-import Router from '@/components/Router';
+import * as React from "react"
+import { AppRegistry } from "react-native"
+import Router from "@/components/Router"
 
 function App() {
   return (
@@ -8,6 +8,6 @@ function App() {
   );
 }
 
-AppRegistry.registerComponent('onyx', () => App);
+AppRegistry.registerComponent('main', () => App);
 
 export default App;
