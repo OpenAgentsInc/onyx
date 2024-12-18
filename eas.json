@@ -12,10 +12,7 @@
       },
       "ios": {
         "buildConfiguration": "Debug",
-        "simulator": true,
-        "env": {
-          "RCT_NEW_ARCH_ENABLED": "0"
-        }
+        "simulator": true
       },
       "env": {
         "ENVIRONMENT": "development"
