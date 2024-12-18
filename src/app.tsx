@@ -8,7 +8,7 @@ import { DarkTheme, NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { registerRootComponent } from 'expo'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation } from "@react-navigation/native"
 
 // Import screens
 import Onboarding1Screen from "./onboarding/Onboarding1"
@@ -24,6 +24,38 @@ SplashScreen.preventAutoHideAsync()
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
+
+// Update onboarding screens to use navigation prop instead of expo-router
+const OnboardingOne = () => {
+  const navigation = useNavigation()
+  return (
+    <Onboarding1Screen onNext={() => navigation.navigate('Onboarding2')} />
+  )
+}
+
+const OnboardingTwo = () => {
+  const navigation = useNavigation()
+  return (
+    <Onboarding2Screen onNext={() => navigation.navigate('Onboarding3')} />
+  )
+}
+
+const OnboardingThree = () => {
+  const navigation = useNavigation()
+  const setOnboarded = useOnboardingStore(state => state.setOnboarded)
+  
+  const finishOnboarding = () => {
+    setOnboarded()
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
+    })
+  }
+
+  return (
+    <Onboarding3Screen onFinish={finishOnboarding} />
+  )
+}
 
 function TabNavigator() {
   return (
@@ -43,26 +75,11 @@ function TabNavigator() {
 }
 
 function OnboardingNavigator() {
-  const navigation = useNavigation()
-  const setOnboarded = useOnboardingStore(state => state.setOnboarded)
-
-  const handleFinishOnboarding = () => {
-    setOnboarded()
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Main' }],
-    })
-  }
-
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Onboarding1" component={Onboarding1Screen} />
-      <Stack.Screen name="Onboarding2" component={Onboarding2Screen} />
-      <Stack.Screen 
-        name="Onboarding3" 
-        component={Onboarding3Screen}
-        initialParams={{ onFinish: handleFinishOnboarding }}
-      />
+      <Stack.Screen name="Onboarding1" component={OnboardingOne} />
+      <Stack.Screen name="Onboarding2" component={OnboardingTwo} />
+      <Stack.Screen name="Onboarding3" component={OnboardingThree} />
     </Stack.Navigator>
   )
 }
