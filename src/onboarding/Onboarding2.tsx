@@ -25,7 +25,7 @@ export default function Onboarding2() {
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
       marginBottom: 12,
-    } as TextStyle,
+    },
     example: {
       fontSize: 16,
       color: '#4CAF50',
@@ -34,7 +34,7 @@ export default function Onboarding2() {
       backgroundColor: '#1A1A1A',
       borderRadius: '4px',
       marginVertical: 16,
-    } as TextStyle,
+    },
     buttonContainer: {
       marginTop: '20px',
       flexDirection: 'row',
