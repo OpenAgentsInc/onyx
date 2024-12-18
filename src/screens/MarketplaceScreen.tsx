@@ -3,11 +3,18 @@
 import React from 'react'
 import { Text, TextStyle, View } from 'react-native'
 import Card from '@/components/Card'
-import { useNostr } from '@/services/hooks/useNostr'
 
-export default function MarketplaceScreen() {
-  const { npub, isLoading, error } = useNostr()
+interface MarketplaceScreenProps {
+  npub: string | null
+  isLoading: boolean
+  error: string | null
+}
 
+export default function MarketplaceScreen({
+  npub,
+  isLoading,
+  error
+}: MarketplaceScreenProps) {
   const styles = {
     container: {
       backgroundColor: '#000',
