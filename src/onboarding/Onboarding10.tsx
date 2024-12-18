@@ -1,11 +1,11 @@
 'use dom'
 
 import * as React from "react"
-import { Text, TextStyle, View } from "react-native"
 import Button from "@/components/Button"
 import Card from "@/components/Card"
 import { useRouterStore } from "@/store/useRouterStore"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
+import { CSSProperties } from "react"
 
 export default function Onboarding10() {
   const navigate = useRouterStore(state => state.navigate);
@@ -16,7 +16,7 @@ export default function Onboarding10() {
     navigate('Marketplace');
   };
 
-  const styles = {
+  const styles: Record<string, CSSProperties> = {
     container: {
       backgroundColor: '#000',
       color: '#fff',
@@ -27,54 +27,54 @@ export default function Onboarding10() {
       margin: '0 auto',
     },
     text: {
-      fontSize: 14,
-      lineHeight: 24,
+      fontSize: '14px',
+      lineHeight: '24px',
       color: '#fff',
       fontFamily: 'jetBrainsMonoRegular, monospace',
-      marginBottom: 24,
+      marginBottom: '24px',
       display: 'block',
-    } as TextStyle,
+    },
     highlight: {
-      fontSize: 16,
-      lineHeight: 24,
+      fontSize: '16px',
+      lineHeight: '24px',
       color: '#4CAF50',
       fontFamily: 'jetBrainsMonoRegular, monospace',
-      padding: 16,
+      padding: '16px',
       backgroundColor: 'rgba(26, 26, 26, 0.8)',
-      borderRadius: 8,
-      marginTop: 24,
-      marginBottom: 24,
-      borderWidth: 1,
-      borderColor: '#333',
+      borderRadius: '8px',
+      marginTop: '24px',
+      marginBottom: '24px',
+      border: '1px solid #333',
       display: 'block',
-    } as TextStyle,
+    },
     cardContent: {
-      padding: 24,
+      padding: '24px',
       backgroundColor: '#111',
-      borderRadius: 12,
-      marginBottom: 24,
+      borderRadius: '12px',
+      marginBottom: '24px',
     },
     buttonContainer: {
-      marginTop: 32,
-      flexDirection: 'row',
+      marginTop: '32px',
+      display: 'flex',
+      flexDirection: 'row' as const,
       justifyContent: 'space-between',
-      gap: 16,
+      gap: '16px',
     }
   }
 
   return (
     <div style={styles.container}>
       <Card title="Ready to Explore">
-        <View style={styles.cardContent}>
-          <Text style={styles.text}>
+        <div style={styles.cardContent}>
+          <p style={styles.text}>
             You're ready! Open the tabs at the bottom to explore Marketplace, Analysis, Community, and Feedback.
-          </Text>
+          </p>
           
-          <Text style={styles.highlight}>
+          <p style={styles.highlight}>
             Speak freely. Onyx will handle the rest!
-          </Text>
+          </p>
           
-          <View style={styles.buttonContainer}>
+          <div style={styles.buttonContainer}>
             <Button
               theme="SECONDARY"
               onClick={() => navigate('Onboarding9')}
@@ -87,8 +87,8 @@ export default function Onboarding10() {
             >
               Get Started
             </Button>
-          </View>
-        </View>
+          </div>
+        </div>
       </Card>
     </div>
   );
