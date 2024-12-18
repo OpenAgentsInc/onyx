@@ -24,6 +24,11 @@ const styles = {
     cursor: 'pointer',
     whiteSpace: 'nowrap' as const,
     WebkitTapHighlightColor: 'transparent',
+    userSelect: 'none' as const,
+    WebkitUserSelect: 'none' as const,
+    MozUserSelect: 'none' as const,
+    msUserSelect: 'none' as const,
+    WebkitTouchCallout: 'none' as const,
   },
   buttonPrimary: {
     backgroundColor: '#fff',
