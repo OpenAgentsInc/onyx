@@ -1,12 +1,12 @@
 'use dom';
 
 import * as React from "react"
-import { useNavigation } from "@react-navigation/native"
+import { useRouter } from "next/navigation"
 import Card from "@/components/Card"
 import Button from "@/components/Button"
 
 export default function Onboarding1() {
-  const navigation = useNavigation()
+  const router = useRouter()
 
   const styles = {
     container: {
@@ -36,7 +36,7 @@ export default function Onboarding1() {
         <div style={styles.buttonContainer}>
           <Button 
             theme="PRIMARY"
-            onClick={() => navigation.navigate('Onboarding2' as never)}
+            onClick={() => router.push('/onboarding2')}
           >
             Next
           </Button>
