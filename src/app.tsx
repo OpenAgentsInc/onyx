@@ -19,10 +19,9 @@ function App() {
         <Canvas />
       </View>
       <View style={$routerContainer}>
-        <Router />
-        {/* <InitializationGuard>
+        <InitializationGuard>
           <Router />
-        </InitializationGuard> */}
+        </InitializationGuard>
       </View>
     </View>
   );
