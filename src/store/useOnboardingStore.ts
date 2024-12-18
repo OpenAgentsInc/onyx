@@ -1,13 +1,16 @@
-import { create } from "zustand"
-import { createJSONStorage, persist } from "zustand/middleware"
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 interface OnboardingState {
   isOnboarded: boolean
+}
+
+interface OnboardingActions {
   setOnboarded: () => void
 }
 
-export const useOnboardingStore = create<OnboardingState>()(
+export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
   persist(
     (set) => ({
       isOnboarded: false,
@@ -16,6 +19,9 @@ export const useOnboardingStore = create<OnboardingState>()(
     {
       name: 'onyx-onboarding-2',
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        isOnboarded: state.isOnboarded
+      })
     }
   )
 )
