@@ -1,5 +1,5 @@
 import { useFonts } from "expo-font"
-import { Stack } from "expo-router"
+import { Slot, useRouter, useSegments } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
 import { StatusBar } from "expo-status-bar"
 import { useEffect } from "react"
@@ -12,8 +12,22 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded] = useFonts(customFontsToLoad);
+  const segments = useSegments();
+  const router = useRouter();
   const isOnboarded = useOnboardingStore(state => state.isOnboarded)
-  console.log("Root layout - isOnboarded:", isOnboarded)
+  
+  useEffect(() => {
+    if (!loaded) return;
+    
+    const inAuthGroup = segments[0] === 'onboarding';
+    console.log("Root layout - isOnboarded:", isOnboarded, "inAuthGroup:", inAuthGroup);
+
+    if (!isOnboarded && !inAuthGroup) {
+      router.replace('/onboarding');
+    } else if (isOnboarded && inAuthGroup) {
+      router.replace('/(tabs)');
+    }
+  }, [loaded, segments]);
 
   useEffect(() => {
     if (loaded) {
@@ -21,22 +35,11 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!loaded) return null;
 
   return (
     <ThemeProvider value={DarkTheme}>
-      <Stack screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: '#000' },
-      }}>
-        {!isOnboarded ? (
-          <Stack.Screen name="onboarding" />
-        ) : (
-          <Stack.Screen name="(tabs)" />
-        )}
-      </Stack>
+      <Slot />
       <StatusBar style="light" />
     </ThemeProvider>
   );
