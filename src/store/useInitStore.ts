@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { storage } from '../services/storage'
 import { serviceManager } from '../services/ServiceManager'
 
 interface InitState {
@@ -19,6 +19,19 @@ const initialState: InitState = {
   isInitialized: false,
   isInitializing: false,
   errorMessage: null,
+}
+
+// Create a storage adapter that matches Zustand's expected interface
+const zustandStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    return storage.getItem(name)
+  },
+  setItem: async (name: string, value: string): Promise<void> => {
+    await storage.setItem(name, value)
+  },
+  removeItem: async (name: string): Promise<void> => {
+    await storage.removeItem(name)
+  },
 }
 
 export const useInitStore = create<InitState & InitActions>()(
@@ -63,7 +76,7 @@ export const useInitStore = create<InitState & InitActions>()(
     }),
     {
       name: 'onyx-init-store',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({
         isInitialized: state.isInitialized,
         errorMessage: state.errorMessage
