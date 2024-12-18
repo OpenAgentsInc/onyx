@@ -1,6 +1,11 @@
 'use dom';
 
 import * as React from "react"
+import { Badge } from "@/components/Badge"
+import Button from "@/components/Button"
+import Card from "@/components/Card"
+import { Checkbox } from "@/components/Checkbox"
+import { DataTable } from "@/components/DataTable"
 
 export default function CommunityScreen() {
   const styles = {
@@ -16,21 +21,56 @@ export default function CommunityScreen() {
     text: {
       fontSize: '14px',
       lineHeight: '1.5',
+    },
+    sectionTitle: {
+      fontFamily: 'jetBrainsMonoBold, monospace',
+      fontSize: '16px',
+      margin: '12px 0',
     }
   };
 
+  const communityReports = [
+    ['REPORT ID', 'LOCATION', 'VERIFIED'],
+    ['#C-101', 'Denver, CO', <>Yes <Badge>VERIFIED</Badge></>],
+    ['#C-102', 'Los Angeles, CA', 'No'],
+    ['#C-103', 'Rural Colorado', 'No'],
+  ];
+
+  const [showOnlyVerified, setShowOnlyVerified] = React.useState(false);
+
+  const filteredReports = showOnlyVerified
+    ? communityReports.filter((_, i) => i === 0 || communityReports[i][2].toString().includes('VERIFIED'))
+    : communityReports;
+
   return (
     <div style={styles.container}>
-      <h2 style={{ fontFamily: 'jetBrainsMonoBold, monospace' }}>Community Reports</h2>
-      <p style={styles.text}>
-        View and interact with community-submitted drone sightings. Engage with
-        other contributors, add verification, or endorse high-quality reports.
-      </p>
-      <p style={styles.text}>
-        Eventually, we might implement a crowdsourced consensus mechanism to qualify
-        information. A threshold of likes relative to post engagement or a separate
-        agent checking for logicality could maintain data quality.
-      </p>
+      <Card title="Community Reports">
+        <p style={styles.text}>
+          Browse community-submitted drone sightings. Use filters to refine results.
+        </p>
+      </Card>
+
+      <Card title="Filters">
+        <Checkbox
+          name="verified"
+          defaultChecked={showOnlyVerified}
+          onChange={(e) => setShowOnlyVerified(e.target.checked)}
+        >
+          Show only verified reports
+        </Checkbox>
+      </Card>
+
+      <Card title="Reports">
+        <DataTable data={filteredReports} />
+        <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+          <Button theme="PRIMARY" onClick={() => console.log('Refresh reports')}>
+            Refresh
+          </Button>
+          <Button theme="SECONDARY" onClick={() => console.log('Load more')}>
+            Load More
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 }

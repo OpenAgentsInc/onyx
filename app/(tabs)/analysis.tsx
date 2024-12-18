@@ -1,6 +1,10 @@
 'use dom';
 
 import * as React from "react"
+import Card from "@/components/Card"
+import { Checkbox } from "@/components/Checkbox"
+import { DataTable } from "@/components/DataTable"
+import { RadioButtonGroup } from "@/components/RadioButtonGroup"
 
 export default function AnalysisScreen() {
   const styles = {
@@ -16,20 +20,62 @@ export default function AnalysisScreen() {
     text: {
       fontSize: '14px',
       lineHeight: '1.5',
+    },
+    sectionTitle: {
+      fontFamily: 'jetBrainsMonoBold, monospace',
+      fontSize: '16px',
+      margin: '12px 0',
     }
   };
 
+  const sampleData = [
+    ['METRIC', 'VALUE'],
+    ['Total Drones Analyzed', '234'],
+    ['Unique Operators Identified', '15'],
+    ['Suspicious Patterns', '3'],
+  ];
+
+  const [includeAnomalies, setIncludeAnomalies] = React.useState(true);
+  const [selectedFormat, setSelectedFormat] = React.useState<string>('');
+
   return (
     <div style={styles.container}>
-      <h2 style={{ fontFamily: 'jetBrainsMonoBold, monospace' }}>Drone Data Analysis</h2>
-      <p style={styles.text}>
-        Here you can view aggregated analyses of drone sightings, patterns in data, and
-        other insights gleaned from the structured requests and responses in the marketplace.
-      </p>
-      <p style={styles.text}>
-        Future enhancements: Graph visualizations, advanced queries, and automated inference
-        on top of the curated data.
-      </p>
+      <Card title="Drone Data Analysis">
+        <p style={styles.text}>
+          Here's a snapshot of recent analytical metrics derived from drone data.
+          Customize filters and formats below.
+        </p>
+        <DataTable data={sampleData} />
+      </Card>
+
+      <Card title="Filters & Options">
+        <p style={styles.text}>
+          Refine your analysis:
+        </p>
+        <Checkbox
+          name="anomalies"
+          defaultChecked={includeAnomalies}
+          onChange={(e) => setIncludeAnomalies(e.target.checked)}
+        >
+          Include anomalies
+        </Checkbox>
+
+        <p style={{ ...styles.text, marginTop: '12px' }}>Preferred Data Format:</p>
+        <RadioButtonGroup
+          options={[
+            { value: 'json', label: 'JSON' },
+            { value: 'csv', label: 'CSV' },
+            { value: 'xml', label: 'XML' },
+          ]}
+          defaultValue={selectedFormat}
+        />
+      </Card>
+
+      <Card title="Next Steps">
+        <p style={styles.text}>
+          Apply these settings to refine your final data output. Additional tools may become available as the MCP and DVM integrations mature.
+        </p>
+      </Card>
     </div>
   );
 }

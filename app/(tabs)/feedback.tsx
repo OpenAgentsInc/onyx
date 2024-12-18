@@ -1,6 +1,9 @@
 'use dom';
 
 import * as React from "react"
+import Button from "@/components/Button"
+import Card from "@/components/Card"
+import TextArea from "@/components/TextArea"
 
 export default function FeedbackScreen() {
   const styles = {
@@ -17,37 +20,61 @@ export default function FeedbackScreen() {
       fontSize: '14px',
       lineHeight: '1.5',
     },
+    textAreaContainer: {
+      marginTop: '20px',
+    },
     sectionTitle: {
       fontFamily: 'jetBrainsMonoBold, monospace',
       fontSize: '16px',
       margin: '12px 0',
-    }
+    },
+    buttonContainer: {
+      marginTop: '20px',
+      display: 'flex',
+      gap: '10px',
+    },
   };
+
+  const [feedback, setFeedback] = React.useState('');
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.sectionTitle}>Feedback & Vision</h2>
-      <p style={styles.text}>
-        Question for you- Let's say you had a drone app fully built out and it was live to the
-        public. Would there be any way to qualify the information people are adding to the graph?
-        How could you prevent people from spamming or adding low-quality info?
-      </p>
-      <p style={styles.text}>
-        Maybe a consensus mechanism, crowdsourced verification: a certain threshold of "likes"
-        relative to post engagement could filter submissions. Another idea: a separate agent
-        that breaks down knowledge graph submissions to see if they pass criteria of
-        logicality/factuality/relevance.
-      </p>
-      <p style={styles.text}>
-        You mentioned rewarding contributors with sats. This implies the agent has a pool of
-        BTC either endowed at creation or earned via completing user inferences. How does this
-        perspective fit into your vision for the project?
-      </p>
+      <Card title="We Value Your Feedback">
+        <p style={styles.text}>
+          Please share your thoughts on Onyx—what works, what could be improved, and any features you'd like to see.
+        </p>
+      </Card>
 
-      <p style={styles.text}>
-        Share your thoughts or suggestions below. Future updates might allow interactive Q&A
-        or submitting your own proposals.
-      </p>
+      <div style={styles.textAreaContainer}>
+        <TextArea
+          placeholder="Enter your feedback here..."
+          value={feedback}
+          onChange={(e) => setFeedback(e.target.value)}
+          style={{
+            minHeight: '150px',
+            boxShadow: 'inset 0 0 0 1px #fff',
+            padding: '12px',
+            color: '#fff',
+            fontFamily: 'jetBrainsMonoRegular, monospace',
+            fontSize: '14px',
+          }}
+        />
+      </div>
+
+      <div style={styles.buttonContainer}>
+        <Button
+          theme="PRIMARY"
+          onClick={() => {
+            console.log('Submitting feedback:', feedback);
+            setFeedback('');
+          }}
+        >
+          Submit
+        </Button>
+        <Button theme="SECONDARY" onClick={() => setFeedback('')}>
+          Clear
+        </Button>
+      </div>
     </div>
   );
 }

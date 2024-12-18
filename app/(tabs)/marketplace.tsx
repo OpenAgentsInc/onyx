@@ -123,10 +123,7 @@ export default function MarketplaceScreen() {
         Customize your request: Choose data format, anonymity level, and verification requirements.
       </p>
       <p style={styles.text}>
-        A future iteration might consider a mechanism where requests gain credibility if other users "like" or endorse them. Beyond a simple threshold of likes relative to engagement, a crowdsourced consensus mechanism could filter out spam or low-quality info before it enters the knowledge graph.
-      </p>
-      <p style={styles.text}>
-        Once ready, post your updated request or revisit the active requests above.
+        Eventually, a crowdsourced consensus mechanism might filter out spam or low-quality info before it enters the knowledge graph.
       </p>
     </div>
   );
