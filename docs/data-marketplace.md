@@ -130,6 +130,70 @@ Users pledge Bitcoin sats when posting a bounty. Potential workflows:
   - Clear indicators of bounty status: "Funded", "Partially Fulfilled", "Completed".
   - Simple flows for adding sats, viewing contributor lists, and data verification steps.
 
+## Using NIP-32 for Reputation in the Onyx Data Marketplace
+
+In the Onyx Data Marketplace, reputation is crucial for determining trusted data providers, filtering out spam submissions, and guiding crowdsourced consensus. By leveraging NIP-32's labeling capabilities, we can attach reputation-related labels to events, pubkeys, or other objects, enabling a decentralized and evolving reputation system.
+
+### Reputation Use Cases
+
+1. **Contributor Reliability**: Assign labels to contributors based on their past fulfilled bounties, quality of submissions, and timeliness. For example, a contributor who consistently provides verified drone data might receive a label like `["L", "onyx.reputation"]`, `["l", "trusted-contributor", "onyx.reputation"]` attached to their pubkey.
+
+2. **Data Quality Ratings**: When users or AI quality checks (via MCP tools) verify submitted data, the marketplace can publish `kind:1985` events labeling the relevant DVM job result event (`e` tag) with `quality-high`, `quality-medium`, or `quality-low` labels. This allows future queries and filtering by quality.
+
+3. **Endorsements & Expert Verification**: A known domain expert (identified by a well-regarded pubkey) can post `kind:1985` events labeling certain community-submitted drone intel as `verified-by-expert`, allowing buyers to trust that data more and potentially pay higher rates.
+
+4. **Spam & Negative Labels**: The community can self-moderate by attaching negative labels like `spam`, `misleading`, or `low-effort` to events or contributors who fail to deliver quality data. Since these are published as `kind:1985` events, it becomes easy to query for and filter out low-reputation participants.
+
+### Example: Labeling a Contributor as "Trusted"
+
+````jsonc
+{
+  "kind": 1985,
+  "tags": [
+    ["L", "onyx.reputation"],
+    ["l", "trusted-contributor", "onyx.reputation"],
+    ["p", "<contributor_pubkey>", "<relay_url>"]
+  ],
+  "content": "Contributor has consistently delivered high-quality data fulfilling multiple bounties.",
+  // other fields like 'created_at', 'id', 'sig' as per NIP-01...
+}
+
+This event suggests that <contributor_pubkey> is labeled under the onyx.reputation namespace with a trusted-contributor label. Marketplace clients can interpret this as a green flag for reliability.
+
+### Example: Labeling a Data Submission (Event) as High Quality
+
+```jsonc
+{
+  "kind": 1985,
+  "tags": [
+    ["L", "onyx.reputation"],
+    ["l", "quality-high", "onyx.reputation"],
+    ["e", "<submission_event_id>", "<relay_url>"]
+  ],
+  "content": "This data submission passed all automated MCP quality checks and community review.",
+  // ...
+}
+````
+
+Marketplace queries can filter results to show only events labeled as quality-high within the onyx.reputation namespace.
+
+### Integration Points
+
+    •	DVM Job Results: After a successful data fulfillment from a DVM provider, Onyx automatically publishes a kind:1985 labeling event attaching a quality label based on AI checks.
+    •	MCP Tools: MCP-assisted verification tools can trigger labeling events. For instance, when an MCP tool verifies document authenticity, Onyx posts a label event indicating authenticity under a designated namespace.
+    •	Community Voting: The community screen can allow users to “endorse” or “flag” entries. Each endorsement or flag triggers the publication of a kind:1985 event with a positive or negative label. Multiple endorsements accumulate, and advanced UIs can show summary reputations by counting these labels.
+
+### Searching & Filtering
+
+Since NIP-32 labeling events are queryable, clients can:
+• Search for all kind:1985 events in onyx.reputation namespace labeling a particular pubkey, thus retrieving all reputation signals.
+• Filter marketplace listings to only show requests or offers labeled quality-high or verified-by-expert.
+• Combine with NIP-89 to discover recommended services or NIP-90 to find the best DVM providers who hold high-reputation labels in the Onyx ecosystem.
+
+### NIP-32 Summary
+
+By utilizing NIP-32 labeling for reputation, Onyx Data Marketplace creates a decentralized, flexible layer of trust and credibility. This approach guides users in selecting reliable contributors, fosters accountability, and enriches the overall experience in a trust-minimized, open marketplace.
+
 ## Future Directions
 
 - **Permissionless Marketplace**:
@@ -155,3 +219,7 @@ Users pledge Bitcoin sats when posting a bounty. Potential workflows:
 The Onyx Marketplace, initially conceived as a platform for requesting and browsing drone-related datasets, can evolve into a highly interactive, incentivized ecosystem. By combining **bounty posting**, **DVM’s decentralized job marketplace**, **MCP’s AI-driven data verification and analysis tools**, and **Bitcoin micropayments**, Onyx empowers users to collaboratively build, refine, and monetize unique datasets.
 
 This approach aligns with the open-ended, crowdsourced nature of next-generation knowledge ecosystems, driving innovation in data retrieval, credibility assessment, and AI-assisted sensemaking around topics like drones, UAP sightings, and beyond.
+
+```
+
+```
