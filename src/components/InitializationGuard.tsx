@@ -1,4 +1,4 @@
-'use client'
+'use dom'
 
 import { useEffect } from 'react'
 import { useInitStore } from '../store/useInitStore'
@@ -8,7 +8,7 @@ interface InitializationGuardProps {
   fallback?: React.ReactNode
 }
 
-export function InitializationGuard({ 
+export default function InitializationGuard({ 
   children,
   fallback = <div>Initializing Onyx...</div>
 }: InitializationGuardProps) {
