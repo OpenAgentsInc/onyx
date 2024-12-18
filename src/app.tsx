@@ -1,8 +1,8 @@
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
 import { AppRegistry, View, ViewStyle } from "react-native"
+import { Canvas } from "@/canvas"
 import Router from "@/components/Router"
-import { Canvas } from "@/components/Canvas"
 
 function App() {
   return (
