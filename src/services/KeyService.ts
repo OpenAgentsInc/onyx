@@ -1,15 +1,11 @@
 import { generateMnemonic, validateMnemonic } from '@scure/bip39'
 import { wordlist } from '@scure/bip39/wordlists/english'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { storage } from './storage'
 
 const MNEMONIC_STORAGE_KEY = '@onyx/mnemonic'
 
 interface KeyServiceConfig {
   existingMnemonic?: string
-  storage?: {
-    type: 'secure' | 'file'
-    path?: string
-  }
 }
 
 class KeyServiceImpl {
@@ -36,7 +32,7 @@ class KeyServiceImpl {
       try {
         console.log('KeyService: Checking for stored mnemonic...')
         // First try to load existing mnemonic from storage
-        let mnemonic = await AsyncStorage.getItem(MNEMONIC_STORAGE_KEY)
+        let mnemonic = await storage.getItem(MNEMONIC_STORAGE_KEY)
 
         // If no stored mnemonic, check for config
         if (!mnemonic && config?.existingMnemonic) {
@@ -60,7 +56,7 @@ class KeyServiceImpl {
 
         // Store the mnemonic
         console.log('KeyService: Storing mnemonic...')
-        await AsyncStorage.setItem(MNEMONIC_STORAGE_KEY, mnemonic)
+        await storage.setItem(MNEMONIC_STORAGE_KEY, mnemonic)
         
         this.mnemonic = mnemonic
         this.isInitializedFlag = true
@@ -98,7 +94,7 @@ class KeyServiceImpl {
 
   async reset(): Promise<void> {
     console.log('KeyService: Resetting...')
-    await AsyncStorage.removeItem(MNEMONIC_STORAGE_KEY)
+    await storage.removeItem(MNEMONIC_STORAGE_KEY)
     this.mnemonic = null
     this.isInitializedFlag = false
     console.log('KeyService: Reset complete')
