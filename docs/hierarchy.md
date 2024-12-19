@@ -4,37 +4,37 @@
 src/
 ├── app.tsx                     # Root app component with canvas and router
 ├── canvas/                     # Three.js canvas components
-│   ├── Canvas.tsx             # Canvas and Orb
-│   ├── index.ts               # Exports
-│   └── types.ts               # Canvas types
+│   ├── Canvas.tsx              # Canvas and Orb
+│   ├── index.ts                # Exports
+│   └── types.ts                # Canvas types
 ├── components/                 # Shared UI components
-│   ├── Badge.tsx              # Badge component for status indicators
-│   ├── Button.tsx             # Common button component
-│   ├── Card.tsx               # Card container component
-│   ├── Checkbox.tsx           # Checkbox input component
-│   ├── DataTable.tsx          # Table component for data display
-│   ├── RadioButtonGroup.tsx   # Radio button group component
-│   └── TextArea.tsx           # Text input component
+│   ├── Badge.tsx               # Badge component for status indicators
+│   ├── Button.tsx              # Common button component
+│   ├── Card.tsx                # Card container component
+│   ├── Checkbox.tsx            # Checkbox input component
+│   ├── DataTable.tsx           # Table component for data display
+│   ├── RadioButtonGroup.tsx    # Radio button group component
+│   └── TextArea.tsx            # Text input component
 ├── navigation/                 # Navigation configuration
-│   ├── Router.tsx             # Main router with navigation container
-│   └── RouterWrapper.tsx      # Native wrapper for router initialization
+│   ├── Router.tsx              # Main router with navigation container
+│   └── RouterWrapper.tsx       # Native wrapper for router initialization
 ├── screens/                    # Main app screens
-│   └── Marketplace/           # Example of screen organization
-│       ├── index.tsx          # Exports the wrapper
-│       ├── Screen.tsx         # DOM/Web component ('use dom')
-│       └── Wrapper.tsx        # Native wrapper with hooks/services
+│   └── Marketplace/            # Example of screen organization
+│       ├── index.tsx           # Exports the wrapper
+│       ├── Screen.tsx          # DOM/Web component ('use dom')
+│       └── Wrapper.tsx         # Native wrapper with hooks/services
 ├── services/                   # Core services
-│   ├── KeyService.ts          # Key management service
-│   ├── ServiceManager.ts      # Service initialization orchestration
-│   ├── secure-storage/        # Secure storage implementation
-│   └── hooks/                 # Service-related hooks
-├── store/                     # Zustand stores
-│   └── useInitStore.ts        # Initialization state management
-├── theme/                     # Theme configuration
-│   ├── global.css            # Global styles and DOM defaults
-│   └── typography.ts         # Font configuration
-└── utils/                     # Utility functions
-    └── crypto-polyfill.ts    # Crypto polyfills for web
+│   ├── KeyService.ts           # Key management service
+│   ├── ServiceManager.ts       # Service initialization orchestration
+│   ├── secure-storage/         # Secure storage implementation
+│   └── hooks/                  # Service-related hooks
+├── store/                      # Zustand stores
+│   └── useInitStore.ts         # Initialization state management
+├── theme/                      # Theme configuration
+│   ├── global.css              # Global styles and DOM defaults
+│   └── typography.ts           # Font configuration
+└── utils/                      # Utility functions
+    └── crypto-polyfill.ts      # Crypto polyfills for web
 
 Key Architectural Points:
 
