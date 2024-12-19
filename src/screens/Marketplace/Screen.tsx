@@ -2,20 +2,27 @@
 
 import React from "react"
 import Card from "@/components/Card"
-import DVMServices from "./DVMServices"
+
+interface DVMService {
+  id: string
+  title: string
+  description: string
+  pubkey: string
+  created_at: number
+}
 
 interface MarketplaceScreenProps {
   npub: string | null
   isLoading: boolean
   error: string | null
-  dvmManager: any // DVMManager type
+  services: DVMService[]
 }
 
 export default function MarketplaceScreen({
   npub,
   isLoading,
   error,
-  dvmManager
+  services
 }: MarketplaceScreenProps) {
   return (
     <div style={{ marginTop: 24 }}>
@@ -27,7 +34,25 @@ export default function MarketplaceScreen({
         </Card>
 
         <div style={{ marginTop: 24 }}>
-          <DVMServices dvmManager={dvmManager} />
+          <Card title="DVM Services">
+            <div style={$servicesContainer}>
+              {services.length === 0 ? (
+                <div style={$text}>Searching for DVM services...</div>
+              ) : (
+                services.map(service => (
+                  <div key={service.id} style={$serviceCard}>
+                    <div style={$serviceTitle}>{service.title}</div>
+                    <div style={$serviceDescription}>{service.description}</div>
+                    <div style={$serviceMeta}>
+                      ID: {service.id.slice(0, 8)}...
+                      <br />
+                      Pubkey: {service.pubkey.slice(0, 8)}...
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </Card>
         </div>
 
         <div style={$footer}>
@@ -69,4 +94,39 @@ const $nostrKey = {
   color: '#666',
   fontFamily: 'jetBrainsMonoRegular, monospace',
   wordBreak: 'break-all' as const,
+}
+
+const $servicesContainer = {
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: 16,
+  padding: '8px 0',
+}
+
+const $serviceCard = {
+  padding: 16,
+  backgroundColor: '#1a1a1a',
+  borderRadius: 8,
+  border: '1px solid #333',
+}
+
+const $serviceTitle = {
+  fontSize: 16,
+  fontWeight: 'bold' as const,
+  color: '#fff',
+  marginBottom: 8,
+  fontFamily: 'jetBrainsMonoRegular, monospace',
+}
+
+const $serviceDescription = {
+  fontSize: 14,
+  color: '#ccc',
+  marginBottom: 12,
+  fontFamily: 'jetBrainsMonoRegular, monospace',
+}
+
+const $serviceMeta = {
+  fontSize: 12,
+  color: '#666',
+  fontFamily: 'jetBrainsMonoRegular, monospace',
 }
