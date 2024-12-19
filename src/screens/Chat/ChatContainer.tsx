@@ -370,7 +370,7 @@ export default function ChatContainer() {
 
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
-      <View style={{ flex: 1, backgroundColor: '#000' }}>
+      <View style={{ flex: 1, backgroundColor: 'transparent' }}>
         <Chat
           renderBubble={renderBubble}
           theme={monoTheme}
@@ -385,7 +385,7 @@ export default function ChatContainer() {
           }}
         />
         {!context && !initializing && (
-          <View style={{ padding: 10, backgroundColor: '#000' }}>
+          <View style={{ padding: 10, paddingBottom: 50, backgroundColor: '#000' }}>
             <Pressable onPress={confirmDownload} disabled={downloading}>
               <View style={{ backgroundColor: '#444', padding: 10, borderRadius: 5 }}>
                 <Text style={{ color: 'white', textAlign: 'center', fontFamily: typography.primary.normal }}>

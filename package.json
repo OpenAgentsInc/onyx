@@ -21,7 +21,7 @@
     "submit:ios": "eas submit -p ios",
     "t": "tsc --noEmit",
     "doctor": "npx expo-doctor",
-    "copyrepo": "cd ~/code && node md.js ./onyx && cat combined.md | pbcopy",
+    "copyrepo": "cd ~/code && node md.js ./appfactory && cat combined.md | pbcopy",
     "eas-build-pre-install": "echo 'Running pre-install hook...'",
     "eas-build-post-install": "echo 'Running post-install hook...' && yarn fix-llama:linux",
     "eas-build-on-success": "echo 'Build succeeded!'",
