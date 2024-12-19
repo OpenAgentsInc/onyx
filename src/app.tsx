@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar"
 import * as React from "react"
 import { AppRegistry, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
-import { ChatContainer } from "./screens/Chat/ChatContainer"
+import ChatContainer from "./screens/Chat/ChatContainer"
 
 function App() {
   return (
