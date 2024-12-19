@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// Function to add post install hook to Podfile
 function modifyPodfile() {
   const podfilePath = path.join(__dirname, '../ios/Podfile');
   
@@ -12,11 +11,15 @@ function modifyPodfile() {
 
   let podfileContent = fs.readFileSync(podfilePath, 'utf8');
   
-  // Remove any existing post_install blocks
-  podfileContent = podfileContent.replace(/post_install do \|installer\|[\s\S]*?end\n/g, '');
+  // Find the target 'Onyx' do block
+  const targetBlock = podfileContent.match(/target ['"]Onyx['"] do[\s\S]*?end/);
+  if (!targetBlock) {
+    console.log('Could not find target block in Podfile');
+    process.exit(1);
+  }
 
-  // Add our combined post_install hook at the end
-  const hookContent = `
+  // Create the new post_install block
+  const postInstallBlock = `
   post_install do |installer|
     react_native_post_install(
       installer,
@@ -54,16 +57,18 @@ function modifyPodfile() {
     else
       puts "Warning: Could not find \#{spec_file}"
     end
-  end
-end`;
+  end`;
 
-  // Add the hook at the end of the file
-  podfileContent = podfileContent.trim() + "\n" + hookContent + "\n";
-  
+  // Remove any existing post_install blocks
+  podfileContent = podfileContent.replace(/\s*post_install do \|installer\|[\s\S]*?end\n/g, '');
+
+  // Add our post_install block after the target block
+  const targetEndIndex = podfileContent.lastIndexOf('end');
+  podfileContent = podfileContent.slice(0, targetEndIndex + 3) + '\n' + postInstallBlock + '\n';
+
   // Write back to Podfile
   fs.writeFileSync(podfilePath, podfileContent);
   console.log('Successfully modified Podfile');
 }
 
-// Run the script
 modifyPodfile();
