@@ -2,78 +2,97 @@
 
 ```
 src/
-├── app.tsx                     # Root app component with navigation container and font loading
+├── app.tsx                     # Root app component with canvas and router
 ├── canvas/                     # Three.js canvas components
-│   ├── Canvas.tsx              # Canvas and Orb
-│   ├── index.ts                # Exports
-│   └── types.ts                # Canvas types
+│   ├── Canvas.tsx             # Canvas and Orb
+│   ├── index.ts               # Exports
+│   └── types.ts               # Canvas types
 ├── components/                 # Shared UI components
-│   ├── Badge.tsx               # Badge component for status indicators
-│   ├── Button.tsx              # Common button component
-│   ├── Card.tsx                # Card container component
-│   ├── Checkbox.tsx            # Checkbox input component
-│   ├── DataTable.tsx           # Table component for data display
-│   ├── RadioButtonGroup.tsx    # Radio button group component
-│   └── TextArea.tsx            # Text input component
+│   ├── Badge.tsx              # Badge component for status indicators
+│   ├── Button.tsx             # Common button component
+│   ├── Card.tsx               # Card container component
+│   ├── Checkbox.tsx           # Checkbox input component
+│   ├── DataTable.tsx          # Table component for data display
+│   ├── RadioButtonGroup.tsx   # Radio button group component
+│   └── TextArea.tsx           # Text input component
 ├── navigation/                 # Navigation configuration
-│   └── Router.tsx              # Custom router using Zustand
-├── onboarding/                 # Onboarding flow screens (using DOM components)
-│   ├── Onboarding1.tsx         # First onboarding screen
-│   ├── Onboarding{2-9}.tsx     # Second through ninth onboarding screen
-│   └── Onboarding10.tsx        # Final onboarding screen
-├── screens/                    # Main tab screens (using DOM components)
-│   ├── AnalysisScreen.tsx      # Analysis tab with data visualization
-│   ├── CommunityScreen.tsx     # Community tab with reports
-│   ├── FeedbackScreen.tsx      # Feedback submission screen
-│   └── MarketplaceScreen.tsx   # Marketplace tab with data requests
-├── store/                      # Zustand stores
-│   ├── useOnboardingStore.ts   # Onboarding state
-│   └── useRouterStore.ts       # Navigation state
-├── theme/
-│   └── typography.ts           # Font configuration
-└── utils/
-    ├── isEmulator.ts           # Check if we're running in emulator
-    └── useIsFocused.ts         # Hook to see if app is focused
+│   ├── Router.tsx             # Main router with navigation container
+│   └── RouterWrapper.tsx      # Native wrapper for router initialization
+├── screens/                    # Main app screens
+│   └── Marketplace/           # Example of screen organization
+│       ├── index.tsx          # Exports the wrapper
+│       ├── Screen.tsx         # DOM/Web component ('use dom')
+│       └── Wrapper.tsx        # Native wrapper with hooks/services
+├── services/                   # Core services
+│   ├── KeyService.ts          # Key management service
+│   ├── ServiceManager.ts      # Service initialization orchestration
+│   ├── secure-storage/        # Secure storage implementation
+│   └── hooks/                 # Service-related hooks
+├── store/                     # Zustand stores
+│   └── useInitStore.ts        # Initialization state management
+├── theme/                     # Theme configuration
+│   ├── global.css            # Global styles and DOM defaults
+│   └── typography.ts         # Font configuration
+└── utils/                     # Utility functions
+    └── crypto-polyfill.ts    # Crypto polyfills for web
 
-Key Files:
-- src/app.tsx: Main app component with navigation setup and font loading
-- src/navigation/Router.tsx/RootNavigator.tsx: Main navigation logic and onboarding state management
-- src/store/useOnboardingStore.ts: Persistent storage for onboarding state
-- src/store/useRouterStore.ts: Navigation state management
+Key Architectural Points:
 
-## Onboarding Flow (DOM Components)
-- Sequential screens introducing app features
-- Uses Card component for consistent layout
-- Prevents back navigation
-- Updates persistent state on completion
+## Native-Web Component Pattern
+Each screen follows a three-file pattern:
+- index.tsx: Exports the wrapper
+- Screen.tsx: Pure DOM component with 'use dom'
+- Wrapper.tsx: Native wrapper with hooks/services
+
+## Component Responsibilities
+- Wrapper Components (Native):
+  - Handle native APIs (secure storage, etc.)
+  - Manage service initialization
+  - Pass data to DOM components via props
+  - Handle native-specific functionality
+
+- Screen Components (DOM/Web):
+  - Pure presentation components
+  - Use 'use dom' directive
+  - Receive all data via props
+  - No direct API/service access
+  - Use DOM elements (div instead of View)
+
+## Service Architecture
+- ServiceManager: Orchestrates service initialization
+- KeyService: Manages secure key operations
+- Secure Storage: Handles encrypted storage
+- Hooks: Provide service access to components
+
+## Styling Strategy
+- global.css: Enforces black backgrounds and base styles
+- DOM components use className and inline styles
+- Native components use React Native StyleSheet
+- Consistent spacing and typography
 
 ## State Management
-- useOnboardingStore: Zustand store with AsyncStorage persistence
-  - Tracks onboarding completion state
-  - Used by root navigator for routing decisions
-- useRouterStore: Zustand store for navigation
-  - Handles screen transitions
-  - Manages navigation state
+- useInitStore: Manages app initialization
+- Zustand for state management
+- Persistent storage where needed
 
-## Theme Configuration
-- typography.ts: Font family definitions
-- Used by root app for font loading
+## Navigation
+- RouterWrapper: Handles initialization
+- Router: Uses react-navigation
+- Screen-specific wrappers for native functionality
 
-## Components
-- Shared UI components used across screens
-- Card: Main container component used in all screens
-- Button: Common button component with themes
-- Other components for specific UI needs
-- Consistent styling and behavior
-- Dark theme optimized
+## Best Practices
+1. Always use wrapper pattern for screens
+2. Keep DOM components pure
+3. Handle native operations in wrappers
+4. Use proper layering for canvas visibility
+5. Maintain consistent styling approach
+6. Follow explicit naming conventions
+7. Document component responsibilities
 
-## DOM Component Usage
-All screens now use DOM components with:
-- 'use dom' directive
-- div containers instead of View
-- Card component for layout
-- Inline styles with TypeScript types
-- Consistent typography and spacing
-- Responsive heights (100vh)
-- Standardized font families
+## Common Gotchas
+1. Using React Native components in 'use dom'
+2. Mixing native and web styling
+3. Improper layering with canvas
+4. Missing native wrappers
+5. Inconsistent background handling
 ```
