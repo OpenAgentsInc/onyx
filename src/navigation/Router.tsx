@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import MarketplaceScreen from '../screens/MarketplaceScreen'
+import Marketplace from '../screens/Marketplace'
 
 const Stack = createNativeStackNavigator()
 
@@ -50,7 +50,7 @@ export default function Router({
       <Stack.Navigator>
         <Stack.Screen 
           name="Marketplace" 
-          component={MarketplaceScreen}
+          component={Marketplace}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
