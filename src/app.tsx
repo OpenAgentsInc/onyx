@@ -1,12 +1,11 @@
 import "@/utils/crypto-polyfill"
 import "text-encoding-polyfill"
-import "@/theme/global.css" // Import global styles
+import "@/theme/global.css"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
-import { AppRegistry, Text, View, ViewStyle } from "react-native"
+import { AppRegistry, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
-import RouterWrapper from "@/navigation/RouterWrapper"
-import { typography } from "./theme/typography"
+import { ChatContainer } from "./screens/Chat/ChatContainer"
 
 function App() {
   return (
@@ -14,7 +13,8 @@ function App() {
       <StatusBar style="light" />
       <View style={$routerContainer}>
         {/* <Text style={{ fontFamily: typography.primary.medium, color: 'white' }}>Onyx</Text> */}
-        <RouterWrapper />
+        {/* <RouterWrapper /> */}
+        <ChatContainer />
       </View>
       <View style={$canvasContainer}>
         <Canvas />

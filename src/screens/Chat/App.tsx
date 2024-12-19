@@ -1,22 +1,19 @@
-import React, { useState, useRef } from 'react'
-import type { ReactNode } from 'react'
-import { Platform } from 'react-native'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
-import DocumentPicker from 'react-native-document-picker'
-import type { DocumentPickerResponse } from 'react-native-document-picker'
-import { Chat, darkTheme } from '@flyerhq/react-native-chat-ui'
-import type { MessageType } from '@flyerhq/react-native-chat-ui'
-import json5 from 'json5'
-import ReactNativeBlobUtil from 'react-native-blob-util'
-import type { LlamaContext } from 'llama.rn'
+import json5 from "json5"
 import {
-  initLlama,
-  loadLlamaModelInfo,
-  convertJsonSchemaToGrammar,
-  // eslint-disable-next-line import/no-unresolved
-} from 'llama.rn'
-import { Bubble } from './Bubble'
+  convertJsonSchemaToGrammar, initLlama, loadLlamaModelInfo
+} from "llama.rn"
+import React, { useRef, useState } from "react"
+import { Platform } from "react-native"
+import ReactNativeBlobUtil from "react-native-blob-util"
+import DocumentPicker from "react-native-document-picker"
+import { SafeAreaProvider } from "react-native-safe-area-context"
+import { Chat, darkTheme } from "@flyerhq/react-native-chat-ui"
+import { Bubble } from "./Bubble"
 
+import type { ReactNode } from 'react'
+import type { DocumentPickerResponse } from 'react-native-document-picker'
+import type { MessageType } from '@flyerhq/react-native-chat-ui'
+import type { LlamaContext } from 'llama.rn'
 const { dirs } = ReactNativeBlobUtil.fs
 
 const randId = () => Math.random().toString(36).substr(2, 9)
@@ -132,19 +129,17 @@ export default function App() {
         const t1 = Date.now()
         setContext(ctx)
         addSystemMessage(
-          `Context initialized!\n\nLoad time: ${t1 - t0}ms\nGPU: ${
-            ctx.gpu ? 'YES' : 'NO'
-          } (${ctx.reasonNoGPU})\nChat Template: ${
-            ctx.model.isChatTemplateSupported ? 'YES' : 'NO'
+          `Context initialized!\n\nLoad time: ${t1 - t0}ms\nGPU: ${ctx.gpu ? 'YES' : 'NO'
+          } (${ctx.reasonNoGPU})\nChat Template: ${ctx.model.isChatTemplateSupported ? 'YES' : 'NO'
           }\n\n` +
-            'You can use the following commands:\n\n' +
-            '- /info: to get the model info\n' +
-            '- /bench: to benchmark the model\n' +
-            '- /release: release the context\n' +
-            '- /stop: stop the current completion\n' +
-            '- /reset: reset the conversation' +
-            '- /save-session: save the session tokens\n' +
-            '- /load-session: load the session tokens',
+          'You can use the following commands:\n\n' +
+          '- /info: to get the model info\n' +
+          '- /bench: to benchmark the model\n' +
+          '- /release: release the context\n' +
+          '- /stop: stop the current completion\n' +
+          '- /reset: reset the conversation' +
+          '- /save-session: save the session tokens\n' +
+          '- /load-session: load the session tokens',
         )
       })
       .catch((err) => {
