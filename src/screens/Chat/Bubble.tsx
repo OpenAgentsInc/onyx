@@ -45,6 +45,7 @@ export const Bubble = ({
       }}
       onLongPress={handleLongPress}
       delayLongPress={500}
+      activeOpacity={0.8}
     >
       {child}
       {timings && (
