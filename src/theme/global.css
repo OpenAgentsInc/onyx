@@ -1,12 +1,24 @@
 /* Global styles for Onyx */
 
-/* Ensure black background at root level */
-html, body, #root {
-  background-color: #000 !important;
+/* Force black background at all levels */
+html, body {
+  background: #000 !important;
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  color: #fff;
+  min-width: 100vw;
+  overflow: hidden;
+}
+
+#root, #app {
+  background: #000 !important;
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+/* Ensure all divs are transparent by default */
+div {
+  background-color: transparent;
 }
 
 /* Marketplace screen styles */
@@ -18,4 +30,6 @@ html, body, #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: transparent;
+  color: #fff;
 }
