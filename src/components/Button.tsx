@@ -44,14 +44,10 @@ const styles = {
     color: '#666',
     cursor: 'not-allowed',
   },
-} satisfies Record<string, CSSProperties>;
-
-// Add global styles for active state
-const globalStyles = `
-  button:active {
-    opacity: 0.8;
+  buttonActive: {
+    opacity: 0.8,
   }
-`;
+} satisfies Record<string, CSSProperties>;
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   theme?: 'PRIMARY' | 'SECONDARY';
@@ -60,20 +56,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button: React.FC<ButtonProps> = ({ theme = 'PRIMARY', isDisabled, children, style, ...rest }) => {
-  // Add global styles on mount
-  React.useEffect(() => {
-    const styleSheet = document.createElement("style");
-    styleSheet.innerText = globalStyles;
-    document.head.appendChild(styleSheet);
-    return () => {
-      document.head.removeChild(styleSheet);
-    };
-  }, []);
+  const [isActive, setIsActive] = React.useState(false);
 
   const buttonStyle: CSSProperties = {
     ...styles.buttonRoot,
     ...(theme === 'PRIMARY' ? styles.buttonPrimary : styles.buttonSecondary),
     ...(isDisabled ? styles.buttonDisabled : {}),
+    ...(isActive ? styles.buttonActive : {}),
     ...style,
   };
 
@@ -82,7 +71,16 @@ const Button: React.FC<ButtonProps> = ({ theme = 'PRIMARY', isDisabled, children
   }
 
   return (
-    <button style={buttonStyle} role="button" tabIndex={0} disabled={isDisabled} {...rest}>
+    <button 
+      style={buttonStyle} 
+      role="button" 
+      tabIndex={0} 
+      disabled={isDisabled} 
+      onMouseDown={() => setIsActive(true)}
+      onMouseUp={() => setIsActive(false)}
+      onMouseLeave={() => setIsActive(false)}
+      {...rest}
+    >
       {children}
     </button>
   );

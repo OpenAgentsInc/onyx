@@ -53,7 +53,13 @@
     },
     "plugins": [
       "expo-font",
-      "expo-secure-store",
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow Onyx to access your Face ID biometric data."
+        }
+      ],
       [
         "expo-av",
         {
