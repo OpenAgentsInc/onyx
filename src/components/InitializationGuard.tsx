@@ -1,6 +1,6 @@
-import * as React from 'react'
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
-import { useInitStore } from '../store/useInitStore'
+import * as React from "react"
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native"
+import { useInitStore } from "../store/useInitStore"
 
 interface InitializationGuardProps {
   children: React.ReactNode
@@ -20,7 +20,7 @@ export default function InitializationGuard({ children }: InitializationGuardPro
         <View style={styles.content}>
           <Text style={styles.heading}>Initialization Error</Text>
           <Text style={styles.text}>{errorMessage}</Text>
-          <Text 
+          <Text
             style={styles.button}
             onPress={() => initialize()}
           >
