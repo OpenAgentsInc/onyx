@@ -1,83 +1,96 @@
-'use dom';
+import React from 'react'
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import MarketplaceScreen from '../screens/MarketplaceScreen'
 
-import * as React from "react"
-import Onboarding1 from "@/onboarding/Onboarding1"
-import Onboarding10 from "@/onboarding/Onboarding10"
-import Onboarding2 from "@/onboarding/Onboarding2"
-import Onboarding3 from "@/onboarding/Onboarding3"
-import Onboarding4 from "@/onboarding/Onboarding4"
-import Onboarding5 from "@/onboarding/Onboarding5"
-import Onboarding6 from "@/onboarding/Onboarding6"
-import Onboarding7 from "@/onboarding/Onboarding7"
-import Onboarding8 from "@/onboarding/Onboarding8"
-import Onboarding9 from "@/onboarding/Onboarding9"
-import AnalysisScreen from "@/screens/AnalysisScreen"
-import CommunityScreen from "@/screens/CommunityScreen"
-import FeedbackScreen from "@/screens/FeedbackScreen"
-import MarketplaceScreenWrapper from "@/screens/MarketplaceScreenWrapper"
-import { useOnboardingStore } from "@/store/useOnboardingStore"
-import { useRouterStore } from "@/store/useRouterStore"
+const Stack = createNativeStackNavigator()
 
-export default function Router() {
-  const currentRoute = useRouterStore(state => state.currentRoute)
-  const isOnboarded = useOnboardingStore(state => state.isOnboarded)
+interface RouterProps {
+  isInitialized: boolean
+  isInitializing: boolean
+  errorMessage: string | null
+  onRetry: () => void
+}
 
-  const renderContent = () => {
-    // If not onboarded, show onboarding flow
-    if (!isOnboarded) {
-      switch (currentRoute) {
-        case 'Onboarding1':
-          return <Onboarding1 />
-        case 'Onboarding2':
-          return <Onboarding2 />
-        case 'Onboarding3':
-          return <Onboarding3 />
-        case 'Onboarding4':
-          return <Onboarding4 />
-        case 'Onboarding5':
-          return <Onboarding5 />
-        case 'Onboarding6':
-          return <Onboarding6 />
-        case 'Onboarding7':
-          return <Onboarding7 />
-        case 'Onboarding8':
-          return <Onboarding8 />
-        case 'Onboarding9':
-          return <Onboarding9 />
-        case 'Onboarding10':
-          return <Onboarding10 />
-        default:
-          return <Onboarding1 />
-      }
-    }
+export default function Router({ 
+  isInitialized,
+  isInitializing,
+  errorMessage,
+  onRetry
+}: RouterProps) {
+  if (errorMessage) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.heading}>Initialization Error</Text>
+          <Text style={styles.text}>{errorMessage}</Text>
+          <Text 
+            style={styles.button}
+            onPress={onRetry}
+          >
+            Retry
+          </Text>
+        </View>
+      </View>
+    )
+  }
 
-    // If onboarded, show main screens
-    switch (currentRoute) {
-      case 'Marketplace':
-        return <MarketplaceScreenWrapper />
-      case 'Analysis':
-        return <AnalysisScreen />
-      case 'Community':
-        return <CommunityScreen />
-      case 'Feedback':
-        return <FeedbackScreen />
-      default:
-        return <MarketplaceScreenWrapper />
-    }
+  if (isInitializing || !isInitialized) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#fff" />
+        <Text style={styles.text}>Initializing Onyx...</Text>
+      </View>
+    )
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'transparent',
-      width: '100vw',
-      height: '100vh'
-    }}>
-      {renderContent()}
-    </div>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen 
+          name="Marketplace" 
+          component={MarketplaceScreen}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  content: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  heading: {
+    color: '#fff',
+    fontSize: 20,
+    fontFamily: 'jetBrainsMonoRegular',
+    marginBottom: 10,
+  },
+  text: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'jetBrainsMonoRegular',
+    textAlign: 'center',
+  },
+  button: {
+    marginTop: 20,
+    backgroundColor: '#333',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#666',
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'jetBrainsMonoRegular',
+  }
+})
