@@ -1,7 +1,13 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 import Router from './Router'
 import { useInitStore } from '../store/useInitStore'
+
+const $container: ViewStyle = {
+  flex: 1,
+  backgroundColor: '#000',
+  paddingTop: 60, // Add space for status bar
+}
 
 export default function RouterWrapper() {
   const { isInitialized, isInitializing, errorMessage } = useInitStore()
@@ -12,9 +18,8 @@ export default function RouterWrapper() {
     initialize().catch(console.error)
   }, [])
 
-  // Pass initialization state to Router
   return (
-    <View style={{ flex: 1 }}>
+    <View style={$container}>
       <Router 
         isInitialized={isInitialized}
         isInitializing={isInitializing}
