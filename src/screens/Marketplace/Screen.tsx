@@ -17,10 +17,7 @@ export default function MarketplaceScreen({
 }: MarketplaceScreenProps) {
   const styles = {
     container: {
-      backgroundColor: '#000',
-      color: '#fff',
-      fontFamily: 'jetBrainsMonoRegular, monospace',
-      minHeight: '100vh',
+      flex: 1,
       padding: '20px',
       maxWidth: '800px',
       margin: '0 auto',
