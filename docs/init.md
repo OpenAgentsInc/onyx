@@ -1,228 +1,255 @@
-# Initialization Architecture
+# Initialization Flow
 
-## Current State
-
-The app currently uses Zustand for:
-- Router state management (useRouterStore)
-- Onboarding state (useOnboardingStore)
-- Both use AsyncStorage persistence
-
-## Requirements
-
-1. Expensive initialization operations:
-   - BIP39 mnemonic generation
-   - Storage initialization
-   - Router state rehydration
-   - Other crypto operations
-
-2. Characteristics:
-   - Some operations must be blocking
-   - Some can run in background
-   - Need singleton instances
-   - Must be accessible throughout app
-
-## Architecture Proposal
-
-### 1. Core Services Layer
-
-Create a services layer with singleton classes for core functionality:
-
-```typescript
-// src/services/CryptoService.ts
-class CryptoService {
-  private static instance: CryptoService
-  private mnemonic: string | null = null
-  
-  private constructor() {}
-  
-  static getInstance(): CryptoService {
-    if (!CryptoService.instance) {
-      CryptoService.instance = new CryptoService()
-    }
-    return CryptoService.instance
-  }
-
-  async initialize(): Promise<void> {
-    // Generate mnemonic etc
-  }
-
-  getMnemonic(): string | null {
-    return this.mnemonic
-  }
-}
-
-export default CryptoService.getInstance()
-```
-
-### 2. Initialization Store
-
-Create a Zustand store to manage initialization state and coordinate services:
-
-```typescript
-// src/store/useInitStore.ts
-import { create } from 'zustand'
-import CryptoService from '../services/CryptoService'
-
-interface InitState {
-  isInitialized: boolean
-  isInitializing: boolean
-  error: Error | null
-  initialize: () => Promise<void>
-}
-
-export const useInitStore = create<InitState>((set, get) => ({
-  isInitialized: false,
-  isInitializing: false,
-  error: null,
-  
-  initialize: async () => {
-    if (get().isInitializing || get().isInitialized) return
-    
-    set({ isInitializing: true })
-    
-    try {
-      // Critical blocking operations
-      await CryptoService.initialize()
-      
-      // Start background operations
-      Promise.all([
-        // Non-blocking operations
-      ]).catch(console.error)
-      
-      set({ isInitialized: true })
-    } catch (error) {
-      set({ error: error as Error })
-    } finally {
-      set({ isInitializing: false })
-    }
-  }
-}))
-```
-
-### 3. Initialization Guard Component
-
-Create a component to manage initialization flow:
-
-```typescript
-// src/components/InitializationGuard.tsx
-import { useEffect } from 'react'
-import { useInitStore } from '../store/useInitStore'
-
-export function InitializationGuard({ 
-  children,
-  fallback = null 
-}: { 
-  children: React.ReactNode
-  fallback?: React.ReactNode 
-}) {
-  const { initialize, isInitialized, isInitializing, error } = useInitStore()
-
-  useEffect(() => {
-    initialize()
-  }, [])
-
-  if (error) {
-    return <div>Error initializing app: {error.message}</div>
-  }
-
-  if (isInitializing || !isInitialized) {
-    return fallback
-  }
-
-  return children
-}
-```
-
-### 4. Usage in App Root
-
-Wrap the Router with the initialization guard:
-
-```typescript
-// src/App.tsx
-import { InitializationGuard } from './components/InitializationGuard'
-import Router from './navigation/Router'
-
-export default function App() {
+## Entry Point (app.tsx)
+```tsx
+function App() {
   return (
-    <InitializationGuard
-      fallback={<div>Initializing...</div>}
-    >
-      <Router />
-    </InitializationGuard>
+    <View style={$container}>
+      <StatusBar style="light" />
+      <View style={$canvasContainer}>
+        <Canvas />
+      </View>
+      <View style={$routerContainer}>
+        <RouterWrapper />
+      </View>
+    </View>
   )
 }
 ```
+1. App renders Canvas and RouterWrapper
+2. Canvas is positioned behind RouterWrapper (zIndex: 0)
+3. RouterWrapper handles initialization state
 
-## Benefits of This Approach
+## RouterWrapper (navigation/RouterWrapper.tsx)
+```tsx
+export default function RouterWrapper() {
+  const { isInitialized, isInitializing, errorMessage } = useInitStore()
+  const initialize = useInitStore(state => state.initialize)
 
-1. **Separation of Concerns**
-   - Services handle core functionality
-   - Store manages initialization state
-   - Guard component handles UI flow
+  React.useEffect(() => {
+    initialize().catch(console.error)
+  }, [])
 
-2. **Singleton Management**
-   - Services are true singletons
-   - Initialization happens once
-   - State is accessible anywhere
+  return (
+    <View style={$container}>
+      <Router 
+        isInitialized={isInitialized}
+        isInitializing={isInitializing}
+        errorMessage={errorMessage}
+        onRetry={initialize}
+      />
+    </View>
+  )
+}
+```
+1. Gets initialization state from useInitStore
+2. Triggers initialization on mount
+3. Passes state to Router component
 
-3. **Flexible Initialization**
-   - Can handle both blocking and background operations
-   - Clear error handling
-   - Progress tracking
-
-4. **Type Safety**
-   - Full TypeScript support
-   - Clear interfaces
-   - Predictable state
-
-## Considerations
-
-1. **Service Dependencies**
-   - Services may need to be initialized in specific order
-   - Consider using a dependency injection pattern for complex service relationships
-
-2. **State Persistence**
-   - Use Zustand's persist middleware for stores that need persistence
-   - Services can use their own storage mechanisms
-
-3. **Error Recovery**
-   - Implement retry mechanisms for critical services
-   - Consider offline-first approach
-
-4. **Performance**
-   - Lazy load non-critical services
-   - Use web workers for heavy computations
-   - Consider code splitting for initialization code
-
-## Example Service Dependencies
-
-```typescript
-// src/services/ServiceManager.ts
-class ServiceManager {
-  private static instance: ServiceManager
-  
-  private constructor() {}
-  
-  static getInstance(): ServiceManager {
-    if (!ServiceManager.instance) {
-      ServiceManager.instance = new ServiceManager()
+## InitStore (store/useInitStore.ts)
+```tsx
+export const useInitStore = create(
+  persist(
+    (set, get) => ({
+      isInitialized: false,
+      isInitializing: false,
+      errorMessage: null,
+      
+      initialize: async () => {
+        if (get().isInitializing) return
+        set({ isInitializing: true })
+        
+        try {
+          await serviceManager.initializeServices()
+          set({ isInitialized: true })
+        } catch (error) {
+          set({ errorMessage: error.message })
+          throw error
+        } finally {
+          set({ isInitializing: false })
+        }
+      }
+    }),
+    {
+      name: 'onyx-init-store',
+      storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => async (state) => {
+        // Re-initialize services after rehydration
+        await serviceManager.initializeServices()
+      }
     }
-    return ServiceManager.instance
-  }
+  )
+)
+```
+1. Manages initialization state
+2. Persists state in AsyncStorage
+3. Handles rehydration by re-initializing services
 
+## ServiceManager (services/ServiceManager.ts)
+```tsx
+class ServiceManagerImpl {
   async initializeServices(): Promise<void> {
-    // Critical services first
-    await CryptoService.initialize()
-    
-    // Then parallel initialization of non-critical services
-    await Promise.all([
-      StorageService.initialize(),
-      NetworkService.initialize()
-    ])
+    if (this.initializationPromise) {
+      return this.initializationPromise
+    }
+
+    this.initializationPromise = (async () => {
+      try {
+        // Initialize KeyService first
+        await keyService.initialize()
+        
+        // Get mnemonic from KeyService
+        const mnemonic = await keyService.getMnemonic()
+        
+        // Initialize other services in parallel
+        await Promise.all([
+          breezService.initialize({ mnemonic }),
+          nostrService.initialize()
+        ])
+
+        this.isInitialized = true
+      } finally {
+        this.initializationPromise = null
+      }
+    })()
+
+    return this.initializationPromise
   }
 }
-
-export default ServiceManager.getInstance()
 ```
+1. Orchestrates service initialization
+2. Initializes KeyService first
+3. Gets mnemonic from KeyService
+4. Initializes other services in parallel
 
-This architecture provides a solid foundation for managing complex initialization requirements while maintaining clean code organization and type safety.
+## KeyService (services/KeyService.ts)
+```tsx
+class KeyServiceImpl {
+  async initialize(): Promise<void> {
+    if (this.initializationPromise) {
+      return this.initializationPromise
+    }
+
+    this.initializationPromise = (async () => {
+      try {
+        // Try to load existing mnemonic
+        let mnemonic = await secureStorage.getMnemonic()
+        
+        // Generate new if none exists
+        if (!mnemonic) {
+          mnemonic = generateMnemonic(wordlist)
+        }
+        
+        // Validate and store
+        if (!validateMnemonic(mnemonic, wordlist)) {
+          throw new Error('Invalid mnemonic')
+        }
+        
+        await secureStorage.setMnemonic(mnemonic)
+        this.mnemonic = mnemonic
+        this.isInitializedFlag = true
+      } finally {
+        this.initializationPromise = null
+      }
+    })()
+
+    return this.initializationPromise
+  }
+}
+```
+1. Checks for existing mnemonic in secure storage
+2. Generates new mnemonic if none exists
+3. Validates mnemonic
+4. Stores mnemonic securely
+
+## SecureStorage (services/secure-storage/index.ts)
+```tsx
+export const secureStorage = {
+  getMnemonic: async () => {
+    try {
+      return await SecureStore.getItemAsync('mnemonic')
+    } catch (error) {
+      console.error('SecureStorage: Error getting mnemonic:', error)
+      throw error
+    }
+  },
+  
+  setMnemonic: async (value: string) => {
+    try {
+      await SecureStore.setItemAsync('mnemonic', value)
+    } catch (error) {
+      console.error('SecureStorage: Error setting mnemonic:', error)
+      throw error
+    }
+  }
+}
+```
+1. Provides secure storage interface
+2. Uses expo-secure-store for native storage
+3. Handles mnemonic storage operations
+
+## Router (navigation/Router.tsx)
+```tsx
+export default function Router({ 
+  isInitialized,
+  isInitializing,
+  errorMessage,
+  onRetry
+}: RouterProps) {
+  if (errorMessage) {
+    return <ErrorScreen message={errorMessage} onRetry={onRetry} />
+  }
+
+  if (isInitializing || !isInitialized) {
+    return <LoadingScreen />
+  }
+
+  return (
+    <NavigationContainer theme={theme}>
+      <Stack.Navigator>
+        <Stack.Screen name="Marketplace" component={Marketplace} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
+```
+1. Shows error screen if initialization failed
+2. Shows loading screen during initialization
+3. Renders navigation stack when initialized
+
+## Initialization States
+
+### Initial Load
+1. App renders with black background
+2. Canvas renders in background
+3. RouterWrapper mounts and triggers initialization
+4. Loading screen shows during initialization
+5. Services initialize in sequence
+6. Navigation stack renders when complete
+
+### Error State
+1. Error during initialization
+2. Error screen shows with retry button
+3. Retry triggers initialization again
+4. Loading screen shows during retry
+
+### Rehydration
+1. App loads with persisted state
+2. Services re-initialize
+3. State updates based on initialization result
+
+## Common Initialization Issues
+1. Secure storage access failures
+2. Invalid mnemonic format
+3. Network errors in service initialization
+4. Rehydration state conflicts
+5. Multiple initialization attempts
+
+## Best Practices
+1. Always check isInitializing before starting
+2. Handle all error cases explicitly
+3. Provide retry mechanism
+4. Log initialization steps
+5. Maintain initialization sequence
+6. Handle rehydration properly
+7. Clean up initialization promises
