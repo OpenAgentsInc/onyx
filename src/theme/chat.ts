@@ -9,7 +9,7 @@ export const monoTheme: Theme = {
   colors: {
     ...darkTheme.colors,
     primary: colors.palette.neutral200,
-    secondary: 'transparent', // colors.palette.neutral200,
+    secondary: colors.palette.neutral100,
     background: 'transparent',
     inputBackground: colors.palette.neutral100,
     inputText: colors.palette.neutral800,
