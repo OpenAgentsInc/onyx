@@ -7,7 +7,8 @@ const palette = {
   neutral400: "#71717a", // zinc-500
   neutral300: "#52525b", // zinc-600
   neutral200: "#27272a", // zinc-800
-  neutral100: "#09090b", // zinc-950
+  neutral100: "#18181b", // zinc-900
+  neutral50: "#09090b", // zinc-950
 
   primary600: "#f4f4f5", // zinc-100
   primary500: "#e4e4e7", // zinc-200
