@@ -436,7 +436,7 @@ export default function App() {
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1 }}>
         {!context && (
-          <View style={{ padding: 10, backgroundColor: '#222' }}>
+          <View style={{ padding: 10, backgroundColor: '#000', paddingTop: 60 }}>
             <Pressable onPress={handleDownloadModel} disabled={downloading}>
               <View style={{ backgroundColor: '#444', padding: 10, borderRadius: 5 }}>
                 <Text style={{ color: 'white', textAlign: 'center' }}>

@@ -8,6 +8,7 @@
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "fix-llama": "sed -i '' 's|#import <ReactCommon/RCTTurboModule.h>|#import \"RCTTurboModule.h\"|' ios/build/generated/ios/RNLlamaSpec/RNLlamaSpec.h",
+    "fix-llama:linux": "sed -i.bak 's|#import <ReactCommon/RCTTurboModule.h>|#import \"RCTTurboModule.h\"|' ios/build/generated/ios/RNLlamaSpec/RNLlamaSpec.h && rm ios/build/generated/ios/RNLlamaSpec/RNLlamaSpec.h.bak",
     "ios": "npx expo prebuild --platform ios && cd ios && pod install && cd .. && yarn fix-llama && npx expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
@@ -19,7 +20,13 @@
     "submit:ios": "eas submit -p ios",
     "t": "tsc --noEmit",
     "doctor": "npx expo-doctor",
-    "copyrepo": "cd ~/code && node md.js ./onyx && cat combined.md | pbcopy"
+    "copyrepo": "cd ~/code && node md.js ./onyx && cat combined.md | pbcopy",
+    "eas-build-pre-install": "echo 'Running pre-install hook...'",
+    "eas-build-post-install": "echo 'Running post-install hook...' && yarn fix-llama:linux",
+    "eas-build-on-success": "echo 'Build succeeded!'",
+    "eas-build-on-error": "echo 'Build failed!'",
+    "eas-build-on-complete": "echo 'Build completed!'",
+    "eas-build-on-cancel": "echo 'Build was canceled!'"
   },
   "jest": {
     "preset": "jest-expo"
