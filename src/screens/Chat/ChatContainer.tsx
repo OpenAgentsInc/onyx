@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react"
 import { Platform, Pressable, Text, View } from "react-native"
 import ReactNativeBlobUtil from "react-native-blob-util"
 import { SafeAreaProvider } from "react-native-safe-area-context"
+import { typography } from "@/theme"
 import { monoTheme } from "@/theme/chat"
 import { ModelDownloader } from "@/utils/ModelDownloader"
 import { Chat, darkTheme } from "@flyerhq/react-native-chat-ui"
@@ -440,7 +441,7 @@ export default function App() {
           <View style={{ padding: 10, backgroundColor: '#000', paddingTop: 60 }}>
             <Pressable onPress={handleDownloadModel} disabled={downloading}>
               <View style={{ backgroundColor: '#444', padding: 10, borderRadius: 5 }}>
-                <Text style={{ color: 'white', textAlign: 'center' }}>
+                <Text style={{ color: 'white', textAlign: 'center', fontFamily: typography.primary.normal }}>
                   {downloading ? `Downloading... ${downloadProgress}%` : 'Download & Load Model'}
                 </Text>
               </View>

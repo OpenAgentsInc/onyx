@@ -1,11 +1,11 @@
 import React, { useContext } from "react"
 import { Text, TouchableOpacity } from "react-native"
+import { typography } from "@/theme"
 import { ThemeContext, UserContext } from "@flyerhq/react-native-chat-ui"
 import Clipboard from "@react-native-clipboard/clipboard"
 
 import type { ReactNode } from 'react'
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
-
 export const Bubble = ({
   child,
   message,
@@ -56,6 +56,7 @@ export const Bubble = ({
             paddingBottom: 12,
             marginTop: -8,
             fontSize: 10,
+            fontFamily: typography.primary.normal
           }}
         >
           {timings}
