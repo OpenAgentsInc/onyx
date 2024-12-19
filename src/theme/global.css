@@ -32,4 +32,5 @@ div {
   flex-direction: column;
   background-color: transparent;
   color: #fff;
+  padding-top: 60px; /* Add space for navigation/status bar */
 }
