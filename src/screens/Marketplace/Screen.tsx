@@ -15,24 +15,33 @@ export default function MarketplaceScreen({
   error
 }: MarketplaceScreenProps) {
   return (
-    <div className="marketplace" style={{ backgroundColor: '#000' }}>
-      <Card title="Marketplace">
-        <div style={$text}>
-          Welcome to the Onyx Marketplace
-        </div>
-      </Card>
+    <div className="marketplace">
+      <div style={$container}>
+        <Card title="Marketplace">
+          <div style={$text}>
+            Welcome to the Onyx Marketplace
+          </div>
+        </Card>
 
-      <div style={$footer}>
-        {isLoading ? (
-          <div style={$nostrKey}>Loading Nostr key...</div>
-        ) : error ? (
-          <div style={$nostrKey}>Error loading Nostr key: {error}</div>
-        ) : npub ? (
-          <div style={$nostrKey}>Nostr: {npub}</div>
-        ) : null}
+        <div style={$footer}>
+          {isLoading ? (
+            <div style={$nostrKey}>Loading Nostr key...</div>
+          ) : error ? (
+            <div style={$nostrKey}>Error loading Nostr key: {error}</div>
+          ) : npub ? (
+            <div style={$nostrKey}>Nostr: {npub}</div>
+          ) : null}
+        </div>
       </div>
     </div>
   )
+}
+
+const $container = {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column' as const,
+  height: '100%',
 }
 
 const $text = {
