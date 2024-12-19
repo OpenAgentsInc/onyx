@@ -1,11 +1,11 @@
-import React from 'react'
-import { View, ViewStyle } from 'react-native'
-import Router from './Router'
-import { useInitStore } from '../store/useInitStore'
+import React from "react"
+import { View, ViewStyle } from "react-native"
+import { useInitStore } from "../store/useInitStore"
+import Router from "./Router"
 
 const $container: ViewStyle = {
   flex: 1,
-  backgroundColor: '#000',
+  backgroundColor: 'transparent',
   paddingTop: 60, // Add space for status bar
 }
 
@@ -20,7 +20,7 @@ export default function RouterWrapper() {
 
   return (
     <View style={$container}>
-      <Router 
+      <Router
         isInitialized={isInitialized}
         isInitializing={isInitializing}
         errorMessage={errorMessage}
