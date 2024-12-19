@@ -1,25 +1,26 @@
 import json5 from "json5"
-import {
-  convertJsonSchemaToGrammar, initLlama, loadLlamaModelInfo
-} from "llama.rn"
+import { initLlama, loadLlamaModelInfo } from "llama.rn"
 import React, { useRef, useState } from "react"
-import { Platform } from "react-native"
+import { Platform, Pressable, Text, View } from "react-native"
 import ReactNativeBlobUtil from "react-native-blob-util"
-import DocumentPicker from "react-native-document-picker"
 import { SafeAreaProvider } from "react-native-safe-area-context"
+import { ModelDownloader } from "@/utils/ModelDownloader"
 import { Chat, darkTheme } from "@flyerhq/react-native-chat-ui"
 import { Bubble } from "./Bubble"
 
-import type { ReactNode } from 'react'
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 import type { LlamaContext } from 'llama.rn'
 const { dirs } = ReactNativeBlobUtil.fs
 
+export const DEFAULT_MODEL = {
+  repoId: 'hugging-quants/Llama-3.2-3B-Instruct-Q4_K_M-GGUF',
+  filename: 'llama-3.2-3b-instruct-q4_k_m.gguf'
+}
+
 const randId = () => Math.random().toString(36).substr(2, 9)
 
 const user = { id: 'y9d7f8pgn' }
-
 const systemId = 'h3o3lc5xj'
 const system = { id: systemId }
 
@@ -35,21 +36,22 @@ const renderBubble = ({
   child,
   message,
 }: {
-  child: ReactNode
+  child: React.ReactNode
   message: MessageType.Any
 }) => <Bubble child={child} message={message} />
 
 export default function App() {
   const [context, setContext] = useState<LlamaContext | undefined>(undefined)
-
   const [inferencing, setInferencing] = useState<boolean>(false)
   const [messages, setMessages] = useState<MessageType.Any[]>([])
+  const [downloading, setDownloading] = useState<boolean>(false)
+  const [downloadProgress, setDownloadProgress] = useState<number>(0)
 
   const conversationIdRef = useRef<string>(defaultConversationId)
+  const downloader = new ModelDownloader()
 
   const addMessage = (message: MessageType.Any, batching = false) => {
     if (batching) {
-      // This can avoid the message duplication in a same batch
       setMessages([message, ...messages])
     } else {
       setMessages((msgs) => [message, ...msgs])
@@ -83,7 +85,6 @@ export default function App() {
       })
   }
 
-  // Example: Get model info without initializing context
   const getModelInfo = async (model: string) => {
     const t0 = Date.now()
     const info = await loadLlamaModelInfo(model)
@@ -102,10 +103,8 @@ export default function App() {
       {
         model: file.uri,
         use_mlock: true,
-        n_gpu_layers: Platform.OS === 'ios' ? 99 : 0, // > 0: enable GPU
-
-        // embedding: true,
-        lora_list: loraFile ? [{ path: loraFile.uri, scaled: 1.0 }] : undefined, // Or lora: loraFile?.uri,
+        n_gpu_layers: Platform.OS === 'ios' ? 99 : 0,
+        lora_list: loraFile ? [{ path: loraFile.uri, scaled: 1.0 }] : undefined,
       },
       (progress) => {
         setMessages((msgs) => {
@@ -137,7 +136,7 @@ export default function App() {
           '- /bench: to benchmark the model\n' +
           '- /release: release the context\n' +
           '- /stop: stop the current completion\n' +
-          '- /reset: reset the conversation' +
+          '- /reset: reset the conversation\n' +
           '- /save-session: save the session tokens\n' +
           '- /load-session: load the session tokens',
         )
@@ -147,55 +146,27 @@ export default function App() {
       })
   }
 
-  const copyFileIfNeeded = async (
-    type = 'model',
-    file: DocumentPickerResponse,
-  ) => {
-    if (Platform.OS === 'android' && file.uri.startsWith('content://')) {
-      const dir = `${ReactNativeBlobUtil.fs.dirs.CacheDir}/${type}s`
-      const filepath = `${dir}/${file.uri.split('/').pop() || type}.gguf`
-
-      if (!(await ReactNativeBlobUtil.fs.isDir(dir)))
-        await ReactNativeBlobUtil.fs.mkdir(dir)
-
-      if (await ReactNativeBlobUtil.fs.exists(filepath))
-        return { uri: filepath } as DocumentPickerResponse
-
-      await ReactNativeBlobUtil.fs.unlink(dir) // Clean up old files in models
-
-      addSystemMessage(`Copying ${type} to internal storage...`)
-      await ReactNativeBlobUtil.MediaCollection.copyToInternal(
-        file.uri,
-        filepath,
+  const handleDownloadModel = async () => {
+    if (downloading) return
+    setDownloadProgress(0)
+    setDownloading(true)
+    try {
+      addSystemMessage(`Downloading model from Hugging Face...`)
+      const file = await downloader.downloadModel(
+        DEFAULT_MODEL.repoId,
+        DEFAULT_MODEL.filename,
+        (progress) => {
+          setDownloadProgress(progress)
+          // You could also update a system message to show progress here if desired
+        }
       )
-      addSystemMessage(`${type} copied!`)
-      return { uri: filepath } as DocumentPickerResponse
+      addSystemMessage(`Model downloaded! Initializing...`)
+      await handleInitContext(file, null)
+    } catch (e: any) {
+      addSystemMessage(`Download failed: ${e.message}`)
+    } finally {
+      setDownloading(false)
     }
-    return file
-  }
-
-  const pickLora = async () => {
-    let loraFile
-    const loraRes = await DocumentPicker.pick({
-      type: Platform.OS === 'ios' ? 'public.data' : 'application/octet-stream',
-    }).catch((e) => console.log('No lora file picked, error: ', e.message))
-    if (loraRes?.[0]) loraFile = await copyFileIfNeeded('lora', loraRes[0])
-    return loraFile
-  }
-
-  const handlePickModel = async () => {
-    const modelRes = await DocumentPicker.pick({
-      type: Platform.OS === 'ios' ? 'public.data' : 'application/octet-stream',
-    }).catch((e) => console.log('No model file picked, error: ', e.message))
-    if (!modelRes?.[0]) return
-    const modelFile = await copyFileIfNeeded('model', modelRes?.[0])
-
-    let loraFile: any = null
-    // Example: Apply lora adapter (Currently only select one lora file) (Uncomment to use)
-    // loraFile = await pickLora()
-    loraFile = null
-
-    handleInitContext(modelFile, loraFile)
   }
 
   const handleSendPress = async (message: MessageType.PartialText) => {
@@ -209,40 +180,43 @@ export default function App() {
           return
         case '/bench':
           addSystemMessage('Heating up the model...')
-          const t0 = Date.now()
-          await context.bench(8, 4, 1, 1)
-          const tHeat = Date.now() - t0
-          if (tHeat > 1e4) {
-            addSystemMessage('Heat up time is too long, please try again.')
-            return
+          {
+            const t0 = Date.now()
+            await context.bench(8, 4, 1, 1)
+            const tHeat = Date.now() - t0
+            if (tHeat > 1e4) {
+              addSystemMessage('Heat up time is too long, please try again.')
+              return
+            }
+            addSystemMessage(`Heat up time: ${tHeat}ms`)
           }
-          addSystemMessage(`Heat up time: ${tHeat}ms`)
-
           addSystemMessage('Benchmarking the model...')
-          const {
-            modelDesc,
-            modelSize,
-            modelNParams,
-            ppAvg,
-            ppStd,
-            tgAvg,
-            tgStd,
-          } = await context.bench(512, 128, 1, 3)
+          {
+            const {
+              modelDesc,
+              modelSize,
+              modelNParams,
+              ppAvg,
+              ppStd,
+              tgAvg,
+              tgStd,
+            } = await context.bench(512, 128, 1, 3)
 
-          const size = `${(modelSize / 1024.0 / 1024.0 / 1024.0).toFixed(
-            2,
-          )} GiB`
-          const nParams = `${(modelNParams / 1e9).toFixed(2)}B`
-          const md =
-            '| model | size | params | test | t/s |\n' +
-            '| --- | --- | --- | --- | --- |\n' +
-            `| ${modelDesc} | ${size} | ${nParams} | pp 512 | ${ppAvg.toFixed(
+            const size = `${(modelSize / 1024.0 / 1024.0 / 1024.0).toFixed(
               2,
-            )} ± ${ppStd.toFixed(2)} |\n` +
-            `| ${modelDesc} | ${size} | ${nParams} | tg 128 | ${tgAvg.toFixed(
-              2,
-            )} ± ${tgStd.toFixed(2)}`
-          addSystemMessage(md, { copyable: true })
+            )} GiB`
+            const nParams = `${(modelNParams / 1e9).toFixed(2)}B`
+            const md =
+              '| model | size | params | test | t/s |\n' +
+              '| --- | --- | --- | --- | --- |\n' +
+              `| ${modelDesc} | ${size} | ${nParams} | pp 512 | ${ppAvg.toFixed(
+                2,
+              )} ± ${ppStd.toFixed(2)} |\n` +
+              `| ${modelDesc} | ${size} | ${nParams} | tg 128 | ${tgAvg.toFixed(
+                2,
+              )} ± ${tgStd.toFixed(2)}`
+            addSystemMessage(md, { copyable: true })
+          }
           return
         case '/release':
           await handleReleaseContext()
@@ -281,17 +255,7 @@ export default function App() {
             })
           return
         case '/lora':
-          pickLora()
-            .then((loraFile) => {
-              if (loraFile)
-                context.applyLoraAdapters([{ path: loraFile.uri }])
-            })
-            .then(() => context.getLoadedLoraAdapters())
-            .then((loraList) =>
-              addSystemMessage(
-                `Loaded lora adapters: ${JSON.stringify(loraList)}`,
-              ),
-            )
+          // If you needed LoRA loading, you could implement here
           return
         case '/remove-lora':
           context.removeLoraAdapters().then(() => {
@@ -307,6 +271,8 @@ export default function App() {
           return
       }
     }
+
+    // Normal user message
     const textMessage: MessageType.Text = {
       author: user,
       createdAt: Date.now(),
@@ -342,82 +308,23 @@ export default function App() {
         .filter((msg) => msg.role),
       { role: 'user', content: message.text },
     ]
+
     addMessage(textMessage)
     setInferencing(true)
-    // Test area
-    {
-      // Test tokenize
-      const formattedChat = (await context?.getFormattedChat(msgs)) || ''
-      const t0 = Date.now()
-      const { tokens } = (await context?.tokenize(formattedChat)) || {}
-      const t1 = Date.now()
-      console.log(
-        'Formatted:',
-        `"${formattedChat}"`,
-        '\nTokenize:',
-        tokens,
-        `(${tokens?.length} tokens, ${t1 - t0}ms})`,
-      )
 
-      // Test embedding
-      // await context?.embedding(formattedChat).then((result) => {
-      //   console.log('Embedding:', result)
-      // })
+    const formattedChat = (await context?.getFormattedChat(msgs)) || ''
+    const t0 = Date.now()
+    const { tokens } = (await context?.tokenize(formattedChat)) || {}
+    const t1 = Date.now()
+    console.log(
+      'Formatted:',
+      `"${formattedChat}"`,
+      '\nTokenize:',
+      tokens,
+      `(${tokens?.length} tokens, ${t1 - t0}ms})`,
+    )
 
-      // Test detokenize
-      // await context?.detokenize(tokens).then((result) => {
-      //   console.log('Detokenize:', result)
-      // })
-    }
-
-    let grammar
-    {
-      // Test JSON Schema -> grammar
-      const schema = {
-        oneOf: [
-          {
-            type: 'object',
-            properties: {
-              function: { const: 'create_event' },
-              arguments: {
-                type: 'object',
-                properties: {
-                  title: { type: 'string' },
-                  date: { type: 'string' },
-                  time: { type: 'string' },
-                },
-                required: ['title', 'date'],
-              },
-            },
-            required: ['function', 'arguments'],
-          },
-          {
-            type: 'object',
-            properties: {
-              function: { const: 'image_search' },
-              arguments: {
-                type: 'object',
-                properties: {
-                  query: { type: 'string' },
-                },
-                required: ['query'],
-              },
-            },
-            required: ['function', 'arguments'],
-          },
-        ],
-      }
-
-      const converted = convertJsonSchemaToGrammar({
-        schema,
-        propOrder: { function: 0, arguments: 1 },
-      })
-      // @ts-ignore
-      if (false) console.log('Converted grammar:', converted)
-      grammar = undefined
-      // Uncomment to test:
-      // grammar = converted
-    }
+    let grammar: any = undefined
 
     context
       ?.completion(
@@ -428,7 +335,6 @@ export default function App() {
           seed: -1,
           n_probs: 0,
 
-          // Sampling params
           top_k: 40,
           top_p: 0.5,
           min_p: 0.05,
@@ -461,8 +367,6 @@ export default function App() {
             '<|end_of_turn|>',
             '<|endoftext|>',
           ],
-          // n_threads: 4,
-          // logit_bias: [[15043,1.0]],
         },
         (data) => {
           const { token } = data
@@ -530,20 +434,33 @@ export default function App() {
 
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
-      <Chat
-        renderBubble={renderBubble}
-        theme={darkTheme}
-        messages={messages}
-        onSendPress={handleSendPress}
-        user={user}
-        onAttachmentPress={!context ? handlePickModel : undefined}
-        textInputProps={{
-          editable: !!context,
-          placeholder: !context
-            ? 'Press the file icon to pick a model'
-            : 'Type your message here',
-        }}
-      />
+      <View style={{ flex: 1 }}>
+        {!context && (
+          <View style={{ padding: 10, backgroundColor: '#222' }}>
+            <Pressable onPress={handleDownloadModel} disabled={downloading}>
+              <View style={{ backgroundColor: '#444', padding: 10, borderRadius: 5 }}>
+                <Text style={{ color: 'white', textAlign: 'center' }}>
+                  {downloading ? `Downloading... ${downloadProgress}%` : 'Download & Load Model'}
+                </Text>
+              </View>
+            </Pressable>
+          </View>
+        )}
+        <Chat
+          renderBubble={renderBubble}
+          theme={darkTheme}
+          messages={messages}
+          onSendPress={handleSendPress}
+          user={user}
+          // Attachment is no longer needed since we are not picking from file
+          textInputProps={{
+            editable: !!context,
+            placeholder: !context
+              ? 'Download a model to begin'
+              : 'Type your message here',
+          }}
+        />
+      </View>
     </SafeAreaProvider>
   )
 }
