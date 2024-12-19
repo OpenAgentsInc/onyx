@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react"
 import { Platform, Pressable, Text, View } from "react-native"
 import ReactNativeBlobUtil from "react-native-blob-util"
 import { SafeAreaProvider } from "react-native-safe-area-context"
+import { monoTheme } from "@/theme/chat"
 import { ModelDownloader } from "@/utils/ModelDownloader"
 import { Chat, darkTheme } from "@flyerhq/react-native-chat-ui"
 import { Bubble } from "./Bubble"
@@ -448,7 +449,7 @@ export default function App() {
         )}
         <Chat
           renderBubble={renderBubble}
-          theme={darkTheme}
+          theme={monoTheme}
           messages={messages}
           onSendPress={handleSendPress}
           user={user}
