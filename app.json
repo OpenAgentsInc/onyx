@@ -10,7 +10,7 @@
     "backgroundColor": "#000000",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#000000"
     },
     "newArchEnabled": true,
