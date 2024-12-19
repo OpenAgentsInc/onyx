@@ -1,8 +1,8 @@
 import { getPublicKey, nip19 } from "nostr-tools"
 import { sha256 } from "@noble/hashes/sha256"
 import { bytesToHex } from "@noble/hashes/utils"
-import { NostrKeys, NostrService } from "./nostr.types"
 import { keyService } from "../KeyService"
+import { NostrKeys, NostrService } from "./nostr.types"
 
 class NostrServiceImpl implements NostrService {
   private keys: NostrKeys | null = null
@@ -11,7 +11,7 @@ class NostrServiceImpl implements NostrService {
 
   async initialize(): Promise<void> {
     console.log('NostrService: Starting initialization...')
-    
+
     // If already initializing, wait for that to complete
     if (this.initializationPromise) {
       console.log('NostrService: Already initializing, waiting...')

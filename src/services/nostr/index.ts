@@ -9,4 +9,4 @@ export * from './encchannel';
 export * from './db';
 export * from './channel';
 
-export * from "./nostr"
+export * from "./nostrService"
