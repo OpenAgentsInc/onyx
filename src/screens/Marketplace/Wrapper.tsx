@@ -46,6 +46,7 @@ export default function MarketplaceWrapper() {
 
       // Create DVM manager with the Damus pool
       const manager = new DVMManager(damusPool)
+      console.log('manager:', manager)
       setDvmManager(manager)
 
       // Subscribe to services
@@ -68,6 +69,7 @@ export default function MarketplaceWrapper() {
 
       return () => {
         // sub.unsub()
+        console.log('closing pool')
         damusPool.close()
       }
     } catch (e) {

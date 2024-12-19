@@ -12,11 +12,11 @@ export class DVMManager {
 
   // Subscribe to NIP-89 service announcements
   subscribeToServices(callback: (event: Event) => void) {
-    // console.log("Subscribing to services with pool state:", {
-    //   hasPool: !!this.pool,
-    //   hasRelays: this.pool?.relays?.length > 0,
-    //   relayCount: this.pool?.relays?.length
-    // })
+    console.log("Subscribing to services with pool state:", {
+      hasPool: !!this.pool,
+      hasRelays: this.pool?.relays?.length > 0,
+      relayCount: this.pool?.relays?.length
+    })
 
     if (!this.pool) {
       console.error("No pool available for service subscription")
@@ -24,8 +24,10 @@ export class DVMManager {
     }
 
     const filter: Filter = {
-      kinds: [31989],
-      since: Math.floor(Date.now() / 1000) - 2400 * 60 * 60 // Last 24 hours
+      kinds: [1],
+      // kinds: [31989],
+      // since: Math.floor(Date.now() / 1000) - 24 * 60 * 60, // Last 24 hours
+      limit: 25
     }
 
     try {
