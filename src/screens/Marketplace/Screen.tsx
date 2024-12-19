@@ -15,50 +15,43 @@ export default function MarketplaceScreen({
   isLoading,
   error
 }: MarketplaceScreenProps) {
-  const styles = {
-    container: {
-      flex: 1,
-      padding: '20px',
-      maxWidth: '800px',
-      margin: '0 auto',
-      backgroundColor: 'transparent',
-    },
-    text: {
-      fontSize: 14,
-      lineHeight: 1.5,
-      color: '#fff',
-      fontFamily: 'jetBrainsMonoRegular, monospace',
-    } as TextStyle,
-    footer: {
-      marginTop: 'auto',
-      paddingTop: 20,
-      borderTop: '1px solid #333',
-    },
-    nostrKey: {
-      fontSize: 12,
-      color: '#666',
-      fontFamily: 'jetBrainsMonoRegular, monospace',
-      wordBreak: 'break-all' as const,
-    }
-  }
-
   return (
-    <div style={styles.container}>
+    <div className="marketplace">
       <Card title="Marketplace">
-        <Text style={styles.text}>
+        <Text style={$text}>
           Welcome to the Onyx Marketplace
         </Text>
       </Card>
 
-      <View style={styles.footer}>
+      <View style={$footer}>
         {isLoading ? (
-          <Text style={styles.nostrKey}>Loading Nostr key...</Text>
+          <Text style={$nostrKey}>Loading Nostr key...</Text>
         ) : error ? (
-          <Text style={styles.nostrKey}>Error loading Nostr key: {error}</Text>
+          <Text style={$nostrKey}>Error loading Nostr key: {error}</Text>
         ) : npub ? (
-          <Text style={styles.nostrKey}>Nostr: {npub}</Text>
+          <Text style={$nostrKey}>Nostr: {npub}</Text>
         ) : null}
       </View>
     </div>
   )
+}
+
+const $text: TextStyle = {
+  fontSize: 14,
+  lineHeight: 1.5,
+  color: '#fff',
+  fontFamily: 'jetBrainsMonoRegular, monospace',
+}
+
+const $footer = {
+  marginTop: 'auto',
+  paddingTop: 20,
+  borderTop: '1px solid #333',
+}
+
+const $nostrKey = {
+  fontSize: 12,
+  color: '#666',
+  fontFamily: 'jetBrainsMonoRegular, monospace',
+  wordBreak: 'break-all' as const,
 }
