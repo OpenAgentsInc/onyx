@@ -6,6 +6,15 @@ import { DVMManager } from "@/services/nostr/dvm"
 import { NostrPool } from "@/services/nostr/pool"
 import { NostrIdentity } from "@/services/nostr/ident"
 import { nip19 } from 'nostr-tools'
+import { Event } from 'nostr-tools'
+
+interface DVMService {
+  id: string
+  title: string
+  description: string
+  pubkey: string
+  created_at: number
+}
 
 const $container: ViewStyle = {
   position: 'absolute',
@@ -19,6 +28,7 @@ const $container: ViewStyle = {
 export default function MarketplaceWrapper() {
   const { npub, isLoading, error, nsec } = useNostr()
   const [dvmManager, setDvmManager] = useState<DVMManager | null>(null)
+  const [services, setServices] = useState<DVMService[]>([])
 
   useEffect(() => {
     if (!nsec || isLoading) return
@@ -39,7 +49,25 @@ export default function MarketplaceWrapper() {
       const manager = new DVMManager(damusPool)
       setDvmManager(manager)
 
+      // Subscribe to services
+      const handleService = (event: Event) => {
+        try {
+          const service = manager.parseServiceAnnouncement(event)
+          setServices(prev => {
+            // Deduplicate by id
+            const exists = prev.find(s => s.id === service.id)
+            if (exists) return prev
+            return [...prev, service]
+          })
+        } catch (e) {
+          console.error('Error parsing service:', e)
+        }
+      }
+
+      const sub = manager.subscribeToServices(handleService)
+
       return () => {
+        sub.unsub()
         damusPool.close()
       }
     } catch (e) {
@@ -53,7 +81,7 @@ export default function MarketplaceWrapper() {
         npub={npub}
         isLoading={isLoading}
         error={error}
-        dvmManager={dvmManager}
+        services={services}
       />
     </View>
   )
