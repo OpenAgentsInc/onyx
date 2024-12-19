@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
 import { Text, TouchableOpacity } from "react-native"
-import { typography } from "@/theme"
+import { colors, typography } from "@/theme"
 import { ThemeContext, UserContext } from "@flyerhq/react-native-chat-ui"
 import Clipboard from "@react-native-clipboard/clipboard"
 
@@ -39,7 +39,8 @@ export const Bubble = ({
         borderBottomRightRadius: currentUserIsAuthor
           ? 0
           : theme.borders.messageBorderRadius,
-        borderColor: 'transparent',
+        borderColor: colors.palette.neutral200,
+        borderWidth: 1,
         borderRadius: theme.borders.messageBorderRadius,
         overflow: 'hidden',
       }}
