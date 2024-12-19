@@ -1,10 +1,21 @@
 import React from 'react'
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
-import { NavigationContainer } from '@react-navigation/native'
+import { NavigationContainer, DarkTheme } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import Marketplace from '../screens/Marketplace'
 
 const Stack = createNativeStackNavigator()
+
+// Customize dark theme to ensure black backgrounds
+const theme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: '#000',
+    card: '#000',
+    border: '#333',
+  },
+}
 
 interface RouterProps {
   isInitialized: boolean
@@ -46,15 +57,25 @@ export default function Router({
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen 
-          name="Marketplace" 
-          component={Marketplace}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <View style={styles.container}>
+      <NavigationContainer theme={theme}>
+        <Stack.Navigator screenOptions={{
+          headerStyle: {
+            backgroundColor: '#000',
+          },
+          headerTintColor: '#fff',
+          contentStyle: {
+            backgroundColor: '#000',
+          }
+        }}>
+          <Stack.Screen 
+            name="Marketplace" 
+            component={Marketplace}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </View>
   )
 }
 
@@ -62,8 +83,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   content: {
     padding: 20,
