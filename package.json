@@ -41,7 +41,6 @@
     "bip32": "^5.0.0-rc.0",
     "bip39": "3.1.0",
     "expo": "~52.0.19",
-    "expo-app-loading": "^2.1.1",
     "expo-av": "~15.0.1",
     "expo-blur": "~14.0.1",
     "expo-constants": "~17.0.3",
