@@ -1,5 +1,5 @@
---- RNLlamaSpec.h	2024-02-14 12:00:00.000000000 -0000
-+++ RNLlamaSpec.h	2024-02-14 12:00:00.000000000 -0000
+--- RNLlamaSpec.h
++++ RNLlamaSpec.h
 @@ -26,7 +26,7 @@
  #import <React/RCTBridgeModule.h>
  #import <React/RCTCxxConvert.h>
@@ -7,5 +7,4 @@
 -#import <ReactCommon/RCTTurboModule.h>
 +#import "RCTTurboModule.h"
  
--@protocol NativeLlamaSpec <RCTTurboModule>
-+@protocol NativeLlamaSpec <RCTTurboModule>
+ @protocol NativeLlamaSpec <RCTTurboModule>
