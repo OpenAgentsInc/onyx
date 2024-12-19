@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import { nostrService } from '../nostr/nostrService'
-import { NostrKeys } from '../nostr/nostr.types'
-import { useInitStore } from '@/store/useInitStore'
+import { useEffect, useState } from "react"
+import { useInitStore } from "@/store/useInitStore"
+import { NostrKeys } from "../nostr/nostr.types"
+import { nostrService } from "../nostr/nostrService"
 
 export function useNostr() {
   const [keys, setKeys] = useState<NostrKeys | null>(null)
@@ -33,7 +33,7 @@ export function useNostr() {
           setError(null)
         }
       } catch (err) {
-        console.error('useNostr: Error loading keys:', err)
+        console.log('useNostr: Error loading keys:', err)
         if (mounted) {
           setError(err instanceof Error ? err.message : 'Failed to load Nostr keys')
           setKeys(null)

@@ -74,7 +74,7 @@ class NostrServiceImpl implements NostrService {
   async getKeys(): Promise<NostrKeys> {
     console.log('NostrService: Getting keys...')
     if (!this.isInitializedFlag || !this.keys) {
-      console.error('NostrService: Attempted to get keys before initialization')
+      console.log('NostrService: Attempted to get keys before initialization')
       throw new Error('NostrService not initialized')
     }
     return this.keys

@@ -1,8 +1,8 @@
-import React from 'react'
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
-import { NavigationContainer, DarkTheme } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import Marketplace from '../screens/Marketplace'
+import React from "react"
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native"
+import { DarkTheme, NavigationContainer } from "@react-navigation/native"
+import { createNativeStackNavigator } from "@react-navigation/native-stack"
+import Marketplace from "../screens/Marketplace"
 
 const Stack = createNativeStackNavigator()
 
@@ -24,7 +24,7 @@ interface RouterProps {
   onRetry: () => void
 }
 
-export default function Router({ 
+export default function Router({
   isInitialized,
   isInitializing,
   errorMessage,
@@ -36,7 +36,7 @@ export default function Router({
         <View style={styles.content}>
           <Text style={styles.heading}>Initialization Error</Text>
           <Text style={styles.text}>{errorMessage}</Text>
-          <Text 
+          <Text
             style={styles.button}
             onPress={onRetry}
           >
@@ -51,7 +51,7 @@ export default function Router({
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#fff" />
-        <Text style={styles.text}>Initializing Onyx...</Text>
+        {/* <Text style={styles.text}>Initializing Onyx...</Text> */}
       </View>
     )
   }
@@ -68,8 +68,8 @@ export default function Router({
             backgroundColor: '#000',
           }
         }}>
-          <Stack.Screen 
-            name="Marketplace" 
+          <Stack.Screen
+            name="Marketplace"
             component={Marketplace}
             options={{ headerShown: false }}
           />
@@ -82,7 +82,15 @@ export default function Router({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     padding: 20,
