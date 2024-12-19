@@ -1,5 +1,6 @@
 import "@/utils/crypto-polyfill"
 import "text-encoding-polyfill"
+import "@/theme/global.css" // Import global styles
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
 import { AppRegistry, View, ViewStyle } from "react-native"
@@ -31,7 +32,7 @@ const $canvasContainer: ViewStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  zIndex: 0, // Ensure canvas is behind everything
+  zIndex: 0,
 }
 
 const $routerContainer: ViewStyle = {
@@ -41,7 +42,7 @@ const $routerContainer: ViewStyle = {
   right: 0,
   bottom: 0,
   zIndex: 1,
-  backgroundColor: 'transparent', // Make sure this is transparent to see canvas
+  backgroundColor: 'transparent',
 }
 
 AppRegistry.registerComponent('main', () => App);
