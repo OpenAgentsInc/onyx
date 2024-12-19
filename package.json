@@ -1,7 +1,7 @@
 {
   "name": "onyx",
   "main": "src/app.tsx",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "license": "AGPL-3.0-only",
   "scripts": {
     "start": "expo start",
@@ -12,6 +12,7 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "build": "yarn build:ios:prod",
+    "build:ios:dev": "eas build --profile development:device --platform ios --local",
     "build:ios:prod": "eas build --profile production --platform ios",
     "prebuild:clean": "npx expo prebuild --clean --platform ios",
     "submit:ios": "eas submit -p ios",

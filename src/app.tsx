@@ -14,9 +14,9 @@ function App() {
       <View style={$canvasContainer}>
         <Canvas />
       </View>
-      <View style={$routerContainer}>
+      {/* <View style={$routerContainer}>
         <RouterWrapper />
-      </View>
+      </View> */}
     </View>
   );
 }
