@@ -15,7 +15,7 @@ export default function MarketplaceScreen({
   error
 }: MarketplaceScreenProps) {
   return (
-    <div className="marketplace">
+    <div className="marketplace" style={{ backgroundColor: '#000' }}>
       <Card title="Marketplace">
         <div style={$text}>
           Welcome to the Onyx Marketplace
