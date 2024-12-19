@@ -1,9 +1,10 @@
 // ChatContainer.tsx
+
 import json5 from "json5"
 import { initLlama, loadLlamaModelInfo } from "llama.rn"
 import React, { useEffect, useRef, useState } from "react"
 import {
-  ActivityIndicator, Platform, Pressable, Text, View
+  ActivityIndicator, Alert, Platform, Pressable, Text, View
 } from "react-native"
 import ReactNativeBlobUtil from "react-native-blob-util"
 import { SafeAreaProvider } from "react-native-safe-area-context"
@@ -104,7 +105,7 @@ export default function ChatContainer() {
       })
   }
 
-  const handleDownloadModel = async () => {
+  const handleDownloadModelConfirmed = async () => {
     if (downloading) return
     setDownloadProgress(0)
     setDownloading(true)
@@ -124,6 +125,18 @@ export default function ChatContainer() {
     } finally {
       setDownloading(false)
     }
+  }
+
+  const confirmDownload = () => {
+    Alert.alert(
+      "Download Model?",
+      `This model file may be large and is hosted here:\n\nhttps://huggingface.co/${DEFAULT_MODEL.repoId}/resolve/main/${DEFAULT_MODEL.filename}\n\nIt's recommended to download over Wi-Fi to avoid large data usage.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Download", onPress: handleDownloadModelConfirmed },
+      ],
+      { cancelable: true }
+    )
   }
 
   const handleSendPress = async (message: MessageType.PartialText) => {
@@ -236,7 +249,7 @@ export default function ChatContainer() {
       ?.completion(
         {
           messages: msgs,
-          n_predict: 1500, // Increased max tokens
+          n_predict: 1500, // Increased to 1500
           grammar,
           seed: -1,
           n_probs: 0,
@@ -373,7 +386,7 @@ export default function ChatContainer() {
         />
         {!context && !initializing && (
           <View style={{ padding: 10, backgroundColor: '#000' }}>
-            <Pressable onPress={handleDownloadModel} disabled={downloading}>
+            <Pressable onPress={confirmDownload} disabled={downloading}>
               <View style={{ backgroundColor: '#444', padding: 10, borderRadius: 5 }}>
                 <Text style={{ color: 'white', textAlign: 'center', fontFamily: typography.primary.normal }}>
                   {downloading ? `Downloading... ${downloadProgress}%` : 'Download & Load Model'}
