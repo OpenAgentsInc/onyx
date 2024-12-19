@@ -1,7 +1,7 @@
 'use dom'
 
-import React from 'react'
-import Card from '@/components/Card'
+import React from "react"
+import Card from "@/components/Card"
 
 interface MarketplaceScreenProps {
   npub: string | null
@@ -15,7 +15,7 @@ export default function MarketplaceScreen({
   error
 }: MarketplaceScreenProps) {
   return (
-    <div className="marketplace">
+    <div style={{ marginTop: 24 }}>
       <div style={$container}>
         <Card title="Marketplace">
           <div style={$text}>
