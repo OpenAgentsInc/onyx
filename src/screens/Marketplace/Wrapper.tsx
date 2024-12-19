@@ -4,14 +4,12 @@ import { useNostr } from '@/services/hooks/useNostr'
 import Screen from './Screen'
 
 const $container: ViewStyle = {
-  position: 'fixed',
+  position: 'absolute',
   top: 0,
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: '#000',
-  width: '100vw',
-  height: '100vh'
+  backgroundColor: 'transparent',
 }
 
 export default function MarketplaceWrapper() {
