@@ -31,7 +31,7 @@ const $canvasContainer: ViewStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  zIndex: 1,
+  zIndex: 0, // Ensure canvas is behind everything
 }
 
 const $routerContainer: ViewStyle = {
@@ -40,8 +40,8 @@ const $routerContainer: ViewStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  zIndex: 2,
-  backgroundColor: 'transparent',
+  zIndex: 1,
+  backgroundColor: 'transparent', // Make sure this is transparent to see canvas
 }
 
 AppRegistry.registerComponent('main', () => App);
