@@ -1,7 +1,6 @@
 'use dom'
 
 import React from 'react'
-import { Text, TextStyle, View } from 'react-native'
 import Card from '@/components/Card'
 
 interface MarketplaceScreenProps {
@@ -18,25 +17,25 @@ export default function MarketplaceScreen({
   return (
     <div className="marketplace">
       <Card title="Marketplace">
-        <Text style={$text}>
+        <div style={$text}>
           Welcome to the Onyx Marketplace
-        </Text>
+        </div>
       </Card>
 
-      <View style={$footer}>
+      <div style={$footer}>
         {isLoading ? (
-          <Text style={$nostrKey}>Loading Nostr key...</Text>
+          <div style={$nostrKey}>Loading Nostr key...</div>
         ) : error ? (
-          <Text style={$nostrKey}>Error loading Nostr key: {error}</Text>
+          <div style={$nostrKey}>Error loading Nostr key: {error}</div>
         ) : npub ? (
-          <Text style={$nostrKey}>Nostr: {npub}</Text>
+          <div style={$nostrKey}>Nostr: {npub}</div>
         ) : null}
-      </View>
+      </div>
     </div>
   )
 }
 
-const $text: TextStyle = {
+const $text = {
   fontSize: 14,
   lineHeight: 1.5,
   color: '#fff',
