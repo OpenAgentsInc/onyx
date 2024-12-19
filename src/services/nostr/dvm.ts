@@ -25,14 +25,15 @@ export class DVMManager {
 
     const filter: Filter = {
       kinds: [31989],
-      since: Math.floor(Date.now() / 1000) - 24 * 60 * 60 // Last 24 hours
+      since: Math.floor(Date.now() / 1000) - 2400 * 60 * 60 // Last 24 hours
     }
 
     try {
+      console.log("Attempting subscription")
       return this.pool.sub(
         [filter],
         (event: Event) => {
-          // console.log("Received service announcement:", event)
+          console.log("Received service announcement:", event)
           callback(event)
         }
       )

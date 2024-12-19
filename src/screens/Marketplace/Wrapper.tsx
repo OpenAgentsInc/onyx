@@ -1,12 +1,11 @@
+import { Event, nip19 } from "nostr-tools"
 import React, { useEffect, useState } from "react"
-import { View, ViewStyle } from 'react-native'
-import { useNostr } from '@/services/hooks/useNostr'
-import Screen from "./Screen"
+import { View, ViewStyle } from "react-native"
+import { useNostr } from "@/services/hooks/useNostr"
 import { DVMManager } from "@/services/nostr/dvm"
-import { NostrPool } from "@/services/nostr/pool"
 import { NostrIdentity } from "@/services/nostr/ident"
-import { nip19 } from 'nostr-tools'
-import { Event } from 'nostr-tools'
+import { NostrPool } from "@/services/nostr/pool"
+import Screen from "./Screen"
 
 interface DVMService {
   id: string
@@ -43,14 +42,15 @@ export default function MarketplaceWrapper() {
 
       // Initialize a new pool specifically for the Damus relay
       const damusPool = new NostrPool(identity)
-      damusPool.setRelays(['wss://relay.damus.io'])
-      
+      damusPool.setRelays(['wss://relay.damus.io', 'wss://offchain.pub', 'wss://purplepag.es/', 'wss://relay.snort.social/'])
+
       // Create DVM manager with the Damus pool
       const manager = new DVMManager(damusPool)
       setDvmManager(manager)
 
       // Subscribe to services
       const handleService = (event: Event) => {
+        console.log(event)
         try {
           const service = manager.parseServiceAnnouncement(event)
           setServices(prev => {
@@ -67,7 +67,7 @@ export default function MarketplaceWrapper() {
       const sub = manager.subscribeToServices(handleService)
 
       return () => {
-        sub.unsub()
+        // sub.unsub()
         damusPool.close()
       }
     } catch (e) {
