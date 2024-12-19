@@ -1,8 +1,8 @@
 export interface NostrKeys {
-  privateKey: string
-  publicKey: string
-  npub: string
-  nsec: string
+  privateKey: string // hex format
+  publicKey: string // hex format
+  npub: string // bech32 format
+  nsec: string // bech32 format
 }
 
 export interface NostrService {
