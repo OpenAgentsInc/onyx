@@ -9,7 +9,13 @@ html, body, #root {
   color: #fff;
 }
 
-/* Ensure all DOM elements inherit transparency */
-div {
-  background-color: transparent;
+/* Marketplace screen styles */
+.marketplace {
+  flex: 1;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
