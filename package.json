@@ -23,7 +23,7 @@
     "doctor": "npx expo-doctor",
     "copyrepo": "cd ~/code && node md.js ./appfactory && cat combined.md | pbcopy",
     "eas-build-pre-install": "echo 'Running pre-install hook...'",
-    "eas-build-post-install": "echo 'Running post-install hook...' && yarn fix-llama:linux",
+    "eas-build-post-install": "if [ \"$EAS_BUILD_PLATFORM\" = \"ios\" ]; then echo 'Running post-install hook for iOS...' && yarn fix-llama:linux; else echo 'Skipping post-install hook for non-iOS platform'; fi",
     "eas-build-on-success": "echo 'Build succeeded!'",
     "eas-build-on-error": "echo 'Build failed!'",
     "eas-build-on-complete": "echo 'Build completed!'",
