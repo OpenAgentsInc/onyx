@@ -2,17 +2,20 @@
 
 import React from "react"
 import Card from "@/components/Card"
+import DVMServices from "./DVMServices"
 
 interface MarketplaceScreenProps {
   npub: string | null
   isLoading: boolean
   error: string | null
+  dvmManager: any // DVMManager type
 }
 
 export default function MarketplaceScreen({
   npub,
   isLoading,
-  error
+  error,
+  dvmManager
 }: MarketplaceScreenProps) {
   return (
     <div style={{ marginTop: 24 }}>
@@ -22,6 +25,10 @@ export default function MarketplaceScreen({
             Welcome to the Onyx Marketplace
           </div>
         </Card>
+
+        <div style={{ marginTop: 24 }}>
+          <DVMServices dvmManager={dvmManager} />
+        </div>
 
         <div style={$footer}>
           {isLoading ? (
