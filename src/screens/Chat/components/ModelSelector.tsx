@@ -1,8 +1,9 @@
 import React from 'react'
-import { Pressable, Text, View, StyleSheet } from 'react-native'
+import { Pressable, Text, View, StyleSheet, ScrollView } from 'react-native'
 import { typography } from '@/theme'
 import { AVAILABLE_MODELS } from '../constants'
 import { useModelStore } from '@/store/useModelStore'
+import { ModelFileManager } from './ModelFileManager'
 
 export const ModelSelector = () => {
   const { selectedModelKey, selectModel, status } = useModelStore()
@@ -13,32 +14,43 @@ export const ModelSelector = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Select Model to Download</Text>
-      {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
-        <Pressable
-          key={key}
-          onPress={() => handleModelSelect(key)}
-          disabled={status === 'downloading' || status === 'initializing'}
-          style={[
-            styles.modelButton,
-            key === selectedModelKey && styles.selectedButton,
-            (status === 'downloading' || status === 'initializing') && styles.disabledButton
-          ]}
-        >
-          <Text style={styles.modelText}>
-            {model.displayName}
-          </Text>
-          <Text style={styles.sizeText}>
-            {key === '1B' ? '~1GB' : '~2GB'}
-          </Text>
-        </Pressable>
-      ))}
-    </View>
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Select Model to Download</Text>
+        {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
+          <Pressable
+            key={key}
+            onPress={() => handleModelSelect(key)}
+            disabled={status === 'downloading' || status === 'initializing'}
+            style={[
+              styles.modelButton,
+              key === selectedModelKey && styles.selectedButton,
+              (status === 'downloading' || status === 'initializing') && styles.disabledButton
+            ]}
+          >
+            <Text style={styles.modelText}>
+              {model.displayName}
+            </Text>
+            <Text style={styles.sizeText}>
+              {key === '1B' ? '~1GB' : '~2GB'}
+            </Text>
+          </Pressable>
+        ))}
+
+        {/* Model File Manager */}
+        <View style={styles.managerContainer}>
+          <ModelFileManager />
+        </View>
+      </View>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
   container: {
     padding: 20,
     backgroundColor: '#000',
@@ -76,5 +88,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: typography.primary.normal,
     marginTop: 4,
+  },
+  managerContainer: {
+    marginTop: 20,
   },
 })
