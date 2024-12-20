@@ -56,17 +56,22 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       startDownload: () => {
-        set({
-          status: 'downloading',
-          progress: 0,
-          errorMessage: null,
-          downloadCancelled: false,
-        })
+        const { status } = get()
+        // Only start download if we're idle or in error state
+        if (status === 'idle' || status === 'error') {
+          set({
+            status: 'downloading',
+            progress: 0,
+            errorMessage: null,
+            downloadCancelled: false,
+          })
+        }
       },
 
       updateProgress: (progress: number) => {
+        const { status, downloadCancelled } = get()
         // Only update progress if we're still downloading and not cancelled
-        if (get().status === 'downloading' && !get().downloadCancelled) {
+        if (status === 'downloading' && !downloadCancelled) {
           set({ progress })
         }
       },
@@ -76,7 +81,11 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       startInitialization: () => {
-        set({ status: 'initializing', progress: 100 })
+        const { status } = get()
+        // Only start initialization if we're in downloading state
+        if (status === 'downloading') {
+          set({ status: 'initializing', progress: 100 })
+        }
       },
 
       setReady: () => {
