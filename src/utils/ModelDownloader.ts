@@ -1,7 +1,7 @@
 import ReactNativeBlobUtil from "react-native-blob-util"
 import { AppState, AppStateStatus } from "react-native"
 import type { DocumentPickerResponse } from 'react-native-document-picker'
-import { useModelStore } from '../store/useModelStore'
+import { useModelStore } from '@/store/useModelStore'
 
 const { dirs } = ReactNativeBlobUtil.fs
 
@@ -48,7 +48,6 @@ export class ModelDownloader {
   async downloadModel(
     repoId: string,
     filename: string,
-    onProgress?: ProgressCallback
   ): Promise<DocumentPickerResponse> {
     const filepath = `${this.cacheDir}/${filename}`
     const store = useModelStore.getState()
@@ -84,16 +83,19 @@ export class ModelDownloader {
       this.currentDownload = ReactNativeBlobUtil.config({
         fileCache: true,
         path: filepath,
-        timeout: 30000 // 30 second timeout
+        timeout: 0, // No timeout
+        IOSBackgroundTask: true, // Enable background download on iOS
       }).fetch(
         'GET',
-        `https://huggingface.co/${repoId}/resolve/main/${filename}`
+        `https://huggingface.co/${repoId}/resolve/main/${filename}`,
+        {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
       )
 
       const response = await this.currentDownload.progress((received, total) => {
         const progress = Math.round((received / total) * 100)
         store.updateProgress(progress)
-        onProgress?.(progress, received, total)
       })
 
       // Validate downloaded file
