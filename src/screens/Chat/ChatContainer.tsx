@@ -58,6 +58,24 @@ export default function ChatContainer() {
   // Only show loading indicator during actual initialization
   const showLoadingIndicator = initializing && status === 'initializing'
 
+  const handleDownloadModel = async (modelKey: string) => {
+    setShowModelManager(false) // Close the modal
+    setDownloading(true)
+    setDownloadProgress(0)
+    try {
+      const currentModel = AVAILABLE_MODELS[modelKey]
+      const file = await downloader.downloadModel(
+        currentModel.repoId,
+        currentModel.filename
+      )
+      await handleInitContext(file)
+    } catch (error) {
+      console.error('Download failed:', error)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: '#000' }}>
@@ -145,6 +163,7 @@ export default function ChatContainer() {
         <ModelFileManager 
           visible={showModelManager}
           onClose={() => setShowModelManager(false)}
+          onDownloadModel={handleDownloadModel}
         />
       </View>
     </SafeAreaProvider>
