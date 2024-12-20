@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from "react"
-import {
-  Alert, Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, View
-} from "react-native"
-import ReactNativeBlobUtil from "react-native-blob-util"
-import { getCurrentModelConfig, useModelStore } from "@/store/useModelStore"
-import { typography } from "@/theme"
-import { colors } from "@/theme/colors"
-import { ModelDownloader } from "@/utils/ModelDownloader"
-import { AVAILABLE_MODELS } from "../constants"
+import React, { useState, useEffect } from 'react'
+import { View, Text, StyleSheet, Alert, TouchableOpacity, Modal, SafeAreaView } from 'react-native'
+import ReactNativeBlobUtil from 'react-native-blob-util'
+import { typography } from '@/theme'
+import { colors } from '@/theme/colors'
+import { ModelDownloader } from '@/utils/ModelDownloader'
+import { useModelStore, getCurrentModelConfig } from '@/store/useModelStore'
+import { AVAILABLE_MODELS } from '../constants'
 
 interface ModelFile {
   name: string
@@ -20,12 +18,14 @@ interface ModelFileManagerProps {
   visible: boolean
   onClose: () => void
   onDownloadModel: (modelKey: string) => void
+  embedded?: boolean
 }
 
-export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
-  visible,
+export const ModelFileManager: React.FC<ModelFileManagerProps> = ({ 
+  visible, 
   onClose,
-  onDownloadModel
+  onDownloadModel,
+  embedded = false
 }) => {
   const [modelFiles, setModelFiles] = useState<ModelFile[]>([])
   const downloader = new ModelDownloader()
@@ -40,7 +40,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
           const path = `${downloader.cacheDir}/${filename}`
           const stats = await ReactNativeBlobUtil.fs.stat(path)
           const sizeMB = (stats.size / (1024 * 1024)).toFixed(1)
-
+          
           const modelKey = Object.entries(AVAILABLE_MODELS).find(
             ([_, model]) => model.filename === filename
           )?.[0] || ''
@@ -66,8 +66,8 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
       `Delete ${model.displayName.replace(' Instruct', '')}? You'll need to download it again to use it.`,
       [
         { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
+        { 
+          text: "Delete", 
           style: "destructive",
           onPress: async () => {
             try {
@@ -90,10 +90,10 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
   }
 
   useEffect(() => {
-    if (visible) {
+    if (visible || embedded) {
       loadModelFiles()
     }
-  }, [visible])
+  }, [visible, embedded])
 
   const isModelDownloaded = (modelKey: string) => {
     return modelFiles.some(file => file.modelKey === modelKey)
@@ -101,11 +101,62 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
 
   const getModelSize = (modelKey: string): string => {
     const file = modelFiles.find(file => file.modelKey === modelKey)
-    return file ? file.size : modelKey === '1B' ? '770 MB' : '2 GB'
+    return file ? file.size : modelKey === '1B' ? '~1GB' : '~2GB'
   }
 
   const isModelActive = (modelKey: string) => {
     return modelKey === selectedModelKey && status === 'ready'
+  }
+
+  const content = (
+    <View style={styles.container}>
+      {/* Available Models Section */}
+      <View style={styles.section}>
+        {Object.entries(AVAILABLE_MODELS).map(([key, model]) => {
+          const downloaded = isModelDownloaded(key)
+          const active = isModelActive(key)
+          const displayName = model.displayName.replace(' Instruct', '')
+          
+          return (
+            <View key={key} style={styles.modelItem}>
+              <TouchableOpacity 
+                style={styles.modelInfo}
+                onPress={() => downloaded && handleSelectModel(key)}
+                disabled={!downloaded}
+              >
+                <Text style={styles.modelName}>
+                  {displayName}
+                  {active && <Text style={styles.activeIndicator}> ✓</Text>}
+                </Text>
+                <Text style={styles.modelSize}>
+                  {getModelSize(key)}
+                </Text>
+              </TouchableOpacity>
+              {downloaded ? (
+                <TouchableOpacity
+                  onPress={() => handleDeleteModel(key)}
+                  style={styles.deleteButton}
+                >
+                  <Text style={styles.deleteButtonText}>Delete</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => onDownloadModel(key)}
+                  style={styles.downloadButton}
+                  disabled={status === 'downloading'}
+                >
+                  <Text style={styles.downloadButtonText}>Download</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )
+        })}
+      </View>
+    </View>
+  )
+
+  if (embedded) {
+    return content
   }
 
   return (
@@ -126,50 +177,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
           </View>
 
           {/* Content */}
-          <View style={styles.container}>
-            {/* Available Models Section */}
-            <View style={styles.section}>
-              {Object.entries(AVAILABLE_MODELS).map(([key, model]) => {
-                const downloaded = isModelDownloaded(key)
-                const active = isModelActive(key)
-                const displayName = model.displayName.replace(' Instruct', '')
-
-                return (
-                  <View key={key} style={styles.modelItem}>
-                    <TouchableOpacity
-                      style={styles.modelInfo}
-                      onPress={() => downloaded && handleSelectModel(key)}
-                      disabled={!downloaded}
-                    >
-                      <Text style={styles.modelName}>
-                        {displayName}
-                        {active && <Text style={styles.activeIndicator}> ✓</Text>}
-                      </Text>
-                      <Text style={styles.modelSize}>
-                        {getModelSize(key)}
-                      </Text>
-                    </TouchableOpacity>
-                    {downloaded ? (
-                      <TouchableOpacity
-                        onPress={() => handleDeleteModel(key)}
-                        style={styles.deleteButton}
-                      >
-                        <Text style={styles.deleteButtonText}>Delete</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity
-                        onPress={() => onDownloadModel(key)}
-                        style={styles.downloadButton}
-                        disabled={status === 'downloading'}
-                      >
-                        <Text style={styles.downloadButtonText}>Download</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                )
-              })}
-            </View>
-          </View>
+          {content}
         </View>
       </SafeAreaView>
     </Modal>
