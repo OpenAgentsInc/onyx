@@ -3,7 +3,7 @@ import { View, Text, Alert, Platform, StyleSheet, ScrollView, TouchableOpacity }
 import { typography } from '@/theme'
 import { colors } from '@/theme/colors'
 import { ModelDownloader } from '@/utils/ModelDownloader'
-import { getCurrentModelConfig } from '@/store/useModelStore'
+import { getCurrentModelConfig, useModelStore } from '@/store/useModelStore'
 import { addSystemMessage } from '../utils'
 import { ModelSelector } from './ModelSelector'
 import { ModelFileManager } from './ModelFileManager'
@@ -23,7 +23,6 @@ interface DownloadScreenProps {
 export function DownloadScreen({
   downloading,
   initializing,
-  downloadProgress,
   setDownloading,
   setDownloadProgress,
   setMessages,
@@ -31,11 +30,12 @@ export function DownloadScreen({
   handleInitContext,
 }: DownloadScreenProps) {
   const downloader = new ModelDownloader()
+  const { status, progress, errorMessage, reset } = useModelStore()
 
   const handleDownloadModelConfirmed = async () => {
     if (downloading) return
-    setDownloadProgress(0)
     setDownloading(true)
+    setDownloadProgress(0)
     try {
       const currentModel = getCurrentModelConfig()
       addSystemMessage(setMessages, messages, `Downloading ${currentModel.displayName} from Hugging Face...`)
@@ -55,6 +55,8 @@ export function DownloadScreen({
       } else {
         addSystemMessage(setMessages, [], `Download failed: ${e.message}`)
       }
+      // Reset store state on error
+      reset()
     } finally {
       setDownloading(false)
     }
@@ -77,6 +79,19 @@ export function DownloadScreen({
     )
   }
 
+  const getButtonText = () => {
+    if (status === 'downloading') {
+      return `Downloading... ${progress}%`
+    }
+    if (status === 'initializing') {
+      return 'Initializing...'
+    }
+    if (status === 'error') {
+      return 'Retry Download'
+    }
+    return 'Download Selected Model'
+  }
+
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
@@ -96,20 +111,26 @@ export function DownloadScreen({
           </View>
         </View>
 
+        {/* Error Message */}
+        {errorMessage && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        )}
+
         {/* Download Button */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             onPress={confirmDownload}
-            disabled={downloading || initializing}
+            disabled={status === 'downloading' || status === 'initializing'}
             style={[
               styles.button,
-              (downloading || initializing) && styles.buttonDisabled
+              (status === 'downloading' || status === 'initializing') && styles.buttonDisabled,
+              status === 'error' && styles.buttonError
             ]}
           >
             <Text style={styles.buttonText}>
-              {downloading ? `Downloading... ${downloadProgress}%` : 
-               initializing ? 'Initializing...' :
-               'Download Selected Model'}
+              {getButtonText()}
             </Text>
           </TouchableOpacity>
         </View>
@@ -144,6 +165,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  errorContainer: {
+    backgroundColor: colors.errorBackground,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: 14,
+    fontFamily: typography.primary.normal,
+    textAlign: 'center',
+  },
   buttonContainer: {
     marginTop: 8,
     marginHorizontal: 4,
@@ -157,6 +190,9 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     backgroundColor: colors.palette.neutral300,
+  },
+  buttonError: {
+    backgroundColor: colors.errorBackground,
   },
   buttonText: {
     color: colors.palette.neutral100,
