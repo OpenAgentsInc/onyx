@@ -11,6 +11,7 @@ export const ModelSwitcher = () => {
   const currentModel = AVAILABLE_MODELS[selectedModelKey]
 
   const handleModelSelect = (modelKey: string) => {
+    console.log('Selecting model:', modelKey)
     if (modelKey !== selectedModelKey) {
       selectModel(modelKey)
     }
@@ -28,6 +29,8 @@ export const ModelSwitcher = () => {
         return 'chip'
       case 'error':
         return 'alert'
+      case 'releasing':
+        return 'cog-refresh'
       default:
         return 'chip'
     }
@@ -38,13 +41,13 @@ export const ModelSwitcher = () => {
       <Pressable 
         onPress={() => setModalVisible(true)}
         style={styles.button}
-        disabled={status === 'downloading' || status === 'initializing'}
+        disabled={status === 'downloading' || status === 'initializing' || status === 'releasing'}
       >
         <Icon 
           name={getIcon()} 
           size={24} 
           color="white"
-          style={status === 'initializing' ? styles.spinning : undefined}
+          style={status === 'initializing' || status === 'releasing' ? styles.spinning : undefined}
         />
       </Pressable>
 
@@ -73,6 +76,7 @@ export const ModelSwitcher = () => {
                   key === selectedModelKey && styles.selectedOption
                 ]}
                 onPress={() => handleModelSelect(key)}
+                disabled={status === 'downloading' || status === 'initializing' || status === 'releasing'}
               >
                 <Text style={[
                   styles.modelText,
@@ -103,7 +107,6 @@ const styles = StyleSheet.create({
   },
   spinning: {
     opacity: 0.7,
-    // Note: Add animation if needed
   },
   modalOverlay: {
     flex: 1,
