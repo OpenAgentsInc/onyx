@@ -27,13 +27,11 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
 }) => {
   const [modelFiles, setModelFiles] = useState<ModelFile[]>([])
   const downloader = new ModelDownloader()
-  const { selectedModelKey, modelPath, status } = useModelStore()
+  const { selectedModelKey, modelPath, status, selectModel } = useModelStore()
 
   const loadModelFiles = async () => {
     try {
-      // Ensure directory exists
       await downloader.ensureDirectory()
-      
       const files = await ReactNativeBlobUtil.fs.ls(downloader.cacheDir)
       const fileDetails = await Promise.all(
         files.map(async (filename) => {
@@ -41,7 +39,6 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
           const stats = await ReactNativeBlobUtil.fs.stat(path)
           const sizeMB = (stats.size / (1024 * 1024)).toFixed(1)
           
-          // Find which model this file belongs to
           const modelKey = Object.entries(AVAILABLE_MODELS).find(
             ([_, model]) => model.filename === filename
           )?.[0] || ''
@@ -60,22 +57,24 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
     }
   }
 
-  const handleDeleteAll = () => {
+  const handleDeleteModel = async (modelKey: string) => {
+    const model = AVAILABLE_MODELS[modelKey]
     Alert.alert(
-      "Delete All Models?",
-      "This will delete all downloaded model files. You'll need to download them again to use them.",
+      "Delete Model?",
+      `Delete ${model.displayName.replace(' Instruct', '')}? You'll need to download it again to use it.`,
       [
         { text: "Cancel", style: "cancel" },
         { 
-          text: "Delete All", 
+          text: "Delete", 
           style: "destructive",
           onPress: async () => {
             try {
-              await downloader.cleanDirectory()
+              const filePath = `${downloader.cacheDir}/${model.filename}`
+              await ReactNativeBlobUtil.fs.unlink(filePath)
               await loadModelFiles() // Refresh list
             } catch (error) {
-              console.error('Failed to delete model files:', error)
-              Alert.alert('Error', 'Failed to delete model files')
+              console.error('Failed to delete model file:', error)
+              Alert.alert('Error', 'Failed to delete model file')
             }
           }
         }
@@ -83,7 +82,11 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
     )
   }
 
-  // Load files when modal becomes visible
+  const handleSelectModel = (modelKey: string) => {
+    selectModel(modelKey)
+    onClose()
+  }
+
   useEffect(() => {
     if (visible) {
       loadModelFiles()
@@ -122,22 +125,30 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
               {Object.entries(AVAILABLE_MODELS).map(([key, model]) => {
                 const downloaded = isModelDownloaded(key)
                 const active = isModelActive(key)
+                const displayName = model.displayName.replace(' Instruct', '')
                 
                 return (
                   <View key={key} style={styles.modelItem}>
-                    <View style={styles.modelInfo}>
+                    <TouchableOpacity 
+                      style={styles.modelInfo}
+                      onPress={() => downloaded && handleSelectModel(key)}
+                      disabled={!downloaded}
+                    >
                       <Text style={styles.modelName}>
-                        {model.displayName}
+                        {displayName}
                         {active && <Text style={styles.activeIndicator}> ✓</Text>}
                       </Text>
                       <Text style={styles.modelSize}>
                         {key === '1B' ? '~1GB' : '~2GB'}
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                     {downloaded ? (
-                      <View style={styles.downloadedBadge}>
-                        <Text style={styles.downloadedText}>Downloaded</Text>
-                      </View>
+                      <TouchableOpacity
+                        onPress={() => handleDeleteModel(key)}
+                        style={styles.deleteButton}
+                      >
+                        <Text style={styles.deleteButtonText}>Delete</Text>
+                      </TouchableOpacity>
                     ) : (
                       <TouchableOpacity
                         onPress={() => onDownloadModel(key)}
@@ -151,16 +162,6 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
                 )
               })}
             </View>
-
-            {/* Delete All Button */}
-            {modelFiles.length > 0 && (
-              <TouchableOpacity
-                onPress={handleDeleteAll}
-                style={styles.deleteButton}
-              >
-                <Text style={styles.deleteButtonText}>Delete All Model Files</Text>
-              </TouchableOpacity>
-            )}
           </View>
         </View>
       </SafeAreaView>
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: typography.primary.medium,
   },
   closeButton: {
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: colors.tint,
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: typography.primary.medium,
   },
   container: {
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
   modelName: {
     color: colors.text,
     fontFamily: typography.primary.normal,
-    fontSize: 16,
+    fontSize: 14,
   },
   activeIndicator: {
     color: colors.tint,
@@ -235,40 +236,28 @@ const styles = StyleSheet.create({
     color: colors.textDim,
     fontFamily: typography.primary.normal,
     fontSize: 12,
-    marginTop: 4,
+    marginTop: 2,
   },
   downloadButton: {
     backgroundColor: colors.tint,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 16,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
   },
   downloadButtonText: {
     color: colors.background,
     fontFamily: typography.primary.medium,
-    fontSize: 14,
-  },
-  downloadedBadge: {
-    backgroundColor: colors.palette.neutral300,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-  },
-  downloadedText: {
-    color: colors.textDim,
-    fontFamily: typography.primary.medium,
-    fontSize: 14,
+    fontSize: 12,
   },
   deleteButton: {
     backgroundColor: colors.errorBackground,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
   },
   deleteButtonText: {
     color: colors.error,
     fontFamily: typography.primary.medium,
-    fontSize: 14,
+    fontSize: 12,
   },
 })
