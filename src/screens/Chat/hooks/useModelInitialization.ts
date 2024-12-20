@@ -12,34 +12,42 @@ export const useModelInitialization = (
   handleInitContext: (file: DocumentPickerResponse) => Promise<void>
 ) => {
   const { selectedModelKey, status, needsInitialization } = useModelStore()
-  const hasInitialized = useRef<{[key: string]: boolean}>({})
+  const previousModelKey = useRef(selectedModelKey)
 
   useEffect(() => {
+    // Log state changes
+    console.log('Model initialization state:', {
+      selectedModelKey,
+      previousModelKey: previousModelKey.current,
+      status,
+      needsInitialization
+    })
+
     // Skip if we're not in a state that needs initialization
     if (!needsInitialization || status !== 'idle') {
       return
     }
 
-    const initModel = async () => {
-      // Skip if we've already initialized this model
-      if (hasInitialized.current[selectedModelKey]) {
-        return
-      }
+    // Skip if we haven't actually changed models
+    if (selectedModelKey === previousModelKey.current && status === 'idle') {
+      return
+    }
 
+    const initModel = async () => {
       setInitializing(true)
       const currentModel = getCurrentModelConfig()
       const filePath = `${downloader.cacheDir}/${currentModel.filename}`
       
       try {
+        console.log(`Checking for model file: ${filePath}`)
         const exists = await ReactNativeBlobUtil.fs.exists(filePath)
         if (exists) {
           console.log(`Found model file for ${selectedModelKey}:`, filePath)
-          hasInitialized.current[selectedModelKey] = true
+          previousModelKey.current = selectedModelKey
           addSystemMessage(setMessages, [], `${currentModel.displayName} found locally, initializing...`)
           await handleInitContext({ uri: filePath } as DocumentPickerResponse)
         } else {
           console.log(`No model file found for ${selectedModelKey}`)
-          // If the file doesn't exist, just set initializing to false to show download button
           setInitializing(false)
         }
       } catch (error) {
@@ -49,12 +57,12 @@ export const useModelInitialization = (
     }
 
     initModel()
-  }, [selectedModelKey, needsInitialization, status])
+  }, [selectedModelKey, status, needsInitialization])
 
-  // Reset initialization tracking when model is released
+  // Update previous model key when status changes to ready
   useEffect(() => {
-    if (status === 'releasing') {
-      hasInitialized.current = {}
+    if (status === 'ready') {
+      previousModelKey.current = selectedModelKey
     }
-  }, [status])
+  }, [status, selectedModelKey])
 }
