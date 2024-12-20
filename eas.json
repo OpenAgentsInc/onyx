@@ -61,6 +61,12 @@
         "ENVIRONMENT": "production"
       },
       "environment": "production"
+    },
+    "production-apk": {
+      "extends": "production",
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {

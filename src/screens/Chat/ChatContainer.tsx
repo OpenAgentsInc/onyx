@@ -1,91 +1,48 @@
+// ChatContainer.tsx
+
 import json5 from "json5"
 import { initLlama, loadLlamaModelInfo } from "llama.rn"
-import React, { useRef, useState } from "react"
-import { Platform, Pressable, Text, View } from "react-native"
+import React, { useEffect, useRef, useState } from "react"
+import {
+  ActivityIndicator, Alert, Platform, Pressable, Text, View
+} from "react-native"
 import ReactNativeBlobUtil from "react-native-blob-util"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { typography } from "@/theme"
 import { monoTheme } from "@/theme/chat"
 import { ModelDownloader } from "@/utils/ModelDownloader"
-import { Chat, darkTheme } from "@flyerhq/react-native-chat-ui"
+import { Chat } from "@flyerhq/react-native-chat-ui"
 import { Bubble } from "./Bubble"
+import {
+  DEFAULT_MODEL, defaultConversationId, randId, system, systemId,
+  systemMessage, user
+} from "./constants"
+import { addMessage, addSystemMessage, handleReleaseContext } from "./utils"
 
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 import type { LlamaContext } from 'llama.rn'
+
 const { dirs } = ReactNativeBlobUtil.fs
 
-export const DEFAULT_MODEL = {
-  repoId: 'hugging-quants/Llama-3.2-3B-Instruct-Q4_K_M-GGUF',
-  filename: 'llama-3.2-3b-instruct-q4_k_m.gguf'
-}
-
-const randId = () => Math.random().toString(36).substr(2, 9)
-
-const user = { id: 'y9d7f8pgn' }
-const systemId = 'h3o3lc5xj'
-const system = { id: systemId }
-
-const systemMessage = {
-  role: 'system',
-  content:
-    'This is a conversation between user and assistant, a friendly chatbot.\n\n',
-}
-
-const defaultConversationId = 'default'
-
-const renderBubble = ({
-  child,
-  message,
-}: {
-  child: React.ReactNode
-  message: MessageType.Any
-}) => <Bubble child={child} message={message} />
-
-export default function App() {
+export default function ChatContainer() {
   const [context, setContext] = useState<LlamaContext | undefined>(undefined)
   const [inferencing, setInferencing] = useState<boolean>(false)
   const [messages, setMessages] = useState<MessageType.Any[]>([])
   const [downloading, setDownloading] = useState<boolean>(false)
   const [downloadProgress, setDownloadProgress] = useState<number>(0)
+  const [initializing, setInitializing] = useState<boolean>(true) // Check model on load
 
   const conversationIdRef = useRef<string>(defaultConversationId)
   const downloader = new ModelDownloader()
 
-  const addMessage = (message: MessageType.Any, batching = false) => {
-    if (batching) {
-      setMessages([message, ...messages])
-    } else {
-      setMessages((msgs) => [message, ...msgs])
-    }
-  }
-
-  const addSystemMessage = (text: string, metadata = {}) => {
-    const textMessage: MessageType.Text = {
-      author: system,
-      createdAt: Date.now(),
-      id: randId(),
-      text,
-      type: 'text',
-      metadata: { system: true, ...metadata },
-    }
-    addMessage(textMessage)
-    return textMessage.id
-  }
-
-  const handleReleaseContext = async () => {
-    if (!context) return
-    addSystemMessage('Releasing context...')
-    context
-      .release()
-      .then(() => {
-        setContext(undefined)
-        addSystemMessage('Context released!')
-      })
-      .catch((err) => {
-        addSystemMessage(`Context release failed: ${err}`)
-      })
-  }
+  const renderBubble = ({
+    child,
+    message,
+  }: {
+    child: React.ReactNode
+    message: MessageType.Any
+  }) => <Bubble child={child} message={message} />
 
   const getModelInfo = async (model: string) => {
     const t0 = Date.now()
@@ -93,20 +50,16 @@ export default function App() {
     console.log(`Model info (took ${Date.now() - t0}ms): `, info)
   }
 
-  const handleInitContext = async (
-    file: DocumentPickerResponse,
-    loraFile: DocumentPickerResponse | null,
-  ) => {
-    await handleReleaseContext()
+  const handleInitContext = async (file: DocumentPickerResponse) => {
+    await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
     await getModelInfo(file.uri)
-    const msgId = addSystemMessage('Initializing context...')
+    const msgId = addSystemMessage(setMessages, messages, 'Initializing context...')
     const t0 = Date.now()
     initLlama(
       {
         model: file.uri,
         use_mlock: true,
         n_gpu_layers: Platform.OS === 'ios' ? 99 : 0,
-        lora_list: loraFile ? [{ path: loraFile.uri, scaled: 1.0 }] : undefined,
       },
       (progress) => {
         setMessages((msgs) => {
@@ -130,45 +83,73 @@ export default function App() {
         const t1 = Date.now()
         setContext(ctx)
         addSystemMessage(
+          setMessages,
+          [],
           `Context initialized!\n\nLoad time: ${t1 - t0}ms\nGPU: ${ctx.gpu ? 'YES' : 'NO'
           } (${ctx.reasonNoGPU})\nChat Template: ${ctx.model.isChatTemplateSupported ? 'YES' : 'NO'
           }\n\n` +
           'You can use the following commands:\n\n' +
           '- /info: to get the model info\n' +
-          '- /bench: to benchmark the model\n' +
           '- /release: release the context\n' +
           '- /stop: stop the current completion\n' +
           '- /reset: reset the conversation\n' +
           '- /save-session: save the session tokens\n' +
-          '- /load-session: load the session tokens',
+          '- /load-session: load the session tokens'
         )
       })
       .catch((err) => {
-        addSystemMessage(`Context initialization failed: ${err.message}`)
+        addSystemMessage(setMessages, [], `Context initialization failed: ${err.message}`)
+      })
+      .finally(() => {
+        setInitializing(false)
       })
   }
 
-  const handleDownloadModel = async () => {
+  const handleDownloadModelConfirmed = async () => {
     if (downloading) return
     setDownloadProgress(0)
     setDownloading(true)
     try {
-      addSystemMessage(`Downloading model from Hugging Face...`)
+      addSystemMessage(setMessages, messages, `Downloading model from Hugging Face...`)
       const file = await downloader.downloadModel(
         DEFAULT_MODEL.repoId,
         DEFAULT_MODEL.filename,
         (progress) => {
           setDownloadProgress(progress)
-          // You could also update a system message to show progress here if desired
         }
       )
-      addSystemMessage(`Model downloaded! Initializing...`)
-      await handleInitContext(file, null)
+      addSystemMessage(setMessages, [], `Model downloaded! Initializing...`)
+      await handleInitContext(file)
     } catch (e: any) {
-      addSystemMessage(`Download failed: ${e.message}`)
+      // Check if it was cancelled due to minimization
+      if (e.message?.includes('cancelled') || e.message?.includes('background')) {
+        addSystemMessage(
+          setMessages,
+          [],
+          `Download cancelled because app was minimized. Please try again and keep the app in foreground during download.`
+        )
+      } else {
+        addSystemMessage(setMessages, [], `Download failed: ${e.message}`)
+      }
     } finally {
       setDownloading(false)
     }
+  }
+
+  const confirmDownload = () => {
+    const warningMessage = Platform.OS === 'ios'
+      ? "Please do not minimize the app during download. The download will be cancelled if the app goes to background.\n\n"
+      : "Please keep the app open during download. Minimizing the app may interrupt the download.\n\n";
+
+    Alert.alert(
+      "Download Model?",
+      `${warningMessage}This model file may be large and is hosted here:\n\nhttps://huggingface.co/${DEFAULT_MODEL.repoId}/resolve/main/${DEFAULT_MODEL.filename}\n\nIt's recommended to download over Wi-Fi to avoid large data usage.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Download", onPress: handleDownloadModelConfirmed },
+      ],
+      { cancelable: true }
+    )
   }
 
   const handleSendPress = async (message: MessageType.PartialText) => {
@@ -176,70 +157,32 @@ export default function App() {
       switch (message.text) {
         case '/info':
           addSystemMessage(
+            setMessages,
+            messages,
             `// Model Info\n${json5.stringify(context.model, null, 2)}`,
             { copyable: true },
           )
           return
-        case '/bench':
-          addSystemMessage('Heating up the model...')
-          {
-            const t0 = Date.now()
-            await context.bench(8, 4, 1, 1)
-            const tHeat = Date.now() - t0
-            if (tHeat > 1e4) {
-              addSystemMessage('Heat up time is too long, please try again.')
-              return
-            }
-            addSystemMessage(`Heat up time: ${tHeat}ms`)
-          }
-          addSystemMessage('Benchmarking the model...')
-          {
-            const {
-              modelDesc,
-              modelSize,
-              modelNParams,
-              ppAvg,
-              ppStd,
-              tgAvg,
-              tgStd,
-            } = await context.bench(512, 128, 1, 3)
-
-            const size = `${(modelSize / 1024.0 / 1024.0 / 1024.0).toFixed(
-              2,
-            )} GiB`
-            const nParams = `${(modelNParams / 1e9).toFixed(2)}B`
-            const md =
-              '| model | size | params | test | t/s |\n' +
-              '| --- | --- | --- | --- | --- |\n' +
-              `| ${modelDesc} | ${size} | ${nParams} | pp 512 | ${ppAvg.toFixed(
-                2,
-              )} ± ${ppStd.toFixed(2)} |\n` +
-              `| ${modelDesc} | ${size} | ${nParams} | tg 128 | ${tgAvg.toFixed(
-                2,
-              )} ± ${tgStd.toFixed(2)}`
-            addSystemMessage(md, { copyable: true })
-          }
-          return
         case '/release':
-          await handleReleaseContext()
+          await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
           return
         case '/stop':
           if (inferencing) context.stopCompletion()
           return
         case '/reset':
           conversationIdRef.current = randId()
-          addSystemMessage('Conversation reset!')
+          addSystemMessage(setMessages, [], 'Conversation reset!')
           return
         case '/save-session':
           context
             .saveSession(`${dirs.DocumentDir}/llama-session.bin`)
             .then((tokensSaved) => {
               console.log('Session tokens saved:', tokensSaved)
-              addSystemMessage(`Session saved! ${tokensSaved} tokens saved.`)
+              addSystemMessage(setMessages, [], `Session saved! ${tokensSaved} tokens saved.`)
             })
             .catch((e) => {
               console.log('Session save failed:', e)
-              addSystemMessage(`Session save failed: ${e.message}`)
+              addSystemMessage(setMessages, [], `Session save failed: ${e.message}`)
             })
           return
         case '/load-session':
@@ -248,28 +191,15 @@ export default function App() {
             .then((details) => {
               console.log('Session loaded:', details)
               addSystemMessage(
+                setMessages,
+                [],
                 `Session loaded! ${details.tokens_loaded} tokens loaded.`,
               )
             })
             .catch((e) => {
               console.log('Session load failed:', e)
-              addSystemMessage(`Session load failed: ${e.message}`)
+              addSystemMessage(setMessages, [], `Session load failed: ${e.message}`)
             })
-          return
-        case '/lora':
-          // If you needed LoRA loading, you could implement here
-          return
-        case '/remove-lora':
-          context.removeLoraAdapters().then(() => {
-            addSystemMessage('Lora adapters removed!')
-          })
-          return
-        case '/lora-list':
-          context.getLoadedLoraAdapters().then((loraList) => {
-            addSystemMessage(
-              `Loaded lora adapters: ${JSON.stringify(loraList)}`,
-            )
-          })
           return
       }
     }
@@ -311,7 +241,7 @@ export default function App() {
       { role: 'user', content: message.text },
     ]
 
-    addMessage(textMessage)
+    addMessage(setMessages, messages, textMessage)
     setInferencing(true)
 
     const formattedChat = (await context?.getFormattedChat(msgs)) || ''
@@ -332,7 +262,7 @@ export default function App() {
       ?.completion(
         {
           messages: msgs,
-          n_predict: 100,
+          n_predict: 1500, // Increased to 1500
           grammar,
           seed: -1,
           n_probs: 0,
@@ -430,16 +360,46 @@ export default function App() {
       .catch((e) => {
         console.log('completion error: ', e)
         setInferencing(false)
-        addSystemMessage(`Completion failed: ${e.message}`)
+        addSystemMessage(setMessages, [], `Completion failed: ${e.message}`)
       })
   }
 
+  // On mount, check if model already downloaded
+  useEffect(() => {
+    (async () => {
+      const filePath = `${downloader.cacheDir}/${DEFAULT_MODEL.filename}`
+      const exists = await ReactNativeBlobUtil.fs.exists(filePath)
+      if (exists) {
+        // Model already downloaded, initialize immediately
+        addSystemMessage(setMessages, [], 'Model found locally, initializing...')
+        await handleInitContext({ uri: filePath } as DocumentPickerResponse)
+      } else {
+        // Model not found, allow user to download
+        setInitializing(false)
+      }
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
-      <View style={{ flex: 1 }}>
-        {!context && (
-          <View style={{ padding: 10, backgroundColor: '#000', paddingTop: 60 }}>
-            <Pressable onPress={handleDownloadModel} disabled={downloading}>
+      <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+        <Chat
+          renderBubble={renderBubble}
+          theme={monoTheme}
+          messages={messages}
+          onSendPress={handleSendPress}
+          user={user}
+          textInputProps={{
+            editable: !!context,
+            placeholder: !context
+              ? 'Download a model to begin'
+              : 'Type your message here',
+          }}
+        />
+        {!context && !initializing && (
+          <View style={{ padding: 10, paddingBottom: 50, backgroundColor: '#000' }}>
+            <Pressable onPress={confirmDownload} disabled={downloading}>
               <View style={{ backgroundColor: '#444', padding: 10, borderRadius: 5 }}>
                 <Text style={{ color: 'white', textAlign: 'center', fontFamily: typography.primary.normal }}>
                   {downloading ? `Downloading... ${downloadProgress}%` : 'Download & Load Model'}
@@ -448,20 +408,14 @@ export default function App() {
             </Pressable>
           </View>
         )}
-        <Chat
-          renderBubble={renderBubble}
-          theme={monoTheme}
-          messages={messages}
-          onSendPress={handleSendPress}
-          user={user}
-          // Attachment is no longer needed since we are not picking from file
-          textInputProps={{
-            editable: !!context,
-            placeholder: !context
-              ? 'Download a model to begin'
-              : 'Type your message here',
-          }}
-        />
+        {initializing && !context && (
+          <View style={{ padding: 20, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center' }}>
+            <ActivityIndicator color="white" />
+            <Text style={{ color: 'white', fontFamily: typography.primary.normal, marginTop: 10 }}>
+              Checking model...
+            </Text>
+          </View>
+        )}
       </View>
     </SafeAreaProvider>
   )

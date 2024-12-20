@@ -9,9 +9,9 @@
     "icon": "./assets/images/app-icon-all.png",
     "backgroundColor": "#000000",
     "splash": {
-      "image": "./assets/images/splash-logo-all.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#191015"
+      "image": "./assets/images/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#000000"
     },
     "newArchEnabled": true,
     "jsEngine": "hermes",
@@ -19,16 +19,12 @@
       "**/*"
     ],
     "android": {
-      "icon": "./assets/images/app-icon-android-legacy.png",
+      "icon": "./assets/images/app-icon-all.png",
       "package": "com.openagents.onyx",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
-        "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
-      },
       "splash": {
-        "image": "./assets/images/splash-logo-android-universal.png",
+        "image": "./assets/images/splash.png",
         "resizeMode": "contain",
-        "backgroundColor": "#191015"
+        "backgroundColor": "#000000"
       },
       "permissions": [
         "RECORD_AUDIO"
@@ -45,9 +41,9 @@
     "web": {
       "favicon": "./assets/images/app-icon-web-favicon.png",
       "splash": {
-        "image": "./assets/images/splash-logo-web.png",
+        "image": "./assets/images/splash.png",
         "resizeMode": "contain",
-        "backgroundColor": "#191015"
+        "backgroundColor": "#000000"
       },
       "bundler": "metro"
     },
@@ -69,7 +65,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#000000"
