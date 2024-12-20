@@ -13,6 +13,7 @@ import { AVAILABLE_MODELS, defaultConversationId, user } from "./constants"
 import { useChatHandlers } from "./hooks/useChatHandlers"
 import { useModelContext } from "./hooks/useModelContext"
 import { useModelInitialization } from "./hooks/useModelInitialization"
+import { downloadModel } from "@/utils/downloadModel"
 
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
@@ -59,9 +60,10 @@ export default function ChatContainer() {
     setDownloadProgress(0)
     try {
       const currentModel = AVAILABLE_MODELS[modelKey]
-      const file = await downloader.downloadModel(
+      const file = await downloadModel(
         currentModel.repoId,
-        currentModel.filename
+        currentModel.filename,
+        (progress) => setDownloadProgress(progress)
       )
       await handleInitContext(file)
     } catch (error) {
