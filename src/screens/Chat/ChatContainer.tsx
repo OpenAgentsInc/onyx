@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { View } from 'react-native'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { Chat } from '@flyerhq/react-native-chat-ui'
 import { monoTheme } from '@/theme/chat'
 import { ModelDownloader } from '@/utils/ModelDownloader'
@@ -42,14 +42,17 @@ export default function ChatContainer() {
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-        <View style={{ 
-          flexDirection: 'row', 
-          justifyContent: 'flex-end',
-          padding: 8,
-          backgroundColor: '#000',
-        }}>
-          <ModelSwitcher />
-        </View>
+        <SafeAreaView edges={['top']} style={{ backgroundColor: '#000' }}>
+          <View style={{ 
+            flexDirection: 'row', 
+            justifyContent: 'flex-end',
+            padding: 8,
+            paddingTop: 12,
+            paddingBottom: 12,
+          }}>
+            <ModelSwitcher />
+          </View>
+        </SafeAreaView>
         
         <Chat
           renderBubble={renderBubble}
