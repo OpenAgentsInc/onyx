@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, Alert, TouchableOpacity, Modal, SafeAreaView } from 'react-native'
 import ReactNativeBlobUtil from 'react-native-blob-util'
 import { typography } from '@/theme'
 import { colors } from '@/theme/colors'
@@ -11,7 +11,12 @@ interface ModelFile {
   path: string
 }
 
-export const ModelFileManager = () => {
+interface ModelFileManagerProps {
+  visible: boolean
+  onClose: () => void
+}
+
+export const ModelFileManager: React.FC<ModelFileManagerProps> = ({ visible, onClose }) => {
   const [modelFiles, setModelFiles] = useState<ModelFile[]>([])
   const downloader = new ModelDownloader()
 
@@ -62,44 +67,100 @@ export const ModelFileManager = () => {
     )
   }
 
-  // Load files on mount and when directory changes
+  // Load files when modal becomes visible
   useEffect(() => {
-    loadModelFiles()
-  }, [])
+    if (visible) {
+      loadModelFiles()
+    }
+  }, [visible])
 
   return (
-    <View style={styles.container}>
-      {modelFiles.length > 0 ? (
-        <>
-          <View style={styles.fileList}>
-            {modelFiles.map((file, index) => (
-              <View key={file.path} style={[
-                styles.fileItem,
-                index < modelFiles.length - 1 && styles.fileItemBorder
-              ]}>
-                <Text style={styles.fileName}>{file.name}</Text>
-                <Text style={styles.fileSize}>{file.size}</Text>
-              </View>
-            ))}
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
+    >
+      <SafeAreaView style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Model Files</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Done</Text>
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            onPress={handleDeleteAll}
-            style={styles.deleteButton}
-          >
-            <Text style={styles.deleteButtonText}>Delete All Model Files</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <Text style={styles.emptyText}>No model files found</Text>
-      )}
-    </View>
+          {/* Content */}
+          <View style={styles.container}>
+            {modelFiles.length > 0 ? (
+              <>
+                <View style={styles.fileList}>
+                  {modelFiles.map((file, index) => (
+                    <View key={file.path} style={[
+                      styles.fileItem,
+                      index < modelFiles.length - 1 && styles.fileItemBorder
+                    ]}>
+                      <Text style={styles.fileName}>{file.name}</Text>
+                      <Text style={styles.fileSize}>{file.size}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                <TouchableOpacity
+                  onPress={handleDeleteAll}
+                  style={styles.deleteButton}
+                >
+                  <Text style={styles.deleteButtonText}>Delete All Model Files</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <Text style={styles.emptyText}>No model files found</Text>
+            )}
+          </View>
+        </View>
+      </SafeAreaView>
+    </Modal>
   )
 }
 
 const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    flex: 1,
+    backgroundColor: colors.background,
+    marginTop: 50,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: 'hidden',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  headerTitle: {
+    color: colors.text,
+    fontSize: 18,
+    fontFamily: typography.primary.medium,
+  },
+  closeButton: {
+    padding: 8,
+  },
+  closeButtonText: {
+    color: colors.tint,
+    fontSize: 16,
+    fontFamily: typography.primary.medium,
+  },
   container: {
-    backgroundColor: colors.palette.neutral200,
+    flex: 1,
+    backgroundColor: colors.background,
     padding: 16,
   },
   fileList: {
