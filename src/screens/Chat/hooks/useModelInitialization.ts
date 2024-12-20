@@ -13,6 +13,7 @@ export const useModelInitialization = (
 ) => {
   const { selectedModelKey, status, needsInitialization } = useModelStore()
   const previousModelKey = useRef(selectedModelKey)
+  const isInitializing = useRef(false)
 
   useEffect(() => {
     // Log state changes
@@ -20,20 +21,24 @@ export const useModelInitialization = (
       selectedModelKey,
       previousModelKey: previousModelKey.current,
       status,
-      needsInitialization
+      needsInitialization,
+      isInitializing: isInitializing.current
     })
 
-    // Skip if we're not in a state that needs initialization
-    if (!needsInitialization || status !== 'idle') {
+    // Skip if already initializing
+    if (isInitializing.current) {
+      console.log('Already initializing, skipping')
       return
     }
 
-    // Skip if we haven't actually changed models
-    if (selectedModelKey === previousModelKey.current && status === 'idle') {
+    // Skip if we're not in a state that needs initialization
+    if (!needsInitialization || status !== 'idle') {
+      console.log('Skipping initialization - wrong state:', { needsInitialization, status })
       return
     }
 
     const initModel = async () => {
+      isInitializing.current = true
       setInitializing(true)
       const currentModel = getCurrentModelConfig()
       const filePath = `${downloader.cacheDir}/${currentModel.filename}`
@@ -53,16 +58,26 @@ export const useModelInitialization = (
       } catch (error) {
         console.error('Model initialization failed:', error)
         setInitializing(false)
+      } finally {
+        isInitializing.current = false
       }
     }
 
     initModel()
   }, [selectedModelKey, status, needsInitialization])
 
-  // Update previous model key when status changes to ready
+  // Reset initialization flag when status changes
   useEffect(() => {
-    if (status === 'ready') {
+    if (status === 'ready' || status === 'error') {
+      isInitializing.current = false
       previousModelKey.current = selectedModelKey
     }
   }, [status, selectedModelKey])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isInitializing.current = false
+    }
+  }, [])
 }
