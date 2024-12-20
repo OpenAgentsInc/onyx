@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Platform } from 'react-native'
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import type { LlamaContext } from 'llama.rn'
@@ -9,6 +9,24 @@ import { addSystemMessage, handleReleaseContext } from '../utils'
 export const useModelContext = (setMessages: any, messages: any[]) => {
   const [context, setContext] = useState<LlamaContext | undefined>(undefined)
   const store = useModelStore()
+
+  // Effect to handle model switching
+  useEffect(() => {
+    const cleanup = async () => {
+      if (context) {
+        try {
+          await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
+        } catch (err) {
+          console.error('Failed to release context during cleanup:', err)
+        }
+      }
+    }
+
+    // If we need initialization and we're in idle state, clean up the old context
+    if (store.needsInitialization && store.status === 'idle') {
+      cleanup()
+    }
+  }, [store.selectedModelKey, store.needsInitialization])
 
   const getModelInfo = async (model: string) => {
     const t0 = Date.now()
