@@ -36,8 +36,17 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
 
   const getModelInfo = async (model: string) => {
     const t0 = Date.now()
-    const info = await loadLlamaModelInfo(model)
-    console.log(`Model info (took ${Date.now() - t0}ms): `, info)
+    try {
+      const info = await loadLlamaModelInfo(model)
+      console.log(`Model info (took ${Date.now() - t0}ms): `, info)
+      if (!info || Object.keys(info).length === 0) {
+        throw new Error('Model info is empty - file may be corrupted')
+      }
+      return info
+    } catch (error) {
+      console.error('Failed to load model info:', error)
+      throw new Error('Failed to validate model file - try downloading again')
+    }
   }
 
   const handleInitContext = async (file: DocumentPickerResponse) => {
@@ -52,13 +61,15 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
     }
 
     const currentModel = getCurrentModelConfig()
-    await getModelInfo(file.uri)
     const msgId = addSystemMessage(setMessages, messages, `Initializing ${currentModel.displayName}...`)
     const t0 = Date.now()
 
     store.startInitialization()
 
     try {
+      // First validate the model file
+      await getModelInfo(file.uri)
+
       const ctx = await initLlama(
         {
           model: file.uri,
@@ -77,8 +88,7 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
                   }
                 }
                 return msg
-              })
-            }
+              })}
             return msgs
           })
         }
@@ -103,8 +113,10 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
         '- /load-session: load the session tokens'
       )
     } catch (err: any) {
-      store.setError(err.message)
-      addSystemMessage(setMessages, [], `Context initialization failed: ${err.message}`)
+      console.error('Model initialization failed:', err)
+      store.setError(err.message || 'Failed to initialize model')
+      addSystemMessage(setMessages, [], `Model initialization failed: ${err.message}`)
+      setContext(undefined)
       throw err // Re-throw to handle in caller
     }
   }
