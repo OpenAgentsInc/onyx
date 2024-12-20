@@ -48,6 +48,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           console.error('Invalid model key:', modelKey)
           return
         }
+        console.log('Selecting model:', modelKey)
         // When switching models, first set status to releasing
         set({
           selectedModelKey: modelKey,
@@ -61,11 +62,13 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       startReleasing: () => {
+        console.log('Starting model release')
         set({ status: 'releasing' })
       },
 
       startDownload: () => {
         const { status } = get()
+        console.log('Starting download, current status:', status)
         // Only start download if we're idle or in error state
         if (status === 'idle' || status === 'error') {
           set({
@@ -86,11 +89,13 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       setModelPath: (path: string) => {
+        console.log('Setting model path:', path)
         set({ modelPath: path })
       },
 
       startInitialization: () => {
         const { status } = get()
+        console.log('Starting initialization, current status:', status)
         // Can start initialization from downloading or releasing state
         if (status === 'downloading' || status === 'releasing' || status === 'idle') {
           set({ status: 'initializing', progress: 100 })
@@ -98,6 +103,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       setReady: () => {
+        console.log('Setting model ready')
         set({ 
           status: 'ready', 
           errorMessage: null,
@@ -106,6 +112,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       setError: (message: string) => {
+        console.error('Model error:', message)
         set({
           status: 'error',
           errorMessage: message,
@@ -115,6 +122,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       cancelDownload: () => {
+        console.log('Cancelling download')
         set({
           downloadCancelled: true,
           status: 'idle',
@@ -125,7 +133,13 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       reset: () => {
-        set(initialState)
+        console.log('Resetting store to idle state')
+        set({
+          ...initialState,
+          selectedModelKey: get().selectedModelKey, // Keep the selected model
+          status: 'idle',
+          needsInitialization: true,
+        })
       },
     }),
     {
@@ -135,6 +149,14 @@ export const useModelStore = create<ModelState & ModelActions>()(
         selectedModelKey: state.selectedModelKey,
         modelPath: state.modelPath,
       }),
+      onRehydrateStorage: () => (state) => {
+        // When store rehydrates, set to idle state needing initialization
+        if (state) {
+          console.log('Store rehydrated:', state)
+          state.status = 'idle'
+          state.needsInitialization = true
+        }
+      }
     }
   )
 )
