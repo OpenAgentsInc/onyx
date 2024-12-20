@@ -97,6 +97,11 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
     return modelFiles.some(file => file.modelKey === modelKey)
   }
 
+  const getModelSize = (modelKey: string): string => {
+    const file = modelFiles.find(file => file.modelKey === modelKey)
+    return file ? file.size : modelKey === '1B' ? '~1GB' : '~2GB'
+  }
+
   const isModelActive = (modelKey: string) => {
     return modelKey === selectedModelKey && status === 'ready'
   }
@@ -139,7 +144,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
                         {active && <Text style={styles.activeIndicator}> ✓</Text>}
                       </Text>
                       <Text style={styles.modelSize}>
-                        {key === '1B' ? '~1GB' : '~2GB'}
+                        {getModelSize(key)}
                       </Text>
                     </TouchableOpacity>
                     {downloaded ? (
