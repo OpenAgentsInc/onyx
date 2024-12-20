@@ -1,9 +1,9 @@
 import React from 'react'
-import { Pressable, Text, View, StyleSheet, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, ScrollView } from 'react-native'
 import { typography } from '@/theme'
 import { AVAILABLE_MODELS } from '../constants'
 import { useModelStore } from '@/store/useModelStore'
-import { ModelFileManager } from './ModelFileManager'
+import Button from '@/components/Button'
 
 export const ModelSelector = () => {
   const { selectedModelKey, selectModel, status } = useModelStore()
@@ -14,82 +14,59 @@ export const ModelSelector = () => {
   }
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Select Model to Download</Text>
-        {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
-          <Pressable
-            key={key}
-            onPress={() => handleModelSelect(key)}
-            disabled={status === 'downloading' || status === 'initializing'}
-            style={[
-              styles.modelButton,
-              key === selectedModelKey && styles.selectedButton,
-              (status === 'downloading' || status === 'initializing') && styles.disabledButton
-            ]}
-          >
-            <Text style={styles.modelText}>
+    <View style={styles.container}>
+      {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
+        <View key={key} style={styles.modelItem}>
+          <View style={styles.modelInfo}>
+            <Text style={styles.modelName}>
               {model.displayName}
             </Text>
-            <Text style={styles.sizeText}>
+            <Text style={styles.modelSize}>
               {key === '1B' ? '~1GB' : '~2GB'}
             </Text>
-          </Pressable>
-        ))}
-
-        {/* Model File Manager */}
-        <View style={styles.managerContainer}>
-          <ModelFileManager />
+          </View>
+          <Button
+            onPress={() => handleModelSelect(key)}
+            isDisabled={status === 'downloading' || status === 'initializing'}
+            theme={key === selectedModelKey ? 'PRIMARY' : 'SECONDARY'}
+            style={styles.selectButton}
+          >
+            {key === selectedModelKey ? 'Selected' : 'Select'}
+          </Button>
         </View>
-      </View>
-    </ScrollView>
+      ))}
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
   container: {
-    padding: 20,
     backgroundColor: '#000',
   },
-  title: {
-    color: 'white',
-    fontSize: 20,
-    fontFamily: typography.primary.normal,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  modelButton: {
-    backgroundColor: '#333',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
+  modelItem: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
   },
-  selectedButton: {
-    backgroundColor: '#444',
-    borderColor: '#666',
-    borderWidth: 1,
+  modelInfo: {
+    flex: 1,
+    marginRight: 16,
   },
-  disabledButton: {
-    opacity: 0.7,
-  },
-  modelText: {
+  modelName: {
     color: 'white',
     fontSize: 16,
     fontFamily: typography.primary.normal,
-    textAlign: 'center',
   },
-  sizeText: {
+  modelSize: {
     color: '#888',
     fontSize: 12,
     fontFamily: typography.primary.normal,
     marginTop: 4,
   },
-  managerContainer: {
-    marginTop: 20,
+  selectButton: {
+    width: 100,
   },
 })
