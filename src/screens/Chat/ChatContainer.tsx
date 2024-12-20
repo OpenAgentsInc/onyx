@@ -73,31 +73,6 @@ export default function ChatContainer() {
     }
   }
 
-  // Custom text input component to make placeholder clickable
-  const renderTextInput = (props: any) => {
-    if (!context) {
-      return (
-        <TouchableOpacity 
-          onPress={() => setShowModelManager(true)}
-          style={{
-            height: 44,
-            justifyContent: 'center',
-            paddingHorizontal: 16,
-            backgroundColor: colors.background,
-          }}
-        >
-          <Text style={{
-            color: colors.textDim,
-            fontFamily: typography.primary.normal,
-          }}>
-            Download a model to begin
-          </Text>
-        </TouchableOpacity>
-      )
-    }
-    return <Chat.TextInput {...props} />
-  }
-
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: '#000' }}>
@@ -155,9 +130,15 @@ export default function ChatContainer() {
             messages={messages}
             onSendPress={handleSendPress}
             user={user}
-            renderTextInput={renderTextInput}
             textInputProps={{
               editable: !!context,
+              placeholder: !context ? 'Download a model to begin' : 'Type your message here',
+              onPressIn: !context ? () => setShowModelManager(true) : undefined,
+              style: {
+                color: colors.text,
+                fontFamily: typography.primary.normal,
+              },
+              placeholderTextColor: colors.textDim,
             }}
           />
         </View>
