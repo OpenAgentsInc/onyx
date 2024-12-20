@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, Alert, TouchableOpacity, Modal, SafeAreaView } from 'react-native'
-import ReactNativeBlobUtil from 'react-native-blob-util'
-import { typography } from '@/theme'
-import { colors } from '@/theme/colors'
-import { ModelDownloader } from '@/utils/ModelDownloader'
-import { useModelStore, getCurrentModelConfig } from '@/store/useModelStore'
-import { AVAILABLE_MODELS } from '../constants'
+import React, { useEffect, useState } from "react"
+import {
+  Alert, Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, View
+} from "react-native"
+import ReactNativeBlobUtil from "react-native-blob-util"
+import { getCurrentModelConfig, useModelStore } from "@/store/useModelStore"
+import { typography } from "@/theme"
+import { colors } from "@/theme/colors"
+import { ModelDownloader } from "@/utils/ModelDownloader"
+import { AVAILABLE_MODELS } from "../constants"
 
 interface ModelFile {
   name: string
@@ -21,8 +23,8 @@ interface ModelFileManagerProps {
   embedded?: boolean
 }
 
-export const ModelFileManager: React.FC<ModelFileManagerProps> = ({ 
-  visible, 
+export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
+  visible,
   onClose,
   onDownloadModel,
   embedded = false
@@ -40,7 +42,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
           const path = `${downloader.cacheDir}/${filename}`
           const stats = await ReactNativeBlobUtil.fs.stat(path)
           const sizeMB = (stats.size / (1024 * 1024)).toFixed(1)
-          
+
           const modelKey = Object.entries(AVAILABLE_MODELS).find(
             ([_, model]) => model.filename === filename
           )?.[0] || ''
@@ -66,8 +68,8 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
       `Delete ${model.displayName.replace(' Instruct', '')}? You'll need to download it again to use it.`,
       [
         { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete", 
+        {
+          text: "Delete",
           style: "destructive",
           onPress: async () => {
             try {
@@ -119,10 +121,10 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
           const active = isModelActive(key)
           const displayName = model.displayName.replace(' Instruct', '')
           const downloading = isDownloading && key === selectedModelKey
-          
+
           return (
             <View key={key} style={styles.modelItem}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.modelInfo}
                 onPress={() => downloaded && handleSelectModel(key)}
                 disabled={!downloaded || isDownloading}
@@ -180,8 +182,8 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Models</Text>
-            <TouchableOpacity 
-              onPress={onClose} 
+            <TouchableOpacity
+              onPress={onClose}
               style={[
                 styles.closeButton,
                 isDownloading && styles.closeButtonDisabled

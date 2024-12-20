@@ -1,12 +1,15 @@
-import React from 'react'
-import { View, Text, Alert, Platform, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
-import { typography } from '@/theme'
-import { colors } from '@/theme/colors'
-import { ModelDownloader } from '@/utils/ModelDownloader'
-import { getCurrentModelConfig, useModelStore } from '@/store/useModelStore'
-import { addSystemMessage } from '../utils'
-import { LoadingIndicator } from './LoadingIndicator'
-import { ModelFileManager } from './ModelFileManager'
+import React from "react"
+import {
+  Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View
+} from "react-native"
+import { getCurrentModelConfig, useModelStore } from "@/store/useModelStore"
+import { typography } from "@/theme"
+import { colors } from "@/theme/colors"
+import { ModelDownloader } from "@/utils/ModelDownloader"
+import { addSystemMessage } from "../utils"
+import { LoadingIndicator } from "./LoadingIndicator"
+import { ModelFileManager } from "./ModelFileManager"
+
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
 interface DownloadScreenProps {
@@ -83,11 +86,13 @@ export function DownloadScreen({
       <View style={styles.container}>
         {/* Models Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Available Models</Text>
+          <View style={{ marginTop: 50 }} />
+          <Text style={styles.sectionTitle}>Select a model to chat with</Text>
+          <Text style={styles.sectionSubtitle}>Your model will take ~2 minutes to download. Make sure you are on wi-fi.</Text>
           <View style={styles.card}>
-            <ModelFileManager 
+            <ModelFileManager
               visible={true}
-              onClose={() => {}}
+              onClose={() => { }}
               onDownloadModel={handleDownloadModel}
               embedded={true}
             />
@@ -102,7 +107,7 @@ export function DownloadScreen({
 
       {/* Download progress */}
       {status === 'downloading' && (
-        <LoadingIndicator 
+        <LoadingIndicator
           message="Downloading model..."
           progress={progress}
         />
@@ -128,6 +133,13 @@ const styles = StyleSheet.create({
     fontFamily: typography.primary.medium,
     color: colors.text,
     marginBottom: 12,
+    marginLeft: 4,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    fontFamily: typography.primary.medium,
+    color: colors.textDim,
+    marginBottom: 16,
     marginLeft: 4,
   },
   card: {
