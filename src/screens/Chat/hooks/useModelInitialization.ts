@@ -11,16 +11,17 @@ export const useModelInitialization = (
   setInitializing: (value: boolean) => void,
   handleInitContext: (file: DocumentPickerResponse) => Promise<void>
 ) => {
-  const { selectedModelKey, status } = useModelStore()
+  const { selectedModelKey, status, needsInitialization } = useModelStore()
   const hasInitialized = useRef(false)
 
   useEffect(() => {
-    // Skip if we've already initialized or if we're in a non-idle state
-    if (hasInitialized.current || status !== 'idle') {
+    // Skip if we're not in a state that needs initialization
+    if (!needsInitialization || status !== 'idle') {
       return
     }
 
     const initModel = async () => {
+      setInitializing(true)
       const currentModel = getCurrentModelConfig()
       const filePath = `${downloader.cacheDir}/${currentModel.filename}`
       
@@ -28,16 +29,20 @@ export const useModelInitialization = (
         const exists = await ReactNativeBlobUtil.fs.exists(filePath)
         if (exists) {
           hasInitialized.current = true
-          addSystemMessage(setMessages, [], 'Model found locally, initializing...')
+          addSystemMessage(setMessages, [], `${currentModel.displayName} found locally, initializing...`)
           await handleInitContext({ uri: filePath } as DocumentPickerResponse)
+        } else {
+          // If the file doesn't exist, just set initializing to false to show download button
+          setInitializing(false)
         }
       } catch (error) {
         console.error('Model initialization failed:', error)
-      } finally {
         setInitializing(false)
       }
     }
 
+    // Reset initialization flag when switching models
+    hasInitialized.current = false
     initModel()
-  }, [selectedModelKey, downloader, status]) // Removed most dependencies
+  }, [selectedModelKey, needsInitialization, status]) // Added needsInitialization dependency
 }
