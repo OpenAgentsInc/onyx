@@ -16,17 +16,23 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
       if (context) {
         try {
           await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
+          // After successful release, set status to idle to trigger initialization
+          store.reset()
         } catch (err) {
           console.error('Failed to release context during cleanup:', err)
+          store.setError('Failed to release previous model')
         }
+      } else {
+        // If no context to release, just reset to idle
+        store.reset()
       }
     }
 
-    // If we need initialization and we're in idle state, clean up the old context
-    if (store.needsInitialization && store.status === 'idle') {
+    // If we're in releasing state, clean up the old context
+    if (store.status === 'releasing') {
       cleanup()
     }
-  }, [store.selectedModelKey, store.needsInitialization])
+  }, [store.status, store.selectedModelKey])
 
   const getModelInfo = async (model: string) => {
     const t0 = Date.now()
