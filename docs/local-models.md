@@ -23,19 +23,25 @@ export const AVAILABLE_MODELS: { [key: string]: ModelConfig } = {
 
 ## User Interface
 
-### Initial State
-- Shows model selector with available models and their sizes
-- Download button at bottom
+### Download Screen
+- Shows available models with sizes
+- Displays current model files
+- Download button with progress
+- Error messages when issues occur
 - Clear visual feedback for selected model
 
-### Active State
+### Chat Screen
 - Model switcher in top-right corner
-- Shows current model status via icon:
-  - chip: ready
-  - download: downloading
-  - cog-sync: initializing
-  - cog-refresh: releasing
-  - alert: error
+- Chat interface with model commands
+- Loading indicator during initialization
+- Input disabled when no model loaded
+
+### Visual States
+- Download progress percentage
+- Initialization progress
+- Error messages with retry option
+- Model file management
+- Clear state transitions
 
 ## State Management
 
@@ -53,6 +59,7 @@ State transitions:
 4. ready → releasing (when switching models)
 5. releasing → idle (after cleanup)
 6. Any state → error (on failure)
+7. error → idle (on retry)
 
 ### Store State
 ```typescript
@@ -62,6 +69,7 @@ interface ModelState {
   progress: number            // Download progress (0-100)
   modelPath: string | null    // Path to downloaded model file
   errorMessage: string | null // Error message if any
+  downloadCancelled: boolean  // Whether download was cancelled
   needsInitialization: boolean // Whether model needs to be initialized
 }
 ```
@@ -70,30 +78,41 @@ interface ModelState {
 
 ### Initial Load
 1. Check for locally downloaded model
-2. If found, initialize automatically
-3. If not found, show model selector
+2. If found:
+   - Validate file size (>100MB)
+   - Initialize automatically
+3. If not found or invalid:
+   - Show model selector
+   - Reset to idle state
 
 ### Model Download
 1. User selects model
-2. Shows download confirmation with warnings
+2. Shows download confirmation with:
+   - Size warning
+   - Background warning
+   - Wi-Fi recommendation
 3. Downloads with progress updates
-4. Validates downloaded file
+4. Validates downloaded file:
+   - Checks file exists
+   - Verifies size
+   - Validates model info
 5. Automatically initializes after download
 
-### Model Switching
-1. User clicks model switcher
-2. Selects new model
-3. Current model is released
-4. If new model exists locally:
-   - Initialize automatically
-5. If new model not found:
-   - Show download UI
+### Model Initialization
+1. Release any existing context
+2. Load and validate model info
+3. Initialize Llama context
+4. Show progress in UI
+5. Display model info on success
+6. Handle errors and allow retry
 
 ### Error Handling
 - Download cancellation (app backgrounded)
 - Initialization failures
-- File validation
+- File validation errors
 - Context release errors
+- Network issues
+- Storage issues
 
 ## Implementation Details
 
@@ -102,21 +121,30 @@ interface ModelState {
 - `ModelDownloader`: Handles file downloads
 - `useModelContext`: Manages model context
 - `useModelInitialization`: Handles initialization flow
-- `ModelSelector`: UI for model selection
-- `ModelSwitcher`: UI for switching models
+- `DownloadScreen`: Main download UI
+- `ModelSelector`: Model selection UI
+- `ModelFileManager`: File management UI
+- `LoadingIndicator`: Initialization progress
 
 ### File Management
 - Models stored in app cache directory
-- Cleaned up on download cancellation
-- Validated before initialization
-- Proper cleanup on model switch
+- Automatic cleanup on:
+  - Download cancellation
+  - Initialization failure
+  - Model switching
+- File validation before use
+- Size verification (>100MB)
+- Model info validation
 
 ### Best Practices
-1. Always release context before switching models
-2. Validate downloaded files
-3. Handle app backgrounding gracefully
-4. Show clear status indicators
-5. Prevent actions during state transitions
+1. Always validate downloaded files
+2. Handle app backgrounding gracefully
+3. Show clear error messages
+4. Allow error recovery
+5. Clean up resources properly
+6. Prevent invalid state transitions
+7. Show clear progress indicators
+8. Handle network issues gracefully
 
 ## Usage Example
 
@@ -125,10 +153,20 @@ const {
   selectedModelKey,  // Current model key
   status,           // Current state
   progress,         // Download progress
+  errorMessage,     // Current error if any
   selectModel,      // Switch models
   startDownload,    // Begin download
-  setReady         // Mark as ready
+  setError,         // Set error state
+  reset            // Reset to idle state
 } = useModelStore()
+
+// Error handling example
+try {
+  await downloadModel()
+} catch (e) {
+  setError(e.message)
+  // UI will show error and allow retry
+}
 ```
 
 ## Download Sizes
@@ -142,3 +180,7 @@ const {
 - Validates file integrity
 - Proper error propagation
 - State persistence between app launches
+- Minimum file size validation
+- Model info validation
+- Progress tracking for both download and initialization
+- Clear error messages and recovery paths
