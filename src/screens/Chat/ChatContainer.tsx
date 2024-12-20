@@ -5,7 +5,6 @@ import { useModelStore } from "@/store/useModelStore"
 import { typography } from "@/theme"
 import { monoTheme } from "@/theme/chat"
 import { colors } from "@/theme/colors"
-import { ModelDownloader } from "@/utils/ModelDownloader"
 import { Chat } from "@flyerhq/react-native-chat-ui"
 import { Bubble } from "./Bubble"
 import { LoadingIndicator } from "./components/LoadingIndicator"
@@ -26,13 +25,12 @@ export default function ChatContainer() {
   const [showModelManager, setShowModelManager] = useState<boolean>(false)
 
   const conversationIdRef = useRef<string>(defaultConversationId)
-  const downloader = new ModelDownloader()
 
   const { context, setContext, handleInitContext } = useModelContext(setMessages, messages)
   const { handleSendPress } = useChatHandlers(context, conversationIdRef, setMessages, messages, setInferencing)
   const { status, progress } = useModelStore()
 
-  useModelInitialization(downloader, setMessages, setInitializing, handleInitContext)
+  useModelInitialization(setMessages, setInitializing, handleInitContext)
 
   // Reset initializing state when status changes to error or ready
   useEffect(() => {
@@ -71,6 +69,31 @@ export default function ChatContainer() {
     } finally {
       setDownloading(false)
     }
+  }
+
+  // Custom text input component to make placeholder clickable
+  const renderTextInput = (props: any) => {
+    if (!context) {
+      return (
+        <TouchableOpacity 
+          onPress={() => setShowModelManager(true)}
+          style={{
+            height: 44,
+            justifyContent: 'center',
+            paddingHorizontal: 16,
+            backgroundColor: colors.background,
+          }}
+        >
+          <Text style={{
+            color: colors.textDim,
+            fontFamily: typography.primary.normal,
+          }}>
+            Download a model to begin
+          </Text>
+        </TouchableOpacity>
+      )
+    }
+    return <Chat.TextInput {...props} />
   }
 
   return (
@@ -130,10 +153,9 @@ export default function ChatContainer() {
             messages={messages}
             onSendPress={handleSendPress}
             user={user}
+            renderTextInput={renderTextInput}
             textInputProps={{
               editable: !!context,
-              placeholder: !context ? 'Download a model to begin' : 'Type your message here',
-              onPressIn: !context ? () => setShowModelManager(true) : undefined,
             }}
           />
         </View>
