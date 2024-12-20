@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react'
-import { View, Alert, Platform } from 'react-native'
+import { View, Alert, Platform, Text, Pressable } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { Chat } from '@flyerhq/react-native-chat-ui'
 import { monoTheme } from '@/theme/chat'
+import { typography } from '@/theme'
 import { ModelDownloader } from '@/utils/ModelDownloader'
 import { defaultConversationId, user } from './constants'
 import { ModelSelector } from './components/ModelSelector'
@@ -166,12 +167,17 @@ export default function ChatContainer() {
             backgroundColor: '#000',
             alignItems: 'center',
           }}>
-            <View style={{ 
-              backgroundColor: '#444', 
-              padding: 15,
-              paddingHorizontal: 30,
-              borderRadius: 25,
-            }}>
+            <Pressable 
+              onPress={confirmDownload}
+              disabled={downloading}
+              style={{ 
+                backgroundColor: '#444', 
+                padding: 15,
+                paddingHorizontal: 30,
+                borderRadius: 25,
+                opacity: downloading ? 0.7 : 1,
+              }}
+            >
               <Text style={{ 
                 color: 'white', 
                 textAlign: 'center', 
@@ -180,7 +186,7 @@ export default function ChatContainer() {
               }}>
                 {downloading ? `Downloading... ${downloadProgress}%` : 'Download Selected Model'}
               </Text>
-            </View>
+            </Pressable>
           </View>
         )}
       </View>
