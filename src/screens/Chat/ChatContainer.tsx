@@ -44,22 +44,37 @@ export default function ChatContainer() {
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-        {/* Only show ModelSwitcher when we have a working context */}
+        {/* Model switcher floating button */}
         {!showModelSelector && (
-          <SafeAreaView edges={['top']} style={{ backgroundColor: '#000' }}>
-            <View style={{ 
-              flexDirection: 'row', 
-              justifyContent: 'flex-end',
-              padding: 8,
-              paddingTop: 12,
-              paddingBottom: 12,
+          <View style={{ 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1,
+            pointerEvents: 'box-none',
+          }}>
+            <SafeAreaView edges={['top']} style={{ 
+              backgroundColor: 'transparent',
+              pointerEvents: 'box-none',
             }}>
-              <ModelSwitcher />
-            </View>
-          </SafeAreaView>
+              <View style={{ 
+                flexDirection: 'row', 
+                justifyContent: 'flex-end',
+                padding: 8,
+                paddingTop: 12,
+                paddingBottom: 12,
+                pointerEvents: 'box-none',
+              }}>
+                <View style={{ pointerEvents: 'auto' }}>
+                  <ModelSwitcher />
+                </View>
+              </View>
+            </SafeAreaView>
+          </View>
         )}
 
-        {/* Show model selection UI above chat when needed */}
+        {/* Model selection UI */}
         {showModelSelector && (
           <SafeAreaView edges={['top']} style={{ backgroundColor: '#000' }}>
             <View style={{ padding: 20 }}>
@@ -69,7 +84,7 @@ export default function ChatContainer() {
           </SafeAreaView>
         )}
         
-        {/* Chat interface always at bottom */}
+        {/* Chat interface */}
         <View style={{ flex: 1 }}>
           <Chat
             renderBubble={renderBubble}
