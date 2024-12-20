@@ -1,12 +1,10 @@
 import { useEffect, useRef } from 'react'
-import ReactNativeBlobUtil from 'react-native-blob-util'
+import * as FileSystem from 'expo-file-system'
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import { useModelStore, getCurrentModelConfig } from '@/store/useModelStore'
-import { ModelDownloader } from '@/utils/ModelDownloader'
 import { addSystemMessage } from '../utils'
 
 export const useModelInitialization = (
-  downloader: ModelDownloader,
   setMessages: any,
   setInitializing: (value: boolean) => void,
   handleInitContext: (file: DocumentPickerResponse) => Promise<void>
@@ -63,21 +61,17 @@ export const useModelInitialization = (
       isInitializing.current = true
       setInitializing(true)
       const currentModel = getCurrentModelConfig()
-      const filePath = `${downloader.cacheDir}/${currentModel.filename}`
+      const filePath = `${FileSystem.cacheDirectory}models/${currentModel.filename}`
       
       try {
         console.log(`Checking for model file: ${filePath}`)
-        const exists = await ReactNativeBlobUtil.fs.exists(filePath)
-        if (exists) {
+        const fileInfo = await FileSystem.getInfoAsync(filePath)
+        if (fileInfo.exists) {
           try {
-            // Check file size
-            const stats = await ReactNativeBlobUtil.fs.stat(filePath)
-            console.log(`Found model file for ${selectedModelKey}:`, filePath, 'Size:', stats.size)
-            
             // Basic size validation (100MB minimum for typical models)
             const MIN_SIZE = 100 * 1024 * 1024 // 100MB
-            if (stats.size < MIN_SIZE) {
-              console.error('Model file too small:', stats.size)
+            if (!fileInfo.size || fileInfo.size < MIN_SIZE) {
+              console.error('Model file too small:', fileInfo.size)
               throw new Error('Model file appears to be incomplete')
             }
 
@@ -101,7 +95,7 @@ export const useModelInitialization = (
               }, 1000)
             } else {
               // For other errors, clean up and rethrow
-              await downloader.cleanDirectory()
+              await FileSystem.deleteAsync(filePath)
               throw error
             }
           }
