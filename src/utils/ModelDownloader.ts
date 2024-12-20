@@ -17,16 +17,37 @@ export class ModelDownloader {
   }
 
   async ensureDirectory(): Promise<void> {
-    if (!(await ReactNativeBlobUtil.fs.isDir(this.cacheDir))) {
-      await ReactNativeBlobUtil.fs.mkdir(this.cacheDir)
+    try {
+      if (!(await ReactNativeBlobUtil.fs.isDir(this.cacheDir))) {
+        await ReactNativeBlobUtil.fs.mkdir(this.cacheDir)
+      }
+      // Verify directory was created
+      const exists = await ReactNativeBlobUtil.fs.isDir(this.cacheDir)
+      if (!exists) {
+        throw new Error('Failed to create models directory')
+      }
+    } catch (error) {
+      console.error('Error ensuring directory exists:', error)
+      throw error
     }
   }
 
   async cleanDirectory(): Promise<void> {
-    if (await ReactNativeBlobUtil.fs.exists(this.cacheDir)) {
-      await ReactNativeBlobUtil.fs.unlink(this.cacheDir)
+    try {
+      if (await ReactNativeBlobUtil.fs.exists(this.cacheDir)) {
+        await ReactNativeBlobUtil.fs.unlink(this.cacheDir)
+      }
+      await ReactNativeBlobUtil.fs.mkdir(this.cacheDir)
+      
+      // Verify directory was created after cleaning
+      const exists = await ReactNativeBlobUtil.fs.isDir(this.cacheDir)
+      if (!exists) {
+        throw new Error('Failed to recreate models directory after cleaning')
+      }
+    } catch (error) {
+      console.error('Error cleaning directory:', error)
+      throw error
     }
-    await ReactNativeBlobUtil.fs.mkdir(this.cacheDir)
   }
 
   private handleAppStateChange = async (nextAppState: AppStateStatus) => {
@@ -51,40 +72,41 @@ export class ModelDownloader {
   ): Promise<DocumentPickerResponse> {
     const filepath = `${this.cacheDir}/${filename}`
     const store = useModelStore.getState()
+    console.log('Starting download to filepath:', filepath)
 
     // Setup app state monitoring
     this.appStateSubscription = AppState.addEventListener('change', this.handleAppStateChange)
 
     try {
+      // First ensure directory exists
       await this.ensureDirectory()
+      console.log('Directory ensured:', this.cacheDir)
 
-      // If the file already exists, validate it first
+      // Check for existing file
       if (await ReactNativeBlobUtil.fs.exists(filepath)) {
         try {
           const stats = await ReactNativeBlobUtil.fs.stat(filepath)
-          // Basic validation - ensure file is not empty
+          console.log('Existing file stats:', stats)
           if (stats.size > 0) {
             store.setModelPath(filepath)
             return { uri: filepath } as DocumentPickerResponse
           }
         } catch (e) {
           console.log('File validation failed:', e)
+          await this.cleanDirectory()
         }
-        // If validation fails, clean and redownload
-        await this.cleanDirectory()
       }
 
-      // Clean directory first to ensure no leftovers
-      await this.cleanDirectory()
-
       store.startDownload()
+      console.log('Starting download from HuggingFace:', repoId, filename)
 
-      // Download the model file from Hugging Face
       this.currentDownload = ReactNativeBlobUtil.config({
         fileCache: true,
         path: filepath,
-        timeout: 0, // No timeout
-        IOSBackgroundTask: true, // Enable background download on iOS
+        timeout: 0, // No timeout for large files
+        IOSBackgroundTask: true,
+        indicator: true,
+        overwrite: true,
       }).fetch(
         'GET',
         `https://huggingface.co/${repoId}/resolve/main/${filename}`,
@@ -96,18 +118,31 @@ export class ModelDownloader {
       const response = await this.currentDownload.progress((received, total) => {
         const progress = Math.round((received / total) * 100)
         store.updateProgress(progress)
+        console.log(`Download progress: ${progress}% (${received}/${total} bytes)`)
       })
 
+      console.log('Download completed, checking file...')
+      
+      // Verify directory still exists
+      await this.ensureDirectory()
+      
+      // Get the final path from the response
+      const downloadedPath = response.path()
+      console.log('Downloaded file path:', downloadedPath)
+      
       // Validate downloaded file
-      const stats = await ReactNativeBlobUtil.fs.stat(response.path())
+      const stats = await ReactNativeBlobUtil.fs.stat(downloadedPath)
+      console.log('Downloaded file stats:', stats)
+      
       if (stats.size === 0) {
         store.setError('Downloaded file is empty')
         throw new Error('Downloaded file is empty')
       }
 
-      store.setModelPath(response.path())
-      return { uri: response.path() } as DocumentPickerResponse
+      store.setModelPath(downloadedPath)
+      return { uri: downloadedPath } as DocumentPickerResponse
     } catch (error) {
+      console.error('Download error:', error)
       store.setError(error instanceof Error ? error.message : 'Unknown error during download')
       throw error
     } finally {
