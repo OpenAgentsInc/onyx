@@ -32,9 +32,9 @@ export default function ChatContainer() {
 
   useModelInitialization(downloader, setMessages, setInitializing, handleInitContext)
 
-  // Reset initializing state when status changes to error
+  // Reset initializing state when status changes to error or ready
   useEffect(() => {
-    if (status === 'error') {
+    if (status === 'error' || status === 'ready') {
       setInitializing(false)
     }
   }, [status])
@@ -51,6 +51,9 @@ export default function ChatContainer() {
   // 1. No context (no model loaded)
   // 2. OR when we're in idle/error state
   const showModelSelector = !context || status === 'idle' || status === 'error'
+
+  // Only show loading indicator during actual initialization
+  const showLoadingIndicator = initializing && status === 'initializing'
 
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
@@ -117,7 +120,7 @@ export default function ChatContainer() {
         </View>
 
         {/* Loading indicator */}
-        {initializing && <LoadingIndicator />}
+        {showLoadingIndicator && <LoadingIndicator />}
       </View>
     </SafeAreaProvider>
   )
