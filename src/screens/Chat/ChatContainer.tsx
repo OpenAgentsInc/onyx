@@ -1,18 +1,20 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { View } from 'react-native'
+import { View, TouchableOpacity, Text } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { Chat } from '@flyerhq/react-native-chat-ui'
 import { monoTheme } from '@/theme/chat'
 import { ModelDownloader } from '@/utils/ModelDownloader'
 import { defaultConversationId, user } from './constants'
 import { LoadingIndicator } from './components/LoadingIndicator'
-import { ModelSwitcher } from './components/ModelSwitcher'
 import { DownloadScreen } from './components/DownloadScreen'
+import { ModelFileManager } from './components/ModelFileManager'
 import { useModelContext } from './hooks/useModelContext'
 import { useModelInitialization } from './hooks/useModelInitialization'
 import { Bubble } from './Bubble'
 import { useChatHandlers } from './hooks/useChatHandlers'
 import { useModelStore } from '@/store/useModelStore'
+import { colors } from '@/theme/colors'
+import { typography } from '@/theme'
 
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
@@ -22,6 +24,7 @@ export default function ChatContainer() {
   const [inferencing, setInferencing] = useState<boolean>(false)
   const [downloading, setDownloading] = useState<boolean>(false)
   const [downloadProgress, setDownloadProgress] = useState<number>(0)
+  const [showModelManager, setShowModelManager] = useState<boolean>(false)
   
   const conversationIdRef = useRef<string>(defaultConversationId)
   const downloader = new ModelDownloader()
@@ -58,7 +61,7 @@ export default function ChatContainer() {
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: '#000' }}>
-        {/* Model switcher floating button */}
+        {/* Model manager button */}
         {!showModelSelector && (
           <View style={{ 
             position: 'absolute',
@@ -80,9 +83,25 @@ export default function ChatContainer() {
                 paddingBottom: 12,
                 pointerEvents: 'box-none',
               }}>
-                <View style={{ pointerEvents: 'auto' }}>
-                  <ModelSwitcher />
-                </View>
+                <TouchableOpacity 
+                  onPress={() => setShowModelManager(true)}
+                  style={{
+                    backgroundColor: colors.palette.neutral200,
+                    paddingVertical: 8,
+                    paddingHorizontal: 12,
+                    borderRadius: 16,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{
+                    color: colors.text,
+                    fontFamily: typography.primary.medium,
+                    fontSize: 14,
+                  }}>
+                    Models
+                  </Text>
+                </TouchableOpacity>
               </View>
             </SafeAreaView>
           </View>
@@ -121,6 +140,12 @@ export default function ChatContainer() {
 
         {/* Loading indicator */}
         {showLoadingIndicator && <LoadingIndicator />}
+
+        {/* Model manager modal */}
+        <ModelFileManager 
+          visible={showModelManager}
+          onClose={() => setShowModelManager(false)}
+        />
       </View>
     </SafeAreaProvider>
   )
