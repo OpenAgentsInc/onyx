@@ -12,6 +12,7 @@ interface ModelState {
   modelPath: string | null
   errorMessage: string | null
   downloadCancelled: boolean
+  needsInitialization: boolean // New flag to trigger initialization after model switch
 }
 
 interface ModelActions {
@@ -33,6 +34,7 @@ const initialState: ModelState = {
   modelPath: null,
   errorMessage: null,
   downloadCancelled: false,
+  needsInitialization: true,
 }
 
 export const useModelStore = create<ModelState & ModelActions>()(
@@ -45,6 +47,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           console.error('Invalid model key:', modelKey)
           return
         }
+        // When switching models, reset state and set needsInitialization
         set({
           selectedModelKey: modelKey,
           status: 'idle',
@@ -52,6 +55,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           modelPath: null,
           errorMessage: null,
           downloadCancelled: false,
+          needsInitialization: true,
         })
       },
 
@@ -89,7 +93,11 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       setReady: () => {
-        set({ status: 'ready', errorMessage: null })
+        set({ 
+          status: 'ready', 
+          errorMessage: null,
+          needsInitialization: false 
+        })
       },
 
       setError: (message: string) => {
@@ -97,6 +105,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           status: 'error',
           errorMessage: message,
           downloadCancelled: true,
+          needsInitialization: true,
         })
       },
 
@@ -106,6 +115,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           status: 'idle',
           progress: 0,
           errorMessage: 'Download cancelled',
+          needsInitialization: true,
         })
       },
 
