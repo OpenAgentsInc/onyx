@@ -29,7 +29,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
 }) => {
   const [modelFiles, setModelFiles] = useState<ModelFile[]>([])
   const downloader = new ModelDownloader()
-  const { selectedModelKey, modelPath, status, selectModel } = useModelStore()
+  const { selectedModelKey, modelPath, status, progress } = useModelStore()
 
   const loadModelFiles = async () => {
     try {
@@ -108,6 +108,8 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
     return modelKey === selectedModelKey && status === 'ready'
   }
 
+  const isDownloading = status === 'downloading'
+
   const content = (
     <View style={styles.container}>
       {/* Available Models Section */}
@@ -116,36 +118,43 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
           const downloaded = isModelDownloaded(key)
           const active = isModelActive(key)
           const displayName = model.displayName.replace(' Instruct', '')
+          const downloading = isDownloading && key === selectedModelKey
           
           return (
             <View key={key} style={styles.modelItem}>
               <TouchableOpacity 
                 style={styles.modelInfo}
                 onPress={() => downloaded && handleSelectModel(key)}
-                disabled={!downloaded}
+                disabled={!downloaded || isDownloading}
               >
                 <Text style={styles.modelName}>
                   {displayName}
                   {active && <Text style={styles.activeIndicator}> ✓</Text>}
                 </Text>
                 <Text style={styles.modelSize}>
-                  {getModelSize(key)}
+                  {downloading ? `Downloading... ${progress}%` : getModelSize(key)}
                 </Text>
               </TouchableOpacity>
               {downloaded ? (
                 <TouchableOpacity
                   onPress={() => handleDeleteModel(key)}
                   style={styles.deleteButton}
+                  disabled={isDownloading}
                 >
                   <Text style={styles.deleteButtonText}>Delete</Text>
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
                   onPress={() => onDownloadModel(key)}
-                  style={styles.downloadButton}
-                  disabled={status === 'downloading'}
+                  style={[
+                    styles.downloadButton,
+                    downloading && styles.downloadingButton
+                  ]}
+                  disabled={isDownloading}
                 >
-                  <Text style={styles.downloadButtonText}>Download</Text>
+                  <Text style={styles.downloadButtonText}>
+                    {downloading ? `${progress}%` : 'Download'}
+                  </Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -164,15 +173,27 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
       visible={visible}
       animationType="slide"
       transparent={true}
-      onRequestClose={onClose}
+      onRequestClose={() => !isDownloading && onClose()}
     >
       <SafeAreaView style={styles.modalContainer}>
         <View style={styles.modalContent}>
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Models</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Done</Text>
+            <TouchableOpacity 
+              onPress={onClose} 
+              style={[
+                styles.closeButton,
+                isDownloading && styles.closeButtonDisabled
+              ]}
+              disabled={isDownloading}
+            >
+              <Text style={[
+                styles.closeButtonText,
+                isDownloading && styles.closeButtonTextDisabled
+              ]}>
+                Done
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -213,10 +234,16 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 8,
   },
+  closeButtonDisabled: {
+    opacity: 0.5,
+  },
   closeButtonText: {
     color: colors.tint,
     fontSize: 14,
     fontFamily: typography.primary.medium,
+  },
+  closeButtonTextDisabled: {
+    color: colors.textDim,
   },
   container: {
     flex: 1,
@@ -258,6 +285,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 12,
+    minWidth: 80,
+    alignItems: 'center',
+  },
+  downloadingButton: {
+    backgroundColor: colors.palette.neutral300,
   },
   downloadButtonText: {
     color: colors.background,
@@ -269,6 +301,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 12,
+    minWidth: 80,
+    alignItems: 'center',
   },
   deleteButtonText: {
     color: colors.error,
