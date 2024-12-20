@@ -3,7 +3,7 @@ import { Platform } from 'react-native'
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import type { LlamaContext } from 'llama.rn'
 import { initLlama, loadLlamaModelInfo } from 'llama.rn'
-import { useModelStore } from '@/store/useModelStore'
+import { useModelStore, getCurrentModelConfig } from '@/store/useModelStore'
 import { addSystemMessage, handleReleaseContext } from '../utils'
 
 export const useModelContext = (setMessages: any, messages: any[]) => {
@@ -45,8 +45,9 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
       }
     }
 
+    const currentModel = getCurrentModelConfig()
     await getModelInfo(file.uri)
-    const msgId = addSystemMessage(setMessages, messages, 'Initializing context...')
+    const msgId = addSystemMessage(setMessages, messages, `Initializing ${currentModel.displayName}...`)
     const t0 = Date.now()
 
     store.startInitialization()
@@ -66,7 +67,7 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
                 if (msg.type == 'text' && i === index) {
                   return {
                     ...msg,
-                    text: `Initializing context... ${progress}%`,
+                    text: `Initializing ${currentModel.displayName}... ${progress}%`,
                   }
                 }
                 return msg
@@ -84,7 +85,7 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
       addSystemMessage(
         setMessages,
         [],
-        `Context initialized!\n\nLoad time: ${t1 - t0}ms\nGPU: ${ctx.gpu ? 'YES' : 'NO'
+        `${currentModel.displayName} initialized!\n\nLoad time: ${t1 - t0}ms\nGPU: ${ctx.gpu ? 'YES' : 'NO'
         } (${ctx.reasonNoGPU})\nChat Template: ${ctx.model.isChatTemplateSupported ? 'YES' : 'NO'
         }\n\n` +
         'You can use the following commands:\n\n' +
