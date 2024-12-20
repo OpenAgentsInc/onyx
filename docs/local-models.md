@@ -107,10 +107,10 @@ interface ModelState {
 
 ### Model Switching
 1. User clicks model in manager
-2. Shows loading indicator
-3. Releases current model
-4. Initializes selected model
-5. Updates UI state
+2. Current model is released (status: 'releasing')
+3. Wait for release to complete
+4. Initialize new model (status: 'initializing')
+5. Set to ready when complete
 
 ### Error Handling
 - Download cancellation (app backgrounded)
@@ -185,6 +185,6 @@ try {
 - Progress tracking for both download and initialization
 - Clear error messages and recovery paths
 - Proper cleanup of resources
-- Safe model switching
+- Safe model switching with release handling
 - Uses temporary files during download
 - Verifies file moves and copies
