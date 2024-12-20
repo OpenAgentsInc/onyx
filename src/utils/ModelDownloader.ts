@@ -1,7 +1,7 @@
 import ReactNativeBlobUtil from "react-native-blob-util"
 import { AppState, AppStateStatus } from "react-native"
-
 import type { DocumentPickerResponse } from 'react-native-document-picker'
+import { useModelStore } from '../store/useModelStore'
 
 const { dirs } = ReactNativeBlobUtil.fs
 
@@ -35,6 +35,7 @@ export class ModelDownloader {
       if (this.currentDownload) {
         this.currentDownload.cancel((err) => {
           console.log('Download cancelled due to app minimization:', err)
+          useModelStore.getState().setError('Download cancelled due to app being backgrounded')
         })
         this.currentDownload = null
         
@@ -50,6 +51,7 @@ export class ModelDownloader {
     onProgress?: ProgressCallback
   ): Promise<DocumentPickerResponse> {
     const filepath = `${this.cacheDir}/${filename}`
+    const store = useModelStore.getState()
 
     // Setup app state monitoring
     this.appStateSubscription = AppState.addEventListener('change', this.handleAppStateChange)
@@ -63,6 +65,7 @@ export class ModelDownloader {
           const stats = await ReactNativeBlobUtil.fs.stat(filepath)
           // Basic validation - ensure file is not empty
           if (stats.size > 0) {
+            store.setModelPath(filepath)
             return { uri: filepath } as DocumentPickerResponse
           }
         } catch (e) {
@@ -74,6 +77,8 @@ export class ModelDownloader {
 
       // Clean directory first to ensure no leftovers
       await this.cleanDirectory()
+
+      store.startDownload()
 
       // Download the model file from Hugging Face
       this.currentDownload = ReactNativeBlobUtil.config({
@@ -87,21 +92,37 @@ export class ModelDownloader {
 
       const response = await this.currentDownload.progress((received, total) => {
         const progress = Math.round((received / total) * 100)
+        store.updateProgress(progress)
         onProgress?.(progress, received, total)
       })
 
       // Validate downloaded file
       const stats = await ReactNativeBlobUtil.fs.stat(response.path())
       if (stats.size === 0) {
+        store.setError('Downloaded file is empty')
         throw new Error('Downloaded file is empty')
       }
 
+      store.setModelPath(response.path())
       return { uri: response.path() } as DocumentPickerResponse
+    } catch (error) {
+      store.setError(error instanceof Error ? error.message : 'Unknown error during download')
+      throw error
     } finally {
       // Cleanup
       this.currentDownload = null
       this.appStateSubscription?.remove()
       this.appStateSubscription = null
+    }
+  }
+
+  cancelDownload() {
+    if (this.currentDownload) {
+      this.currentDownload.cancel(() => {
+        console.log('Download cancelled by user')
+      })
+      this.currentDownload = null
+      useModelStore.getState().cancelDownload()
     }
   }
 }
