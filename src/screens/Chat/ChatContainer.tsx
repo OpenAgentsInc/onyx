@@ -50,11 +50,16 @@ export default function ChatContainer() {
     message: MessageType.Any
   }) => <Bubble child={child} message={message} />
 
-  // Show model selector when:
+  // Show model selector only when:
   // 1. No context (no model loaded)
   // 2. OR when we're in idle/error state
-  // BUT NOT when we're still initializing
-  const showModelSelector = (!context || status === 'idle' || status === 'error') && !initializing
+  // 3. AND not initializing
+  // 4. AND not downloading
+  // 5. AND not in ready state
+  const showModelSelector = (!context || status === 'idle' || status === 'error') 
+    && !initializing 
+    && status !== 'downloading'
+    && status !== 'ready'
 
   // Show loading indicator during initialization or when explicitly initializing a model
   const showLoadingIndicator = initializing || status === 'initializing'
