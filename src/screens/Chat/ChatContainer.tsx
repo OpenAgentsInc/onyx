@@ -39,40 +39,54 @@ export default function ChatContainer() {
     message: MessageType.Any
   }) => <Bubble child={child} message={message} />
 
+  const showModelSelector = !initializing && !context
+
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-        <SafeAreaView edges={['top']} style={{ backgroundColor: '#000' }}>
-          <View style={{ 
-            flexDirection: 'row', 
-            justifyContent: 'flex-end',
-            padding: 8,
-            paddingTop: 12,
-            paddingBottom: 12,
-          }}>
-            <ModelSwitcher />
-          </View>
-        </SafeAreaView>
-        
-        <Chat
-          renderBubble={renderBubble}
-          theme={monoTheme}
-          messages={messages}
-          onSendPress={handleSendPress}
-          user={user}
-          textInputProps={{
-            editable: !!context,
-            placeholder: !context
-              ? 'Download a model to begin'
-              : 'Type your message here',
-          }}
-        />
-        {!context && !initializing && (
-          <>
-            <ModelSelector />
-            <DownloadButton onPress={confirmDownload} />
-          </>
+        {/* Only show ModelSwitcher when we have a working context */}
+        {!showModelSelector && (
+          <SafeAreaView edges={['top']} style={{ backgroundColor: '#000' }}>
+            <View style={{ 
+              flexDirection: 'row', 
+              justifyContent: 'flex-end',
+              padding: 8,
+              paddingTop: 12,
+              paddingBottom: 12,
+            }}>
+              <ModelSwitcher />
+            </View>
+          </SafeAreaView>
         )}
+
+        {/* Show model selection UI above chat when needed */}
+        {showModelSelector && (
+          <SafeAreaView edges={['top']} style={{ backgroundColor: '#000' }}>
+            <View style={{ padding: 20 }}>
+              <ModelSelector />
+              <DownloadButton onPress={confirmDownload} />
+            </View>
+          </SafeAreaView>
+        )}
+        
+        {/* Chat interface always at bottom */}
+        <View style={{ flex: 1 }}>
+          <Chat
+            renderBubble={renderBubble}
+            theme={monoTheme}
+            messages={messages}
+            onSendPress={handleSendPress}
+            user={user}
+            textInputProps={{
+              editable: !!context,
+              placeholder: !context
+                ? 'Download a model to begin'
+                : 'Type your message here',
+            }}
+          />
+        </View>
+
+        {/* Loading indicator */}
         {initializing && !context && <LoadingIndicator />}
       </View>
     </SafeAreaProvider>
