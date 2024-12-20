@@ -32,8 +32,14 @@ export const useModelInitialization = (
       return
     }
 
+    // Handle releasing state - wait for it to complete
+    if (status === 'releasing') {
+      console.log('Model is being released, waiting...')
+      return
+    }
+
     // Skip if we're not in a state that needs initialization
-    if (!needsInitialization || status !== 'idle') {
+    if (!needsInitialization || (status !== 'idle' && status !== 'initializing')) {
       console.log('Skipping initialization - wrong state:', { needsInitialization, status })
       return
     }
@@ -63,6 +69,7 @@ export const useModelInitialization = (
             previousModelKey.current = selectedModelKey
             addSystemMessage(setMessages, [], `${currentModel.displayName} found locally, initializing...`)
             await handleInitContext({ uri: filePath } as DocumentPickerResponse)
+            store.setReady() // Set status to ready after successful initialization
           } catch (error) {
             console.error('Model validation/initialization failed:', error)
             // If validation or initialization fails, clean up and rethrow
@@ -72,6 +79,7 @@ export const useModelInitialization = (
         } else {
           console.log(`No model file found for ${selectedModelKey}`)
           setInitializing(false)
+          store.reset() // Reset to idle state if no file found
         }
       } catch (error) {
         console.error('Model initialization failed:', error)
