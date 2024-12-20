@@ -5,42 +5,16 @@ import { AVAILABLE_MODELS } from '../constants'
 import { useModelStore } from '@/store/useModelStore'
 
 export const ModelSelector = () => {
-  const { selectedModelKey, selectModel, startDownload, status, progress } = useModelStore()
+  const { selectedModelKey, selectModel, status } = useModelStore()
 
-  const handleModelSelect = async (key: string) => {
-    console.log('Model button pressed:', key, 'Current status:', status)
-    if (status === 'downloading' || status === 'initializing') return
-
-    if (key !== selectedModelKey) {
-      console.log('Selecting new model:', key)
-      selectModel(key)
-    }
-    
-    if (status === 'idle') {
-      console.log('Starting download for model:', key)
-      startDownload()
-    }
-  }
-
-  const getButtonText = (key: string, model: any) => {
-    if (key === selectedModelKey) {
-      switch (status) {
-        case 'downloading':
-          return `Downloading ${model.displayName}... ${progress}%`
-        case 'initializing':
-          return `Initializing ${model.displayName}...`
-        case 'idle':
-          return `Download ${model.displayName}`
-        default:
-          return model.displayName
-      }
-    }
-    return model.displayName
+  const handleModelSelect = (key: string) => {
+    console.log('Model selected:', key)
+    selectModel(key)
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Select Model</Text>
+      <Text style={styles.title}>Select Model to Download</Text>
       {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
         <Pressable
           key={key}
@@ -53,11 +27,11 @@ export const ModelSelector = () => {
           ]}
         >
           <Text style={styles.modelText}>
-            {getButtonText(key, model)}
+            {model.displayName}
           </Text>
-          {key === selectedModelKey && status === 'idle' && (
-            <Text style={styles.downloadText}>Click to download</Text>
-          )}
+          <Text style={styles.sizeText}>
+            {key === '1B' ? '~1GB' : '~2GB'}
+          </Text>
         </Pressable>
       ))}
     </View>
@@ -97,7 +71,7 @@ const styles = StyleSheet.create({
     fontFamily: typography.primary.normal,
     textAlign: 'center',
   },
-  downloadText: {
+  sizeText: {
     color: '#888',
     fontSize: 12,
     fontFamily: typography.primary.normal,
