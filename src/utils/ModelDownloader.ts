@@ -2,6 +2,7 @@ import ReactNativeBlobUtil from "react-native-blob-util"
 import { AppState, AppStateStatus } from "react-native"
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import { useModelStore } from '@/store/useModelStore'
+import * as FileSystem from 'expo-file-system'
 
 const { dirs } = ReactNativeBlobUtil.fs
 
@@ -13,23 +14,15 @@ export class ModelDownloader {
   private appStateSubscription: any = null
 
   constructor() {
-    this.cacheDir = `${dirs.CacheDir}/models`
+    this.cacheDir = `${FileSystem.cacheDirectory}models`
   }
 
   async ensureDirectory(): Promise<void> {
     try {
-      // First check if directory exists
-      const exists = await ReactNativeBlobUtil.fs.isDir(this.cacheDir)
-      
-      if (!exists) {
-        // If it doesn't exist, create it
-        await ReactNativeBlobUtil.fs.mkdir(this.cacheDir)
-        
-        // Verify directory was created
-        const created = await ReactNativeBlobUtil.fs.isDir(this.cacheDir)
-        if (!created) {
-          throw new Error('Failed to create models directory')
-        }
+      const dirInfo = await FileSystem.getInfoAsync(this.cacheDir)
+      if (!dirInfo.exists) {
+        console.log("Models directory doesn't exist, creating...")
+        await FileSystem.makeDirectoryAsync(this.cacheDir, { intermediates: true })
       }
     } catch (error) {
       console.error('Error ensuring directory exists:', error)
@@ -39,26 +32,10 @@ export class ModelDownloader {
 
   async cleanDirectory(): Promise<void> {
     try {
-      // First ensure parent directory exists
-      const parentDir = this.cacheDir.split('/').slice(0, -1).join('/')
-      if (!(await ReactNativeBlobUtil.fs.isDir(parentDir))) {
-        throw new Error('Parent directory does not exist')
+      if (await FileSystem.getInfoAsync(this.cacheDir).then(info => info.exists)) {
+        await FileSystem.deleteAsync(this.cacheDir)
       }
-
-      // Then handle the models directory
-      if (await ReactNativeBlobUtil.fs.exists(this.cacheDir)) {
-        // If it exists, try to delete it
-        await ReactNativeBlobUtil.fs.unlink(this.cacheDir)
-      }
-
-      // Create a fresh directory
-      await ReactNativeBlobUtil.fs.mkdir(this.cacheDir)
-      
-      // Verify directory was created after cleaning
-      const exists = await ReactNativeBlobUtil.fs.isDir(this.cacheDir)
-      if (!exists) {
-        throw new Error('Failed to recreate models directory after cleaning')
-      }
+      await FileSystem.makeDirectoryAsync(this.cacheDir, { intermediates: true })
     } catch (error) {
       console.error('Error cleaning directory:', error)
       throw error
@@ -67,7 +44,6 @@ export class ModelDownloader {
 
   private handleAppStateChange = async (nextAppState: AppStateStatus) => {
     if (nextAppState === 'background' || nextAppState === 'inactive') {
-      // Cancel ongoing download if app goes to background
       if (this.currentDownload) {
         this.currentDownload.cancel((err) => {
           console.log('Download cancelled due to app minimization:', err)
@@ -75,7 +51,6 @@ export class ModelDownloader {
         })
         this.currentDownload = null
         
-        // Clean up partial download
         try {
           await this.cleanDirectory()
         } catch (e) {
@@ -102,12 +77,12 @@ export class ModelDownloader {
       console.log('Directory ensured:', this.cacheDir)
 
       // Check for existing file
-      if (await ReactNativeBlobUtil.fs.exists(filepath)) {
+      const fileInfo = await FileSystem.getInfoAsync(filepath)
+      if (fileInfo.exists) {
         try {
-          const stats = await ReactNativeBlobUtil.fs.stat(filepath)
-          console.log('Existing file stats:', stats)
-          if (stats.size > 0) {
+          if (fileInfo.size > 0) {
             store.setModelPath(filepath)
+            store.startInitialization() // Start initialization for existing file
             return { uri: filepath } as DocumentPickerResponse
           }
         } catch (e) {
@@ -151,30 +126,30 @@ export class ModelDownloader {
       console.log('Downloaded file temp path:', downloadedPath)
       
       // Validate downloaded file
-      const stats = await ReactNativeBlobUtil.fs.stat(downloadedPath)
+      const stats = await FileSystem.getInfoAsync(downloadedPath)
       console.log('Downloaded file stats:', stats)
       
-      if (stats.size === 0) {
-        await ReactNativeBlobUtil.fs.unlink(downloadedPath)
-        store.setError('Downloaded file is empty')
-        throw new Error('Downloaded file is empty')
+      if (!stats.exists || stats.size === 0) {
+        store.setError('Downloaded file is empty or missing')
+        throw new Error('Downloaded file is empty or missing')
       }
 
       // Move file to final location
       console.log('Moving file from', downloadedPath, 'to', filepath)
-      if (await ReactNativeBlobUtil.fs.exists(filepath)) {
-        await ReactNativeBlobUtil.fs.unlink(filepath)
-      }
-      await ReactNativeBlobUtil.fs.mv(downloadedPath, filepath)
+      await FileSystem.moveAsync({
+        from: downloadedPath,
+        to: filepath
+      })
 
       // Verify final file
-      const finalStats = await ReactNativeBlobUtil.fs.stat(filepath)
+      const finalStats = await FileSystem.getInfoAsync(filepath)
       console.log('Final file stats:', finalStats)
-      if (finalStats.size !== stats.size) {
-        throw new Error('File size mismatch after move')
+      if (!finalStats.exists || finalStats.size === 0) {
+        throw new Error('File move failed or resulted in empty file')
       }
 
       store.setModelPath(filepath)
+      store.startInitialization() // Start initialization after successful download
       return { uri: filepath } as DocumentPickerResponse
     } catch (error) {
       console.error('Download error:', error)
