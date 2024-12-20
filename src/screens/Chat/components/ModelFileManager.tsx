@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, Alert } from 'react-native'
+import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native'
 import ReactNativeBlobUtil from 'react-native-blob-util'
 import { typography } from '@/theme'
+import { colors } from '@/theme/colors'
 import { ModelDownloader } from '@/utils/ModelDownloader'
-import Button from '@/components/Button'
 
 interface ModelFile {
   name: string
@@ -83,14 +83,12 @@ export const ModelFileManager = () => {
             ))}
           </View>
 
-          <View style={styles.buttonContainer}>
-            <Button
-              onPress={handleDeleteAll}
-              theme="SECONDARY"
-            >
-              Delete All Model Files
-            </Button>
-          </View>
+          <TouchableOpacity
+            onPress={handleDeleteAll}
+            style={styles.deleteButton}
+          >
+            <Text style={styles.deleteButtonText}>Delete All Model Files</Text>
+          </TouchableOpacity>
         </>
       ) : (
         <Text style={styles.emptyText}>No model files found</Text>
@@ -101,7 +99,8 @@ export const ModelFileManager = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#000',
+    backgroundColor: colors.palette.neutral200,
+    padding: 16,
   },
   fileList: {
     marginBottom: 16,
@@ -113,26 +112,35 @@ const styles = StyleSheet.create({
   },
   fileItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: colors.border,
   },
   fileName: {
-    color: '#fff',
+    color: colors.text,
     fontFamily: typography.primary.normal,
     fontSize: 14,
   },
   fileSize: {
-    color: '#888',
+    color: colors.textDim,
     fontFamily: typography.primary.normal,
     fontSize: 14,
   },
   emptyText: {
-    color: '#888',
+    color: colors.textDim,
     fontFamily: typography.primary.normal,
     fontSize: 14,
     textAlign: 'center',
     marginVertical: 16,
   },
-  buttonContainer: {
-    marginTop: 16,
+  deleteButton: {
+    backgroundColor: colors.errorBackground,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    color: colors.error,
+    fontFamily: typography.primary.medium,
+    fontSize: 14,
   },
 })
