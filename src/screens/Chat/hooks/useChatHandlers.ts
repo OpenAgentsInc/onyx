@@ -1,9 +1,8 @@
 import json5 from "json5"
-import { initLlama } from "llama.rn"
 import { Platform } from "react-native"
 import * as FileSystem from 'expo-file-system'
 import { addMessage, addSystemMessage, handleReleaseContext } from "../utils"
-import { randId, system, systemId } from "../constants"
+import { randId, system, systemId, systemMessage, user } from "../constants"
 import type { LlamaContext } from 'llama.rn'
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
