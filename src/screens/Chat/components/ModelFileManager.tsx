@@ -101,7 +101,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
 
   const getModelSize = (modelKey: string): string => {
     const file = modelFiles.find(file => file.modelKey === modelKey)
-    return file ? file.size : modelKey === '1B' ? '~1GB' : '~2GB'
+    return file ? file.size : modelKey === '1B' ? '770 MB' : '1.9 GB'
   }
 
   const isModelActive = (modelKey: string) => {
