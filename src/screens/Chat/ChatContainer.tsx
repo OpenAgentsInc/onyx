@@ -6,7 +6,6 @@ import { monoTheme } from '@/theme/chat'
 import { ModelDownloader } from '@/utils/ModelDownloader'
 import { defaultConversationId, user } from './constants'
 import { ModelSelector } from './components/ModelSelector'
-import { DownloadButton } from './components/DownloadButton'
 import { LoadingIndicator } from './components/LoadingIndicator'
 import { ModelSwitcher } from './components/ModelSwitcher'
 import { useModelContext } from './hooks/useModelContext'
@@ -27,7 +26,6 @@ export default function ChatContainer() {
   const downloader = new ModelDownloader()
 
   const { context, setContext, handleInitContext } = useModelContext(setMessages, messages)
-  const { confirmDownload } = useModelDownload(downloader, setMessages, messages, handleInitContext)
   const { handleSendPress } = useChatHandlers(context, conversationIdRef, setMessages, messages, setInferencing)
   const { status } = useModelStore()
 
@@ -81,11 +79,8 @@ export default function ChatContainer() {
 
         {/* Model selection UI */}
         {showModelSelector && (
-          <SafeAreaView edges={['top']} style={{ backgroundColor: '#000' }}>
-            <View style={{ padding: 20 }}>
-              <ModelSelector />
-              <DownloadButton onPress={confirmDownload} />
-            </View>
+          <SafeAreaView edges={['top']}>
+            <ModelSelector />
           </SafeAreaView>
         )}
         
