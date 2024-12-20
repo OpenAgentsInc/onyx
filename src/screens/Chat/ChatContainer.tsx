@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { View, Alert, Platform, Text, Pressable } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { Chat } from '@flyerhq/react-native-chat-ui'
@@ -20,7 +20,7 @@ import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
 export default function ChatContainer() {
   const [messages, setMessages] = useState<MessageType.Any[]>([])
-  const [initializing, setInitializing] = useState<boolean>(true)
+  const [initializing, setInitializing] = useState<boolean>(false) // Changed to false initially
   const [inferencing, setInferencing] = useState<boolean>(false)
   const [downloading, setDownloading] = useState<boolean>(false)
   const [downloadProgress, setDownloadProgress] = useState<number>(0)
@@ -34,6 +34,13 @@ export default function ChatContainer() {
 
   useModelInitialization(downloader, setMessages, setInitializing, handleInitContext)
 
+  // Reset initializing state when status changes to error
+  useEffect(() => {
+    if (status === 'error') {
+      setInitializing(false)
+    }
+  }, [status])
+
   const handleDownloadModelConfirmed = async () => {
     if (downloading) return
     setDownloadProgress(0)
@@ -43,10 +50,7 @@ export default function ChatContainer() {
       addSystemMessage(setMessages, messages, `Downloading ${currentModel.displayName} from Hugging Face...`)
       const file = await downloader.downloadModel(
         currentModel.repoId,
-        currentModel.filename,
-        (progress) => {
-          setDownloadProgress(progress)
-        }
+        currentModel.filename
       )
       addSystemMessage(setMessages, [], `Model downloaded! Initializing...`)
       await handleInitContext(file)
@@ -91,13 +95,13 @@ export default function ChatContainer() {
   }) => <Bubble child={child} message={message} />
 
   // Show model selector when:
-  // 1. No context AND not initializing (initial state or after release)
-  // 2. OR when we're in idle state (model needs download)
-  const showModelSelector = (!context && !initializing) || status === 'idle'
+  // 1. No context (no model loaded)
+  // 2. OR when we're in idle/error state
+  const showModelSelector = !context || status === 'idle' || status === 'error'
 
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
-      <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+      <View style={{ flex: 1, backgroundColor: '#000' }}>
         {/* Model switcher floating button */}
         {!showModelSelector && (
           <View style={{ 
@@ -128,67 +132,63 @@ export default function ChatContainer() {
           </View>
         )}
 
-        {/* Model selection UI */}
-        {showModelSelector && (
-          <SafeAreaView edges={['top']}>
-            <ModelSelector />
-          </SafeAreaView>
-        )}
-        
-        {/* Chat interface */}
+        {/* Main content */}
         <View style={{ flex: 1 }}>
-          <Chat
-            renderBubble={renderBubble}
-            theme={monoTheme}
-            messages={messages}
-            onSendPress={handleSendPress}
-            user={user}
-            textInputProps={{
-              editable: !!context,
-              placeholder: !context
-                ? 'Download a model to begin'
-                : 'Type your message here',
-            }}
-          />
+          {/* Model selection UI */}
+          {showModelSelector ? (
+            <View style={{ flex: 1 }}>
+              <ModelSelector />
+              {/* Download button */}
+              <View style={{ 
+                padding: 10, 
+                paddingBottom: 50, 
+                backgroundColor: '#000',
+                alignItems: 'center',
+              }}>
+                <Pressable 
+                  onPress={confirmDownload}
+                  disabled={downloading || initializing}
+                  style={{ 
+                    backgroundColor: '#444', 
+                    padding: 15,
+                    paddingHorizontal: 30,
+                    borderRadius: 25,
+                    opacity: (downloading || initializing) ? 0.7 : 1,
+                  }}
+                >
+                  <Text style={{ 
+                    color: 'white', 
+                    textAlign: 'center', 
+                    fontFamily: typography.primary.normal,
+                    fontSize: 16,
+                  }}>
+                    {downloading ? `Downloading... ${downloadProgress}%` : 
+                     initializing ? 'Initializing...' :
+                     'Download Selected Model'}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+            /* Chat interface */
+            <Chat
+              renderBubble={renderBubble}
+              theme={monoTheme}
+              messages={messages}
+              onSendPress={handleSendPress}
+              user={user}
+              textInputProps={{
+                editable: !!context,
+                placeholder: !context
+                  ? 'Download a model to begin'
+                  : 'Type your message here',
+              }}
+            />
+          )}
         </View>
 
         {/* Loading indicator */}
-        {initializing && !context && <LoadingIndicator />}
-
-        {/* Download button */}
-        {!context && !initializing && (
-          <View style={{ 
-            position: 'absolute', 
-            bottom: 0, 
-            left: 0, 
-            right: 0,
-            padding: 10, 
-            paddingBottom: 50, 
-            backgroundColor: '#000',
-            alignItems: 'center',
-          }}>
-            <Pressable 
-              onPress={confirmDownload}
-              disabled={downloading}
-              style={{ 
-                backgroundColor: '#444', 
-                padding: 15,
-                paddingHorizontal: 30,
-                borderRadius: 25,
-                opacity: downloading ? 0.7 : 1,
-              }}
-            >
-              <Text style={{ 
-                color: 'white', 
-                textAlign: 'center', 
-                fontFamily: typography.primary.normal,
-                fontSize: 16,
-              }}>
-                {downloading ? `Downloading... ${downloadProgress}%` : 'Download Selected Model'}
-              </Text>
-            </Pressable>
-          </View>
-        )}
+        {initializing && <LoadingIndicator />}
       </View>
     </SafeAreaProvider>
   )
