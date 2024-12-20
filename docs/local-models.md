@@ -21,6 +21,22 @@ export const AVAILABLE_MODELS: { [key: string]: ModelConfig } = {
 }
 ```
 
+## User Interface
+
+### Initial State
+- Shows model selector with available models and their sizes
+- Download button at bottom
+- Clear visual feedback for selected model
+
+### Active State
+- Model switcher in top-right corner
+- Shows current model status via icon:
+  - chip: ready
+  - download: downloading
+  - cog-sync: initializing
+  - cog-refresh: releasing
+  - alert: error
+
 ## State Management
 
 Model state is managed through a Zustand store (`src/store/useModelStore.ts`) with the following features:
@@ -50,24 +66,6 @@ interface ModelState {
 }
 ```
 
-## UI Components
-
-### Model Selector
-- Located at bottom of screen when no model is loaded
-- Shows available models with download buttons
-- Displays current model and status
-
-### Model Switcher
-- Floating button in top-right corner when model is loaded
-- Shows current model status via icon:
-  - chip: ready
-  - download: downloading
-  - cog-sync: initializing
-  - cog-refresh: releasing
-  - alert: error
-- Opens modal for model selection
-- Disabled during state transitions
-
 ## Model Lifecycle
 
 ### Initial Load
@@ -76,16 +74,20 @@ interface ModelState {
 3. If not found, show model selector
 
 ### Model Download
-1. User selects model to download
-2. Shows download progress
-3. Validates downloaded file
-4. Automatically initializes after download
+1. User selects model
+2. Shows download confirmation with warnings
+3. Downloads with progress updates
+4. Validates downloaded file
+5. Automatically initializes after download
 
 ### Model Switching
-1. User selects new model from switcher
-2. Current model context is released
-3. System checks for new model file
-4. Either initializes existing file or shows download option
+1. User clicks model switcher
+2. Selects new model
+3. Current model is released
+4. If new model exists locally:
+   - Initialize automatically
+5. If new model not found:
+   - Show download UI
 
 ### Error Handling
 - Download cancellation (app backgrounded)
@@ -100,11 +102,14 @@ interface ModelState {
 - `ModelDownloader`: Handles file downloads
 - `useModelContext`: Manages model context
 - `useModelInitialization`: Handles initialization flow
+- `ModelSelector`: UI for model selection
+- `ModelSwitcher`: UI for switching models
 
 ### File Management
 - Models stored in app cache directory
 - Cleaned up on download cancellation
 - Validated before initialization
+- Proper cleanup on model switch
 
 ### Best Practices
 1. Always release context before switching models
@@ -125,3 +130,15 @@ const {
   setReady         // Mark as ready
 } = useModelStore()
 ```
+
+## Download Sizes
+- 1B model: ~1GB
+- 3B model: ~2GB
+
+## Technical Notes
+- Uses react-native-blob-util for downloads
+- Supports background download on iOS
+- Handles app state changes
+- Validates file integrity
+- Proper error propagation
+- State persistence between app launches
