@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react"
 import {
   Alert, Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, View
 } from "react-native"
-import ReactNativeBlobUtil from "react-native-blob-util"
+import * as FileSystem from 'expo-file-system'
 import { getCurrentModelConfig, useModelStore } from "@/store/useModelStore"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colors"
-import { ModelDownloader } from "@/utils/ModelDownloader"
 import { AVAILABLE_MODELS } from "../constants"
 
 interface ModelFile {
@@ -30,27 +29,26 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
   embedded = false
 }) => {
   const [modelFiles, setModelFiles] = useState<ModelFile[]>([])
-  const downloader = new ModelDownloader()
-  const { 
-    selectedModelKey, 
-    modelPath, 
-    status, 
-    progress, 
-    selectModel, 
-    startInitialization,
-    startReleasing,
-    reset 
-  } = useModelStore()
+  const { selectedModelKey, status, progress, selectModel, startInitialization } = useModelStore()
+  const modelsDir = `${FileSystem.cacheDirectory}models`
 
   const loadModelFiles = async () => {
     try {
-      await downloader.ensureDirectory()
-      const files = await ReactNativeBlobUtil.fs.ls(downloader.cacheDir)
+      // Ensure directory exists
+      const dirInfo = await FileSystem.getInfoAsync(modelsDir)
+      if (!dirInfo.exists) {
+        await FileSystem.makeDirectoryAsync(modelsDir, { intermediates: true })
+        setModelFiles([])
+        return
+      }
+
+      // Read directory contents
+      const files = await FileSystem.readDirectoryAsync(modelsDir)
       const fileDetails = await Promise.all(
         files.map(async (filename) => {
-          const path = `${downloader.cacheDir}/${filename}`
-          const stats = await ReactNativeBlobUtil.fs.stat(path)
-          const sizeMB = (stats.size / (1024 * 1024)).toFixed(1)
+          const path = `${modelsDir}/${filename}`
+          const info = await FileSystem.getInfoAsync(path, { size: true })
+          const sizeMB = info.exists && info.size ? (info.size / (1024 * 1024)).toFixed(1) : '0'
 
           const modelKey = Object.entries(AVAILABLE_MODELS).find(
             ([_, model]) => model.filename === filename
@@ -72,8 +70,6 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
 
   const handleDeleteModel = async (modelKey: string) => {
     const model = AVAILABLE_MODELS[modelKey]
-    const isDeletingActiveModel = modelKey === selectedModelKey
-    
     Alert.alert(
       "Delete Model?",
       `Delete ${model.displayName.replace(' Instruct', '')}? You'll need to download it again to use it.`,
@@ -84,22 +80,8 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
           style: "destructive",
           onPress: async () => {
             try {
-              // If deleting active model, release context first
-              if (isDeletingActiveModel) {
-                console.log('Releasing context before deletion...')
-                startReleasing()
-              }
-
-              const filePath = `${downloader.cacheDir}/${model.filename}`
-              await ReactNativeBlobUtil.fs.unlink(filePath)
-              console.log('File deleted:', filePath)
-
-              // If we deleted the active model, reset the store
-              if (isDeletingActiveModel) {
-                console.log('Resetting store after active model deletion')
-                reset()
-              }
-
+              const filePath = `${modelsDir}/${model.filename}`
+              await FileSystem.deleteAsync(filePath)
               await loadModelFiles() // Refresh list
             } catch (error) {
               console.error('Failed to delete model file:', error)
@@ -117,7 +99,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
     
     // Get the model file path
     const model = AVAILABLE_MODELS[modelKey]
-    const filePath = `${downloader.cacheDir}/${model.filename}`
+    const filePath = `${modelsDir}/${model.filename}`
     
     // Start initialization
     startInitialization()
