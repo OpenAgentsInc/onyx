@@ -8,7 +8,7 @@ const { dirs } = ReactNativeBlobUtil.fs
 export type ProgressCallback = (progress: number, received: number, total: number) => void
 
 export class ModelDownloader {
-  private readonly cacheDir: string
+  readonly cacheDir: string
   private currentDownload: ReactNativeBlobUtil.StatefulPromise | null = null
   private appStateSubscription: any = null
 
