@@ -25,85 +25,103 @@ export const AVAILABLE_MODELS: { [key: string]: ModelConfig } = {
 
 Model state is managed through a Zustand store (`src/store/useModelStore.ts`) with the following features:
 
-- Model selection
-- Download progress tracking
-- Initialization state
-- Error handling
-- Persistent storage of selected model
-
 ### Model States
-
 ```typescript
-type ModelStatus = 'idle' | 'downloading' | 'initializing' | 'ready' | 'error'
+type ModelStatus = 'idle' | 'downloading' | 'initializing' | 'ready' | 'error' | 'releasing'
 ```
 
 State transitions:
 1. idle → downloading (when starting download)
 2. downloading → initializing (when download completes)
 3. initializing → ready (when model is loaded)
-4. Any state → error (on failure)
-5. Any state → idle (on reset/cancel)
+4. ready → releasing (when switching models)
+5. releasing → idle (after cleanup)
+6. Any state → error (on failure)
 
-## Model Initialization
-
-The initialization process is handled by several components:
-
-1. `useModelInitialization` hook:
-   - Checks for locally downloaded models on app start
-   - Prevents multiple simultaneous initializations
-   - Manages initialization state
-
-2. `useModelContext` hook:
-   - Handles model context creation and release
-   - Manages model initialization process
-   - Provides context to chat interface
-
-3. `ModelDownloader` class:
-   - Handles downloading models from Hugging Face
-   - Manages download progress
-   - Handles app backgrounding during download
-
-## Error Handling
-
-The system handles several types of errors:
-
-- Download failures (network issues, cancellation)
-- Initialization failures (memory issues, corrupted files)
-- App backgrounding during download
-- Invalid model selections
-
-## Usage in Components
-
-Components can access model state through the store:
-
+### Store State
 ```typescript
-const { 
-  selectedModelKey,
-  status,
-  progress,
-  errorMessage
-} = useModelStore()
+interface ModelState {
+  selectedModelKey: string      // Current selected model
+  status: ModelStatus          // Current state
+  progress: number            // Download progress (0-100)
+  modelPath: string | null    // Path to downloaded model file
+  errorMessage: string | null // Error message if any
+  needsInitialization: boolean // Whether model needs to be initialized
+}
 ```
-
-Available actions:
-- `selectModel(modelKey)`: Switch to a different model
-- `startDownload()`: Begin downloading selected model
-- `cancelDownload()`: Cancel ongoing download
-- `reset()`: Reset to initial state
 
 ## UI Components
 
-The model management UI consists of:
+### Model Selector
+- Located at bottom of screen when no model is loaded
+- Shows available models with download buttons
+- Displays current model and status
 
-- Model selector in app header
-- Download progress indicator
-- Error messages
-- Initialization status
+### Model Switcher
+- Floating button in top-right corner when model is loaded
+- Shows current model status via icon:
+  - chip: ready
+  - download: downloading
+  - cog-sync: initializing
+  - cog-refresh: releasing
+  - alert: error
+- Opens modal for model selection
+- Disabled during state transitions
 
-## Best Practices
+## Model Lifecycle
 
-1. Always check model status before operations
-2. Handle app backgrounding gracefully
-3. Clean up resources when switching models
-4. Provide clear feedback during long operations
-5. Persist user model preferences
+### Initial Load
+1. Check for locally downloaded model
+2. If found, initialize automatically
+3. If not found, show model selector
+
+### Model Download
+1. User selects model to download
+2. Shows download progress
+3. Validates downloaded file
+4. Automatically initializes after download
+
+### Model Switching
+1. User selects new model from switcher
+2. Current model context is released
+3. System checks for new model file
+4. Either initializes existing file or shows download option
+
+### Error Handling
+- Download cancellation (app backgrounded)
+- Initialization failures
+- File validation
+- Context release errors
+
+## Implementation Details
+
+### Key Components
+- `useModelStore`: Central state management
+- `ModelDownloader`: Handles file downloads
+- `useModelContext`: Manages model context
+- `useModelInitialization`: Handles initialization flow
+
+### File Management
+- Models stored in app cache directory
+- Cleaned up on download cancellation
+- Validated before initialization
+
+### Best Practices
+1. Always release context before switching models
+2. Validate downloaded files
+3. Handle app backgrounding gracefully
+4. Show clear status indicators
+5. Prevent actions during state transitions
+
+## Usage Example
+
+```typescript
+const { 
+  selectedModelKey,  // Current model key
+  status,           // Current state
+  progress,         // Download progress
+  selectModel,      // Switch models
+  startDownload,    // Begin download
+  setReady         // Mark as ready
+} = useModelStore()
+```
