@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { AVAILABLE_MODELS, DEFAULT_MODEL_KEY, ModelConfig } from '../screens/Chat/constants'
 
-export type ModelStatus = 'idle' | 'downloading' | 'initializing' | 'ready' | 'error'
+export type ModelStatus = 'idle' | 'downloading' | 'initializing' | 'ready' | 'error' | 'releasing'
 
 interface ModelState {
   selectedModelKey: string
@@ -12,7 +12,7 @@ interface ModelState {
   modelPath: string | null
   errorMessage: string | null
   downloadCancelled: boolean
-  needsInitialization: boolean // New flag to trigger initialization after model switch
+  needsInitialization: boolean
 }
 
 interface ModelActions {
@@ -25,6 +25,7 @@ interface ModelActions {
   setError: (message: string) => void
   cancelDownload: () => void
   reset: () => void
+  startReleasing: () => void
 }
 
 const initialState: ModelState = {
@@ -47,16 +48,20 @@ export const useModelStore = create<ModelState & ModelActions>()(
           console.error('Invalid model key:', modelKey)
           return
         }
-        // When switching models, reset state and set needsInitialization
+        // When switching models, first set status to releasing
         set({
           selectedModelKey: modelKey,
-          status: 'idle',
+          status: 'releasing',
           progress: 0,
           modelPath: null,
           errorMessage: null,
           downloadCancelled: false,
           needsInitialization: true,
         })
+      },
+
+      startReleasing: () => {
+        set({ status: 'releasing' })
       },
 
       startDownload: () => {
@@ -86,8 +91,8 @@ export const useModelStore = create<ModelState & ModelActions>()(
 
       startInitialization: () => {
         const { status } = get()
-        // Only start initialization if we're in downloading state
-        if (status === 'downloading') {
+        // Can start initialization from downloading or releasing state
+        if (status === 'downloading' || status === 'releasing' || status === 'idle') {
           set({ status: 'initializing', progress: 100 })
         }
       },
