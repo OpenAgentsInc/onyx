@@ -4,21 +4,30 @@ import ReactNativeBlobUtil from 'react-native-blob-util'
 import { typography } from '@/theme'
 import { colors } from '@/theme/colors'
 import { ModelDownloader } from '@/utils/ModelDownloader'
+import { useModelStore, getCurrentModelConfig } from '@/store/useModelStore'
+import { AVAILABLE_MODELS } from '../constants'
 
 interface ModelFile {
   name: string
   size: string
   path: string
+  modelKey: string
 }
 
 interface ModelFileManagerProps {
   visible: boolean
   onClose: () => void
+  onDownloadModel: (modelKey: string) => void
 }
 
-export const ModelFileManager: React.FC<ModelFileManagerProps> = ({ visible, onClose }) => {
+export const ModelFileManager: React.FC<ModelFileManagerProps> = ({ 
+  visible, 
+  onClose,
+  onDownloadModel
+}) => {
   const [modelFiles, setModelFiles] = useState<ModelFile[]>([])
   const downloader = new ModelDownloader()
+  const { selectedModelKey, modelPath, status } = useModelStore()
 
   const loadModelFiles = async () => {
     try {
@@ -31,10 +40,17 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({ visible, onC
           const path = `${downloader.cacheDir}/${filename}`
           const stats = await ReactNativeBlobUtil.fs.stat(path)
           const sizeMB = (stats.size / (1024 * 1024)).toFixed(1)
+          
+          // Find which model this file belongs to
+          const modelKey = Object.entries(AVAILABLE_MODELS).find(
+            ([_, model]) => model.filename === filename
+          )?.[0] || ''
+
           return {
             name: filename,
             size: `${sizeMB} MB`,
-            path
+            path,
+            modelKey
           }
         })
       )
@@ -74,6 +90,14 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({ visible, onC
     }
   }, [visible])
 
+  const isModelDownloaded = (modelKey: string) => {
+    return modelFiles.some(file => file.modelKey === modelKey)
+  }
+
+  const isModelActive = (modelKey: string) => {
+    return modelKey === selectedModelKey && status === 'ready'
+  }
+
   return (
     <Modal
       visible={visible}
@@ -85,7 +109,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({ visible, onC
         <View style={styles.modalContent}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Model Files</Text>
+            <Text style={styles.headerTitle}>Models</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>Done</Text>
             </TouchableOpacity>
@@ -93,29 +117,49 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({ visible, onC
 
           {/* Content */}
           <View style={styles.container}>
-            {modelFiles.length > 0 ? (
-              <>
-                <View style={styles.fileList}>
-                  {modelFiles.map((file, index) => (
-                    <View key={file.path} style={[
-                      styles.fileItem,
-                      index < modelFiles.length - 1 && styles.fileItemBorder
-                    ]}>
-                      <Text style={styles.fileName}>{file.name}</Text>
-                      <Text style={styles.fileSize}>{file.size}</Text>
+            {/* Available Models Section */}
+            <View style={styles.section}>
+              {Object.entries(AVAILABLE_MODELS).map(([key, model]) => {
+                const downloaded = isModelDownloaded(key)
+                const active = isModelActive(key)
+                
+                return (
+                  <View key={key} style={styles.modelItem}>
+                    <View style={styles.modelInfo}>
+                      <Text style={styles.modelName}>
+                        {model.displayName}
+                        {active && <Text style={styles.activeIndicator}> ✓</Text>}
+                      </Text>
+                      <Text style={styles.modelSize}>
+                        {key === '1B' ? '~1GB' : '~2GB'}
+                      </Text>
                     </View>
-                  ))}
-                </View>
+                    {downloaded ? (
+                      <View style={styles.downloadedBadge}>
+                        <Text style={styles.downloadedText}>Downloaded</Text>
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        onPress={() => onDownloadModel(key)}
+                        style={styles.downloadButton}
+                        disabled={status === 'downloading'}
+                      >
+                        <Text style={styles.downloadButtonText}>Download</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )
+              })}
+            </View>
 
-                <TouchableOpacity
-                  onPress={handleDeleteAll}
-                  style={styles.deleteButton}
-                >
-                  <Text style={styles.deleteButtonText}>Delete All Model Files</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <Text style={styles.emptyText}>No model files found</Text>
+            {/* Delete All Button */}
+            {modelFiles.length > 0 && (
+              <TouchableOpacity
+                onPress={handleDeleteAll}
+                style={styles.deleteButton}
+              >
+                <Text style={styles.deleteButtonText}>Delete All Model Files</Text>
+              </TouchableOpacity>
             )}
           </View>
         </View>
@@ -163,34 +207,57 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     padding: 16,
   },
-  fileList: {
-    marginBottom: 16,
+  section: {
+    marginBottom: 24,
   },
-  fileItem: {
+  modelItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 12,
-  },
-  fileItemBorder: {
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  fileName: {
+  modelInfo: {
+    flex: 1,
+    marginRight: 16,
+  },
+  modelName: {
     color: colors.text,
     fontFamily: typography.primary.normal,
-    fontSize: 14,
+    fontSize: 16,
   },
-  fileSize: {
+  activeIndicator: {
+    color: colors.tint,
+    fontFamily: typography.primary.medium,
+  },
+  modelSize: {
     color: colors.textDim,
     fontFamily: typography.primary.normal,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  downloadButton: {
+    backgroundColor: colors.tint,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+  },
+  downloadButtonText: {
+    color: colors.background,
+    fontFamily: typography.primary.medium,
     fontSize: 14,
   },
-  emptyText: {
+  downloadedBadge: {
+    backgroundColor: colors.palette.neutral300,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+  },
+  downloadedText: {
     color: colors.textDim,
-    fontFamily: typography.primary.normal,
+    fontFamily: typography.primary.medium,
     fontSize: 14,
-    textAlign: 'center',
-    marginVertical: 16,
   },
   deleteButton: {
     backgroundColor: colors.errorBackground,
