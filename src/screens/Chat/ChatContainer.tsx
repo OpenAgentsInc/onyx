@@ -8,7 +8,6 @@ import { colors } from "@/theme/colors"
 import { ModelDownloader } from "@/utils/ModelDownloader"
 import { Chat } from "@flyerhq/react-native-chat-ui"
 import { Bubble } from "./Bubble"
-import { DownloadScreen } from "./components/DownloadScreen"
 import { LoadingIndicator } from "./components/LoadingIndicator"
 import { ModelFileManager } from "./components/ModelFileManager"
 import { AVAILABLE_MODELS, defaultConversationId, user } from "./constants"
@@ -49,17 +48,6 @@ export default function ChatContainer() {
     child: React.ReactNode
     message: MessageType.Any
   }) => <Bubble child={child} message={message} />
-
-  // Show model selector only when:
-  // 1. No context (no model loaded)
-  // 2. OR when we're in idle/error state
-  // 3. AND not initializing
-  // 4. AND not downloading
-  // 5. AND not in ready state
-  const showModelSelector = (!context || status === 'idle' || status === 'error') 
-    && !initializing 
-    && status !== 'downloading'
-    && status !== 'ready'
 
   // Show loading indicator during initialization or when explicitly initializing a model
   const showLoadingIndicator = initializing || status === 'initializing'
@@ -114,7 +102,7 @@ export default function ChatContainer() {
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: '#000' }}>
         {/* Model manager button - only show when not initializing */}
-        {!showModelSelector && !showLoadingIndicator && !showDownloadProgress && (
+        {!showLoadingIndicator && !showDownloadProgress && (
           <View style={{
             position: 'absolute',
             top: 0,
@@ -161,31 +149,17 @@ export default function ChatContainer() {
 
         {/* Main content */}
         <View style={{ flex: 1 }}>
-          {showModelSelector ? (
-            <DownloadScreen
-              downloading={downloading}
-              initializing={initializing}
-              downloadProgress={downloadProgress}
-              setDownloading={setDownloading}
-              setDownloadProgress={setDownloadProgress}
-              setMessages={setMessages}
-              messages={messages}
-              handleInitContext={handleInitContext}
-            />
-          ) : (
-            /* Chat interface */
-            <Chat
-              renderBubble={renderBubble}
-              theme={monoTheme}
-              messages={messages}
-              onSendPress={handleSendPress}
-              user={user}
-              renderTextInput={renderTextInput}
-              textInputProps={{
-                editable: !!context,
-              }}
-            />
-          )}
+          <Chat
+            renderBubble={renderBubble}
+            theme={monoTheme}
+            messages={messages}
+            onSendPress={handleSendPress}
+            user={user}
+            renderTextInput={renderTextInput}
+            textInputProps={{
+              editable: !!context,
+            }}
+          />
         </View>
 
         {/* Loading indicator */}
