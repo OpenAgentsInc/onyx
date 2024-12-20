@@ -1,11 +1,10 @@
 import React from 'react'
-import { View, Text, Alert, Platform, StyleSheet, ScrollView } from 'react-native'
+import { View, Text, Alert, Platform, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { typography } from '@/theme'
+import { colors } from '@/theme/colors'
 import { ModelDownloader } from '@/utils/ModelDownloader'
 import { getCurrentModelConfig } from '@/store/useModelStore'
 import { addSystemMessage } from '../utils'
-import Card from '@/components/Card'
-import Button from '@/components/Button'
 import { ModelSelector } from './ModelSelector'
 import { ModelFileManager } from './ModelFileManager'
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
@@ -81,27 +80,38 @@ export function DownloadScreen({
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
-        {/* Agents Section */}
-        <Card title="Available Models">
-          <ModelSelector />
-        </Card>
+        {/* Models Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Available Models</Text>
+          <View style={styles.card}>
+            <ModelSelector />
+          </View>
+        </View>
 
         {/* Files Section */}
-        <Card title="Model Files">
-          <ModelFileManager />
-        </Card>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Model Files</Text>
+          <View style={styles.card}>
+            <ModelFileManager />
+          </View>
+        </View>
 
         {/* Download Button */}
         <View style={styles.buttonContainer}>
-          <Button
+          <TouchableOpacity
             onPress={confirmDownload}
-            isDisabled={downloading || initializing}
-            theme="PRIMARY"
+            disabled={downloading || initializing}
+            style={[
+              styles.button,
+              (downloading || initializing) && styles.buttonDisabled
+            ]}
           >
-            {downloading ? `Downloading... ${downloadProgress}%` : 
-             initializing ? 'Initializing...' :
-             'Download Selected Model'}
-          </Button>
+            <Text style={styles.buttonText}>
+              {downloading ? `Downloading... ${downloadProgress}%` : 
+               initializing ? 'Initializing...' :
+               'Download Selected Model'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
@@ -111,14 +121,46 @@ export function DownloadScreen({
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: colors.background,
   },
   container: {
     padding: 16,
-    backgroundColor: '#000',
+    backgroundColor: colors.background,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: typography.primary.medium,
+    color: colors.text,
+    marginBottom: 12,
+    marginLeft: 4,
+  },
+  card: {
+    backgroundColor: colors.palette.neutral200,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   buttonContainer: {
-    marginTop: 20,
-    marginHorizontal: 16,
+    marginTop: 8,
+    marginHorizontal: 4,
+  },
+  button: {
+    backgroundColor: colors.palette.primary500,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  buttonDisabled: {
+    backgroundColor: colors.palette.neutral300,
+  },
+  buttonText: {
+    color: colors.palette.neutral100,
+    fontSize: 16,
+    fontFamily: typography.primary.medium,
   },
 })
