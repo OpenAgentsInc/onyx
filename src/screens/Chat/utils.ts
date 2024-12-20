@@ -42,14 +42,15 @@ export const handleReleaseContext = async (
   addSystemMessageFn: typeof addSystemMessage
 ) => {
   if (!context) return
+
   addSystemMessageFn(setMessages, messages, 'Releasing context...')
-  context
-    .release()
-    .then(() => {
-      setContext(undefined)
-      addSystemMessageFn(setMessages, [], 'Context released!')
-    })
-    .catch((err) => {
-      addSystemMessageFn(setMessages, [], `Context release failed: ${err}`)
-    })
+  
+  try {
+    await context.release()
+    setContext(undefined)
+    addSystemMessageFn(setMessages, [], 'Context released!')
+  } catch (err) {
+    addSystemMessageFn(setMessages, [], `Context release failed: ${err}`)
+    throw err // Re-throw to handle in caller if needed
+  }
 }
