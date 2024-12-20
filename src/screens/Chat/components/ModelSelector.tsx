@@ -1,9 +1,9 @@
-import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import { typography } from '@/theme'
-import { colors } from '@/theme/colors'
-import { AVAILABLE_MODELS } from '../constants'
-import { useModelStore } from '@/store/useModelStore'
+import React from "react"
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { useModelStore } from "@/store/useModelStore"
+import { typography } from "@/theme"
+import { colors } from "@/theme/colors"
+import { AVAILABLE_MODELS } from "../constants"
 
 export const ModelSelector = () => {
   const { selectedModelKey, selectModel, status } = useModelStore()
@@ -22,7 +22,7 @@ export const ModelSelector = () => {
               {model.displayName}
             </Text>
             <Text style={styles.modelSize}>
-              {key === '1B' ? '~1GB' : '~2GB'}
+              {key === '1B' ? '770 MB' : '2 GB'}
             </Text>
           </View>
           <TouchableOpacity
