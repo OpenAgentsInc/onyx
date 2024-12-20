@@ -7,13 +7,14 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 export const ModelSwitcher = () => {
   const [modalVisible, setModalVisible] = useState(false)
-  const { selectedModelKey, selectModel, status } = useModelStore()
+  const { selectedModelKey, selectModel, startDownload, status } = useModelStore()
   const currentModel = AVAILABLE_MODELS[selectedModelKey]
 
   const handleModelSelect = (modelKey: string) => {
-    console.log('Selecting model:', modelKey)
+    console.log('Switching to model:', modelKey)
     if (modelKey !== selectedModelKey) {
       selectModel(modelKey)
+      startDownload() // Start download immediately
     }
     setModalVisible(false)
   }
@@ -62,7 +63,7 @@ export const ModelSwitcher = () => {
           onPress={() => setModalVisible(false)}
         >
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Model</Text>
+            <Text style={styles.modalTitle}>Switch Model</Text>
             <Text style={styles.currentModel}>
               Current: {currentModel.displayName}
               {status !== 'ready' && ` (${status})`}
