@@ -31,7 +31,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
 }) => {
   const [modelFiles, setModelFiles] = useState<ModelFile[]>([])
   const downloader = new ModelDownloader()
-  const { selectedModelKey, modelPath, status, progress } = useModelStore()
+  const { selectedModelKey, modelPath, status, progress, selectModel, startInitialization } = useModelStore()
 
   const loadModelFiles = async () => {
     try {
@@ -86,8 +86,18 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
     )
   }
 
-  const handleSelectModel = (modelKey: string) => {
+  const handleSelectModel = async (modelKey: string) => {
+    // First select the model in the store
     selectModel(modelKey)
+    
+    // Get the model file path
+    const model = AVAILABLE_MODELS[modelKey]
+    const filePath = `${downloader.cacheDir}/${model.filename}`
+    
+    // Start initialization
+    startInitialization()
+    
+    // Close the modal
     onClose()
   }
 
