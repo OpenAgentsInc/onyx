@@ -1,19 +1,18 @@
-import { MutableRefObject } from 'react'
-import ReactNativeBlobUtil from 'react-native-blob-util'
-import json5 from 'json5'
+import json5 from "json5"
+import { initLlama } from "llama.rn"
+import { Platform } from "react-native"
+import * as FileSystem from 'expo-file-system'
+import { addMessage, addSystemMessage, handleReleaseContext } from "../utils"
+import { randId, system, systemId } from "../constants"
 import type { LlamaContext } from 'llama.rn'
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
-import { systemMessage, randId, system, systemId, user } from '../constants'
-import { addMessage, addSystemMessage, handleReleaseContext } from '../utils'
-
-const { dirs } = ReactNativeBlobUtil.fs
 
 export const useChatHandlers = (
   context: LlamaContext | undefined,
-  conversationIdRef: MutableRefObject<string>,
-  setMessages: any,
+  conversationIdRef: React.MutableRefObject<string>,
+  setMessages: React.Dispatch<React.SetStateAction<MessageType.Any[]>>,
   messages: MessageType.Any[],
-  setInferencing: (value: boolean) => void
+  setInferencing: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const handleSendPress = async (message: MessageType.PartialText) => {
     if (context) {
@@ -27,7 +26,7 @@ export const useChatHandlers = (
           )
           return
         case '/release':
-          await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
+          await handleReleaseContext(context, setMessages, messages, addSystemMessage)
           return
         case '/stop':
           if (inferencing) context.stopCompletion()
@@ -37,8 +36,9 @@ export const useChatHandlers = (
           addSystemMessage(setMessages, [], 'Conversation reset!')
           return
         case '/save-session':
+          const sessionPath = `${FileSystem.documentDirectory}llama-session.bin`
           context
-            .saveSession(`${dirs.DocumentDir}/llama-session.bin`)
+            .saveSession(sessionPath)
             .then((tokensSaved) => {
               console.log('Session tokens saved:', tokensSaved)
               addSystemMessage(setMessages, [], `Session saved! ${tokensSaved} tokens saved.`)
@@ -49,8 +49,9 @@ export const useChatHandlers = (
             })
           return
         case '/load-session':
+          const loadPath = `${FileSystem.documentDirectory}llama-session.bin`
           context
-            .loadSession(`${dirs.DocumentDir}/llama-session.bin`)
+            .loadSession(loadPath)
             .then((details) => {
               console.log('Session loaded:', details)
               addSystemMessage(
@@ -125,7 +126,7 @@ export const useChatHandlers = (
       ?.completion(
         {
           messages: msgs,
-          n_predict: 1500,
+          n_predict: 1500, // Increased to 1500
           grammar,
           seed: -1,
           n_probs: 0,
@@ -165,7 +166,7 @@ export const useChatHandlers = (
         },
         (data) => {
           const { token } = data
-          setMessages((msgs: any[]) => {
+          setMessages((msgs) => {
             const index = msgs.findIndex((msg) => msg.id === id)
             if (index >= 0) {
               return msgs.map((msg, i) => {
@@ -200,7 +201,7 @@ export const useChatHandlers = (
         const timings = `${completionResult.timings.predicted_per_token_ms.toFixed()}ms per token, ${completionResult.timings.predicted_per_second.toFixed(
           2,
         )} tokens per second`
-        setMessages((msgs: any[]) => {
+        setMessages((msgs) => {
           const index = msgs.findIndex((msg) => msg.id === id)
           if (index >= 0) {
             return msgs.map((msg, i) => {
