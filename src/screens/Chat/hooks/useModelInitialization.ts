@@ -15,6 +15,8 @@ export const useModelInitialization = (
   const previousModelKey = useRef(selectedModelKey)
   const isInitializing = useRef(false)
   const store = useModelStore.getState()
+  const initAttempts = useRef(0)
+  const MAX_ATTEMPTS = 3
 
   useEffect(() => {
     // Log state changes
@@ -23,8 +25,14 @@ export const useModelInitialization = (
       previousModelKey: previousModelKey.current,
       status,
       needsInitialization,
-      isInitializing: isInitializing.current
+      isInitializing: isInitializing.current,
+      attempts: initAttempts.current
     })
+
+    // Reset attempts when model changes
+    if (selectedModelKey !== previousModelKey.current) {
+      initAttempts.current = 0
+    }
 
     // Skip if already initializing
     if (isInitializing.current) {
@@ -41,6 +49,13 @@ export const useModelInitialization = (
     // Skip if we're not in a state that needs initialization
     if (!needsInitialization || (status !== 'idle' && status !== 'initializing')) {
       console.log('Skipping initialization - wrong state:', { needsInitialization, status })
+      return
+    }
+
+    // Skip if we've exceeded max attempts
+    if (initAttempts.current >= MAX_ATTEMPTS) {
+      console.log('Max initialization attempts reached, giving up')
+      store.setError('Failed to initialize model after multiple attempts')
       return
     }
 
@@ -69,17 +84,31 @@ export const useModelInitialization = (
             previousModelKey.current = selectedModelKey
             addSystemMessage(setMessages, [], `${currentModel.displayName} found locally, initializing...`)
             await handleInitContext({ uri: filePath } as DocumentPickerResponse)
-            store.setReady() // Set status to ready after successful initialization
+            
+            // Reset attempts on success
+            initAttempts.current = 0
+            store.setReady()
           } catch (error) {
             console.error('Model validation/initialization failed:', error)
-            // If validation or initialization fails, clean up and rethrow
-            await downloader.cleanDirectory()
-            throw error
+            initAttempts.current++
+            
+            if (error.message?.includes('Context limit reached')) {
+              // If it's a context limit error, try to recover
+              console.log('Context limit reached, attempting recovery...')
+              store.startReleasing()
+              setTimeout(() => {
+                store.reset()
+              }, 1000)
+            } else {
+              // For other errors, clean up and rethrow
+              await downloader.cleanDirectory()
+              throw error
+            }
           }
         } else {
           console.log(`No model file found for ${selectedModelKey}`)
           setInitializing(false)
-          store.reset() // Reset to idle state if no file found
+          store.reset()
         }
       } catch (error) {
         console.error('Model initialization failed:', error)
@@ -105,6 +134,7 @@ export const useModelInitialization = (
   useEffect(() => {
     return () => {
       isInitializing.current = false
+      initAttempts.current = 0
     }
   }, [])
 }
