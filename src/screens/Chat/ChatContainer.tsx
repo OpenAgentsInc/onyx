@@ -8,6 +8,7 @@ import { defaultConversationId, user } from './constants'
 import { ModelSelector } from './components/ModelSelector'
 import { DownloadButton } from './components/DownloadButton'
 import { LoadingIndicator } from './components/LoadingIndicator'
+import { ModelSwitcher } from './components/ModelSwitcher'
 import { useModelContext } from './hooks/useModelContext'
 import { useModelDownload } from './hooks/useModelDownload'
 import { useModelInitialization } from './hooks/useModelInitialization'
@@ -41,6 +42,15 @@ export default function ChatContainer() {
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+        <View style={{ 
+          flexDirection: 'row', 
+          justifyContent: 'flex-end',
+          padding: 8,
+          backgroundColor: '#000',
+        }}>
+          <ModelSwitcher />
+        </View>
+        
         <Chat
           renderBubble={renderBubble}
           theme={monoTheme}
