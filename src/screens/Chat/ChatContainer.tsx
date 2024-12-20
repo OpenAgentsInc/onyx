@@ -56,8 +56,8 @@ export default function ChatContainer() {
   // 3. AND not initializing
   // 4. AND not downloading
   // 5. AND not in ready state
-  const showModelSelector = (!context || status === 'idle' || status === 'error')
-    && !initializing
+  const showModelSelector = (!context || status === 'idle' || status === 'error') 
+    && !initializing 
     && status !== 'downloading'
     && status !== 'ready'
 
@@ -85,11 +85,36 @@ export default function ChatContainer() {
     }
   }
 
+  // Custom text input component to make placeholder clickable
+  const renderTextInput = (props: any) => {
+    if (!context) {
+      return (
+        <TouchableOpacity 
+          onPress={() => setShowModelManager(true)}
+          style={{
+            height: 44,
+            justifyContent: 'center',
+            paddingHorizontal: 16,
+            backgroundColor: colors.background,
+          }}
+        >
+          <Text style={{
+            color: colors.textDim,
+            fontFamily: typography.primary.normal,
+          }}>
+            Download a model to begin
+          </Text>
+        </TouchableOpacity>
+      )
+    }
+    return <Chat.TextInput {...props} />
+  }
+
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: '#000' }}>
         {/* Model manager button - only show when not initializing */}
-        {!showLoadingIndicator && !showDownloadProgress && (
+        {!showModelSelector && !showLoadingIndicator && !showDownloadProgress && (
           <View style={{
             position: 'absolute',
             top: 0,
@@ -136,7 +161,7 @@ export default function ChatContainer() {
 
         {/* Main content */}
         <View style={{ flex: 1 }}>
-          {/* {showModelSelector ? (
+          {showModelSelector ? (
             <DownloadScreen
               downloading={downloading}
               initializing={initializing}
@@ -147,22 +172,20 @@ export default function ChatContainer() {
               messages={messages}
               handleInitContext={handleInitContext}
             />
-          ) : ( */}
-          {/* /* Chat interface */}
-          <Chat
-            renderBubble={renderBubble}
-            theme={monoTheme}
-            messages={messages}
-            onSendPress={handleSendPress}
-            user={user}
-            textInputProps={{
-              editable: !!context,
-              placeholder: !context
-                ? 'Download a model to begin'
-                : 'Type your message here',
-            }}
-          />
-          {/* )} */}
+          ) : (
+            /* Chat interface */
+            <Chat
+              renderBubble={renderBubble}
+              theme={monoTheme}
+              messages={messages}
+              onSendPress={handleSendPress}
+              user={user}
+              renderTextInput={renderTextInput}
+              textInputProps={{
+                editable: !!context,
+              }}
+            />
+          )}
         </View>
 
         {/* Loading indicator */}
