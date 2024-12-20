@@ -17,7 +17,16 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
   }
 
   const handleInitContext = async (file: DocumentPickerResponse) => {
-    await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
+    // Only release context if we have one
+    if (context) {
+      try {
+        await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
+      } catch (err) {
+        console.error('Failed to release context:', err)
+        // Continue with initialization even if release fails
+      }
+    }
+
     await getModelInfo(file.uri)
     const msgId = addSystemMessage(setMessages, messages, 'Initializing context...')
     const t0 = Date.now()
@@ -71,6 +80,7 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
     } catch (err: any) {
       store.setError(err.message)
       addSystemMessage(setMessages, [], `Context initialization failed: ${err.message}`)
+      throw err // Re-throw to handle in caller
     }
   }
 
