@@ -31,7 +31,16 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
 }) => {
   const [modelFiles, setModelFiles] = useState<ModelFile[]>([])
   const downloader = new ModelDownloader()
-  const { selectedModelKey, modelPath, status, progress, selectModel, startInitialization } = useModelStore()
+  const { 
+    selectedModelKey, 
+    modelPath, 
+    status, 
+    progress, 
+    selectModel, 
+    startInitialization,
+    startReleasing,
+    reset 
+  } = useModelStore()
 
   const loadModelFiles = async () => {
     try {
@@ -63,6 +72,8 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
 
   const handleDeleteModel = async (modelKey: string) => {
     const model = AVAILABLE_MODELS[modelKey]
+    const isDeletingActiveModel = modelKey === selectedModelKey
+    
     Alert.alert(
       "Delete Model?",
       `Delete ${model.displayName.replace(' Instruct', '')}? You'll need to download it again to use it.`,
@@ -73,8 +84,22 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
           style: "destructive",
           onPress: async () => {
             try {
+              // If deleting active model, release context first
+              if (isDeletingActiveModel) {
+                console.log('Releasing context before deletion...')
+                startReleasing()
+              }
+
               const filePath = `${downloader.cacheDir}/${model.filename}`
               await ReactNativeBlobUtil.fs.unlink(filePath)
+              console.log('File deleted:', filePath)
+
+              // If we deleted the active model, reset the store
+              if (isDeletingActiveModel) {
+                console.log('Resetting store after active model deletion')
+                reset()
+              }
+
               await loadModelFiles() // Refresh list
             } catch (error) {
               console.error('Failed to delete model file:', error)
