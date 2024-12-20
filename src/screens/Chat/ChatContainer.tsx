@@ -14,6 +14,7 @@ import { useModelDownload } from './hooks/useModelDownload'
 import { useModelInitialization } from './hooks/useModelInitialization'
 import { Bubble } from './Bubble'
 import { useChatHandlers } from './hooks/useChatHandlers'
+import { useModelStore } from '@/store/useModelStore'
 
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
@@ -28,6 +29,7 @@ export default function ChatContainer() {
   const { context, setContext, handleInitContext } = useModelContext(setMessages, messages)
   const { confirmDownload } = useModelDownload(downloader, setMessages, messages, handleInitContext)
   const { handleSendPress } = useChatHandlers(context, conversationIdRef, setMessages, messages, setInferencing)
+  const { status } = useModelStore()
 
   useModelInitialization(downloader, setMessages, setInitializing, handleInitContext)
 
@@ -39,7 +41,10 @@ export default function ChatContainer() {
     message: MessageType.Any
   }) => <Bubble child={child} message={message} />
 
-  const showModelSelector = !initializing && !context
+  // Show model selector when:
+  // 1. No context AND not initializing (initial state or after release)
+  // 2. OR when we're in idle state (model needs download)
+  const showModelSelector = (!context && !initializing) || status === 'idle'
 
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
