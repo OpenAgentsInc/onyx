@@ -18,13 +18,18 @@ export class ModelDownloader {
 
   async ensureDirectory(): Promise<void> {
     try {
-      if (!(await ReactNativeBlobUtil.fs.isDir(this.cacheDir))) {
-        await ReactNativeBlobUtil.fs.mkdir(this.cacheDir)
-      }
-      // Verify directory was created
+      // First check if directory exists
       const exists = await ReactNativeBlobUtil.fs.isDir(this.cacheDir)
+      
       if (!exists) {
-        throw new Error('Failed to create models directory')
+        // If it doesn't exist, create it
+        await ReactNativeBlobUtil.fs.mkdir(this.cacheDir)
+        
+        // Verify directory was created
+        const created = await ReactNativeBlobUtil.fs.isDir(this.cacheDir)
+        if (!created) {
+          throw new Error('Failed to create models directory')
+        }
       }
     } catch (error) {
       console.error('Error ensuring directory exists:', error)
@@ -34,9 +39,19 @@ export class ModelDownloader {
 
   async cleanDirectory(): Promise<void> {
     try {
+      // First ensure parent directory exists
+      const parentDir = this.cacheDir.split('/').slice(0, -1).join('/')
+      if (!(await ReactNativeBlobUtil.fs.isDir(parentDir))) {
+        throw new Error('Parent directory does not exist')
+      }
+
+      // Then handle the models directory
       if (await ReactNativeBlobUtil.fs.exists(this.cacheDir)) {
+        // If it exists, try to delete it
         await ReactNativeBlobUtil.fs.unlink(this.cacheDir)
       }
+
+      // Create a fresh directory
       await ReactNativeBlobUtil.fs.mkdir(this.cacheDir)
       
       // Verify directory was created after cleaning
@@ -61,7 +76,11 @@ export class ModelDownloader {
         this.currentDownload = null
         
         // Clean up partial download
-        await this.cleanDirectory()
+        try {
+          await this.cleanDirectory()
+        } catch (e) {
+          console.error('Failed to clean directory after cancellation:', e)
+        }
       }
     }
   }
@@ -107,6 +126,7 @@ export class ModelDownloader {
         IOSBackgroundTask: true,
         indicator: true,
         overwrite: true,
+        appendExt: 'tmp' // Use temporary extension during download
       }).fetch(
         'GET',
         `https://huggingface.co/${repoId}/resolve/main/${filename}`,
@@ -123,27 +143,44 @@ export class ModelDownloader {
 
       console.log('Download completed, checking file...')
       
-      // Verify directory still exists
-      await this.ensureDirectory()
-      
       // Get the final path from the response
-      const downloadedPath = response.path()
-      console.log('Downloaded file path:', downloadedPath)
+      const tempPath = response.path()
+      console.log('Downloaded file temp path:', tempPath)
       
       // Validate downloaded file
-      const stats = await ReactNativeBlobUtil.fs.stat(downloadedPath)
+      const stats = await ReactNativeBlobUtil.fs.stat(tempPath)
       console.log('Downloaded file stats:', stats)
       
       if (stats.size === 0) {
+        await ReactNativeBlobUtil.fs.unlink(tempPath)
         store.setError('Downloaded file is empty')
         throw new Error('Downloaded file is empty')
       }
 
-      store.setModelPath(downloadedPath)
-      return { uri: downloadedPath } as DocumentPickerResponse
+      // Move file to final location
+      await ReactNativeBlobUtil.fs.mv(tempPath, filepath)
+      console.log('Moved file to final location:', filepath)
+
+      // Verify final file
+      const finalStats = await ReactNativeBlobUtil.fs.stat(filepath)
+      if (finalStats.size !== stats.size) {
+        throw new Error('File size mismatch after move')
+      }
+
+      store.setModelPath(filepath)
+      return { uri: filepath } as DocumentPickerResponse
     } catch (error) {
       console.error('Download error:', error)
+      
+      // Clean up any partial downloads
+      try {
+        await this.cleanDirectory()
+      } catch (e) {
+        console.error('Failed to clean up after error:', e)
+      }
+      
       store.setError(error instanceof Error ? error.message : 'Unknown error during download')
+      store.reset() // Reset store to idle state
       throw error
     } finally {
       // Cleanup
