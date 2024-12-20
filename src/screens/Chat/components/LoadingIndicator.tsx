@@ -1,8 +1,17 @@
 import React from 'react'
 import { ActivityIndicator, Text, View } from 'react-native'
 import { typography } from '@/theme'
+import { colors } from '@/theme/colors'
 
-export const LoadingIndicator = () => (
+interface LoadingIndicatorProps {
+  message?: string
+  progress?: number
+}
+
+export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ 
+  message = 'Checking model...',
+  progress
+}) => (
   <View style={{ 
     position: 'absolute',
     top: 0,
@@ -19,8 +28,10 @@ export const LoadingIndicator = () => (
       fontFamily: typography.primary.normal, 
       marginTop: 10,
       fontSize: 16,
+      textAlign: 'center',
     }}>
-      Checking model...
+      {message}
+      {progress !== undefined && `\n${progress}%`}
     </Text>
   </View>
 )
