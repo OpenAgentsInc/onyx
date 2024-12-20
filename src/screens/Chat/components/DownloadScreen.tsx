@@ -1,10 +1,13 @@
 import React from 'react'
-import { View, Text, Pressable, Alert, Platform } from 'react-native'
-import { ModelSelector } from './ModelSelector'
+import { View, Text, Alert, Platform, StyleSheet, ScrollView } from 'react-native'
 import { typography } from '@/theme'
 import { ModelDownloader } from '@/utils/ModelDownloader'
 import { getCurrentModelConfig } from '@/store/useModelStore'
 import { addSystemMessage } from '../utils'
+import Card from '@/components/Card'
+import Button from '@/components/Button'
+import { ModelSelector } from './ModelSelector'
+import { ModelFileManager } from './ModelFileManager'
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
 interface DownloadScreenProps {
@@ -76,38 +79,46 @@ export function DownloadScreen({
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <ModelSelector />
-      {/* Download button */}
-      <View style={{ 
-        padding: 10, 
-        paddingBottom: 50, 
-        backgroundColor: '#000',
-        alignItems: 'center',
-      }}>
-        <Pressable 
-          onPress={confirmDownload}
-          disabled={downloading || initializing}
-          style={{ 
-            backgroundColor: '#444', 
-            padding: 15,
-            paddingHorizontal: 30,
-            borderRadius: 25,
-            opacity: (downloading || initializing) ? 0.7 : 1,
-          }}
-        >
-          <Text style={{ 
-            color: 'white', 
-            textAlign: 'center', 
-            fontFamily: typography.primary.normal,
-            fontSize: 16,
-          }}>
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        {/* Agents Section */}
+        <Card title="Available Models">
+          <ModelSelector />
+        </Card>
+
+        {/* Files Section */}
+        <Card title="Model Files">
+          <ModelFileManager />
+        </Card>
+
+        {/* Download Button */}
+        <View style={styles.buttonContainer}>
+          <Button
+            onPress={confirmDownload}
+            isDisabled={downloading || initializing}
+            theme="PRIMARY"
+          >
             {downloading ? `Downloading... ${downloadProgress}%` : 
              initializing ? 'Initializing...' :
              'Download Selected Model'}
-          </Text>
-        </Pressable>
+          </Button>
+        </View>
       </View>
-    </View>
+    </ScrollView>
   )
 }
+
+const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  container: {
+    padding: 16,
+    backgroundColor: '#000',
+  },
+  buttonContainer: {
+    marginTop: 20,
+    marginHorizontal: 16,
+  },
+})
