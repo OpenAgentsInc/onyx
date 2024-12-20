@@ -1,20 +1,20 @@
-import React, { useRef, useState, useEffect } from 'react'
-import { View, TouchableOpacity, Text } from 'react-native'
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
-import { Chat } from '@flyerhq/react-native-chat-ui'
-import { monoTheme } from '@/theme/chat'
-import { ModelDownloader } from '@/utils/ModelDownloader'
-import { defaultConversationId, user, AVAILABLE_MODELS } from './constants'
-import { LoadingIndicator } from './components/LoadingIndicator'
-import { DownloadScreen } from './components/DownloadScreen'
-import { ModelFileManager } from './components/ModelFileManager'
-import { useModelContext } from './hooks/useModelContext'
-import { useModelInitialization } from './hooks/useModelInitialization'
-import { Bubble } from './Bubble'
-import { useChatHandlers } from './hooks/useChatHandlers'
-import { useModelStore } from '@/store/useModelStore'
-import { colors } from '@/theme/colors'
-import { typography } from '@/theme'
+import React, { useEffect, useRef, useState } from "react"
+import { Text, TouchableOpacity, View } from "react-native"
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
+import { useModelStore } from "@/store/useModelStore"
+import { typography } from "@/theme"
+import { monoTheme } from "@/theme/chat"
+import { colors } from "@/theme/colors"
+import { ModelDownloader } from "@/utils/ModelDownloader"
+import { Chat } from "@flyerhq/react-native-chat-ui"
+import { Bubble } from "./Bubble"
+import { DownloadScreen } from "./components/DownloadScreen"
+import { LoadingIndicator } from "./components/LoadingIndicator"
+import { ModelFileManager } from "./components/ModelFileManager"
+import { AVAILABLE_MODELS, defaultConversationId, user } from "./constants"
+import { useChatHandlers } from "./hooks/useChatHandlers"
+import { useModelContext } from "./hooks/useModelContext"
+import { useModelInitialization } from "./hooks/useModelInitialization"
 
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
@@ -25,7 +25,7 @@ export default function ChatContainer() {
   const [downloading, setDownloading] = useState<boolean>(false)
   const [downloadProgress, setDownloadProgress] = useState<number>(0)
   const [showModelManager, setShowModelManager] = useState<boolean>(false)
-  
+
   const conversationIdRef = useRef<string>(defaultConversationId)
   const downloader = new ModelDownloader()
 
@@ -85,7 +85,7 @@ export default function ChatContainer() {
       <View style={{ flex: 1, backgroundColor: '#000' }}>
         {/* Model manager button - only show when not initializing */}
         {!showModelSelector && !showLoadingIndicator && !showDownloadProgress && (
-          <View style={{ 
+          <View style={{
             position: 'absolute',
             top: 0,
             left: 0,
@@ -93,19 +93,19 @@ export default function ChatContainer() {
             zIndex: 1,
             pointerEvents: 'box-none',
           }}>
-            <SafeAreaView edges={['top']} style={{ 
+            <SafeAreaView edges={['top']} style={{
               backgroundColor: 'transparent',
               pointerEvents: 'box-none',
             }}>
-              <View style={{ 
-                flexDirection: 'row', 
+              <View style={{
+                flexDirection: 'row',
                 justifyContent: 'flex-end',
                 padding: 8,
                 paddingTop: 12,
                 paddingBottom: 12,
                 pointerEvents: 'box-none',
               }}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setShowModelManager(true)}
                   style={{
                     backgroundColor: colors.palette.neutral200,
@@ -167,15 +167,15 @@ export default function ChatContainer() {
 
         {/* Download progress */}
         {showDownloadProgress && (
-          <LoadingIndicator 
-            message="Downloading model..."
+          <LoadingIndicator
+            message="Downloading model"
             progress={progress}
           />
         )}
 
         {/* Model manager modal - only show when not initializing or downloading */}
         {!showLoadingIndicator && !showDownloadProgress && (
-          <ModelFileManager 
+          <ModelFileManager
             visible={showModelManager}
             onClose={() => setShowModelManager(false)}
             onDownloadModel={handleDownloadModel}

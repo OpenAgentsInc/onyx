@@ -106,12 +106,12 @@ export function DownloadScreen({
       )}
 
       {/* Download progress */}
-      {status === 'downloading' && (
+      {/* {status === 'downloading' && (
         <LoadingIndicator
           message="Downloading model..."
           progress={progress}
         />
-      )}
+      )} */}
     </ScrollView>
   )
 }
