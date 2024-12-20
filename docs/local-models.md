@@ -21,6 +21,10 @@ export const AVAILABLE_MODELS: { [key: string]: ModelConfig } = {
 }
 ```
 
+## Model Sizes
+- 1B model: 770 MB
+- 3B model: 1.9 GB
+
 ## User Interface
 
 ### Model Manager
@@ -182,3 +186,5 @@ try {
 - Clear error messages and recovery paths
 - Proper cleanup of resources
 - Safe model switching
+- Uses temporary files during download
+- Verifies file moves and copies
