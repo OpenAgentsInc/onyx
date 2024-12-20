@@ -119,14 +119,17 @@ export class ModelDownloader {
       store.startDownload()
       console.log('Starting download from HuggingFace:', repoId, filename)
 
+      // Download to a temporary file first
+      const tempFilename = `${filename}.tmp`
+      const tempPath = `${this.cacheDir}/${tempFilename}`
+
       this.currentDownload = ReactNativeBlobUtil.config({
         fileCache: true,
-        path: filepath,
+        path: tempPath,
         timeout: 0, // No timeout for large files
         IOSBackgroundTask: true,
         indicator: true,
         overwrite: true,
-        appendExt: 'tmp' // Use temporary extension during download
       }).fetch(
         'GET',
         `https://huggingface.co/${repoId}/resolve/main/${filename}`,
@@ -144,25 +147,29 @@ export class ModelDownloader {
       console.log('Download completed, checking file...')
       
       // Get the final path from the response
-      const tempPath = response.path()
-      console.log('Downloaded file temp path:', tempPath)
+      const downloadedPath = response.path()
+      console.log('Downloaded file temp path:', downloadedPath)
       
       // Validate downloaded file
-      const stats = await ReactNativeBlobUtil.fs.stat(tempPath)
+      const stats = await ReactNativeBlobUtil.fs.stat(downloadedPath)
       console.log('Downloaded file stats:', stats)
       
       if (stats.size === 0) {
-        await ReactNativeBlobUtil.fs.unlink(tempPath)
+        await ReactNativeBlobUtil.fs.unlink(downloadedPath)
         store.setError('Downloaded file is empty')
         throw new Error('Downloaded file is empty')
       }
 
       // Move file to final location
-      await ReactNativeBlobUtil.fs.mv(tempPath, filepath)
-      console.log('Moved file to final location:', filepath)
+      console.log('Moving file from', downloadedPath, 'to', filepath)
+      if (await ReactNativeBlobUtil.fs.exists(filepath)) {
+        await ReactNativeBlobUtil.fs.unlink(filepath)
+      }
+      await ReactNativeBlobUtil.fs.mv(downloadedPath, filepath)
 
       // Verify final file
       const finalStats = await ReactNativeBlobUtil.fs.stat(filepath)
+      console.log('Final file stats:', finalStats)
       if (finalStats.size !== stats.size) {
         throw new Error('File size mismatch after move')
       }
