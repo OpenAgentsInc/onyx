@@ -20,7 +20,7 @@ import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
 export default function ChatContainer() {
   const [messages, setMessages] = useState<MessageType.Any[]>([])
-  const [initializing, setInitializing] = useState<boolean>(false)
+  const [initializing, setInitializing] = useState<boolean>(true) // Start as true
   const [inferencing, setInferencing] = useState<boolean>(false)
   const [downloading, setDownloading] = useState<boolean>(false)
   const [downloadProgress, setDownloadProgress] = useState<number>(0)
@@ -53,10 +53,11 @@ export default function ChatContainer() {
   // Show model selector when:
   // 1. No context (no model loaded)
   // 2. OR when we're in idle/error state
-  const showModelSelector = !context || status === 'idle' || status === 'error'
+  // BUT NOT when we're still initializing
+  const showModelSelector = (!context || status === 'idle' || status === 'error') && !initializing
 
-  // Only show loading indicator during actual initialization
-  const showLoadingIndicator = initializing && status === 'initializing'
+  // Only show loading indicator during initialization or when explicitly initializing a model
+  const showLoadingIndicator = initializing || status === 'initializing'
 
   const handleDownloadModel = async (modelKey: string) => {
     setShowModelManager(false) // Close the modal
@@ -79,8 +80,8 @@ export default function ChatContainer() {
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: '#000' }}>
-        {/* Model manager button */}
-        {!showModelSelector && (
+        {/* Model manager button - only show when not initializing */}
+        {!showModelSelector && !showLoadingIndicator && (
           <View style={{ 
             position: 'absolute',
             top: 0,
@@ -159,12 +160,14 @@ export default function ChatContainer() {
         {/* Loading indicator */}
         {showLoadingIndicator && <LoadingIndicator />}
 
-        {/* Model manager modal */}
-        <ModelFileManager 
-          visible={showModelManager}
-          onClose={() => setShowModelManager(false)}
-          onDownloadModel={handleDownloadModel}
-        />
+        {/* Model manager modal - only show when not initializing */}
+        {!showLoadingIndicator && (
+          <ModelFileManager 
+            visible={showModelManager}
+            onClose={() => setShowModelManager(false)}
+            onDownloadModel={handleDownloadModel}
+          />
+        )}
       </View>
     </SafeAreaProvider>
   )
