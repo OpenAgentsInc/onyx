@@ -5,7 +5,7 @@ import { colors } from '@/theme/colors'
 import { ModelDownloader } from '@/utils/ModelDownloader'
 import { getCurrentModelConfig, useModelStore } from '@/store/useModelStore'
 import { addSystemMessage } from '../utils'
-import { ModelSelector } from './ModelSelector'
+import { LoadingIndicator } from './LoadingIndicator'
 import { ModelFileManager } from './ModelFileManager'
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
@@ -23,6 +23,7 @@ interface DownloadScreenProps {
 export function DownloadScreen({
   downloading,
   initializing,
+  downloadProgress,
   setDownloading,
   setDownloadProgress,
   setMessages,
@@ -30,9 +31,9 @@ export function DownloadScreen({
   handleInitContext,
 }: DownloadScreenProps) {
   const downloader = new ModelDownloader()
-  const { status, progress, errorMessage, reset } = useModelStore()
+  const { status, progress } = useModelStore()
 
-  const handleDownloadModelConfirmed = async () => {
+  const handleDownloadModel = async (modelKey: string) => {
     if (downloading) return
     setDownloading(true)
     setDownloadProgress(0)
@@ -55,8 +56,6 @@ export function DownloadScreen({
       } else {
         addSystemMessage(setMessages, [], `Download failed: ${e.message}`)
       }
-      // Reset store state on error
-      reset()
     } finally {
       setDownloading(false)
     }
@@ -73,23 +72,10 @@ export function DownloadScreen({
       `${warningMessage}This model file may be large and is hosted here:\\n\\nhttps://huggingface.co/${currentModel.repoId}/resolve/main/${currentModel.filename}\\n\\nIt's recommended to download over Wi-Fi to avoid large data usage.`,
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Download", onPress: handleDownloadModelConfirmed },
+        { text: "Download", onPress: handleDownloadModel },
       ],
       { cancelable: true }
     )
-  }
-
-  const getButtonText = () => {
-    if (status === 'downloading') {
-      return `Downloading... ${progress}%`
-    }
-    if (status === 'initializing') {
-      return 'Initializing...'
-    }
-    if (status === 'error') {
-      return 'Retry Download'
-    }
-    return 'Download Selected Model'
   }
 
   return (
@@ -99,42 +85,28 @@ export function DownloadScreen({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Available Models</Text>
           <View style={styles.card}>
-            <ModelSelector />
+            <ModelFileManager 
+              visible={true}
+              onClose={() => {}}
+              onDownloadModel={handleDownloadModel}
+              embedded={true}
+            />
           </View>
-        </View>
-
-        {/* Files Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Model Files</Text>
-          <View style={styles.card}>
-            <ModelFileManager />
-          </View>
-        </View>
-
-        {/* Error Message */}
-        {errorMessage && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{errorMessage}</Text>
-          </View>
-        )}
-
-        {/* Download Button */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            onPress={confirmDownload}
-            disabled={status === 'downloading' || status === 'initializing'}
-            style={[
-              styles.button,
-              (status === 'downloading' || status === 'initializing') && styles.buttonDisabled,
-              status === 'error' && styles.buttonError
-            ]}
-          >
-            <Text style={styles.buttonText}>
-              {getButtonText()}
-            </Text>
-          </TouchableOpacity>
         </View>
       </View>
+
+      {/* Loading indicator */}
+      {initializing && (
+        <LoadingIndicator message="Initializing model..." />
+      )}
+
+      {/* Download progress */}
+      {status === 'downloading' && (
+        <LoadingIndicator 
+          message="Downloading model..."
+          progress={progress}
+        />
+      )}
     </ScrollView>
   )
 }
@@ -164,39 +136,5 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
-  },
-  errorContainer: {
-    backgroundColor: colors.errorBackground,
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  errorText: {
-    color: colors.error,
-    fontSize: 14,
-    fontFamily: typography.primary.normal,
-    textAlign: 'center',
-  },
-  buttonContainer: {
-    marginTop: 8,
-    marginHorizontal: 4,
-  },
-  button: {
-    backgroundColor: colors.palette.primary500,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  buttonDisabled: {
-    backgroundColor: colors.palette.neutral300,
-  },
-  buttonError: {
-    backgroundColor: colors.errorBackground,
-  },
-  buttonText: {
-    color: colors.palette.neutral100,
-    fontSize: 16,
-    fontFamily: typography.primary.medium,
   },
 })
