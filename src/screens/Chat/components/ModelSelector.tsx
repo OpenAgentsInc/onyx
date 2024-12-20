@@ -5,14 +5,22 @@ import { AVAILABLE_MODELS } from '../constants'
 import { useModelStore } from '@/store/useModelStore'
 
 export const ModelSelector = () => {
-  const { selectedModelKey, selectModel } = useModelStore()
+  const { selectedModelKey, selectModel, startDownload } = useModelStore()
+
+  const handleModelSelect = (key: string) => {
+    if (key !== selectedModelKey) {
+      console.log('Selecting and starting download for model:', key)
+      selectModel(key)
+      startDownload()
+    }
+  }
 
   return (
     <View style={{ padding: 10, backgroundColor: '#000' }}>
       {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
         <Pressable
           key={key}
-          onPress={() => selectModel(key)}
+          onPress={() => handleModelSelect(key)}
           style={{
             backgroundColor: selectedModelKey === key ? '#666' : '#444',
             padding: 10,
