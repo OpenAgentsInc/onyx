@@ -11,36 +11,38 @@ export const AVAILABLE_MODELS: { [key: string]: ModelConfig } = {
   '3B': {
     repoId: 'hugging-quants/Llama-3.2-3B-Instruct-Q4_K_M-GGUF',
     filename: 'llama-3.2-3b-instruct-q4_k_m.gguf',
-    displayName: 'Llama 3.2 3B Instruct'
+    displayName: 'Llama 3.2 3B'
   },
   '1B': {
     repoId: 'hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF',
     filename: 'llama-3.2-1b-instruct-q4_k_m.gguf',
-    displayName: 'Llama 3.2 1B Instruct'
+    displayName: 'Llama 3.2 1B'
   }
 }
 ```
 
 ## User Interface
 
-### Download Screen
-- Shows available models with sizes
-- Displays current model files
-- Download button with progress
-- Error messages when issues occur
-- Clear visual feedback for selected model
+### Model Manager
+- Shows all available models with:
+  - Model name and size
+  - Download/Delete button
+  - Checkmark for active model
+  - Actual file size when downloaded
+- Allows selecting downloaded models
+- Allows deleting individual models
+- Accessed via "Models" button in chat
 
 ### Chat Screen
-- Model switcher in top-right corner
+- Shows loading indicator during initialization
+- Models button in top-right corner
 - Chat interface with model commands
-- Loading indicator during initialization
 - Input disabled when no model loaded
 
 ### Visual States
 - Download progress percentage
 - Initialization progress
 - Error messages with retry option
-- Model file management
 - Clear state transitions
 
 ## State Management
@@ -77,11 +79,12 @@ interface ModelState {
 ## Model Lifecycle
 
 ### Initial Load
-1. Check for locally downloaded model
-2. If found:
+1. Show loading indicator
+2. Check for locally downloaded model
+3. If found:
    - Validate file size (>100MB)
    - Initialize automatically
-3. If not found or invalid:
+4. If not found or invalid:
    - Show model selector
    - Reset to idle state
 
@@ -98,13 +101,12 @@ interface ModelState {
    - Validates model info
 5. Automatically initializes after download
 
-### Model Initialization
-1. Release any existing context
-2. Load and validate model info
-3. Initialize Llama context
-4. Show progress in UI
-5. Display model info on success
-6. Handle errors and allow retry
+### Model Switching
+1. User clicks model in manager
+2. Shows loading indicator
+3. Releases current model
+4. Initializes selected model
+5. Updates UI state
 
 ### Error Handling
 - Download cancellation (app backgrounded)
@@ -121,9 +123,7 @@ interface ModelState {
 - `ModelDownloader`: Handles file downloads
 - `useModelContext`: Manages model context
 - `useModelInitialization`: Handles initialization flow
-- `DownloadScreen`: Main download UI
-- `ModelSelector`: Model selection UI
-- `ModelFileManager`: File management UI
+- `ModelFileManager`: Model management UI
 - `LoadingIndicator`: Initialization progress
 
 ### File Management
@@ -131,7 +131,7 @@ interface ModelState {
 - Automatic cleanup on:
   - Download cancellation
   - Initialization failure
-  - Model switching
+  - Model deletion
 - File validation before use
 - Size verification (>100MB)
 - Model info validation
@@ -169,10 +169,6 @@ try {
 }
 ```
 
-## Download Sizes
-- 1B model: ~1GB
-- 3B model: ~2GB
-
 ## Technical Notes
 - Uses react-native-blob-util for downloads
 - Supports background download on iOS
@@ -184,3 +180,5 @@ try {
 - Model info validation
 - Progress tracking for both download and initialization
 - Clear error messages and recovery paths
+- Proper cleanup of resources
+- Safe model switching
