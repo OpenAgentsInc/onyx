@@ -31,7 +31,7 @@ export default function ChatContainer() {
 
   const { context, setContext, handleInitContext } = useModelContext(setMessages, messages)
   const { handleSendPress } = useChatHandlers(context, conversationIdRef, setMessages, messages, setInferencing)
-  const { status } = useModelStore()
+  const { status, progress } = useModelStore()
 
   useModelInitialization(downloader, setMessages, setInitializing, handleInitContext)
 
@@ -56,8 +56,11 @@ export default function ChatContainer() {
   // BUT NOT when we're still initializing
   const showModelSelector = (!context || status === 'idle' || status === 'error') && !initializing
 
-  // Only show loading indicator during initialization or when explicitly initializing a model
+  // Show loading indicator during initialization or when explicitly initializing a model
   const showLoadingIndicator = initializing || status === 'initializing'
+
+  // Show download progress when downloading
+  const showDownloadProgress = status === 'downloading'
 
   const handleDownloadModel = async (modelKey: string) => {
     setShowModelManager(false) // Close the modal
@@ -81,7 +84,7 @@ export default function ChatContainer() {
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: '#000' }}>
         {/* Model manager button - only show when not initializing */}
-        {!showModelSelector && !showLoadingIndicator && (
+        {!showModelSelector && !showLoadingIndicator && !showDownloadProgress && (
           <View style={{ 
             position: 'absolute',
             top: 0,
@@ -158,10 +161,20 @@ export default function ChatContainer() {
         </View>
 
         {/* Loading indicator */}
-        {showLoadingIndicator && <LoadingIndicator />}
+        {showLoadingIndicator && (
+          <LoadingIndicator message="Initializing model..." />
+        )}
 
-        {/* Model manager modal - only show when not initializing */}
-        {!showLoadingIndicator && (
+        {/* Download progress */}
+        {showDownloadProgress && (
+          <LoadingIndicator 
+            message="Downloading model..."
+            progress={progress}
+          />
+        )}
+
+        {/* Model manager modal - only show when not initializing or downloading */}
+        {!showLoadingIndicator && !showDownloadProgress && (
           <ModelFileManager 
             visible={showModelManager}
             onClose={() => setShowModelManager(false)}
