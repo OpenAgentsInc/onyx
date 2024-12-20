@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Pressable, StyleSheet, Alert } from 'react-native'
+import { View, Text, StyleSheet, Alert } from 'react-native'
 import ReactNativeBlobUtil from 'react-native-blob-util'
 import { typography } from '@/theme'
 import { ModelDownloader } from '@/utils/ModelDownloader'
+import Button from '@/components/Button'
 
 interface ModelFile {
   name: string
@@ -68,8 +69,6 @@ export const ModelFileManager = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Model Files</Text>
-      
       {modelFiles.length > 0 ? (
         <>
           <View style={styles.fileList}>
@@ -84,15 +83,14 @@ export const ModelFileManager = () => {
             ))}
           </View>
 
-          <Pressable 
-            onPress={handleDeleteAll}
-            style={({ pressed }) => [
-              styles.deleteButton,
-              pressed && styles.deleteButtonPressed
-            ]}
-          >
-            <Text style={styles.deleteButtonText}>Delete All Model Files</Text>
-          </Pressable>
+          <View style={styles.buttonContainer}>
+            <Button
+              onPress={handleDeleteAll}
+              theme="SECONDARY"
+            >
+              Delete All Model Files
+            </Button>
+          </View>
         </>
       ) : (
         <Text style={styles.emptyText}>No model files found</Text>
@@ -103,16 +101,7 @@ export const ModelFileManager = () => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
-    margin: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontFamily: typography.primary.medium,
-    color: '#fff',
-    marginBottom: 16,
+    backgroundColor: '#000',
   },
   fileList: {
     marginBottom: 16,
@@ -143,18 +132,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 16,
   },
-  deleteButton: {
-    backgroundColor: '#ff4444',
-    padding: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  deleteButtonPressed: {
-    opacity: 0.8,
-  },
-  deleteButtonText: {
-    color: '#fff',
-    fontFamily: typography.primary.medium,
-    fontSize: 16,
+  buttonContainer: {
+    marginTop: 16,
   },
 })
