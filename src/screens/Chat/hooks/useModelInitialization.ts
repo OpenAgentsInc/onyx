@@ -14,6 +14,7 @@ export const useModelInitialization = (
   const { selectedModelKey, status, needsInitialization } = useModelStore()
   const previousModelKey = useRef(selectedModelKey)
   const isInitializing = useRef(false)
+  const store = useModelStore.getState()
 
   useEffect(() => {
     // Log state changes
@@ -47,16 +48,34 @@ export const useModelInitialization = (
         console.log(`Checking for model file: ${filePath}`)
         const exists = await ReactNativeBlobUtil.fs.exists(filePath)
         if (exists) {
-          console.log(`Found model file for ${selectedModelKey}:`, filePath)
-          previousModelKey.current = selectedModelKey
-          addSystemMessage(setMessages, [], `${currentModel.displayName} found locally, initializing...`)
-          await handleInitContext({ uri: filePath } as DocumentPickerResponse)
+          try {
+            // Check file size
+            const stats = await ReactNativeBlobUtil.fs.stat(filePath)
+            console.log(`Found model file for ${selectedModelKey}:`, filePath, 'Size:', stats.size)
+            
+            // Basic size validation (100MB minimum for typical models)
+            const MIN_SIZE = 100 * 1024 * 1024 // 100MB
+            if (stats.size < MIN_SIZE) {
+              console.error('Model file too small:', stats.size)
+              throw new Error('Model file appears to be incomplete')
+            }
+
+            previousModelKey.current = selectedModelKey
+            addSystemMessage(setMessages, [], `${currentModel.displayName} found locally, initializing...`)
+            await handleInitContext({ uri: filePath } as DocumentPickerResponse)
+          } catch (error) {
+            console.error('Model validation/initialization failed:', error)
+            // If validation or initialization fails, clean up and rethrow
+            await downloader.cleanDirectory()
+            throw error
+          }
         } else {
           console.log(`No model file found for ${selectedModelKey}`)
           setInitializing(false)
         }
       } catch (error) {
         console.error('Model initialization failed:', error)
+        store.setError(error instanceof Error ? error.message : 'Unknown initialization error')
         setInitializing(false)
       } finally {
         isInitializing.current = false
