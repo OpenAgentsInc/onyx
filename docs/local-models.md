@@ -63,7 +63,7 @@ State transitions:
 2. downloading → initializing (when download completes)
 3. initializing → ready (when model is loaded)
 4. ready → releasing (when switching models)
-5. releasing → idle (after cleanup)
+5. releasing → initializing (when starting new model)
 6. Any state → error (on failure)
 7. error → idle (on retry)
 
@@ -78,6 +78,7 @@ interface ModelState {
   downloadCancelled: boolean  // Whether download was cancelled
   needsInitialization: boolean // Whether model needs to be initialized
   initializationAttempts: number // Number of initialization attempts
+  lastDeletedModel: string | null // Track last deleted model
 }
 ```
 
@@ -120,7 +121,9 @@ interface ModelState {
 - Context release errors
 - Network issues
 - Storage issues
-- Memory limit errors (suggests smaller model)
+- Memory limit errors:
+  - For 3B model: Suggests trying 1B model instead
+  - For 1B model: Suggests contacting support
 
 ## Implementation Details
 
@@ -152,7 +155,7 @@ interface ModelState {
 6. Prevent invalid state transitions
 7. Show clear progress indicators
 8. Handle network issues gracefully
-9. Limit initialization attempts
+9. Limit initialization attempts to 1
 10. Provide clear memory error messages
 
 ## Usage Example
@@ -195,5 +198,7 @@ try {
 - Safe model switching with release handling
 - Uses temporary files during download
 - Verifies file moves and copies
-- Limits initialization attempts to prevent loops
-- Memory-aware initialization with clear error messages
+- Limits initialization attempts to 1
+- Memory-aware initialization with model-specific error messages
+- Prevents initialization from idle state
+- Only sets downloadCancelled flag for download errors
