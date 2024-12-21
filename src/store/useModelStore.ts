@@ -14,7 +14,7 @@ interface ModelState {
   downloadCancelled: boolean
   needsInitialization: boolean
   initializationAttempts: number
-  lastDeletedModel: string | null // Track last deleted model
+  lastDeletedModel: string | null
 }
 
 interface ModelActions {
@@ -40,22 +40,13 @@ const initialState: ModelState = {
   modelPath: null,
   errorMessage: null,
   downloadCancelled: false,
-  needsInitialization: true,
+  needsInitialization: false,
   initializationAttempts: 0,
   lastDeletedModel: null,
 }
 
-const MAX_INIT_ATTEMPTS = 1 // Only try initialization once
-
-// Helper to extract model key from path
-const getModelKeyFromPath = (path: string | null): string | null => {
-  if (!path) return null
-  for (const [key, model] of Object.entries(AVAILABLE_MODELS)) {
-    if (path.includes(model.filename)) {
-      return key
-    }
-  }
-  return null
+const logState = (action: string, state: ModelState) => {
+  console.log(`[Store ${action}] Status: ${state.status}, Path: ${state.modelPath}, NeedsInit: ${state.needsInitialization}`)
 }
 
 export const useModelStore = create<ModelState & ModelActions>()(
@@ -68,8 +59,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           console.error('Invalid model key:', modelKey)
           return
         }
-        console.log('Selecting model:', modelKey)
-        // When switching models, first set status to releasing
+        console.log('[Store] Selecting model:', modelKey)
         set({
           selectedModelKey: modelKey,
           status: 'releasing',
@@ -77,54 +67,54 @@ export const useModelStore = create<ModelState & ModelActions>()(
           modelPath: null,
           errorMessage: null,
           downloadCancelled: false,
-          needsInitialization: true,
+          needsInitialization: false,
           initializationAttempts: 0,
         })
+        logState('selectModel', get())
       },
 
       startReleasing: () => {
-        const { selectedModelKey } = get()
-        console.log(`[Model Release] Starting release of model: ${selectedModelKey}`)
+        console.log('[Store] Starting release')
         set({ 
           status: 'releasing',
-          needsInitialization: true,
+          needsInitialization: false,
           initializationAttempts: 0,
         })
+        logState('startReleasing', get())
       },
 
       startDownload: () => {
         const { status } = get()
-        console.log('Starting download, current status:', status)
-        // Only start download if we're idle or in error state
+        console.log('[Store] Starting download, current status:', status)
         if (status === 'idle' || status === 'error') {
           set({
             status: 'downloading',
             progress: 0,
             errorMessage: null,
             downloadCancelled: false,
-            needsInitialization: true,
+            needsInitialization: false,
             initializationAttempts: 0,
           })
+          logState('startDownload', get())
         }
       },
 
       updateProgress: (progress: number) => {
         const { status, downloadCancelled } = get()
-        // Only update progress if we're still downloading and not cancelled
         if (status === 'downloading' && !downloadCancelled) {
           set({ progress })
         }
       },
 
       setModelPath: (path: string) => {
-        console.log('Setting model path:', path)
-        // When setting model path, update selected model key if needed
+        console.log('[Store] Setting model path:', path)
         const modelKey = getModelKeyFromPath(path)
         if (modelKey) {
           set({ 
             modelPath: path,
             selectedModelKey: modelKey,
             status: 'initializing',
+            needsInitialization: true,
             initializationAttempts: 0,
           })
         } else {
@@ -132,68 +122,51 @@ export const useModelStore = create<ModelState & ModelActions>()(
           set({ 
             modelPath: path,
             status: 'initializing',
+            needsInitialization: true,
             initializationAttempts: 0,
           })
         }
+        logState('setModelPath', get())
       },
 
       startInitialization: () => {
         const { status, initializationAttempts, selectedModelKey } = get()
-        console.log('Starting initialization, current status:', status, 'attempts:', initializationAttempts)
+        console.log('[Store] Starting initialization:', { status, attempts: initializationAttempts })
         
-        // Check if we've exceeded max attempts
-        if (initializationAttempts >= MAX_INIT_ATTEMPTS) {
-          const currentModel = AVAILABLE_MODELS[selectedModelKey]
-          const suggestion = selectedModelKey === '1B' 
-            ? 'Please try again or contact support if the issue persists.'
-            : 'Not enough memory to initialize model. Try the 1B model instead.'
-          
-          set({ 
-            status: 'error',
-            errorMessage: selectedModelKey === '1B'
-              ? `Not enough memory to initialize ${currentModel.displayName}. ${suggestion}`
-              : suggestion,
-            needsInitialization: false,
-            modelPath: null,
-            initializationAttempts: 0,
-          })
-          return
-        }
-
-        // Can start initialization from any state if we have a model path
-        if (get().modelPath) {
-          set({ 
-            status: 'initializing', 
-            progress: 100,
-            initializationAttempts: initializationAttempts + 1,
-          })
-        }
+        set({ 
+          status: 'initializing', 
+          progress: 100,
+          needsInitialization: true,
+          initializationAttempts: initializationAttempts + 1,
+        })
+        logState('startInitialization', get())
       },
 
       setReady: () => {
-        console.log('Setting model ready')
+        console.log('[Store] Setting ready')
         set({ 
           status: 'ready', 
           errorMessage: null,
           needsInitialization: false,
           initializationAttempts: 0,
         })
+        logState('setReady', get())
       },
 
       setIdle: () => {
-        console.log('Setting model idle')
+        console.log('[Store] Setting idle')
         set({
           ...initialState,
-          selectedModelKey: get().selectedModelKey, // Keep the selected model
+          selectedModelKey: get().selectedModelKey,
         })
+        logState('setIdle', get())
       },
 
       setError: (message: string) => {
-        console.error('Model error:', message)
+        console.error('[Store] Error:', message)
         const { selectedModelKey, status } = get()
         const currentModel = AVAILABLE_MODELS[selectedModelKey]
         
-        // Check if it's a context limit error
         const isContextError = message.toLowerCase().includes('context limit')
         const suggestion = selectedModelKey === '1B' 
           ? 'Please try again or contact support if the issue persists.'
@@ -204,75 +177,72 @@ export const useModelStore = create<ModelState & ModelActions>()(
           errorMessage: isContextError 
             ? `Not enough memory to initialize ${currentModel.displayName}. ${suggestion}`
             : message,
-          downloadCancelled: status === 'downloading', // Only set for download errors
-          needsInitialization: false, // Changed: Don't retry initialization after error
-          modelPath: null, // Added: Clear model path on error
-          initializationAttempts: 0, // Added: Reset attempts
+          downloadCancelled: status === 'downloading',
+          needsInitialization: false,
+          modelPath: null,
+          initializationAttempts: 0,
         })
+        logState('setError', get())
       },
 
       cancelDownload: () => {
-        console.log('Cancelling download')
+        console.log('[Store] Cancelling download')
         set({
           downloadCancelled: true,
           status: 'idle',
           progress: 0,
           errorMessage: 'Download cancelled',
-          needsInitialization: true,
+          needsInitialization: false,
           initializationAttempts: 0,
         })
+        logState('cancelDownload', get())
       },
 
       reset: () => {
-        console.log('Resetting store to idle state')
+        console.log('[Store] Resetting store')
         set({
           ...initialState,
-          selectedModelKey: get().selectedModelKey, // Keep the selected model key
-          modelPath: null, // Changed: Always clear model path on reset
+          selectedModelKey: get().selectedModelKey,
+          modelPath: null,
           status: 'idle',
-          needsInitialization: true,
+          needsInitialization: false,
           initializationAttempts: 0,
         })
+        logState('reset', get())
       },
 
       deleteModel: (modelKey: string) => {
         const { selectedModelKey, status } = get()
-        console.log(`[Model Delete] Starting deletion of model: ${modelKey}`)
-        console.log(`[Model Delete] Current state - Selected: ${selectedModelKey}, Status: ${status}`)
+        console.log(`[Store] Starting deletion of model: ${modelKey}`)
         
-        // If deleting active model, release it first
         if (modelKey === selectedModelKey && status === 'ready') {
-          console.log(`[Model Delete] Releasing active model context before deletion: ${modelKey}`)
           set({
             status: 'releasing',
             modelPath: null,
-            needsInitialization: false, // Don't need initialization after deletion
+            needsInitialization: false,
             initializationAttempts: 0,
             lastDeletedModel: modelKey,
           })
         } else {
-          console.log(`[Model Delete] Deleting inactive model: ${modelKey}`)
-          // For inactive models, just mark as deleted
           set({ lastDeletedModel: modelKey })
         }
+        logState('deleteModel', get())
       },
 
       confirmDeletion: (modelKey: string) => {
-        console.log(`[Model Delete] Confirming deletion of model: ${modelKey}`)
+        console.log(`[Store] Confirming deletion: ${modelKey}`)
         const { selectedModelKey, status } = get()
         
-        // If this was the active model and we're in releasing state, reset to idle
         if (modelKey === selectedModelKey && status === 'releasing') {
-          console.log(`[Model Delete] Active model ${modelKey} released and deleted`)
           set({
             ...initialState,
-            selectedModelKey, // Keep the selected model key
+            selectedModelKey,
             lastDeletedModel: null,
           })
         } else {
-          console.log(`[Model Delete] Inactive model ${modelKey} deleted`)
           set({ lastDeletedModel: null })
         }
+        logState('confirmDeletion', get())
       },
     }),
     {
@@ -280,25 +250,31 @@ export const useModelStore = create<ModelState & ModelActions>()(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         selectedModelKey: state.selectedModelKey,
-        modelPath: state.modelPath,
       }),
       onRehydrateStorage: () => (state) => {
-        // When store rehydrates, determine correct model key from path
         if (state) {
-          console.log('Store rehydrated:', state)
-          const modelKey = getModelKeyFromPath(state.modelPath)
-          if (modelKey && modelKey !== state.selectedModelKey) {
-            state.selectedModelKey = modelKey
-          }
-          state.status = 'idle' // Changed: Always start in idle state after rehydration
-          state.needsInitialization = true
+          console.log('[Store] Rehydrated:', state)
+          state.status = 'idle'
+          state.modelPath = null
+          state.needsInitialization = false
           state.initializationAttempts = 0
-          state.modelPath = null // Changed: Clear model path on rehydration
+          logState('rehydrate', state)
         }
       }
     }
   )
 )
+
+// Helper to extract model key from path
+const getModelKeyFromPath = (path: string | null): string | null => {
+  if (!path) return null
+  for (const [key, model] of Object.entries(AVAILABLE_MODELS)) {
+    if (path.includes(model.filename)) {
+      return key
+    }
+  }
+  return null
+}
 
 // Helper function to get current model config
 export const getCurrentModelConfig = (): ModelConfig => {
