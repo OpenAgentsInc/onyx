@@ -2,11 +2,7 @@
 
 ```
 src/
-├── app.tsx                     # Root app component with canvas and router
-├── canvas/                     # Three.js canvas components
-│   ├── Canvas.tsx              # Canvas and Orb
-│   ├── index.ts                # Exports
-│   └── types.ts                # Canvas types
+├── app.tsx                     # Root app component with navigation
 ├── components/                 # Shared UI components
 │   ├── Badge.tsx               # Badge component for status indicators
 │   ├── Button.tsx              # Common button component
@@ -15,84 +11,102 @@ src/
 │   ├── DataTable.tsx           # Table component for data display
 │   ├── RadioButtonGroup.tsx    # Radio button group component
 │   └── TextArea.tsx            # Text input component
-├── navigation/                 # Navigation configuration
-│   ├── Router.tsx              # Main router with navigation container
-│   └── RouterWrapper.tsx       # Native wrapper for router initialization
 ├── screens/                    # Main app screens
-│   └── Marketplace/            # Example of screen organization
-│       ├── index.tsx           # Exports the wrapper
-│       ├── Screen.tsx          # DOM/Web component ('use dom')
-│       └── Wrapper.tsx         # Native wrapper with hooks/services
-├── services/                   # Core services
-│   ├── KeyService.ts           # Key management service
-│   ├── ServiceManager.ts       # Service initialization orchestration
-│   ├── secure-storage/         # Secure storage implementation
-│   └── hooks/                  # Service-related hooks
+│   └── Chat/                   # Chat screen with model management
+│       ├── components/         # Chat-specific components
+│       │   ├── Bubble.tsx     # Chat bubble component
+│       │   ├── DownloadScreen.tsx # Model download screen
+│       │   ├── LoadingIndicator.tsx # Loading overlay
+│       │   └── ModelFileManager.tsx # Model management modal
+│       ├── hooks/             # Chat-specific hooks
+│       │   ├── useChatHandlers.ts # Chat message handlers
+│       │   ├── useModelContext.ts # Model context management
+│       │   └── useModelInitialization.ts # Model initialization
+│       ├── utils/             # Chat utilities
+│       │   └── index.ts       # Message handling utilities
+│       ├── constants.ts       # Model configurations
+│       └── ChatContainer.tsx  # Main chat container
 ├── store/                      # Zustand stores
-│   └── useInitStore.ts         # Initialization state management
+│   └── useModelStore.ts        # Model state management
 ├── theme/                      # Theme configuration
-│   ├── global.css              # Global styles and DOM defaults
-│   └── typography.ts           # Font configuration
+│   ├── chat.ts                # Chat-specific theme
+│   ├── colors.ts              # Color palette
+│   └── typography.ts          # Font configuration
 └── utils/                      # Utility functions
-    └── crypto-polyfill.ts      # Crypto polyfills for web
+    └── ModelDownloader.ts      # Model download handling
 
 Key Architectural Points:
 
-## Native-Web Component Pattern
-Each screen follows a three-file pattern:
-- index.tsx: Exports the wrapper
-- Screen.tsx: Pure DOM component with 'use dom'
-- Wrapper.tsx: Native wrapper with hooks/services
+## Component Organization
+- Screens contain their own components, hooks, and utils
+- Shared components in root components directory
+- Screen-specific components in screen directory
 
-## Component Responsibilities
-- Wrapper Components (Native):
-  - Handle native APIs (secure storage, etc.)
-  - Manage service initialization
-  - Pass data to DOM components via props
-  - Handle native-specific functionality
-
-- Screen Components (DOM/Web):
-  - Pure presentation components
-  - Use 'use dom' directive
-  - Receive all data via props
-  - No direct API/service access
-  - Use DOM elements (div instead of View)
-
-## Service Architecture
-- ServiceManager: Orchestrates service initialization
-- KeyService: Manages secure key operations
-- Secure Storage: Handles encrypted storage
-- Hooks: Provide service access to components
-
-## Styling Strategy
-- global.css: Enforces black backgrounds and base styles
-- DOM components use className and inline styles
-- Native components use React Native StyleSheet
-- Consistent spacing and typography
+## Chat Screen Architecture
+- ChatContainer: Main orchestrator
+- Components:
+  - ModelFileManager: Model management UI
+  - LoadingIndicator: Initialization overlay
+  - DownloadScreen: Initial model setup
+  - Bubble: Chat message display
+- Hooks:
+  - useModelContext: Model context management
+  - useModelInitialization: Model initialization
+  - useChatHandlers: Message handling
 
 ## State Management
-- useInitStore: Manages app initialization
-- Zustand for state management
-- Persistent storage where needed
+- useModelStore: Central model state
+- Persistent storage for model paths
+- Clear state transitions
+- Error handling
 
-## Navigation
-- RouterWrapper: Handles initialization
-- Router: Uses react-navigation
-- Screen-specific wrappers for native functionality
+## Model Management
+- Model configuration in constants.ts
+- Download handling in ModelDownloader
+- File management in ModelFileManager
+- Initialization in useModelInitialization
+
+## Styling Strategy
+- Theme-based styling
+- Consistent color palette
+- Typography configuration
+- Component-specific styles
 
 ## Best Practices
-1. Always use wrapper pattern for screens
-2. Keep DOM components pure
-3. Handle native operations in wrappers
-4. Use proper layering for canvas visibility
-5. Maintain consistent styling approach
-6. Follow explicit naming conventions
-7. Document component responsibilities
+1. Keep components focused and small
+2. Use hooks for complex logic
+3. Centralize state management
+4. Handle errors gracefully
+5. Follow consistent naming
+6. Document component purposes
+7. Use proper typing
 
-## Common Gotchas
-1. Using React Native components in 'use dom'
-2. Mixing native and web styling
-3. Improper layering with canvas
-4. Missing native wrappers
-5. Inconsistent background handling
+## Common Patterns
+1. Modal-based management UI
+2. Loading indicator overlay
+3. Error message display
+4. Progress tracking
+5. File system operations
+6. State persistence
+
+## Error Handling
+1. Download failures
+2. Initialization errors
+3. File system issues
+4. Network problems
+5. Background app state
+6. Model validation
+
+## File Management
+1. Cache directory usage
+2. File validation
+3. Cleanup operations
+4. Size verification
+5. Path management
+
+## State Flow
+1. Initial load → check files
+2. Download → validate → initialize
+3. Switch models → release → initialize
+4. Error → cleanup → retry
 ```
