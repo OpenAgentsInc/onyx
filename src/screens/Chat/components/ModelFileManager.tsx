@@ -118,6 +118,15 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
     onClose()
   }
 
+  const handleDownloadPress = (modelKey: string) => {
+    // First select the model
+    selectModel(modelKey)
+    
+    // Close the modal and start download
+    onClose()
+    onDownloadModel(modelKey)
+  }
+
   useEffect(() => {
     if (visible || embedded) {
       loadModelFiles()
@@ -180,7 +189,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
-                  onPress={() => onDownloadModel(key)}
+                  onPress={() => handleDownloadPress(key)}
                   style={[
                     styles.downloadButton,
                     downloading && styles.downloadingButton
