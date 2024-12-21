@@ -10,7 +10,6 @@ import { AVAILABLE_MODELS } from "../constants"
 
 interface ModelFile {
   name: string
-  size: string
   path: string
   modelKey: string
 }
@@ -44,24 +43,18 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
 
       // Read directory contents
       const files = await FileSystem.readDirectoryAsync(modelsDir)
-      const fileDetails = await Promise.all(
-        files.map(async (filename) => {
-          const path = `${modelsDir}/${filename}`
-          const info = await FileSystem.getInfoAsync(path, { size: true })
-          const sizeMB = info.exists && info.size ? (info.size / (1024 * 1024)).toFixed(1) : '0'
+      const fileDetails = files.map((filename) => {
+        const path = `${modelsDir}/${filename}`
+        const modelKey = Object.entries(AVAILABLE_MODELS).find(
+          ([_, model]) => model.filename === filename
+        )?.[0] || ''
 
-          const modelKey = Object.entries(AVAILABLE_MODELS).find(
-            ([_, model]) => model.filename === filename
-          )?.[0] || ''
-
-          return {
-            name: filename,
-            size: `${sizeMB} MB`,
-            path,
-            modelKey
-          }
-        })
-      )
+        return {
+          name: filename,
+          path,
+          modelKey
+        }
+      })
       setModelFiles(fileDetails)
     } catch (error) {
       console.error('Failed to load model files:', error)
@@ -119,8 +112,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
   }
 
   const getModelSize = (modelKey: string): string => {
-    const file = modelFiles.find(file => file.modelKey === modelKey)
-    return file ? file.size : modelKey === '1B' ? '770 MB' : '1.9 GB'
+    return modelKey === '1B' ? '770 MB' : '1.9 GB'
   }
 
   const isModelActive = (modelKey: string) => {
