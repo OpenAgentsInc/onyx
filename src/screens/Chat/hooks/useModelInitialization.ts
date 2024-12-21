@@ -3,7 +3,6 @@ import * as FileSystem from 'expo-file-system'
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import { useModelStore, getCurrentModelConfig } from '@/store/useModelStore'
 
-// This hook now only monitors state and triggers initialization in useModelContext
 export const useModelInitialization = (
   setInitializing: (value: boolean) => void,
   handleInitContext: (file: DocumentPickerResponse) => Promise<void>
@@ -12,6 +11,33 @@ export const useModelInitialization = (
   const previousModelKey = useRef(selectedModelKey)
   const isInitializing = useRef(false)
   const store = useModelStore.getState()
+
+  // Handle actual initialization
+  const initializeModel = async (path: string) => {
+    console.log('[Init] Starting model initialization with path:', path)
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(path)
+      if (!fileInfo.exists) {
+        console.error('[Init] Model file not found:', path)
+        store.setError('Model file not found')
+        return
+      }
+
+      // Create a DocumentPickerResponse-like object
+      const file = {
+        uri: path,
+        type: 'application/octet-stream',
+        name: path.split('/').pop() || 'model.gguf',
+        size: fileInfo.size,
+      }
+
+      // Start initialization
+      await handleInitContext(file)
+    } catch (err) {
+      console.error('[Init] Failed to initialize model:', err)
+      store.setError(err instanceof Error ? err.message : 'Failed to initialize model')
+    }
+  }
 
   useEffect(() => {
     // Log state changes
@@ -33,7 +59,7 @@ export const useModelInitialization = (
     }
 
     // Skip if already initializing
-    if (isInitializing.current || storeInitializing) {
+    if (isInitializing.current) {
       console.log('[Init] Already initializing, skipping')
       return
     }
@@ -44,18 +70,13 @@ export const useModelInitialization = (
       return
     }
 
-    // Skip if we're not in a state that needs initialization
-    if (!modelPath || (status !== 'idle' && status !== 'initializing')) {
-      console.log('[Init] Skipping - wrong state:', { modelPath, status })
-      return
-    }
-
-    // Only set flags, let useModelContext handle actual initialization
-    if (status === 'initializing' && modelPath) {
-      console.log('[Init] Setting initialization flags')
+    // Initialize if we have a path and are in initializing state
+    if (modelPath && status === 'initializing' && !isInitializing.current) {
+      console.log('[Init] Starting initialization with path:', modelPath)
       isInitializing.current = true
       setInitializing(true)
       store.startInitialization()
+      initializeModel(modelPath)
     }
   }, [selectedModelKey, status, modelPath, storeInitializing])
 
