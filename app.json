@@ -8,11 +8,6 @@
     "userInterfaceStyle": "automatic",
     "icon": "./assets/images/app-icon-all.png",
     "backgroundColor": "#000000",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#000000"
-    },
     "newArchEnabled": true,
     "jsEngine": "hermes",
     "assetBundlePatterns": [
@@ -34,6 +29,11 @@
       "icon": "./assets/images/app-icon-all.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.openagents.onyx",
+      "splash": {
+        "image": "./assets/images/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#000000"
+      },
       "config": {
         "usesNonExemptEncryption": false
       }
