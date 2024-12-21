@@ -153,7 +153,9 @@ export const useModelStore = create<ModelState & ModelActions>()(
             errorMessage: selectedModelKey === '1B'
               ? `Not enough memory to initialize ${currentModel.displayName}. ${suggestion}`
               : suggestion,
-            needsInitialization: true,
+            needsInitialization: false,
+            modelPath: null,
+            initializationAttempts: 0,
           })
           return
         }
@@ -203,7 +205,9 @@ export const useModelStore = create<ModelState & ModelActions>()(
             ? `Not enough memory to initialize ${currentModel.displayName}. ${suggestion}`
             : message,
           downloadCancelled: status === 'downloading', // Only set for download errors
-          needsInitialization: true,
+          needsInitialization: false, // Changed: Don't retry initialization after error
+          modelPath: null, // Added: Clear model path on error
+          initializationAttempts: 0, // Added: Reset attempts
         })
       },
 
@@ -221,15 +225,11 @@ export const useModelStore = create<ModelState & ModelActions>()(
 
       reset: () => {
         console.log('Resetting store to idle state')
-        const { modelPath } = get()
-        // If we have a model path, try to determine the correct model key
-        const modelKey = modelPath ? getModelKeyFromPath(modelPath) : get().selectedModelKey
-        
         set({
           ...initialState,
-          selectedModelKey: modelKey || get().selectedModelKey,
-          modelPath, // Keep the model path
-          status: modelPath ? 'initializing' : 'idle',
+          selectedModelKey: get().selectedModelKey, // Keep the selected model key
+          modelPath: null, // Changed: Always clear model path on reset
+          status: 'idle',
           needsInitialization: true,
           initializationAttempts: 0,
         })
@@ -290,9 +290,10 @@ export const useModelStore = create<ModelState & ModelActions>()(
           if (modelKey && modelKey !== state.selectedModelKey) {
             state.selectedModelKey = modelKey
           }
-          state.status = state.modelPath ? 'initializing' : 'idle'
-          state.needsInitialization = !!state.modelPath // Only need initialization if we have a model
+          state.status = 'idle' // Changed: Always start in idle state after rehydration
+          state.needsInitialization = true
           state.initializationAttempts = 0
+          state.modelPath = null // Changed: Clear model path on rehydration
         }
       }
     }
