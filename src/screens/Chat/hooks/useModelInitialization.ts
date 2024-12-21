@@ -55,8 +55,10 @@ export const useModelInitialization = (
 
     // Skip if we've exceeded max attempts
     if (initAttempts.current >= MAX_ATTEMPTS) {
-      console.log('Max initialization attempts reached, suggesting smaller model')
-      const message = 'Not enough memory to initialize model. Try the 1B model instead.'
+      console.log('Max initialization attempts reached')
+      const message = selectedModelKey === '1B'
+        ? 'Not enough memory to initialize model. Please try again or contact support if the issue persists.'
+        : 'Not enough memory to initialize model. Try the 1B model instead.'
       store.setError(message)
       addSystemMessage(setMessages, [], message)
       Alert.alert('Memory Error', message)
@@ -93,9 +95,11 @@ export const useModelInitialization = (
             initAttempts.current++
             
             if (error.message?.includes('Context limit reached')) {
-              // If it's a context limit error, suggest smaller model
-              console.log('Context limit reached, suggesting smaller model')
-              const message = 'Not enough memory to initialize model. Try the 1B model instead.'
+              // If it's a context limit error, suggest appropriate action
+              console.log('Context limit reached')
+              const message = selectedModelKey === '1B'
+                ? 'Not enough memory to initialize model. Please try again or contact support if the issue persists.'
+                : 'Not enough memory to initialize model. Try the 1B model instead.'
               store.setError(message)
               addSystemMessage(setMessages, [], message)
               Alert.alert('Memory Error', message)
