@@ -14,6 +14,7 @@ interface ModelState {
   downloadCancelled: boolean
   needsInitialization: boolean
   initializationAttempts: number
+  lastDeletedModel: string | null // Track last deleted model
 }
 
 interface ModelActions {
@@ -28,6 +29,7 @@ interface ModelActions {
   reset: () => void
   startReleasing: () => void
   deleteModel: (modelKey: string) => void
+  confirmDeletion: (modelKey: string) => void
 }
 
 const initialState: ModelState = {
@@ -39,6 +41,7 @@ const initialState: ModelState = {
   downloadCancelled: false,
   needsInitialization: true,
   initializationAttempts: 0,
+  lastDeletedModel: null,
 }
 
 const MAX_INIT_ATTEMPTS = 1 // Only try initialization once
@@ -68,7 +71,8 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       startReleasing: () => {
-        console.log('Starting model release')
+        const { selectedModelKey } = get()
+        console.log(`[Model Release] Starting release of model: ${selectedModelKey}`)
         set({ status: 'releasing' })
       },
 
@@ -173,16 +177,43 @@ export const useModelStore = create<ModelState & ModelActions>()(
 
       deleteModel: (modelKey: string) => {
         const { selectedModelKey, status } = get()
-        console.log('Deleting model:', modelKey)
+        console.log(`[Model Delete] Starting deletion of model: ${modelKey}`)
+        console.log(`[Model Delete] Current state - Selected: ${selectedModelKey}, Status: ${status}`)
         
         // If deleting active model, release it first
         if (modelKey === selectedModelKey && status === 'ready') {
+          console.log(`[Model Delete] Releasing active model context before deletion: ${modelKey}`)
           set({
             status: 'releasing',
             modelPath: null,
             needsInitialization: true,
             initializationAttempts: 0,
+            lastDeletedModel: modelKey,
           })
+        } else {
+          console.log(`[Model Delete] Deleting inactive model: ${modelKey}`)
+          // For inactive models, just mark as deleted
+          set({ lastDeletedModel: modelKey })
+        }
+      },
+
+      confirmDeletion: (modelKey: string) => {
+        console.log(`[Model Delete] Confirming deletion of model: ${modelKey}`)
+        const { selectedModelKey, status } = get()
+        
+        // If this was the active model and we're in releasing state, reset
+        if (modelKey === selectedModelKey && status === 'releasing') {
+          console.log(`[Model Delete] Active model ${modelKey} released and deleted`)
+          set({
+            status: 'idle',
+            modelPath: null,
+            needsInitialization: true,
+            initializationAttempts: 0,
+            lastDeletedModel: null,
+          })
+        } else {
+          console.log(`[Model Delete] Inactive model ${modelKey} deleted`)
+          set({ lastDeletedModel: null })
         }
       },
     }),
