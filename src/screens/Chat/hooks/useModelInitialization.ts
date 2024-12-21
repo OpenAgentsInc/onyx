@@ -103,6 +103,21 @@ export const useModelInitialization = (
               store.setError(message)
               addSystemMessage(setMessages, [], message)
               Alert.alert('Memory Error', message)
+              
+              // Clean up the file after memory error
+              try {
+                const fileInfo = await FileSystem.getInfoAsync(filePath)
+                if (fileInfo.exists) {
+                  await FileSystem.deleteAsync(filePath, { idempotent: true })
+                }
+              } catch (deleteError) {
+                console.warn('Error cleaning up model file:', deleteError)
+              }
+              
+              // Reset state
+              isInitializing.current = false
+              setInitializing(false)
+              store.reset() // This will clear modelPath and set proper initial state
             } else {
               // For other errors, clean up and rethrow
               try {
