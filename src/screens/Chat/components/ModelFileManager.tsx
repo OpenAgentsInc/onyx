@@ -244,10 +244,10 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end', // This will align the modal to the bottom
+    justifyContent: 'flex-end',
   },
   modalContent: {
-    height: '50%', // This makes the modal take up half the screen
+    height: '50%',
     backgroundColor: colors.background,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
