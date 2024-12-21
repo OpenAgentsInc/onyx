@@ -30,7 +30,8 @@ export default function ChatContainer() {
   const store = useModelStore()
   const { status, progress, modelPath } = store
 
-  useModelInitialization(setMessages, setInitializing, handleInitContext)
+  // Only monitor state, let useModelContext handle initialization
+  useModelInitialization(setInitializing, handleInitContext)
 
   // Reset initializing state when status changes to error or ready
   useEffect(() => {
@@ -40,13 +41,6 @@ export default function ChatContainer() {
       setInitializing(true)
     }
   }, [status])
-
-  // Initial check for model path
-  useEffect(() => {
-    if (modelPath) {
-      setInitializing(true)
-    }
-  }, [])
 
   const renderBubble = ({
     child,
