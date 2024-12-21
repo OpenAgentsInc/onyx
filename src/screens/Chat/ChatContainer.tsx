@@ -67,8 +67,9 @@ export default function ChatContainer() {
         currentModel.filename,
         (progress) => store.updateProgress(Math.round(progress))
       )
-      // Automatically initialize after download
-      await handleInitContext(file)
+      // Instead of calling handleInitContext directly, just set the model path
+      // This will trigger useModelInitialization to handle the initialization
+      store.setModelPath(file.uri)
     } catch (error) {
       console.error('Download failed:', error)
       store.setError(error instanceof Error ? error.message : 'Download failed')
