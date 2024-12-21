@@ -69,7 +69,7 @@ export async function downloadModel(
         md5: true
       },
       (downloadProgress) => {
-        const progress = (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100
+        const progress = Math.round((downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100)
         store.updateProgress(progress)
         onProgress?.(progress)
       }
