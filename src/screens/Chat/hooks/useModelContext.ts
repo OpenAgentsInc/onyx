@@ -75,8 +75,6 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
     const msgId = addSystemMessage(setMessages, messages, `Initializing ${currentModel.displayName}...`)
     const t0 = Date.now()
 
-    store.startInitialization()
-
     try {
       // First validate the model file
       await getModelInfo(file.uri)
@@ -125,9 +123,6 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
       )
     } catch (err: any) {
       console.error('Model initialization failed:', err)
-      store.setError(err.message || 'Failed to initialize model')
-      addSystemMessage(setMessages, [], `Model initialization failed: ${err.message}`)
-      setContext(undefined)
       
       // Clean up the file on initialization failure
       try {
@@ -138,8 +133,20 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
       } catch (deleteError) {
         console.warn('Error cleaning up model file:', deleteError)
       }
+
+      // Set error state
+      if (err.message?.includes('Context limit reached')) {
+        const message = store.selectedModelKey === '1B'
+          ? 'Not enough memory to initialize model. Please try again or contact support if the issue persists.'
+          : 'Not enough memory to initialize model. Try the 1B model instead.'
+        store.setError(message)
+        addSystemMessage(setMessages, [], message)
+      } else {
+        store.setError(err.message || 'Failed to initialize model')
+        addSystemMessage(setMessages, [], `Model initialization failed: ${err.message}`)
+      }
       
-      throw err
+      setContext(undefined)
     }
   }
 
