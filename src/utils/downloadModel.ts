@@ -58,8 +58,8 @@ export async function downloadModel(
     store.startDownload()
     console.log('Starting download from HuggingFace:', repoId, filename)
 
-    // Download file
-    const downloadResult = await FileSystem.downloadAsync(
+    // Create download resumable
+    const downloadResumable = FileSystem.createDownloadResumable(
       `https://huggingface.co/${repoId}/resolve/main/${filename}`,
       filepath,
       {
@@ -67,13 +67,28 @@ export async function downloadModel(
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         },
         md5: true
+      },
+      (downloadProgress) => {
+        const progress = (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100
+        store.updateProgress(progress)
+        onProgress?.(progress)
       }
     )
+
+    // Start download
+    const { uri } = await downloadResumable.downloadAsync()
+    if (!uri) throw new Error('Download failed - no URI returned')
 
     // Verify download
     const finalInfo = await FileSystem.getInfoAsync(filepath, { size: true })
     if (!finalInfo.exists || !finalInfo.size || finalInfo.size === 0) {
       throw new Error('Downloaded file is empty or missing')
+    }
+
+    // Verify minimum size (100MB)
+    const MIN_SIZE = 100 * 1024 * 1024 // 100MB
+    if (finalInfo.size < MIN_SIZE) {
+      throw new Error('Downloaded file is too small - possible corruption')
     }
 
     store.setModelPath(filepath)
