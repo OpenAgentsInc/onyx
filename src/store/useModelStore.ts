@@ -146,11 +146,13 @@ export const useModelStore = create<ModelState & ModelActions>()(
           const currentModel = AVAILABLE_MODELS[selectedModelKey]
           const suggestion = selectedModelKey === '1B' 
             ? 'Please try again or contact support if the issue persists.'
-            : 'Try the 1B model instead.'
+            : 'Not enough memory to initialize model. Try the 1B model instead.'
           
           set({ 
             status: 'error',
-            errorMessage: `Not enough memory to initialize ${currentModel.displayName}. ${suggestion}`,
+            errorMessage: selectedModelKey === '1B'
+              ? `Not enough memory to initialize ${currentModel.displayName}. ${suggestion}`
+              : suggestion,
             needsInitialization: true,
           })
           return
