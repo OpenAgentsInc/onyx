@@ -27,6 +27,7 @@ interface ModelActions {
   cancelDownload: () => void
   reset: () => void
   startReleasing: () => void
+  deleteModel: (modelKey: string) => void
 }
 
 const initialState: ModelState = {
@@ -107,7 +108,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
         if (initializationAttempts >= MAX_INIT_ATTEMPTS) {
           set({ 
             status: 'error',
-            errorMessage: 'Model initialization failed after maximum attempts',
+            errorMessage: 'Not enough memory to initialize model. Try the 1B model instead.',
             needsInitialization: true,
           })
           return
@@ -140,7 +141,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
         set({
           status: 'error',
           errorMessage: isContextError 
-            ? 'Model initialization failed: Not enough memory available. Try a smaller model.'
+            ? 'Not enough memory to initialize model. Try the 1B model instead.'
             : message,
           downloadCancelled: true,
           needsInitialization: true,
@@ -168,6 +169,21 @@ export const useModelStore = create<ModelState & ModelActions>()(
           needsInitialization: true,
           initializationAttempts: 0,
         })
+      },
+
+      deleteModel: (modelKey: string) => {
+        const { selectedModelKey, status } = get()
+        console.log('Deleting model:', modelKey)
+        
+        // If deleting active model, release it first
+        if (modelKey === selectedModelKey && status === 'ready') {
+          set({
+            status: 'releasing',
+            modelPath: null,
+            needsInitialization: true,
+            initializationAttempts: 0,
+          })
+        }
       },
     }),
     {
