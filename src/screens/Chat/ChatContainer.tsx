@@ -19,7 +19,7 @@ import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
 export default function ChatContainer() {
   const [messages, setMessages] = useState<MessageType.Any[]>([])
-  const [initializing, setInitializing] = useState<boolean>(true) // Start as true
+  const [initializing, setInitializing] = useState<boolean>(false) // Start as false
   const [inferencing, setInferencing] = useState<boolean>(false)
   const [downloading, setDownloading] = useState<boolean>(false)
   const [downloadProgress, setDownloadProgress] = useState<number>(0)
@@ -29,7 +29,7 @@ export default function ChatContainer() {
 
   const { context, setContext, handleInitContext } = useModelContext(setMessages, messages)
   const { handleSendPress } = useChatHandlers(context, conversationIdRef, setMessages, messages, setInferencing)
-  const { status, progress } = useModelStore()
+  const { status, progress, modelPath } = useModelStore()
 
   useModelInitialization(setMessages, setInitializing, handleInitContext)
 
@@ -37,8 +37,17 @@ export default function ChatContainer() {
   useEffect(() => {
     if (status === 'error' || status === 'ready') {
       setInitializing(false)
+    } else if (status === 'initializing') {
+      setInitializing(true)
     }
   }, [status])
+
+  // Initial check for model path
+  useEffect(() => {
+    if (modelPath) {
+      setInitializing(true)
+    }
+  }, [])
 
   const renderBubble = ({
     child,
