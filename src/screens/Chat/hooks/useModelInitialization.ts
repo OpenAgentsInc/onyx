@@ -14,8 +14,6 @@ export const useModelInitialization = (
   const previousModelKey = useRef(selectedModelKey)
   const isInitializing = useRef(false)
   const store = useModelStore.getState()
-  const initAttempts = useRef(0)
-  const MAX_ATTEMPTS = 1 // Only try once before suggesting smaller model
 
   useEffect(() => {
     // Log state changes
@@ -25,14 +23,13 @@ export const useModelInitialization = (
       status,
       needsInitialization,
       isInitializing: isInitializing.current,
-      attempts: initAttempts.current
     })
 
-    // Reset attempts when model changes
+    // Reset when model changes
     if (selectedModelKey !== previousModelKey.current) {
-      console.log('Model changed, resetting attempts')
-      initAttempts.current = 0
+      console.log('Model changed, resetting state')
       isInitializing.current = false
+      previousModelKey.current = selectedModelKey
     }
 
     // Skip if already initializing
@@ -50,18 +47,6 @@ export const useModelInitialization = (
     // Skip if we're not in a state that needs initialization
     if (!needsInitialization || (status !== 'idle' && status !== 'initializing')) {
       console.log('Skipping initialization - wrong state:', { needsInitialization, status })
-      return
-    }
-
-    // Skip if we've exceeded max attempts
-    if (initAttempts.current >= MAX_ATTEMPTS) {
-      console.log('Max initialization attempts reached')
-      const message = selectedModelKey === '1B'
-        ? 'Not enough memory to initialize model. Please try again or contact support if the issue persists.'
-        : 'Not enough memory to initialize model. Try the 1B model instead.'
-      store.setError(message)
-      addSystemMessage(setMessages, [], message)
-      Alert.alert('Memory Error', message)
       return
     }
 
@@ -86,51 +71,23 @@ export const useModelInitialization = (
             previousModelKey.current = selectedModelKey
             addSystemMessage(setMessages, [], `${currentModel.displayName} found locally, initializing...`)
             await handleInitContext({ uri: filePath } as DocumentPickerResponse)
-            
-            // Reset attempts on success
-            initAttempts.current = 0
-            store.setReady()
           } catch (error) {
             console.error('Model validation/initialization failed:', error)
-            initAttempts.current++
             
-            if (error.message?.includes('Context limit reached')) {
-              // If it's a context limit error, suggest appropriate action
-              console.log('Context limit reached')
-              const message = selectedModelKey === '1B'
-                ? 'Not enough memory to initialize model. Please try again or contact support if the issue persists.'
-                : 'Not enough memory to initialize model. Try the 1B model instead.'
-              store.setError(message)
-              addSystemMessage(setMessages, [], message)
-              Alert.alert('Memory Error', message)
-              
-              // Clean up the file after memory error
-              try {
-                const fileInfo = await FileSystem.getInfoAsync(filePath)
-                if (fileInfo.exists) {
-                  await FileSystem.deleteAsync(filePath, { idempotent: true })
-                }
-              } catch (deleteError) {
-                console.warn('Error cleaning up model file:', deleteError)
+            // Clean up the file and reset state
+            try {
+              const fileInfo = await FileSystem.getInfoAsync(filePath)
+              if (fileInfo.exists) {
+                await FileSystem.deleteAsync(filePath, { idempotent: true })
               }
-              
-              // Reset state
-              isInitializing.current = false
-              setInitializing(false)
-              store.reset() // This will clear modelPath and set proper initial state
-            } else {
-              // For other errors, clean up and rethrow
-              try {
-                const fileInfo = await FileSystem.getInfoAsync(filePath)
-                if (fileInfo.exists) {
-                  await FileSystem.deleteAsync(filePath, { idempotent: true })
-                }
-              } catch (deleteError) {
-                console.warn('Error cleaning up model file:', deleteError)
-                // Continue with error handling even if cleanup fails
-              }
-              throw error
+            } catch (deleteError) {
+              console.warn('Error cleaning up model file:', deleteError)
             }
+
+            // Reset state
+            isInitializing.current = false
+            setInitializing(false)
+            store.reset() // This will clear modelPath and set proper initial state
           }
         } else {
           console.log(`No model file found for ${selectedModelKey}`)
@@ -165,7 +122,6 @@ export const useModelInitialization = (
   useEffect(() => {
     return () => {
       isInitializing.current = false
-      initAttempts.current = 0
     }
   }, [])
 }
