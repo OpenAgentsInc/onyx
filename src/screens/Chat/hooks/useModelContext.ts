@@ -18,27 +18,16 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
         try {
           console.log('[Context] Releasing context')
           await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
-          // After successful release, set status to initializing if we have a model path
-          if (store.modelPath) {
-            console.log('[Context] Released context, has model path - starting initialization')
-            store.startInitialization()
-          } else {
-            console.log('[Context] Released context, no model path - resetting')
-            store.reset()
-          }
+          // After successful release, reset store
+          console.log('[Context] Released context - resetting store')
+          store.reset()
         } catch (err) {
           console.error('[Context] Failed to release context:', err)
           store.setError('Failed to release previous model')
         }
       } else {
-        // If no context to release but we have a model path, start initialization
-        if (store.modelPath) {
-          console.log('[Context] No context but has model path - starting initialization')
-          store.startInitialization()
-        } else {
-          console.log('[Context] No context, no model path - resetting')
-          store.reset()
-        }
+        console.log('[Context] No context to release - resetting store')
+        store.reset()
       }
     }
 
@@ -162,7 +151,6 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
       }
       
       setContext(undefined)
-      store.reset() // Reset store to clear modelPath and prevent retries
     }
   }
 
