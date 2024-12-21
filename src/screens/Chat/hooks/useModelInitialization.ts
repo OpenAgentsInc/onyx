@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import * as FileSystem from 'expo-file-system'
+import { Alert } from 'react-native'
 import type { DocumentPickerResponse } from 'react-native-document-picker'
 import { useModelStore, getCurrentModelConfig } from '@/store/useModelStore'
 import { addSystemMessage } from '../utils'
@@ -55,7 +56,10 @@ export const useModelInitialization = (
     // Skip if we've exceeded max attempts
     if (initAttempts.current >= MAX_ATTEMPTS) {
       console.log('Max initialization attempts reached, suggesting smaller model')
-      store.setError('Not enough memory to initialize model. Try the 1B model instead.')
+      const message = 'Not enough memory to initialize model. Try the 1B model instead.'
+      store.setError(message)
+      addSystemMessage(setMessages, [], message)
+      Alert.alert('Memory Error', message)
       return
     }
 
@@ -91,10 +95,21 @@ export const useModelInitialization = (
             if (error.message?.includes('Context limit reached')) {
               // If it's a context limit error, suggest smaller model
               console.log('Context limit reached, suggesting smaller model')
-              store.setError('Not enough memory to initialize model. Try the 1B model instead.')
+              const message = 'Not enough memory to initialize model. Try the 1B model instead.'
+              store.setError(message)
+              addSystemMessage(setMessages, [], message)
+              Alert.alert('Memory Error', message)
             } else {
               // For other errors, clean up and rethrow
-              await FileSystem.deleteAsync(filePath)
+              try {
+                const fileInfo = await FileSystem.getInfoAsync(filePath)
+                if (fileInfo.exists) {
+                  await FileSystem.deleteAsync(filePath, { idempotent: true })
+                }
+              } catch (deleteError) {
+                console.warn('Error cleaning up model file:', deleteError)
+                // Continue with error handling even if cleanup fails
+              }
               throw error
             }
           }
@@ -105,7 +120,10 @@ export const useModelInitialization = (
         }
       } catch (error) {
         console.error('Model initialization failed:', error)
-        store.setError(error instanceof Error ? error.message : 'Unknown initialization error')
+        const errorMessage = error instanceof Error ? error.message : 'Unknown initialization error'
+        store.setError(errorMessage)
+        addSystemMessage(setMessages, [], `Error: ${errorMessage}`)
+        Alert.alert('Initialization Error', errorMessage)
         setInitializing(false)
       } finally {
         isInitializing.current = false
