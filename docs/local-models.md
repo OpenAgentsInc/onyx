@@ -11,19 +11,19 @@ export const AVAILABLE_MODELS: { [key: string]: ModelConfig } = {
   '3B': {
     repoId: 'hugging-quants/Llama-3.2-3B-Instruct-Q4_K_M-GGUF',
     filename: 'llama-3.2-3b-instruct-q4_k_m.gguf',
-    displayName: 'Llama 3.2 3B'
+    displayName: 'Llama 3.2 3B Instruct'
   },
   '1B': {
     repoId: 'hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF',
     filename: 'llama-3.2-1b-instruct-q4_k_m.gguf',
-    displayName: 'Llama 3.2 1B'
+    displayName: 'Llama 3.2 1B Instruct'
   }
 }
 ```
 
 ## Model Sizes
-- 1B model: 770 MB
-- 3B model: 1.9 GB
+- 1B model: ~770 MB
+- 3B model: ~1.9 GB
 
 ## User Interface
 
@@ -77,6 +77,7 @@ interface ModelState {
   errorMessage: string | null // Error message if any
   downloadCancelled: boolean  // Whether download was cancelled
   needsInitialization: boolean // Whether model needs to be initialized
+  initializationAttempts: number // Number of initialization attempts
 }
 ```
 
@@ -98,10 +99,10 @@ interface ModelState {
    - Size warning
    - Background warning
    - Wi-Fi recommendation
-3. Downloads with progress updates
+3. Downloads with progress updates using FileSystem.createDownloadResumable
 4. Validates downloaded file:
    - Checks file exists
-   - Verifies size
+   - Verifies minimum size (100MB)
    - Validates model info
 5. Automatically initializes after download
 
@@ -114,17 +115,18 @@ interface ModelState {
 
 ### Error Handling
 - Download cancellation (app backgrounded)
-- Initialization failures
+- Initialization failures (limited to 1 attempt)
 - File validation errors
 - Context release errors
 - Network issues
 - Storage issues
+- Memory limit errors (suggests smaller model)
 
 ## Implementation Details
 
 ### Key Components
 - `useModelStore`: Central state management
-- `ModelDownloader`: Handles file downloads
+- `downloadModel`: Handles file downloads with progress
 - `useModelContext`: Manages model context
 - `useModelInitialization`: Handles initialization flow
 - `ModelFileManager`: Model management UI
@@ -139,6 +141,7 @@ interface ModelState {
 - File validation before use
 - Size verification (>100MB)
 - Model info validation
+- Progress tracking during download
 
 ### Best Practices
 1. Always validate downloaded files
@@ -149,6 +152,8 @@ interface ModelState {
 6. Prevent invalid state transitions
 7. Show clear progress indicators
 8. Handle network issues gracefully
+9. Limit initialization attempts
+10. Provide clear memory error messages
 
 ## Usage Example
 
@@ -164,9 +169,11 @@ const {
   reset            // Reset to idle state
 } = useModelStore()
 
-// Error handling example
+// Download with progress example
 try {
-  await downloadModel()
+  await downloadModel(repoId, filename, (progress) => {
+    console.log(`Download progress: ${progress}%`)
+  })
 } catch (e) {
   setError(e.message)
   // UI will show error and allow retry
@@ -174,13 +181,13 @@ try {
 ```
 
 ## Technical Notes
-- Uses react-native-blob-util for downloads
-- Supports background download on iOS
+- Uses expo-file-system for downloads
+- Supports download progress tracking
 - Handles app state changes
 - Validates file integrity
 - Proper error propagation
 - State persistence between app launches
-- Minimum file size validation
+- Minimum file size validation (100MB)
 - Model info validation
 - Progress tracking for both download and initialization
 - Clear error messages and recovery paths
@@ -188,3 +195,5 @@ try {
 - Safe model switching with release handling
 - Uses temporary files during download
 - Verifies file moves and copies
+- Limits initialization attempts to prevent loops
+- Memory-aware initialization with clear error messages
