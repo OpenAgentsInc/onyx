@@ -51,6 +51,11 @@ export const useModelInitialization = (
     }
 
     const initModel = async () => {
+      if (isInitializing.current) {
+        console.log('Already initializing, skipping')
+        return
+      }
+
       isInitializing.current = true
       setInitializing(true)
       const currentModel = getCurrentModelConfig()
@@ -88,6 +93,14 @@ export const useModelInitialization = (
             isInitializing.current = false
             setInitializing(false)
             store.reset() // This will clear modelPath and set proper initial state
+            
+            // Show error
+            const message = error.message?.includes('Context limit reached')
+              ? 'Not enough memory to initialize model. Please try again or contact support if the issue persists.'
+              : error.message || 'Failed to initialize model'
+            store.setError(message)
+            addSystemMessage(setMessages, [], message)
+            Alert.alert('Initialization Error', message)
           }
         } else {
           console.log(`No model file found for ${selectedModelKey}`)
