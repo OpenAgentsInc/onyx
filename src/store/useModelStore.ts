@@ -106,7 +106,12 @@ export const useModelStore = create<ModelState & ModelActions>()(
 
       setModelPath: (path: string) => {
         console.log('Setting model path:', path)
-        set({ modelPath: path })
+        // When setting model path, immediately go to initializing state
+        set({ 
+          modelPath: path,
+          status: 'initializing',
+          initializationAttempts: 0,
+        })
       },
 
       startInitialization: () => {
@@ -128,8 +133,8 @@ export const useModelStore = create<ModelState & ModelActions>()(
           return
         }
 
-        // Can only start initialization from downloading or releasing state
-        if (status === 'downloading' || status === 'releasing') {
+        // Can start initialization from any state if we have a model path
+        if (get().modelPath) {
           set({ 
             status: 'initializing', 
             progress: 100,
@@ -183,10 +188,12 @@ export const useModelStore = create<ModelState & ModelActions>()(
 
       reset: () => {
         console.log('Resetting store to idle state')
+        const { modelPath } = get()
         set({
           ...initialState,
           selectedModelKey: get().selectedModelKey, // Keep the selected model
-          status: 'idle',
+          modelPath, // Keep the model path
+          status: modelPath ? 'initializing' : 'idle', // If we have a model, try to initialize it
           needsInitialization: true,
           initializationAttempts: 0,
         })
@@ -242,10 +249,14 @@ export const useModelStore = create<ModelState & ModelActions>()(
         modelPath: state.modelPath,
       }),
       onRehydrateStorage: () => (state) => {
-        // When store rehydrates, set to idle state needing initialization
+        // When store rehydrates, if we have a model path, go straight to initialization
         if (state) {
           console.log('Store rehydrated:', state)
-          state.status = 'idle'
+          if (state.modelPath) {
+            state.status = 'initializing'
+          } else {
+            state.status = 'idle'
+          }
           state.needsInitialization = true
           state.initializationAttempts = 0
         }
