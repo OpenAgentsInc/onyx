@@ -16,15 +16,23 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
       if (context) {
         try {
           await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
-          // After successful release, set status to idle to trigger initialization
-          store.reset()
+          // After successful release, set status to initializing if we have a model path
+          if (store.modelPath) {
+            store.startInitialization()
+          } else {
+            store.reset()
+          }
         } catch (err) {
           console.error('Failed to release context during cleanup:', err)
           store.setError('Failed to release previous model')
         }
       } else {
-        // If no context to release, just reset to idle
-        store.reset()
+        // If no context to release but we have a model path, start initialization
+        if (store.modelPath) {
+          store.startInitialization()
+        } else {
+          store.reset()
+        }
       }
     }
 
