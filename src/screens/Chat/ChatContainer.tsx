@@ -67,6 +67,7 @@ export default function ChatContainer() {
         currentModel.filename,
         (progress) => store.updateProgress(Math.round(progress))
       )
+      // Automatically initialize after download
       await handleInitContext(file)
     } catch (error) {
       console.error('Download failed:', error)
