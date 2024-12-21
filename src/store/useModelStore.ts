@@ -25,6 +25,7 @@ interface ModelActions {
   startInitialization: () => void
   setReady: () => void
   setError: (message: string) => void
+  setIdle: () => void
   cancelDownload: () => void
   reset: () => void
   startReleasing: () => void
@@ -175,6 +176,14 @@ export const useModelStore = create<ModelState & ModelActions>()(
         })
       },
 
+      setIdle: () => {
+        console.log('Setting model idle')
+        set({
+          ...initialState,
+          selectedModelKey: get().selectedModelKey, // Keep the selected model
+        })
+      },
+
       setError: (message: string) => {
         console.error('Model error:', message)
         const { selectedModelKey, status } = get()
@@ -235,7 +244,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           set({
             status: 'releasing',
             modelPath: null,
-            needsInitialization: true,
+            needsInitialization: false, // Don't need initialization after deletion
             initializationAttempts: 0,
             lastDeletedModel: modelKey,
           })
@@ -250,14 +259,12 @@ export const useModelStore = create<ModelState & ModelActions>()(
         console.log(`[Model Delete] Confirming deletion of model: ${modelKey}`)
         const { selectedModelKey, status } = get()
         
-        // If this was the active model and we're in releasing state, reset
+        // If this was the active model and we're in releasing state, reset to idle
         if (modelKey === selectedModelKey && status === 'releasing') {
           console.log(`[Model Delete] Active model ${modelKey} released and deleted`)
           set({
-            status: 'idle',
-            modelPath: null,
-            needsInitialization: true,
-            initializationAttempts: 0,
+            ...initialState,
+            selectedModelKey, // Keep the selected model key
             lastDeletedModel: null,
           })
         } else {
@@ -282,7 +289,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
             state.selectedModelKey = modelKey
           }
           state.status = state.modelPath ? 'initializing' : 'idle'
-          state.needsInitialization = true
+          state.needsInitialization = !!state.modelPath // Only need initialization if we have a model
           state.initializationAttempts = 0
         }
       }
