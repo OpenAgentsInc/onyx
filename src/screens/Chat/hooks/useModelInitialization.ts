@@ -14,7 +14,7 @@ export const useModelInitialization = (
   const isInitializing = useRef(false)
   const store = useModelStore.getState()
   const initAttempts = useRef(0)
-  const MAX_ATTEMPTS = 3
+  const MAX_ATTEMPTS = 1 // Only try once before suggesting smaller model
 
   useEffect(() => {
     // Log state changes
@@ -29,7 +29,9 @@ export const useModelInitialization = (
 
     // Reset attempts when model changes
     if (selectedModelKey !== previousModelKey.current) {
+      console.log('Model changed, resetting attempts')
       initAttempts.current = 0
+      isInitializing.current = false
     }
 
     // Skip if already initializing
@@ -52,8 +54,8 @@ export const useModelInitialization = (
 
     // Skip if we've exceeded max attempts
     if (initAttempts.current >= MAX_ATTEMPTS) {
-      console.log('Max initialization attempts reached, giving up')
-      store.setError('Failed to initialize model after multiple attempts')
+      console.log('Max initialization attempts reached, suggesting smaller model')
+      store.setError('Not enough memory to initialize model. Try the 1B model instead.')
       return
     }
 
@@ -87,12 +89,9 @@ export const useModelInitialization = (
             initAttempts.current++
             
             if (error.message?.includes('Context limit reached')) {
-              // If it's a context limit error, try to recover
-              console.log('Context limit reached, attempting recovery...')
-              store.startReleasing()
-              setTimeout(() => {
-                store.reset()
-              }, 1000)
+              // If it's a context limit error, suggest smaller model
+              console.log('Context limit reached, suggesting smaller model')
+              store.setError('Not enough memory to initialize model. Try the 1B model instead.')
             } else {
               // For other errors, clean up and rethrow
               await FileSystem.deleteAsync(filePath)
