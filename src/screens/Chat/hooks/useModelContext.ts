@@ -5,6 +5,7 @@ import type { LlamaContext } from 'llama.rn'
 import { initLlama, loadLlamaModelInfo } from 'llama.rn'
 import { useModelStore, getCurrentModelConfig } from '@/store/useModelStore'
 import { addSystemMessage, handleReleaseContext } from '../utils'
+import * as FileSystem from 'expo-file-system'
 
 export const useModelContext = (setMessages: any, messages: any[]) => {
   const [context, setContext] = useState<LlamaContext | undefined>(undefined)
@@ -64,7 +65,9 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
         await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
       } catch (err) {
         console.error('Failed to release context:', err)
-        // Continue with initialization even if release fails
+        // Don't continue if we can't release the old context
+        store.setError('Failed to release previous model')
+        return
       }
     }
 
@@ -125,7 +128,18 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
       store.setError(err.message || 'Failed to initialize model')
       addSystemMessage(setMessages, [], `Model initialization failed: ${err.message}`)
       setContext(undefined)
-      throw err // Re-throw to handle in caller
+      
+      // Clean up the file on initialization failure
+      try {
+        const fileInfo = await FileSystem.getInfoAsync(file.uri)
+        if (fileInfo.exists) {
+          await FileSystem.deleteAsync(file.uri, { idempotent: true })
+        }
+      } catch (deleteError) {
+        console.warn('Error cleaning up model file:', deleteError)
+      }
+      
+      throw err
     }
   }
 
