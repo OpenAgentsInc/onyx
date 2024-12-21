@@ -12,9 +12,7 @@ interface ModelState {
   modelPath: string | null
   errorMessage: string | null
   downloadCancelled: boolean
-  needsInitialization: boolean
-  initializationAttempts: number
-  lastDeletedModel: string | null
+  isInitializing: boolean
 }
 
 interface ModelActions {
@@ -40,13 +38,11 @@ const initialState: ModelState = {
   modelPath: null,
   errorMessage: null,
   downloadCancelled: false,
-  needsInitialization: false,
-  initializationAttempts: 0,
-  lastDeletedModel: null,
+  isInitializing: false,
 }
 
 const logState = (action: string, state: ModelState) => {
-  console.log(`[Store ${action}] Status: ${state.status}, Path: ${state.modelPath}, NeedsInit: ${state.needsInitialization}`)
+  console.log(`[Store ${action}] Status: ${state.status}, Path: ${state.modelPath}, IsInit: ${state.isInitializing}`)
 }
 
 export const useModelStore = create<ModelState & ModelActions>()(
@@ -56,7 +52,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
 
       selectModel: (modelKey: string) => {
         if (!AVAILABLE_MODELS[modelKey]) {
-          console.error('Invalid model key:', modelKey)
+          console.error('[Store] Invalid model key:', modelKey)
           return
         }
         console.log('[Store] Selecting model:', modelKey)
@@ -67,8 +63,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           modelPath: null,
           errorMessage: null,
           downloadCancelled: false,
-          needsInitialization: false,
-          initializationAttempts: 0,
+          isInitializing: false,
         })
         logState('selectModel', get())
       },
@@ -77,8 +72,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
         console.log('[Store] Starting release')
         set({ 
           status: 'releasing',
-          needsInitialization: false,
-          initializationAttempts: 0,
+          isInitializing: false,
         })
         logState('startReleasing', get())
       },
@@ -92,8 +86,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
             progress: 0,
             errorMessage: null,
             downloadCancelled: false,
-            needsInitialization: false,
-            initializationAttempts: 0,
+            isInitializing: false,
           })
           logState('startDownload', get())
         }
@@ -114,30 +107,32 @@ export const useModelStore = create<ModelState & ModelActions>()(
             modelPath: path,
             selectedModelKey: modelKey,
             status: 'initializing',
-            needsInitialization: true,
-            initializationAttempts: 0,
+            isInitializing: false, // Let initialization be controlled by the hook
           })
         } else {
-          console.error('Could not determine model key from path:', path)
+          console.error('[Store] Could not determine model key from path:', path)
           set({ 
             modelPath: path,
             status: 'initializing',
-            needsInitialization: true,
-            initializationAttempts: 0,
+            isInitializing: false,
           })
         }
         logState('setModelPath', get())
       },
 
       startInitialization: () => {
-        const { status, initializationAttempts, selectedModelKey } = get()
-        console.log('[Store] Starting initialization:', { status, attempts: initializationAttempts })
+        const { status, isInitializing } = get()
+        console.log('[Store] Starting initialization:', { status, isInitializing })
+        
+        if (isInitializing) {
+          console.log('[Store] Already initializing, skipping')
+          return
+        }
         
         set({ 
           status: 'initializing', 
           progress: 100,
-          needsInitialization: true,
-          initializationAttempts: initializationAttempts + 1,
+          isInitializing: true,
         })
         logState('startInitialization', get())
       },
@@ -147,8 +142,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
         set({ 
           status: 'ready', 
           errorMessage: null,
-          needsInitialization: false,
-          initializationAttempts: 0,
+          isInitializing: false,
         })
         logState('setReady', get())
       },
@@ -178,9 +172,8 @@ export const useModelStore = create<ModelState & ModelActions>()(
             ? `Not enough memory to initialize ${currentModel.displayName}. ${suggestion}`
             : message,
           downloadCancelled: status === 'downloading',
-          needsInitialization: false,
+          isInitializing: false,
           modelPath: null,
-          initializationAttempts: 0,
         })
         logState('setError', get())
       },
@@ -192,8 +185,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           status: 'idle',
           progress: 0,
           errorMessage: 'Download cancelled',
-          needsInitialization: false,
-          initializationAttempts: 0,
+          isInitializing: false,
         })
         logState('cancelDownload', get())
       },
@@ -205,8 +197,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           selectedModelKey: get().selectedModelKey,
           modelPath: null,
           status: 'idle',
-          needsInitialization: false,
-          initializationAttempts: 0,
+          isInitializing: false,
         })
         logState('reset', get())
       },
@@ -219,12 +210,8 @@ export const useModelStore = create<ModelState & ModelActions>()(
           set({
             status: 'releasing',
             modelPath: null,
-            needsInitialization: false,
-            initializationAttempts: 0,
-            lastDeletedModel: modelKey,
+            isInitializing: false,
           })
-        } else {
-          set({ lastDeletedModel: modelKey })
         }
         logState('deleteModel', get())
       },
@@ -237,10 +224,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           set({
             ...initialState,
             selectedModelKey,
-            lastDeletedModel: null,
           })
-        } else {
-          set({ lastDeletedModel: null })
         }
         logState('confirmDeletion', get())
       },
@@ -256,8 +240,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           console.log('[Store] Rehydrated:', state)
           state.status = 'idle'
           state.modelPath = null
-          state.needsInitialization = false
-          state.initializationAttempts = 0
+          state.isInitializing = false
           logState('rehydrate', state)
         }
       }
