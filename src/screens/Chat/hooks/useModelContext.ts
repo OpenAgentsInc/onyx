@@ -147,6 +147,7 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
       }
       
       setContext(undefined)
+      store.reset() // Reset store to clear modelPath and prevent retries
     }
   }
 
