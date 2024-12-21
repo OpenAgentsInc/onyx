@@ -73,7 +73,11 @@ export const useModelStore = create<ModelState & ModelActions>()(
       startReleasing: () => {
         const { selectedModelKey } = get()
         console.log(`[Model Release] Starting release of model: ${selectedModelKey}`)
-        set({ status: 'releasing' })
+        set({ 
+          status: 'releasing',
+          needsInitialization: true,
+          initializationAttempts: 0,
+        })
       },
 
       startDownload: () => {
@@ -86,6 +90,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
             progress: 0,
             errorMessage: null,
             downloadCancelled: false,
+            needsInitialization: true,
             initializationAttempts: 0,
           })
         }
@@ -105,21 +110,26 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       startInitialization: () => {
-        const { status, initializationAttempts } = get()
+        const { status, initializationAttempts, selectedModelKey } = get()
         console.log('Starting initialization, current status:', status, 'attempts:', initializationAttempts)
         
         // Check if we've exceeded max attempts
         if (initializationAttempts >= MAX_INIT_ATTEMPTS) {
+          const currentModel = AVAILABLE_MODELS[selectedModelKey]
+          const suggestion = selectedModelKey === '1B' 
+            ? 'Please try again or contact support if the issue persists.'
+            : 'Try the 1B model instead.'
+          
           set({ 
             status: 'error',
-            errorMessage: 'Not enough memory to initialize model. Try the 1B model instead.',
+            errorMessage: `Not enough memory to initialize ${currentModel.displayName}. ${suggestion}`,
             needsInitialization: true,
           })
           return
         }
 
-        // Can start initialization from downloading or releasing state
-        if (status === 'downloading' || status === 'releasing' || status === 'idle') {
+        // Can only start initialization from downloading or releasing state
+        if (status === 'downloading' || status === 'releasing') {
           set({ 
             status: 'initializing', 
             progress: 100,
@@ -140,14 +150,21 @@ export const useModelStore = create<ModelState & ModelActions>()(
 
       setError: (message: string) => {
         console.error('Model error:', message)
+        const { selectedModelKey, status } = get()
+        const currentModel = AVAILABLE_MODELS[selectedModelKey]
+        
         // Check if it's a context limit error
         const isContextError = message.toLowerCase().includes('context limit')
+        const suggestion = selectedModelKey === '1B' 
+          ? 'Please try again or contact support if the issue persists.'
+          : 'Try the 1B model instead.'
+        
         set({
           status: 'error',
           errorMessage: isContextError 
-            ? 'Not enough memory to initialize model. Try the 1B model instead.'
+            ? `Not enough memory to initialize ${currentModel.displayName}. ${suggestion}`
             : message,
-          downloadCancelled: true,
+          downloadCancelled: status === 'downloading', // Only set for download errors
           needsInitialization: true,
         })
       },
