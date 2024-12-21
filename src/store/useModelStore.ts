@@ -107,7 +107,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
             modelPath: path,
             selectedModelKey: modelKey,
             status: 'initializing',
-            isInitializing: false, // Let initialization be controlled by the hook
+            isInitializing: false,
           })
         } else {
           console.error('[Store] Could not determine model key from path:', path)
@@ -121,18 +121,12 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       startInitialization: () => {
-        const { status, isInitializing } = get()
-        console.log('[Store] Starting initialization:', { status, isInitializing })
-        
-        if (isInitializing) {
-          console.log('[Store] Already initializing, skipping')
-          return
-        }
-        
+        console.log('[Store] Starting initialization')
         set({ 
           status: 'initializing', 
           progress: 100,
-          isInitializing: true,
+          isInitializing: false, // Let the hook control this
+          errorMessage: null,
         })
         logState('startInitialization', get())
       },
@@ -235,21 +229,20 @@ export const useModelStore = create<ModelState & ModelActions>()(
       partialize: (state) => ({
         selectedModelKey: state.selectedModelKey,
         modelPath: state.modelPath,
-        status: state.status === 'ready' ? state.status : 'idle', // Only persist 'ready' status
+        status: state.status === 'ready' ? 'initializing' : 'idle', // Convert ready to initializing on save
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
           console.log('[Store] Rehydrated:', state)
-          // If we have a model path and the status was 'ready', set to initializing
-          if (state.modelPath && state.status === 'ready') {
+          // If we have a model path, set to initializing state
+          if (state.modelPath) {
             state.status = 'initializing'
-            state.isInitializing = true
+            state.isInitializing = false // Let the hook control this
             state.progress = 0
             state.errorMessage = null
             state.downloadCancelled = false
           } else {
             state.status = 'idle'
-            state.modelPath = null
             state.isInitializing = false
           }
           logState('rehydrate', state)
