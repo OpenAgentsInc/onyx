@@ -229,23 +229,44 @@ export const useModelStore = create<ModelState & ModelActions>()(
       partialize: (state) => ({
         selectedModelKey: state.selectedModelKey,
         modelPath: state.modelPath,
-        status: state.status === 'ready' ? 'initializing' : 'idle', // Convert ready to initializing on save
+        // If we have a model path and status is ready, persist as initializing
+        // This ensures the model will be re-initialized on app restart
+        status: state.modelPath && state.status === 'ready' ? 'initializing' : 'idle',
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
           console.log('[Store] Rehydrated:', state)
-          // If we have a model path, set to initializing state
+          // If we have a model path, ensure we're in initializing state
           if (state.modelPath) {
-            state.status = 'initializing'
-            state.isInitializing = false // Let the hook control this
-            state.progress = 0
-            state.errorMessage = null
-            state.downloadCancelled = false
+            // Verify the model file still exists
+            FileSystem.getInfoAsync(state.modelPath)
+              .then(fileInfo => {
+                if (fileInfo.exists) {
+                  state.status = 'initializing'
+                  state.isInitializing = false // Let the hook control this
+                  state.progress = 0
+                  state.errorMessage = null
+                  state.downloadCancelled = false
+                } else {
+                  // File doesn't exist anymore, reset state
+                  state.status = 'idle'
+                  state.modelPath = null
+                  state.isInitializing = false
+                }
+                logState('rehydrate', state)
+              })
+              .catch(err => {
+                console.error('[Store] Error checking model file:', err)
+                state.status = 'idle'
+                state.modelPath = null
+                state.isInitializing = false
+                logState('rehydrate-error', state)
+              })
           } else {
             state.status = 'idle'
             state.isInitializing = false
+            logState('rehydrate-no-path', state)
           }
-          logState('rehydrate', state)
         }
       }
     }
