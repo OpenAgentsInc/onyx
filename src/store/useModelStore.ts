@@ -234,13 +234,24 @@ export const useModelStore = create<ModelState & ModelActions>()(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         selectedModelKey: state.selectedModelKey,
+        modelPath: state.modelPath,
+        status: state.status === 'ready' ? state.status : 'idle', // Only persist 'ready' status
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
           console.log('[Store] Rehydrated:', state)
-          state.status = 'idle'
-          state.modelPath = null
-          state.isInitializing = false
+          // If we have a model path and the status was 'ready', set to initializing
+          if (state.modelPath && state.status === 'ready') {
+            state.status = 'initializing'
+            state.isInitializing = true
+            state.progress = 0
+            state.errorMessage = null
+            state.downloadCancelled = false
+          } else {
+            state.status = 'idle'
+            state.modelPath = null
+            state.isInitializing = false
+          }
           logState('rehydrate', state)
         }
       }
