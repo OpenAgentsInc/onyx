@@ -10,7 +10,7 @@ export const useModelInitialization = (
   setInitializing: (value: boolean) => void,
   handleInitContext: (file: DocumentPickerResponse) => Promise<void>
 ) => {
-  const { selectedModelKey, status, needsInitialization } = useModelStore()
+  const { selectedModelKey, status, modelPath, isInitializing: storeInitializing } = useModelStore()
   const previousModelKey = useRef(selectedModelKey)
   const isInitializing = useRef(false)
   const store = useModelStore.getState()
@@ -21,8 +21,9 @@ export const useModelInitialization = (
       selectedModelKey,
       previousModelKey: previousModelKey.current,
       status,
-      needsInitialization,
+      modelPath,
       isInitializing: isInitializing.current,
+      storeInitializing,
     })
 
     // Reset when model changes
@@ -34,7 +35,7 @@ export const useModelInitialization = (
     }
 
     // Skip if already initializing
-    if (isInitializing.current) {
+    if (isInitializing.current || storeInitializing) {
       console.log('[Init] Already initializing, skipping')
       return
     }
@@ -46,13 +47,13 @@ export const useModelInitialization = (
     }
 
     // Skip if we're not in a state that needs initialization
-    if (!needsInitialization || (status !== 'idle' && status !== 'initializing')) {
-      console.log('[Init] Skipping - wrong state:', { needsInitialization, status })
+    if (!modelPath || (status !== 'idle' && status !== 'initializing')) {
+      console.log('[Init] Skipping - wrong state:', { modelPath, status })
       return
     }
 
     const initModel = async () => {
-      if (isInitializing.current) {
+      if (isInitializing.current || storeInitializing) {
         console.log('[Init] Already initializing (double-check), skipping')
         return
       }
@@ -60,6 +61,7 @@ export const useModelInitialization = (
       console.log('[Init] Starting initialization')
       isInitializing.current = true
       setInitializing(true)
+      store.startInitialization()
 
       try {
         const currentModel = getCurrentModelConfig()
@@ -118,7 +120,7 @@ export const useModelInitialization = (
     }
 
     initModel()
-  }, [selectedModelKey, status, needsInitialization])
+  }, [selectedModelKey, status, modelPath, storeInitializing])
 
   // Reset initialization flag when status changes to ready/error
   useEffect(() => {
