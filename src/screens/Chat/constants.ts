@@ -8,12 +8,12 @@ export const AVAILABLE_MODELS: { [key: string]: ModelConfig } = {
   '1B': {
     repoId: 'hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF',
     filename: 'llama-3.2-1b-instruct-q4_k_m.gguf',
-    displayName: 'Llama 3.2 1B Instruct'
+    displayName: 'Llama 3.2 1B'
   },
   '3B': {
     repoId: 'hugging-quants/Llama-3.2-3B-Instruct-Q4_K_M-GGUF',
     filename: 'llama-3.2-3b-instruct-q4_k_m.gguf',
-    displayName: 'Llama 3.2 3B Instruct'
+    displayName: 'Llama 3.2 3B'
   },
 }
 
