@@ -16,22 +16,27 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
     const cleanup = async () => {
       if (context) {
         try {
+          console.log('[Context] Releasing context')
           await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
           // After successful release, set status to initializing if we have a model path
           if (store.modelPath) {
+            console.log('[Context] Released context, has model path - starting initialization')
             store.startInitialization()
           } else {
+            console.log('[Context] Released context, no model path - resetting')
             store.reset()
           }
         } catch (err) {
-          console.error('Failed to release context during cleanup:', err)
+          console.error('[Context] Failed to release context:', err)
           store.setError('Failed to release previous model')
         }
       } else {
         // If no context to release but we have a model path, start initialization
         if (store.modelPath) {
+          console.log('[Context] No context but has model path - starting initialization')
           store.startInitialization()
         } else {
+          console.log('[Context] No context, no model path - resetting')
           store.reset()
         }
       }
@@ -39,6 +44,7 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
 
     // If we're in releasing state, clean up the old context
     if (store.status === 'releasing') {
+      console.log('[Context] Status is releasing - starting cleanup')
       cleanup()
     }
   }, [store.status, store.selectedModelKey])
@@ -46,26 +52,29 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
   const getModelInfo = async (model: string) => {
     const t0 = Date.now()
     try {
+      console.log('[Context] Loading model info')
       const info = await loadLlamaModelInfo(model)
-      console.log(`Model info (took ${Date.now() - t0}ms): `, info)
+      console.log(`[Context] Model info loaded (${Date.now() - t0}ms):`, info)
       if (!info || Object.keys(info).length === 0) {
         throw new Error('Model info is empty - file may be corrupted')
       }
       return info
     } catch (error) {
-      console.error('Failed to load model info:', error)
+      console.error('[Context] Failed to load model info:', error)
       throw new Error('Failed to validate model file - try downloading again')
     }
   }
 
   const handleInitContext = async (file: DocumentPickerResponse) => {
+    console.log('[Context] Starting context initialization')
+    
     // Only release context if we have one
     if (context) {
       try {
+        console.log('[Context] Releasing existing context')
         await handleReleaseContext(context, setContext, setMessages, messages, addSystemMessage)
       } catch (err) {
-        console.error('Failed to release context:', err)
-        // Don't continue if we can't release the old context
+        console.error('[Context] Failed to release context:', err)
         store.setError('Failed to release previous model')
         return
       }
@@ -77,8 +86,10 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
 
     try {
       // First validate the model file
+      console.log('[Context] Validating model file')
       await getModelInfo(file.uri)
 
+      console.log('[Context] Starting llama initialization')
       const ctx = await initLlama(
         {
           model: file.uri,
@@ -104,6 +115,7 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
       )
 
       const t1 = Date.now()
+      console.log(`[Context] Initialization successful (${t1 - t0}ms)`)
       setContext(ctx)
       store.setReady()
 
@@ -122,16 +134,17 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
         '- /load-session: load the session tokens'
       )
     } catch (err: any) {
-      console.error('Model initialization failed:', err)
+      console.error('[Context] Initialization failed:', err)
       
       // Clean up the file on initialization failure
       try {
+        console.log('[Context] Cleaning up model file')
         const fileInfo = await FileSystem.getInfoAsync(file.uri)
         if (fileInfo.exists) {
           await FileSystem.deleteAsync(file.uri, { idempotent: true })
         }
       } catch (deleteError) {
-        console.warn('Error cleaning up model file:', deleteError)
+        console.warn('[Context] Error cleaning up model file:', deleteError)
       }
 
       // Set error state
@@ -139,9 +152,11 @@ export const useModelContext = (setMessages: any, messages: any[]) => {
         const message = store.selectedModelKey === '1B'
           ? 'Not enough memory to initialize model. Please try again or contact support if the issue persists.'
           : 'Not enough memory to initialize model. Try the 1B model instead.'
+        console.log('[Context] Setting context limit error:', message)
         store.setError(message)
         addSystemMessage(setMessages, [], message)
       } else {
+        console.log('[Context] Setting general error:', err.message)
         store.setError(err.message || 'Failed to initialize model')
         addSystemMessage(setMessages, [], `Model initialization failed: ${err.message}`)
       }
