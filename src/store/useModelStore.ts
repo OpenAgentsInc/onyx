@@ -13,6 +13,7 @@ interface ModelState {
   errorMessage: string | null
   downloadCancelled: boolean
   needsInitialization: boolean
+  initializationAttempts: number
 }
 
 interface ModelActions {
@@ -36,7 +37,10 @@ const initialState: ModelState = {
   errorMessage: null,
   downloadCancelled: false,
   needsInitialization: true,
+  initializationAttempts: 0,
 }
+
+const MAX_INIT_ATTEMPTS = 1 // Only try initialization once
 
 export const useModelStore = create<ModelState & ModelActions>()(
   persist(
@@ -58,6 +62,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           errorMessage: null,
           downloadCancelled: false,
           needsInitialization: true,
+          initializationAttempts: 0,
         })
       },
 
@@ -76,6 +81,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
             progress: 0,
             errorMessage: null,
             downloadCancelled: false,
+            initializationAttempts: 0,
           })
         }
       },
@@ -94,11 +100,26 @@ export const useModelStore = create<ModelState & ModelActions>()(
       },
 
       startInitialization: () => {
-        const { status } = get()
-        console.log('Starting initialization, current status:', status)
+        const { status, initializationAttempts } = get()
+        console.log('Starting initialization, current status:', status, 'attempts:', initializationAttempts)
+        
+        // Check if we've exceeded max attempts
+        if (initializationAttempts >= MAX_INIT_ATTEMPTS) {
+          set({ 
+            status: 'error',
+            errorMessage: 'Model initialization failed after maximum attempts',
+            needsInitialization: true,
+          })
+          return
+        }
+
         // Can start initialization from downloading or releasing state
         if (status === 'downloading' || status === 'releasing' || status === 'idle') {
-          set({ status: 'initializing', progress: 100 })
+          set({ 
+            status: 'initializing', 
+            progress: 100,
+            initializationAttempts: initializationAttempts + 1,
+          })
         }
       },
 
@@ -107,15 +128,20 @@ export const useModelStore = create<ModelState & ModelActions>()(
         set({ 
           status: 'ready', 
           errorMessage: null,
-          needsInitialization: false 
+          needsInitialization: false,
+          initializationAttempts: 0,
         })
       },
 
       setError: (message: string) => {
         console.error('Model error:', message)
+        // Check if it's a context limit error
+        const isContextError = message.toLowerCase().includes('context limit')
         set({
           status: 'error',
-          errorMessage: message,
+          errorMessage: isContextError 
+            ? 'Model initialization failed: Not enough memory available. Try a smaller model.'
+            : message,
           downloadCancelled: true,
           needsInitialization: true,
         })
@@ -129,6 +155,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           progress: 0,
           errorMessage: 'Download cancelled',
           needsInitialization: true,
+          initializationAttempts: 0,
         })
       },
 
@@ -139,6 +166,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           selectedModelKey: get().selectedModelKey, // Keep the selected model
           status: 'idle',
           needsInitialization: true,
+          initializationAttempts: 0,
         })
       },
     }),
@@ -155,6 +183,7 @@ export const useModelStore = create<ModelState & ModelActions>()(
           console.log('Store rehydrated:', state)
           state.status = 'idle'
           state.needsInitialization = true
+          state.initializationAttempts = 0
         }
       }
     }
