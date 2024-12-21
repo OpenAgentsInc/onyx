@@ -28,7 +28,7 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
   embedded = false
 }) => {
   const [modelFiles, setModelFiles] = useState<ModelFile[]>([])
-  const { selectedModelKey, status, progress, selectModel, startInitialization } = useModelStore()
+  const { selectedModelKey, status, progress, selectModel, startInitialization, deleteModel, confirmDeletion } = useModelStore()
   const modelsDir = `${FileSystem.cacheDirectory}models`
 
   const loadModelFiles = async () => {
@@ -73,9 +73,26 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
           style: "destructive",
           onPress: async () => {
             try {
+              console.log(`[Model Delete] Starting deletion process for ${modelKey}`)
               const filePath = `${modelsDir}/${model.filename}`
+              
+              // First notify store to handle any context release
+              deleteModel(modelKey)
+              
+              // Wait a bit for context release if needed
+              await new Promise(resolve => setTimeout(resolve, 500))
+              
+              // Delete the file
+              console.log(`[Model Delete] Deleting file: ${filePath}`)
               await FileSystem.deleteAsync(filePath)
-              await loadModelFiles() // Refresh list
+              
+              // Confirm deletion in store
+              confirmDeletion(modelKey)
+              
+              // Refresh list
+              await loadModelFiles()
+              
+              console.log(`[Model Delete] Successfully deleted model: ${modelKey}`)
             } catch (error) {
               console.error('Failed to delete model file:', error)
               Alert.alert('Error', 'Failed to delete model file')
@@ -106,6 +123,13 @@ export const ModelFileManager: React.FC<ModelFileManagerProps> = ({
       loadModelFiles()
     }
   }, [visible, embedded])
+
+  // Refresh list when model status changes
+  useEffect(() => {
+    if (status === 'idle') {
+      loadModelFiles()
+    }
+  }, [status])
 
   const isModelDownloaded = (modelKey: string) => {
     return modelFiles.some(file => file.modelKey === modelKey)
