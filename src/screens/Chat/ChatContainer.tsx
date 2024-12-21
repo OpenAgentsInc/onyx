@@ -5,6 +5,7 @@ import { useModelStore } from "@/store/useModelStore"
 import { typography } from "@/theme"
 import { monoTheme } from "@/theme/chat"
 import { colors } from "@/theme/colors"
+import { downloadModel } from "@/utils/downloadModel"
 import { Chat } from "@flyerhq/react-native-chat-ui"
 import { Bubble } from "./Bubble"
 import { LoadingIndicator } from "./components/LoadingIndicator"
@@ -13,7 +14,6 @@ import { AVAILABLE_MODELS, defaultConversationId, user } from "./constants"
 import { useChatHandlers } from "./hooks/useChatHandlers"
 import { useModelContext } from "./hooks/useModelContext"
 import { useModelInitialization } from "./hooks/useModelInitialization"
-import { downloadModel } from "@/utils/downloadModel"
 
 import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
@@ -145,7 +145,7 @@ export default function ChatContainer() {
 
         {/* Loading indicator */}
         {showLoadingIndicator && (
-          <LoadingIndicator message="Initializing model..." />
+          <LoadingIndicator message="Initializing model" />
         )}
 
         {/* Download progress */}
