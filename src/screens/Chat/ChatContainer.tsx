@@ -19,17 +19,16 @@ import type { MessageType } from '@flyerhq/react-native-chat-ui'
 
 export default function ChatContainer() {
   const [messages, setMessages] = useState<MessageType.Any[]>([])
-  const [initializing, setInitializing] = useState<boolean>(false) // Start as false
+  const [initializing, setInitializing] = useState<boolean>(false)
   const [inferencing, setInferencing] = useState<boolean>(false)
-  const [downloading, setDownloading] = useState<boolean>(false)
-  const [downloadProgress, setDownloadProgress] = useState<number>(0)
   const [showModelManager, setShowModelManager] = useState<boolean>(false)
 
   const conversationIdRef = useRef<string>(defaultConversationId)
 
   const { context, setContext, handleInitContext } = useModelContext(setMessages, messages)
   const { handleSendPress } = useChatHandlers(context, conversationIdRef, setMessages, messages, setInferencing)
-  const { status, progress, modelPath } = useModelStore()
+  const store = useModelStore()
+  const { status, progress, modelPath } = store
 
   useModelInitialization(setMessages, setInitializing, handleInitContext)
 
@@ -65,27 +64,26 @@ export default function ChatContainer() {
 
   const handleDownloadModel = async (modelKey: string) => {
     setShowModelManager(false) // Close the modal
-    setDownloading(true)
-    setDownloadProgress(0)
+    store.startDownload() // Start download in store
+    
     try {
       const currentModel = AVAILABLE_MODELS[modelKey]
       const file = await downloadModel(
         currentModel.repoId,
         currentModel.filename,
-        (progress) => setDownloadProgress(progress)
+        (progress) => store.updateProgress(Math.round(progress))
       )
       await handleInitContext(file)
     } catch (error) {
       console.error('Download failed:', error)
-    } finally {
-      setDownloading(false)
+      store.setError(error instanceof Error ? error.message : 'Download failed')
     }
   }
 
   return (
     <SafeAreaProvider style={{ width: '100%' }}>
       <View style={{ flex: 1, backgroundColor: '#000' }}>
-        {/* Model manager button - only show when not initializing */}
+        {/* Model manager button - only show when not initializing or downloading */}
         {!showLoadingIndicator && !showDownloadProgress && (
           <View style={{
             position: 'absolute',
