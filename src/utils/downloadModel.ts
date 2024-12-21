@@ -46,7 +46,6 @@ export async function downloadModel(
       try {
         if (fileInfo.size && fileInfo.size > 0) {
           store.setModelPath(filepath)
-          store.startInitialization() // Start initialization for existing file
           return { uri: filepath } as DocumentPickerResponse
         }
       } catch (e) {
@@ -92,7 +91,6 @@ export async function downloadModel(
     }
 
     store.setModelPath(filepath)
-    store.startInitialization() // Start initialization after successful download
     return { uri: filepath } as DocumentPickerResponse
   } catch (error) {
     console.error('Download error:', error)
