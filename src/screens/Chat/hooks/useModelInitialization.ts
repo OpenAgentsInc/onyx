@@ -116,7 +116,8 @@ export const useModelInitialization = (
         } else {
           console.log(`No model file found for ${selectedModelKey}`)
           setInitializing(false)
-          store.reset()
+          // Just reset to idle without trying to initialize
+          store.setIdle()
         }
       } catch (error) {
         console.error('Model initialization failed:', error)
