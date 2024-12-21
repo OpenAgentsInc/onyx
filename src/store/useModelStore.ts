@@ -46,6 +46,17 @@ const initialState: ModelState = {
 
 const MAX_INIT_ATTEMPTS = 1 // Only try initialization once
 
+// Helper to extract model key from path
+const getModelKeyFromPath = (path: string | null): string | null => {
+  if (!path) return null
+  for (const [key, model] of Object.entries(AVAILABLE_MODELS)) {
+    if (path.includes(model.filename)) {
+      return key
+    }
+  }
+  return null
+}
+
 export const useModelStore = create<ModelState & ModelActions>()(
   persist(
     (set, get) => ({
@@ -106,12 +117,23 @@ export const useModelStore = create<ModelState & ModelActions>()(
 
       setModelPath: (path: string) => {
         console.log('Setting model path:', path)
-        // When setting model path, immediately go to initializing state
-        set({ 
-          modelPath: path,
-          status: 'initializing',
-          initializationAttempts: 0,
-        })
+        // When setting model path, update selected model key if needed
+        const modelKey = getModelKeyFromPath(path)
+        if (modelKey) {
+          set({ 
+            modelPath: path,
+            selectedModelKey: modelKey,
+            status: 'initializing',
+            initializationAttempts: 0,
+          })
+        } else {
+          console.error('Could not determine model key from path:', path)
+          set({ 
+            modelPath: path,
+            status: 'initializing',
+            initializationAttempts: 0,
+          })
+        }
       },
 
       startInitialization: () => {
@@ -189,11 +211,14 @@ export const useModelStore = create<ModelState & ModelActions>()(
       reset: () => {
         console.log('Resetting store to idle state')
         const { modelPath } = get()
+        // If we have a model path, try to determine the correct model key
+        const modelKey = modelPath ? getModelKeyFromPath(modelPath) : get().selectedModelKey
+        
         set({
           ...initialState,
-          selectedModelKey: get().selectedModelKey, // Keep the selected model
+          selectedModelKey: modelKey || get().selectedModelKey,
           modelPath, // Keep the model path
-          status: modelPath ? 'initializing' : 'idle', // If we have a model, try to initialize it
+          status: modelPath ? 'initializing' : 'idle',
           needsInitialization: true,
           initializationAttempts: 0,
         })
@@ -249,14 +274,14 @@ export const useModelStore = create<ModelState & ModelActions>()(
         modelPath: state.modelPath,
       }),
       onRehydrateStorage: () => (state) => {
-        // When store rehydrates, if we have a model path, go straight to initialization
+        // When store rehydrates, determine correct model key from path
         if (state) {
           console.log('Store rehydrated:', state)
-          if (state.modelPath) {
-            state.status = 'initializing'
-          } else {
-            state.status = 'idle'
+          const modelKey = getModelKeyFromPath(state.modelPath)
+          if (modelKey && modelKey !== state.selectedModelKey) {
+            state.selectedModelKey = modelKey
           }
+          state.status = state.modelPath ? 'initializing' : 'idle'
           state.needsInitialization = true
           state.initializationAttempts = 0
         }
