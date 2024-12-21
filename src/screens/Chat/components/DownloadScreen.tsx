@@ -102,7 +102,7 @@ export function DownloadScreen({
 
       {/* Loading indicator */}
       {initializing && (
-        <LoadingIndicator message="Initializing model..." />
+        <LoadingIndicator message="Initializing model" />
       )}
 
       {/* Download progress */}
