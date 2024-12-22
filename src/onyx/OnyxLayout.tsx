@@ -35,7 +35,8 @@ export const OnyxLayout = () => {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: 'black' }}>
+      {/* Modals */}
       <TextInputModal
         visible={showTextInput}
         onClose={() => setShowTextInput(false)}
@@ -55,23 +56,34 @@ export const OnyxLayout = () => {
 
       <DownloadModal />
 
+      {/* Configure Button */}
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={handleConfigurePress}
-        style={[styles.configureButton, { pointerEvents: "box-none" }]}
+        style={styles.configureButton}
       >
         <Image
           source={require("../../assets/icons/configure.png")}
           style={{ width: "100%", height: "100%" }}
+          resizeMode="contain"
         />
       </TouchableOpacity>
 
+      {/* Bottom Buttons */}
       <View style={styles.bottomButtons}>
         <TouchableOpacity activeOpacity={0.8} onPress={handleTextPress}>
-          <Image source={require("../../assets/icons/text.png")} style={styles.iconButton} />
+          <Image 
+            source={require("../../assets/icons/text.png")} 
+            style={styles.iconButton}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
         <TouchableOpacity activeOpacity={0.8} onPress={handleVoicePress}>
-          <Image source={require("../../assets/icons/voice.png")} style={styles.iconButton} />
+          <Image 
+            source={require("../../assets/icons/voice.png")} 
+            style={styles.iconButton}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
       </View>
     </View>
