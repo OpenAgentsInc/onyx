@@ -8,12 +8,20 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "flex-end",
   },
+  modalContent: {
+    height: "50%",
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: "hidden",
+  },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 15,
+    alignItems: "center",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   buttonText: {
     fontSize: 17,
@@ -29,10 +37,12 @@ export const styles = StyleSheet.create({
     color: "#666",
   },
   input: {
+    flex: 1,
     color: "#fff",
     fontSize: 17,
     paddingHorizontal: 20,
-    paddingTop: 0,
+    paddingTop: 16,
+    paddingBottom: 16,
     fontFamily: typography.primary.normal,
   },
   bottomButtons: {
