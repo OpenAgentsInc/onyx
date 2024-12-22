@@ -16,6 +16,10 @@ export const OnyxLayout = () => {
     setShowVoiceInput(true)
   }
 
+  const handleConfigurePress = () => {
+    console.log("Configure button pressed")
+  }
+
   const handleTextSend = (text: string) => {
     // TODO: Handle sending text message
     console.log("Sending text:", text)
@@ -40,6 +44,17 @@ export const OnyxLayout = () => {
         onClose={() => setShowVoiceInput(false)}
         onSend={handleVoiceSend}
       />
+
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={handleConfigurePress}
+        style={styles.configureButton}
+      >
+        <Image
+          source={require("../../assets/icons/configure.png")}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </TouchableOpacity>
 
       <View style={styles.bottomButtons}>
         <TouchableOpacity
