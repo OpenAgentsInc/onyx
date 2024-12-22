@@ -1,36 +1,40 @@
 import { flow } from "mobx-state-tree"
-import { LocalModelService } from "@/services/local-models/LocalModelService"
 import { log } from "@/utils/log"
 import { ILLMStore, IModelInfo } from "../types"
+import * as FileSystem from "expo-file-system"
 
-export const withInitialize = (self: ILLMStore) => ({
-  initialize: flow(function* () {
-    try {
-      const localModelService = new LocalModelService()
+const MODELS_DIR = `${FileSystem.cacheDirectory}models`
 
-      // Fetch info for all models
-      const models = yield localModelService.getLocalModels()
-      self.models.replace(models)
+export const withInitialize = (self: ILLMStore) => {
+  return {
+    initialize: flow(function* () {
+      try {
+        log.debug("[LLMStore] Starting initialization")
 
-      // If we have a ready model, select it
-      const readyModel = models.find((m: IModelInfo) => m.status === "ready")
-      if (readyModel) {
-        self.selectedModelKey = readyModel.key
+        // Ensure models directory exists
+        yield FileSystem.makeDirectoryAsync(MODELS_DIR, { intermediates: true })
+
+        // Check each model's file
+        for (const model of self.models) {
+          if (model.path) {
+            const fileInfo = yield FileSystem.getInfoAsync(model.path)
+            if (!fileInfo.exists) {
+              model.path = null
+              model.status = "idle"
+            } else {
+              model.status = "ready"
+            }
+          }
+        }
+
+        self.isInitialized = true
+        self.error = null
+        log.debug("[LLMStore] Initialization complete")
+      } catch (error) {
+        log.error("[LLMStore] Initialization error:", error)
+        self.error = error instanceof Error ? error.message : "Failed to initialize"
+        throw error
       }
-
-      self.isInitialized = true
-      self.error = null
-
-      log({
-        name: "LLMStore",
-        value: self,
-        preview: "Initialized",
-        important: true,
-      })
-    } catch (error) {
-      console.error("[LLMStore] Initialization error:", error)
-      self.error = error instanceof Error ? error.message : "Failed to initialize LLM store"
-      throw error
-    }
-  })
-})
+    })
+  }
+}
