@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { Alert, Modal, Text, TouchableOpacity, View } from "react-native"
 import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
 import { useModelStore } from "@/store/useModelStore"
+import { useModelDownload } from "../hooks/useModelDownload"
 import { styles } from "./styles"
 
 interface ConfigureModalProps {
@@ -12,6 +13,9 @@ interface ConfigureModalProps {
 
 export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   const [modelFiles, setModelFiles] = useState<string[]>([])
+  // Inside the ConfigureModal component:
+  const { startDownload } = useModelDownload()
+
   const {
     selectedModelKey,
     status,
@@ -20,7 +24,6 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
     startInitialization,
     deleteModel,
     confirmDeletion,
-    startDownload,
   } = useModelStore()
 
   const modelsDir = `${FileSystem.cacheDirectory}models`
@@ -96,16 +99,24 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
     onClose()
   }
 
+  // Then replace the handleDownloadPress function with:
   const handleDownloadPress = (modelKey: string) => {
     // First select the model
     selectModel(modelKey)
-
-    // Start download
+    // Start download using the new hook
     startDownload()
-
-    // Close the modal
-    onClose()
   }
+
+  // const handleDownloadPress = (modelKey: string) => {
+  //   // First select the model
+  //   selectModel(modelKey)
+
+  //   // Start download
+  //   startDownload()
+
+  //   // Close the modal
+  //   onClose()
+  // }
 
   useEffect(() => {
     if (visible) {
