@@ -1,6 +1,7 @@
 import { flow, getType } from "mobx-state-tree"
 import { ILLMStore, IModelInfo } from "../types"
 import * as FileSystem from "expo-file-system"
+import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
 
 const MODELS_DIR = `${FileSystem.cacheDirectory}models`
 
@@ -67,21 +68,26 @@ export const withModelManagement = (self: ILLMStore) => {
           throw new Error("Model not found")
         }
 
+        // Get model config
+        const modelConfig = AVAILABLE_MODELS[modelKey]
+        if (!modelConfig) {
+          throw new Error("Model configuration not found")
+        }
+
         // Update status
         setModelStatus(modelIndex, "downloading")
         setModelError(modelIndex, undefined)
 
         // Create temp path
-        const model = self.models[modelIndex]
-        const tempPath = `${FileSystem.cacheDirectory}temp_${model.key}`
-        const finalPath = `${MODELS_DIR}/${model.key}`
+        const tempPath = `${FileSystem.cacheDirectory}temp_${modelKey}`
+        const finalPath = `${MODELS_DIR}/${modelKey}`
 
         // Ensure directory exists
         yield FileSystem.makeDirectoryAsync(MODELS_DIR, { intermediates: true })
 
         // Start download
         downloadResumable = FileSystem.createDownloadResumable(
-          `https://huggingface.co/${model.key}/resolve/main/${model.key}`,
+          `https://huggingface.co/${modelConfig.repoId}/resolve/main/${modelConfig.filename}`,
           tempPath,
           {},
           (downloadProgress) => {
