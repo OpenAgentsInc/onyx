@@ -1,8 +1,8 @@
+import * as FileSystem from "expo-file-system"
 import React, { useEffect, useState } from "react"
 import { Alert, Modal, Pressable, SafeAreaView, Text, TouchableOpacity, View } from "react-native"
-import * as FileSystem from 'expo-file-system'
-import { useModelStore } from "@/store/useModelStore"
 import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
+import { useModelStore } from "@/store/useModelStore"
 import { styles } from "./styles"
 
 interface ConfigureModalProps {
@@ -12,15 +12,15 @@ interface ConfigureModalProps {
 
 export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   const [modelFiles, setModelFiles] = useState<string[]>([])
-  const { 
-    selectedModelKey, 
-    status, 
-    progress, 
-    selectModel, 
+  const {
+    selectedModelKey,
+    status,
+    progress,
+    selectModel,
     startInitialization,
     deleteModel,
     confirmDeletion,
-    startDownload
+    startDownload,
   } = useModelStore()
 
   const modelsDir = `${FileSystem.cacheDirectory}models`
@@ -39,7 +39,7 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
       const files = await FileSystem.readDirectoryAsync(modelsDir)
       setModelFiles(files)
     } catch (error) {
-      console.error('Failed to load model files:', error)
+      console.error("Failed to load model files:", error)
     }
   }
 
@@ -57,41 +57,41 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
             try {
               console.log(`[Model Delete] Starting deletion process for ${modelKey}`)
               const filePath = `${modelsDir}/${model.filename}`
-              
+
               // First notify store to handle any context release
               deleteModel(modelKey)
-              
+
               // Wait a bit for context release if needed
-              await new Promise(resolve => setTimeout(resolve, 500))
-              
+              await new Promise((resolve) => setTimeout(resolve, 500))
+
               // Delete the file
               console.log(`[Model Delete] Deleting file: ${filePath}`)
               await FileSystem.deleteAsync(filePath)
-              
+
               // Confirm deletion in store
               confirmDeletion(modelKey)
-              
+
               // Refresh list
               await loadModelFiles()
-              
+
               console.log(`[Model Delete] Successfully deleted model: ${modelKey}`)
             } catch (error) {
-              console.error('Failed to delete model file:', error)
-              Alert.alert('Error', 'Failed to delete model file')
+              console.error("Failed to delete model file:", error)
+              Alert.alert("Error", "Failed to delete model file")
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     )
   }
 
   const handleSelectModel = async (modelKey: string) => {
     // First select the model in the store
     selectModel(modelKey)
-    
+
     // Start initialization
     startInitialization()
-    
+
     // Close the modal
     onClose()
   }
@@ -99,10 +99,10 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   const handleDownloadPress = (modelKey: string) => {
     // First select the model
     selectModel(modelKey)
-    
+
     // Start download
     startDownload()
-    
+
     // Close the modal
     onClose()
   }
@@ -115,7 +115,7 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
 
   // Refresh list when model status changes
   useEffect(() => {
-    if (status === 'idle') {
+    if (status === "idle") {
       loadModelFiles()
     }
   }, [status])
@@ -126,14 +126,14 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   }
 
   const getModelSize = (modelKey: string): string => {
-    return modelKey === '1B' ? '770 MB' : '2.1 GB'
+    return modelKey === "1B" ? "770 MB" : "2.1 GB"
   }
 
   const isModelActive = (modelKey: string) => {
-    return modelKey === selectedModelKey && status === 'ready'
+    return modelKey === selectedModelKey && status === "ready"
   }
 
-  const isDownloading = status === 'downloading'
+  const isDownloading = status === "downloading"
 
   return (
     <Modal
@@ -148,16 +148,12 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
             <Text style={styles.headerTitle}>Configure Onyx</Text>
             <TouchableOpacity
               onPress={onClose}
-              style={[
-                styles.closeButton,
-                isDownloading && styles.closeButtonDisabled
-              ]}
+              style={[styles.closeButton, isDownloading && styles.closeButtonDisabled]}
               disabled={isDownloading}
             >
-              <Text style={[
-                styles.closeButtonText,
-                isDownloading && styles.closeButtonTextDisabled
-              ]}>
+              <Text
+                style={[styles.closeButtonText, isDownloading && styles.closeButtonTextDisabled]}
+              >
                 Done
               </Text>
             </TouchableOpacity>
@@ -196,28 +192,17 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
                   ) : (
                     <TouchableOpacity
                       onPress={() => handleDownloadPress(key)}
-                      style={[
-                        styles.downloadButton,
-                        downloading && styles.downloadingButton
-                      ]}
+                      style={[styles.downloadButton, downloading && styles.downloadingButton]}
                       disabled={isDownloading}
                     >
                       <Text style={styles.downloadButtonText}>
-                        {downloading ? `${progress}%` : 'Download'}
+                        {downloading ? `${progress}%` : "Download"}
                       </Text>
                     </TouchableOpacity>
                   )}
                 </View>
               )
             })}
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Storage</Text>
-            <View style={styles.storageInfo}>
-              <Text style={styles.storageText}>Used: 770 MB</Text>
-              <Text style={styles.storageText}>Available: 12.3 GB</Text>
-            </View>
           </View>
         </View>
       </SafeAreaView>
