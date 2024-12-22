@@ -22,7 +22,7 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
     Voice.onSpeechEnd = () => {
       setIsRecording(false)
       // Automatically restart recording when speech ends
-      if (hasPermission) {
+      if (hasPermission && visible) {
         startRecording()
       }
     }
@@ -39,7 +39,7 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
     return () => {
       Voice.destroy().then(Voice.removeAllListeners)
     }
-  }, [hasPermission])
+  }, [hasPermission, visible])
 
   // Start recording when modal becomes visible and we have permission
   useEffect(() => {
@@ -50,8 +50,7 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
         handleRequestPermission()
       }
     } else {
-      stopRecording()
-      setTranscribedText("")
+      cleanup()
     }
   }, [visible, hasPermission, isChecking])
 
@@ -61,6 +60,18 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
       startRecording()
     } else {
       setError("Microphone permission is required for voice input")
+    }
+  }
+
+  const cleanup = async () => {
+    try {
+      await Voice.stop()
+      await Voice.destroy()
+      setTranscribedText("")
+      setError("")
+      setIsRecording(false)
+    } catch (e) {
+      console.error("Error cleaning up voice:", e)
     }
   }
 
@@ -82,19 +93,16 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
   }
 
   const handleCancel = async () => {
-    await stopRecording()
-    setTranscribedText("")
-    setError("")
+    await cleanup()
     onClose()
   }
 
   const handleSend = async () => {
-    await stopRecording()
-    if (transcribedText) {
-      onSend(transcribedText)
+    const textToSend = transcribedText // Capture current text
+    await cleanup()
+    if (textToSend) {
+      onSend(textToSend)
     }
-    setTranscribedText("")
-    setError("")
     onClose()
   }
 
