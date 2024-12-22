@@ -31,7 +31,7 @@
         "ENVIRONMENT": "development"
       },
       "environment": "development",
-      "channel": "development:device"
+      "channel": "development-device"
     },
     "preview": {
       "extends": "production",
@@ -57,7 +57,7 @@
         "ENVIRONMENT": "preview"
       },
       "environment": "preview",
-      "channel": "preview:device"
+      "channel": "preview-device"
     },
     "production": {
       "autoIncrement": true,
