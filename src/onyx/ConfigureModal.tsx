@@ -1,5 +1,4 @@
-import * as FileSystem from "expo-file-system"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { Alert, Modal, Text, TouchableOpacity, View, ActivityIndicator } from "react-native"
 import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
 import { useStores } from "@/models"
@@ -12,24 +11,6 @@ interface ConfigureModalProps {
 
 export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   const { llmStore } = useStores()
-  const [modelFiles, setModelFiles] = useState<string[]>([])
-
-  const modelsDir = `${FileSystem.cacheDirectory}models`
-
-  const loadModelFiles = async () => {
-    try {
-      const dirInfo = await FileSystem.getInfoAsync(modelsDir)
-      if (!dirInfo.exists) {
-        await FileSystem.makeDirectoryAsync(modelsDir, { intermediates: true })
-        setModelFiles([])
-        return
-      }
-      const files = await FileSystem.readDirectoryAsync(modelsDir)
-      setModelFiles(files)
-    } catch (error) {
-      console.error("Failed to load model files:", error)
-    }
-  }
 
   const handleDeleteModel = async (modelKey: string) => {
     const model = AVAILABLE_MODELS[modelKey]
@@ -44,7 +25,6 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
           onPress: async () => {
             try {
               await llmStore.deleteModel(modelKey)
-              await loadModelFiles()
             } catch (error) {
               Alert.alert("Error", "Failed to delete model file")
             }
@@ -66,16 +46,6 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   const handleCancelDownload = (modelKey: string) => {
     llmStore.cancelModelDownload(modelKey)
   }
-
-  useEffect(() => {
-    if (visible) {
-      loadModelFiles()
-    }
-  }, [visible])
-
-  useEffect(() => {
-    loadModelFiles()
-  }, [llmStore.models])
 
   const isModelDownloaded = (modelKey: string) => {
     const model = llmStore.models.find(m => m.key === modelKey)
