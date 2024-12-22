@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
-import { Modal, Pressable, Text, View } from "react-native"
+import { Modal, Pressable, Text, View, ActivityIndicator } from "react-native"
 import Voice, { SpeechResultsEvent } from "@react-native-voice/voice"
 import { styles } from "./styles"
+import { useVoicePermissions } from "../hooks/useVoicePermissions"
 
 interface VoiceInputModalProps {
   visible: boolean
@@ -13,6 +14,7 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
   const [isRecording, setIsRecording] = useState(false)
   const [transcribedText, setTranscribedText] = useState("")
   const [error, setError] = useState("")
+  const { hasPermission, isChecking, requestPermissions } = useVoicePermissions()
 
   useEffect(() => {
     // Initialize voice handlers
@@ -20,7 +22,9 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
     Voice.onSpeechEnd = () => {
       setIsRecording(false)
       // Automatically restart recording when speech ends
-      startRecording()
+      if (hasPermission) {
+        startRecording()
+      }
     }
     Voice.onSpeechResults = (e: SpeechResultsEvent) => {
       if (e.value) {
@@ -35,16 +39,29 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
     return () => {
       Voice.destroy().then(Voice.removeAllListeners)
     }
-  }, [])
+  }, [hasPermission])
 
-  // Start recording when modal becomes visible
+  // Start recording when modal becomes visible and we have permission
   useEffect(() => {
     if (visible) {
-      startRecording()
+      if (hasPermission) {
+        startRecording()
+      } else if (!isChecking) {
+        handleRequestPermission()
+      }
     } else {
       stopRecording()
     }
-  }, [visible])
+  }, [visible, hasPermission, isChecking])
+
+  const handleRequestPermission = async () => {
+    const granted = await requestPermissions()
+    if (granted) {
+      startRecording()
+    } else {
+      setError("Microphone permission is required for voice input")
+    }
+  }
 
   const startRecording = async () => {
     try {
@@ -103,9 +120,15 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
         </View>
 
         <View style={styles.voiceContainer}>
-          <Text style={styles.transcriptionText}>
-            {error ? error : (isRecording ? "Listening..." : transcribedText || "Starting...")}
-          </Text>
+          {isChecking ? (
+            <ActivityIndicator size="large" color="#fff" />
+          ) : error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : (
+            <Text style={styles.transcriptionText}>
+              {isRecording ? "Listening..." : transcribedText || "Starting..."}
+            </Text>
+          )}
         </View>
       </View>
     </Modal>
