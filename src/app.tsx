@@ -16,9 +16,11 @@ import { AppRegistry, Image, View, ViewStyle } from "react-native"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
+import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore, useStores } from "./models"
 import { OnyxLayout } from "./onyx/OnyxLayout"
+import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
