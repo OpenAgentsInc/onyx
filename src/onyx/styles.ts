@@ -2,6 +2,32 @@ import { StyleSheet } from "react-native"
 import { colors } from "@/theme/colors"
 
 export const styles = StyleSheet.create({
+  // Layout styles
+  bottomButtons: {
+    position: "absolute",
+    bottom: 50,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
+    zIndex: 8,
+  },
+  iconButton: {
+    width: 56,
+    height: 56,
+  },
+  configureButton: {
+    width: 40,
+    height: 40,
+    position: "absolute",
+    right: 20,
+    top: 70,
+    zIndex: 10,
+  },
+
+  // Modal styles
   modalContainer: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -124,5 +150,34 @@ export const styles = StyleSheet.create({
   cancelButtonText: {
     color: colors.textDim,
     fontSize: 14,
+  },
+
+  // Voice recording styles
+  voiceContainer: {
+    flex: 1,
+    justifyContent: "flex-start",
+    alignItems: "stretch",
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  transcriptionContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+  listeningText: {
+    color: "#888",
+    fontSize: 15,
+    marginBottom: 20,
+  },
+  transcriptionText: {
+    color: colors.text,
+    fontSize: 24,
+    textAlign: "center",
+    lineHeight: 36,
+  },
+  placeholderText: {
+    color: colors.textDim,
+    fontSize: 24,
+    textAlign: "center",
   },
 })
