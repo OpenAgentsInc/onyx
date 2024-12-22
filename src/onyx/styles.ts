@@ -59,10 +59,20 @@ export const styles = StyleSheet.create({
   // Voice recording styles
   voiceContainer: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
+    alignItems: "stretch",
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  transcriptionContainer: {
+    flex: 1,
     alignItems: "center",
-    paddingHorizontal: 40,
-    paddingVertical: 20,
+  },
+  listeningText: {
+    color: "#888",
+    fontSize: 15,
+    fontFamily: typography.primary.normal,
+    marginBottom: 20,
   },
   transcriptionText: {
     color: "#fff",
@@ -70,6 +80,12 @@ export const styles = StyleSheet.create({
     fontFamily: typography.primary.normal,
     textAlign: "center",
     lineHeight: 36,
+  },
+  placeholderText: {
+    color: "#666",
+    fontSize: 24,
+    fontFamily: typography.primary.normal,
+    textAlign: "center",
   },
   errorText: {
     color: "#ff4444",
