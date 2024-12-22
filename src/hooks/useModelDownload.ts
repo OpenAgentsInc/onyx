@@ -55,15 +55,16 @@ export const useModelDownload = () => {
         {
           text: "Download",
           onPress: async () => {
+            const tempPath = `${FileSystem.cacheDirectory}temp_${model.filename}`
+            const finalPath = `${MODELS_DIR}/${model.filename}`
+            let downloadResumable: FileSystem.DownloadResumable | null = null
+
             try {
               // First set the store status to downloading
               startDownload()
 
-              const tempPath = `${FileSystem.cacheDirectory}temp_${model.filename}`
-              const finalPath = `${MODELS_DIR}/${model.filename}`
-
               // Create download
-              const downloadResumable = FileSystem.createDownloadResumable(
+              downloadResumable = FileSystem.createDownloadResumable(
                 `https://huggingface.co/${model.repoId}/resolve/main/${model.filename}`,
                 tempPath,
                 {},
@@ -98,10 +99,24 @@ export const useModelDownload = () => {
               console.error("Download error:", error)
               setError(error.message || "Failed to download model")
 
-              // Clean up temp file
+              // Clean up temp file if it exists
               try {
-                await FileSystem.deleteAsync(tempPath)
-              } catch { }
+                const tempFileInfo = await FileSystem.getInfoAsync(tempPath)
+                if (tempFileInfo.exists) {
+                  await FileSystem.deleteAsync(tempPath)
+                }
+              } catch (cleanupError) {
+                console.error("Error cleaning up temp file:", cleanupError)
+              }
+
+              // Cancel download if it's still active
+              if (downloadResumable) {
+                try {
+                  await downloadResumable.cancelAsync()
+                } catch (cancelError) {
+                  console.error("Error canceling download:", cancelError)
+                }
+              }
             }
           }
         }
