@@ -1,8 +1,8 @@
 import { flow } from "mobx-state-tree"
 import { LocalModelService } from "@/services/local-models/LocalModelService"
-import { LLMStore } from "../types"
+import { ILLMStore, IModelInfo } from "../types"
 
-export const withInitialize = (self: LLMStore) => ({
+export const withInitialize = (self: ILLMStore) => ({
   initialize: flow(function* () {
     try {
       const localModelService = new LocalModelService()
@@ -12,7 +12,7 @@ export const withInitialize = (self: LLMStore) => ({
       self.models.replace(models)
 
       // If we have a ready model, select it
-      const readyModel = models.find(m => m.status === "ready")
+      const readyModel = models.find((m: IModelInfo) => m.status === "ready")
       if (readyModel) {
         self.selectedModelKey = readyModel.key
       }
