@@ -5,10 +5,11 @@ import { useFonts } from "expo-font"
 import * as SplashScreen from "expo-splash-screen"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
-import { AppRegistry, View, ViewStyle } from "react-native"
+import { AppRegistry, Image, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
+import { OnyxLayout } from "./onyx/OnyxLayout"
 import ChatContainer from "./screens/Chat/ChatContainer"
 
 function App() {
@@ -29,7 +30,7 @@ function App() {
   return (
     <View style={$container}>
       <StatusBar style="light" />
-      <View
+      {/* <View
         style={{
           position: "absolute",
           backgroundColor: "#1B1B1B",
@@ -40,7 +41,9 @@ function App() {
           zIndex: 8,
           borderRadius: 10,
         }}
-      />
+      /> */}
+      <OnyxLayout />
+
       <View style={$canvasContainer}>
         <Canvas />
       </View>
