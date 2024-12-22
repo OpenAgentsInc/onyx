@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
-import { Modal, Pressable, Text, View, Platform } from "react-native"
-import Voice, { SpeechResultsEvent } from "@react-native-voice/voice"
+import { Modal, Pressable, Text, View } from "react-native"
+import * as Speech from "expo-speech"
+import * as Permissions from "expo-permissions"
 import { styles } from "./styles"
 
 interface VoiceInputModalProps {
@@ -15,37 +16,44 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
   const [error, setError] = useState("")
 
   useEffect(() => {
-    // Initialize voice
-    Voice.onSpeechStart = () => setIsRecording(true)
-    Voice.onSpeechEnd = () => setIsRecording(false)
-    Voice.onSpeechResults = (e: SpeechResultsEvent) => {
-      if (e.value) {
-        setTranscribedText(e.value[0])
-      }
-    }
-    Voice.onSpeechError = (e: any) => {
-      setError(e.error?.message || "Error occurred")
-      setIsRecording(false)
-    }
-
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners)
-    }
+    checkPermissions()
   }, [])
+
+  const checkPermissions = async () => {
+    const { status } = await Permissions.askAsync(Permissions.AUDIO_RECORDING)
+    if (status !== "granted") {
+      setError("Microphone permission not granted")
+    }
+  }
 
   const startRecording = async () => {
     try {
       setError("")
       setTranscribedText("")
-      await Voice.start(Platform.OS === "ios" ? "en-US" : "en")
+      setIsRecording(true)
+      
+      const options = {
+        language: "en-US",
+        onResult: (result: { value: string }) => {
+          setTranscribedText(result.value)
+        },
+        onError: (error: Error) => {
+          setError(error.message)
+          setIsRecording(false)
+        }
+      }
+
+      await Speech.startListeningAsync(options)
     } catch (e: any) {
       setError(e.message || "Error starting recording")
+      setIsRecording(false)
     }
   }
 
   const stopRecording = async () => {
     try {
-      await Voice.stop()
+      await Speech.stopListeningAsync()
+      setIsRecording(false)
     } catch (e: any) {
       setError(e.message || "Error stopping recording")
     }
