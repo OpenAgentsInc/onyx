@@ -1,10 +1,9 @@
 import { useState } from "react"
 import { Image, TouchableOpacity, View } from "react-native"
+import { ConfigureModal } from "./ConfigureModal"
 import { styles } from "./styles"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
-import { ConfigureModal } from "./ConfigureModal"
-import { DownloadModal } from "./DownloadModal"
 
 export const OnyxLayout = () => {
   const [showTextInput, setShowTextInput] = useState(false)
@@ -35,7 +34,7 @@ export const OnyxLayout = () => {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'black' }}>
+    <View style={{ flex: 1, backgroundColor: "black" }}>
       {/* Modals */}
       <TextInputModal
         visible={showTextInput}
@@ -49,12 +48,7 @@ export const OnyxLayout = () => {
         onSend={handleVoiceSend}
       />
 
-      <ConfigureModal
-        visible={showConfigureModal}
-        onClose={() => setShowConfigureModal(false)}
-      />
-
-      <DownloadModal />
+      <ConfigureModal visible={showConfigureModal} onClose={() => setShowConfigureModal(false)} />
 
       {/* Configure Button */}
       <TouchableOpacity
@@ -72,15 +66,15 @@ export const OnyxLayout = () => {
       {/* Bottom Buttons */}
       <View style={styles.bottomButtons}>
         <TouchableOpacity activeOpacity={0.8} onPress={handleTextPress}>
-          <Image 
-            source={require("../../assets/icons/text.png")} 
+          <Image
+            source={require("../../assets/icons/text.png")}
             style={styles.iconButton}
             resizeMode="contain"
           />
         </TouchableOpacity>
         <TouchableOpacity activeOpacity={0.8} onPress={handleVoicePress}>
-          <Image 
-            source={require("../../assets/icons/voice.png")} 
+          <Image
+            source={require("../../assets/icons/voice.png")}
             style={styles.iconButton}
             resizeMode="contain"
           />
