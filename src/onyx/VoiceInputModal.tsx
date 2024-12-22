@@ -17,7 +17,11 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
   useEffect(() => {
     // Initialize voice handlers
     Voice.onSpeechStart = () => setIsRecording(true)
-    Voice.onSpeechEnd = () => setIsRecording(false)
+    Voice.onSpeechEnd = () => {
+      setIsRecording(false)
+      // Automatically restart recording when speech ends
+      startRecording()
+    }
     Voice.onSpeechResults = (e: SpeechResultsEvent) => {
       if (e.value) {
         setTranscribedText(e.value[0])
@@ -33,10 +37,18 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
     }
   }, [])
 
+  // Start recording when modal becomes visible
+  useEffect(() => {
+    if (visible) {
+      startRecording()
+    } else {
+      stopRecording()
+    }
+  }, [visible])
+
   const startRecording = async () => {
     try {
       setError("")
-      setTranscribedText("")
       await Voice.start("en-US")
     } catch (e: any) {
       setError(e.message || "Error starting recording")
@@ -52,18 +64,14 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
   }
 
   const handleCancel = async () => {
-    if (isRecording) {
-      await stopRecording()
-    }
+    await stopRecording()
     setTranscribedText("")
     setError("")
     onClose()
   }
 
   const handleSend = async () => {
-    if (isRecording) {
-      await stopRecording()
-    }
+    await stopRecording()
     if (transcribedText) {
       onSend(transcribedText)
     }
@@ -95,22 +103,9 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
         </View>
 
         <View style={styles.voiceContainer}>
-          <Pressable 
-            onPress={isRecording ? stopRecording : startRecording}
-            style={[styles.recordButton, isRecording && styles.recordingButton]}
-          >
-            <Text style={styles.recordButtonText}>
-              {isRecording ? "Stop" : "Start Recording"}
-            </Text>
-          </Pressable>
-
-          {error ? (
-            <Text style={styles.errorText}>{error}</Text>
-          ) : (
-            <Text style={styles.transcriptionText}>
-              {isRecording ? "Listening..." : transcribedText || "Tap button to start recording"}
-            </Text>
-          )}
+          <Text style={styles.transcriptionText}>
+            {error ? error : (isRecording ? "Listening..." : transcribedText || "Starting...")}
+          </Text>
         </View>
       </View>
     </Modal>
