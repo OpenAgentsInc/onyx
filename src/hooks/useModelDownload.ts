@@ -13,7 +13,8 @@ export const useModelDownload = () => {
     setModelPath,
     setError,
     cancelDownload,
-    startModelDownload,
+    startDownload,
+    updateProgress,
   } = useModelStore()
 
   // Ensure models directory exists
@@ -34,7 +35,7 @@ export const useModelDownload = () => {
     }
   }, [status, cancelDownload])
 
-  const startDownload = useCallback(async () => {
+  const startModelDownload = useCallback(async () => {
     const model = AVAILABLE_MODELS[selectedModelKey]
     if (!model) {
       setError("Invalid model selected")
@@ -53,13 +54,58 @@ export const useModelDownload = () => {
         { text: "Cancel", style: "cancel" },
         {
           text: "Download",
-          onPress: () => {
-            startModelDownload(selectedModelKey)
+          onPress: async () => {
+            try {
+              // First set the store status to downloading
+              startDownload()
+
+              const tempPath = `${FileSystem.cacheDirectory}temp_${model.filename}`
+              const finalPath = `${MODELS_DIR}/${model.filename}`
+
+              // Create download
+              const downloadResumable = FileSystem.createDownloadResumable(
+                `https://huggingface.co/${model.repoId}/resolve/main/${model.filename}`,
+                tempPath,
+                {},
+                (downloadProgress) => {
+                  const progress =
+                    (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100
+                  updateProgress(progress)
+                }
+              )
+
+              // Start download
+              const { uri } = await downloadResumable.downloadAsync()
+
+              // Validate file
+              const fileInfo = await FileSystem.getInfoAsync(uri)
+              if (!fileInfo.exists || fileInfo.size < 100 * 1024 * 1024) {
+                throw new Error("Downloaded file is invalid or too small")
+              }
+
+              // Move to final location
+              await FileSystem.moveAsync({
+                from: uri,
+                to: finalPath
+              })
+
+              // Update state with final path
+              setModelPath(finalPath)
+
+            } catch (error: any) {
+              console.error("Download error:", error)
+              setError(error.message || "Failed to download model")
+
+              // Clean up temp file
+              try {
+                await FileSystem.deleteAsync(tempPath)
+              } catch { }
+            }
           }
         }
       ]
     )
-  }, [selectedModelKey, setError, startModelDownload])
+  }, [selectedModelKey, setError, updateProgress, setModelPath, startDownload])
 
-  return { startDownload }
+  return { startDownload: startModelDownload }
 }
