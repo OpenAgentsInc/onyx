@@ -107,7 +107,7 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
   }
 
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={handleCancel}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleCancel}>
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
