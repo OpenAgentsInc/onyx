@@ -2,20 +2,7 @@ import React, { useState } from "react"
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colors"
-
-// Demo data
-const DEMO_MODELS = {
-  "1B": {
-    displayName: "Onyx 1B",
-    size: "770 MB",
-    status: "downloaded"
-  },
-  "7B": {
-    displayName: "Onyx 7B",
-    size: "2 GB",
-    status: "not_downloaded"
-  }
-}
+import { AVAILABLE_MODELS, DEFAULT_MODEL_KEY } from "@/screens/Chat/constants"
 
 interface ConfigureModalProps {
   visible: boolean
@@ -23,7 +10,7 @@ interface ConfigureModalProps {
 }
 
 export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
-  const [selectedModel, setSelectedModel] = useState("1B")
+  const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL_KEY)
 
   const handleModelSelect = (modelKey: string) => {
     setSelectedModel(modelKey)
@@ -31,6 +18,16 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
 
   const handleDownload = (modelKey: string) => {
     console.log("Download requested for model:", modelKey)
+  }
+
+  // Demo function to determine if a model is downloaded
+  const isModelDownloaded = (modelKey: string) => {
+    return modelKey === "1B" // For demo, only 1B is "downloaded"
+  }
+
+  // Helper to get model size
+  const getModelSize = (modelKey: string) => {
+    return modelKey === "1B" ? "770 MB" : "2.1 GB"
   }
 
   return (
@@ -51,16 +48,16 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Model Selection</Text>
-            {Object.entries(DEMO_MODELS).map(([key, model]) => (
+            {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
               <View key={key} style={styles.modelItem}>
                 <View style={styles.modelInfo}>
                   <Text style={styles.modelName}>
                     {model.displayName}
                     {key === selectedModel && <Text style={styles.activeIndicator}> ✓</Text>}
                   </Text>
-                  <Text style={styles.modelSize}>{model.size}</Text>
+                  <Text style={styles.modelSize}>{getModelSize(key)}</Text>
                 </View>
-                {model.status === "downloaded" ? (
+                {isModelDownloaded(key) ? (
                   <TouchableOpacity
                     onPress={() => handleModelSelect(key)}
                     style={[
