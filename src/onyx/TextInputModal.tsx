@@ -27,39 +27,41 @@ export const TextInputModal = ({ visible, onClose, onSend }: TextInputModalProps
   return (
     <Modal
       visible={visible}
-      animationType="fade"
+      animationType="slide"
       transparent
       onRequestClose={handleCancel}
     >
       <View style={styles.modalContainer}>
-        <View style={styles.modalHeader}>
-          <Pressable onPress={handleCancel}>
-            <Text style={[styles.buttonText, styles.cancelText]}>
-              Cancel
-            </Text>
-          </Pressable>
-          
-          <Pressable onPress={handleSend}>
-            <Text
-              style={[
-                styles.buttonText,
-                inputText.trim() ? styles.sendText : styles.disabledText,
-              ]}
-            >
-              Send
-            </Text>
-          </Pressable>
-        </View>
+        <View style={styles.modalContent}>
+          <View style={styles.modalHeader}>
+            <Pressable onPress={handleCancel}>
+              <Text style={[styles.buttonText, styles.cancelText]}>
+                Cancel
+              </Text>
+            </Pressable>
+            
+            <Pressable onPress={handleSend}>
+              <Text
+                style={[
+                  styles.buttonText,
+                  inputText.trim() ? styles.sendText : styles.disabledText,
+                ]}
+              >
+                Send
+              </Text>
+            </Pressable>
+          </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Type a message..."
-          placeholderTextColor="#666"
-          autoFocus
-          multiline
-          value={inputText}
-          onChangeText={setInputText}
-        />
+          <TextInput
+            style={styles.input}
+            placeholder="Type a message..."
+            placeholderTextColor="#666"
+            autoFocus
+            multiline
+            value={inputText}
+            onChangeText={setInputText}
+          />
+        </View>
       </View>
     </Modal>
   )

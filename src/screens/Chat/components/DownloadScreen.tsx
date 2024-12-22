@@ -1,7 +1,5 @@
 import React from "react"
-import {
-  Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View
-} from "react-native"
+import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { getCurrentModelConfig, useModelStore } from "@/store/useModelStore"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colors"
@@ -10,7 +8,7 @@ import { addSystemMessage } from "../utils"
 import { LoadingIndicator } from "./LoadingIndicator"
 import { ModelFileManager } from "./ModelFileManager"
 
-import type { MessageType } from '@flyerhq/react-native-chat-ui'
+import type { MessageType } from "@flyerhq/react-native-chat-ui"
 
 interface DownloadScreenProps {
   downloading: boolean
@@ -42,19 +40,20 @@ export function DownloadScreen({
     setDownloadProgress(0)
     try {
       const currentModel = getCurrentModelConfig()
-      addSystemMessage(setMessages, messages, `Downloading ${currentModel.displayName} from Hugging Face...`)
-      const file = await downloader.downloadModel(
-        currentModel.repoId,
-        currentModel.filename
+      addSystemMessage(
+        setMessages,
+        messages,
+        `Downloading ${currentModel.displayName} from Hugging Face...`,
       )
+      const file = await downloader.downloadModel(currentModel.repoId, currentModel.filename)
       addSystemMessage(setMessages, [], `Model downloaded! Initializing...`)
       await handleInitContext(file)
     } catch (e: any) {
-      if (e.message?.includes('cancelled') || e.message?.includes('background')) {
+      if (e.message?.includes("cancelled") || e.message?.includes("background")) {
         addSystemMessage(
           setMessages,
           [],
-          `Download cancelled because app was minimized. Please try again and keep the app in foreground during download.`
+          `Download cancelled because app was minimized. Please try again and keep the app in foreground during download.`,
         )
       } else {
         addSystemMessage(setMessages, [], `Download failed: ${e.message}`)
@@ -66,9 +65,10 @@ export function DownloadScreen({
 
   const confirmDownload = () => {
     const currentModel = getCurrentModelConfig()
-    const warningMessage = Platform.OS === 'ios'
-      ? "Please do not minimize the app during download. The download will be cancelled if the app goes to background.\\n\\n"
-      : "Please keep the app open during download. Minimizing the app may interrupt the download.\\n\\n";
+    const warningMessage =
+      Platform.OS === "ios"
+        ? "Please do not minimize the app during download. The download will be cancelled if the app goes to background.\\n\\n"
+        : "Please keep the app open during download. Minimizing the app may interrupt the download.\\n\\n"
 
     Alert.alert(
       "Download Model?",
@@ -77,7 +77,7 @@ export function DownloadScreen({
         { text: "Cancel", style: "cancel" },
         { text: "Download", onPress: handleDownloadModel },
       ],
-      { cancelable: true }
+      { cancelable: true },
     )
   }
 
@@ -88,11 +88,13 @@ export function DownloadScreen({
         <View style={styles.section}>
           <View style={{ marginTop: 50 }} />
           <Text style={styles.sectionTitle}>Select a model to chat with</Text>
-          <Text style={styles.sectionSubtitle}>Your model will take ~2 minutes to download. Make sure you are on wi-fi.</Text>
+          <Text style={styles.sectionSubtitle}>
+            Your model will take ~2 minutes to download. Make sure you are on wi-fi.
+          </Text>
           <View style={styles.card}>
             <ModelFileManager
               visible={true}
-              onClose={() => { }}
+              onClose={() => {}}
               onDownloadModel={handleDownloadModel}
               embedded={true}
             />
@@ -101,9 +103,7 @@ export function DownloadScreen({
       </View>
 
       {/* Loading indicator */}
-      {initializing && (
-        <LoadingIndicator message="Initializing model" />
-      )}
+      {initializing && <LoadingIndicator message="Initializing model" />}
 
       {/* Download progress */}
       {/* {status === 'downloading' && (
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.palette.neutral200,
     borderRadius: 12,
-    overflow: 'hidden',
+    overflow: "hidden",
     borderWidth: 1,
     borderColor: colors.border,
   },

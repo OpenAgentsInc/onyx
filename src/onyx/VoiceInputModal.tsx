@@ -107,37 +107,39 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
   }
 
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={handleCancel}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleCancel}>
       <View style={styles.modalContainer}>
-        <View style={styles.modalHeader}>
-          <Pressable onPress={handleCancel}>
-            <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
-          </Pressable>
+        <View style={styles.modalContent}>
+          <View style={styles.modalHeader}>
+            <Pressable onPress={handleCancel}>
+              <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
+            </Pressable>
 
-          <Pressable onPress={handleSend} disabled={!transcribedText}>
-            <Text
-              style={[styles.buttonText, transcribedText ? styles.sendText : styles.disabledText]}
-            >
-              Send
-            </Text>
-          </Pressable>
-        </View>
+            <Pressable onPress={handleSend} disabled={!transcribedText}>
+              <Text
+                style={[styles.buttonText, transcribedText ? styles.sendText : styles.disabledText]}
+              >
+                Send
+              </Text>
+            </Pressable>
+          </View>
 
-        <View style={styles.voiceContainer}>
-          {isChecking ? (
-            <ActivityIndicator size="large" color="#fff" />
-          ) : error ? (
-            <Text style={styles.errorText}>{error}</Text>
-          ) : (
-            <View style={styles.transcriptionContainer}>
-              <Text style={styles.listeningText}>{isRecording ? "Listening" : "Paused"}</Text>
-              {transcribedText ? (
-                <Text style={styles.transcriptionText}>{transcribedText}</Text>
-              ) : (
-                <Text style={styles.placeholderText}>Start speaking...</Text>
-              )}
-            </View>
-          )}
+          <View style={styles.voiceContainer}>
+            {isChecking ? (
+              <ActivityIndicator size="large" color="#fff" />
+            ) : error ? (
+              <Text style={styles.errorText}>{error}</Text>
+            ) : (
+              <View style={styles.transcriptionContainer}>
+                <Text style={styles.listeningText}>{isRecording ? "Listening" : "Paused"}</Text>
+                {transcribedText ? (
+                  <Text style={styles.transcriptionText}>{transcribedText}</Text>
+                ) : (
+                  <Text style={styles.placeholderText}>Start speaking...</Text>
+                )}
+              </View>
+            )}
+          </View>
         </View>
       </View>
     </Modal>

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as FileSystem from 'expo-file-system'
 import { AVAILABLE_MODELS, DEFAULT_MODEL_KEY, ModelConfig } from '../screens/Chat/constants'
 
 export type ModelStatus = 'idle' | 'downloading' | 'initializing' | 'ready' | 'error' | 'releasing'
@@ -29,6 +30,7 @@ interface ModelActions {
   startReleasing: () => void
   deleteModel: (modelKey: string) => void
   confirmDeletion: (modelKey: string) => void
+  completeRelease: () => void
 }
 
 const initialState: ModelState = {
@@ -56,15 +58,31 @@ export const useModelStore = create<ModelState & ModelActions>()(
           return
         }
         console.log('[Store] Selecting model:', modelKey)
-        set({
-          selectedModelKey: modelKey,
-          status: 'releasing',
-          progress: 0,
-          modelPath: null,
-          errorMessage: null,
-          downloadCancelled: false,
-          isInitializing: false,
-        })
+        
+        const { status } = get()
+        if (status === 'ready') {
+          // If we have a model loaded, we need to release it first
+          set({
+            selectedModelKey: modelKey,
+            status: 'releasing',
+            progress: 0,
+            modelPath: null,
+            errorMessage: null,
+            downloadCancelled: false,
+            isInitializing: false,
+          })
+        } else {
+          // Otherwise we can go straight to idle
+          set({
+            selectedModelKey: modelKey,
+            status: 'idle',
+            progress: 0,
+            modelPath: null,
+            errorMessage: null,
+            downloadCancelled: false,
+            isInitializing: false,
+          })
+        }
         logState('selectModel', get())
       },
 
@@ -75,6 +93,16 @@ export const useModelStore = create<ModelState & ModelActions>()(
           isInitializing: false,
         })
         logState('startReleasing', get())
+      },
+
+      completeRelease: () => {
+        console.log('[Store] Release complete')
+        set({
+          status: 'idle',
+          modelPath: null,
+          isInitializing: false,
+        })
+        logState('completeRelease', get())
       },
 
       startDownload: () => {
