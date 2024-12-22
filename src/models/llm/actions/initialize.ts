@@ -6,7 +6,7 @@ export const withInitialize = (self: ILLMStore) => ({
   initialize: flow(function* () {
     try {
       const localModelService = new LocalModelService()
-      
+
       // Fetch info for all models
       const models = yield localModelService.getLocalModels()
       self.models.replace(models)
@@ -19,6 +19,13 @@ export const withInitialize = (self: ILLMStore) => ({
 
       self.isInitialized = true
       self.error = null
+
+      console.tron.display({
+        name: "LLMStore",
+        value: self,
+        preview: "Initialized",
+        important: true,
+      })
     } catch (error) {
       console.error("[LLMStore] Initialization error:", error)
       self.error = error instanceof Error ? error.message : "Failed to initialize LLM store"
