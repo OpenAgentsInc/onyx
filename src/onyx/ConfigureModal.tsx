@@ -2,7 +2,7 @@ import * as FileSystem from "expo-file-system"
 import React, { useEffect, useState } from "react"
 import { Alert, Modal, Text, TouchableOpacity, View, ActivityIndicator } from "react-native"
 import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
-import { useModelStore } from "@/store/useModelStore"
+import { useStores } from "@/models"
 import { styles } from "./styles"
 
 interface ConfigureModalProps {
@@ -11,17 +11,8 @@ interface ConfigureModalProps {
 }
 
 export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
+  const { llmStore } = useStores()
   const [modelFiles, setModelFiles] = useState<string[]>([])
-
-  const {
-    selectedModelKey,
-    models,
-    error,
-    startModelDownload,
-    cancelModelDownload,
-    deleteModel,
-    selectModel,
-  } = useModelStore()
 
   const modelsDir = `${FileSystem.cacheDirectory}models`
 
@@ -52,7 +43,7 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
           style: "destructive",
           onPress: async () => {
             try {
-              await deleteModel(modelKey)
+              await llmStore.deleteModel(modelKey)
               await loadModelFiles()
             } catch (error) {
               Alert.alert("Error", "Failed to delete model file")
@@ -64,16 +55,16 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   }
 
   const handleSelectModel = (modelKey: string) => {
-    selectModel(modelKey)
+    llmStore.selectModel(modelKey)
     onClose()
   }
 
   const handleDownloadPress = (modelKey: string) => {
-    startModelDownload(modelKey)
+    llmStore.startModelDownload(modelKey)
   }
 
   const handleCancelDownload = (modelKey: string) => {
-    cancelModelDownload(modelKey)
+    llmStore.cancelModelDownload(modelKey)
   }
 
   useEffect(() => {
@@ -84,10 +75,10 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
 
   useEffect(() => {
     loadModelFiles()
-  }, [models])
+  }, [llmStore.models])
 
   const isModelDownloaded = (modelKey: string) => {
-    const model = models.find(m => m.key === modelKey)
+    const model = llmStore.models.find(m => m.key === modelKey)
     return model?.status === 'ready'
   }
 
@@ -96,17 +87,17 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   }
 
   const getModelStatus = (modelKey: string) => {
-    const model = models.find(m => m.key === modelKey)
+    const model = llmStore.models.find(m => m.key === modelKey)
     return model?.status || 'idle'
   }
 
   const getModelProgress = (modelKey: string) => {
-    const model = models.find(m => m.key === modelKey)
+    const model = llmStore.models.find(m => m.key === modelKey)
     return model?.progress || 0
   }
 
   const getModelError = (modelKey: string) => {
-    const model = models.find(m => m.key === modelKey)
+    const model = llmStore.models.find(m => m.key === modelKey)
     return model?.error
   }
 
@@ -126,9 +117,9 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
             </TouchableOpacity>
           </View>
 
-          {error && (
+          {llmStore.error && (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
+              <Text style={styles.errorText}>{llmStore.error}</Text>
             </View>
           )}
 
@@ -139,7 +130,7 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
               const progress = getModelProgress(key)
               const modelError = getModelError(key)
               const downloaded = isModelDownloaded(key)
-              const isActive = key === selectedModelKey
+              const isActive = key === llmStore.selectedModelKey
               const isDownloading = status === 'downloading'
 
               return (
