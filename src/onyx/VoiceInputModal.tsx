@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Modal, Pressable, Text, View } from "react-native"
-import * as Speech from "expo-speech"
-import * as Permissions from "expo-permissions"
+import Voice, { SpeechResultsEvent } from "@react-native-voice/voice"
 import { styles } from "./styles"
 
 interface VoiceInputModalProps {
@@ -16,44 +15,37 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
   const [error, setError] = useState("")
 
   useEffect(() => {
-    checkPermissions()
-  }, [])
-
-  const checkPermissions = async () => {
-    const { status } = await Permissions.askAsync(Permissions.AUDIO_RECORDING)
-    if (status !== "granted") {
-      setError("Microphone permission not granted")
+    // Initialize voice handlers
+    Voice.onSpeechStart = () => setIsRecording(true)
+    Voice.onSpeechEnd = () => setIsRecording(false)
+    Voice.onSpeechResults = (e: SpeechResultsEvent) => {
+      if (e.value) {
+        setTranscribedText(e.value[0])
+      }
     }
-  }
+    Voice.onSpeechError = (e: any) => {
+      setError(e.error?.message || "Error occurred")
+      setIsRecording(false)
+    }
+
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners)
+    }
+  }, [])
 
   const startRecording = async () => {
     try {
       setError("")
       setTranscribedText("")
-      setIsRecording(true)
-      
-      const options = {
-        language: "en-US",
-        onResult: (result: { value: string }) => {
-          setTranscribedText(result.value)
-        },
-        onError: (error: Error) => {
-          setError(error.message)
-          setIsRecording(false)
-        }
-      }
-
-      await Speech.startListeningAsync(options)
+      await Voice.start("en-US")
     } catch (e: any) {
       setError(e.message || "Error starting recording")
-      setIsRecording(false)
     }
   }
 
   const stopRecording = async () => {
     try {
-      await Speech.stopListeningAsync()
-      setIsRecording(false)
+      await Voice.stop()
     } catch (e: any) {
       setError(e.message || "Error stopping recording")
     }
