@@ -1,6 +1,6 @@
 import * as FileSystem from "expo-file-system"
 import React, { useEffect, useState } from "react"
-import { Alert, Modal, Pressable, SafeAreaView, Text, TouchableOpacity, View } from "react-native"
+import { Alert, Modal, Text, TouchableOpacity, View } from "react-native"
 import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
 import { useModelStore } from "@/store/useModelStore"
 import { styles } from "./styles"
@@ -142,9 +142,9 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
       transparent={true}
       onRequestClose={() => !isDownloading && onClose()}
     >
-      <SafeAreaView style={styles.modalContainer}>
-        <View style={styles.configureModalContent}>
-          <View style={styles.configureHeader}>
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <View style={styles.modalHeader}>
             <Text style={styles.headerTitle}>Configure Onyx</Text>
             <TouchableOpacity
               onPress={onClose}
@@ -205,7 +205,7 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
             })}
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     </Modal>
   )
 }
