@@ -1,7 +1,4 @@
 import { Instance, types } from "mobx-state-tree"
-import { LLMStoreModel } from "./store"
-
-export interface LLMStore extends Instance<typeof LLMStoreModel> { }
 
 export const ModelInfoModel = types.model("ModelInfo", {
   key: types.string,
@@ -11,3 +8,13 @@ export const ModelInfoModel = types.model("ModelInfo", {
   progress: types.number,
   error: types.maybe(types.string),
 })
+
+export interface IModelInfo extends Instance<typeof ModelInfoModel> {}
+
+// Base store interface without the circular reference
+export interface ILLMStore {
+  isInitialized: boolean
+  error: string | null
+  models: IModelInfo[]
+  selectedModelKey: string | null
+}
