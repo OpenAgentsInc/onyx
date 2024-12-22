@@ -27,6 +27,7 @@ interface AppProps {
 
 function App(props: AppProps) {
   useAutoUpdate()
+
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
   const { rehydrated } = useInitialRootStore(() => {
@@ -37,10 +38,6 @@ function App(props: AppProps) {
   // Initialize LLM store
   const { llmStore } = useStores()
   React.useEffect(() => {
-    console.tron.display({
-      name: "Initializing",
-    })
-
     llmStore.initialize()
   }, [llmStore])
 
