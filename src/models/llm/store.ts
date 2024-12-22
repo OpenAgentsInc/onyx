@@ -4,6 +4,7 @@ import { withInitialize } from "./actions/initialize"
 import { withModelManagement } from "./actions/model-management"
 import { ModelInfoModel } from "./types"
 import { withViews } from "./views"
+import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
 
 const LLMStoreModel = types
   .model("LLMStore")
@@ -22,12 +23,23 @@ export interface LLMStore extends Instance<typeof LLMStoreModel> { }
 export interface LLMStoreSnapshotOut extends SnapshotOut<typeof LLMStoreModel> { }
 export interface LLMStoreSnapshotIn extends SnapshotIn<typeof LLMStoreModel> { }
 
-export const createLLMStoreDefaultModel = () =>
-  LLMStoreModel.create({
+export const createLLMStoreDefaultModel = () => {
+  // Initialize models array from available models
+  const initialModels = Object.entries(AVAILABLE_MODELS).map(([key, model]) => ({
+    key,
+    displayName: model.displayName,
+    path: null,
+    status: "idle",
+    progress: 0,
+    error: undefined
+  }))
+
+  return LLMStoreModel.create({
     isInitialized: false,
     error: null,
-    models: [],
+    models: initialModels,
     selectedModelKey: null,
   })
+}
 
 export { LLMStoreModel }
