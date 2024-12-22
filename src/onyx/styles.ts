@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native"
 import { colors } from "@/theme/colors"
+import { typography } from "@/theme/typography"
 
 export const styles = StyleSheet.create({
   // Layout styles
@@ -34,7 +35,7 @@ export const styles = StyleSheet.create({
   },
   modalContent: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#000",
     marginTop: 60, // Add safe area padding for status bar
   },
   modalHeader: {
@@ -47,24 +48,25 @@ export const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "600",
-    color: colors.text,
+    fontFamily: typography.primary.semiBold,
+    color: "#fff",
   },
   closeButton: {
     padding: 8,
   },
   closeButtonText: {
-    color: colors.tint,
+    color: "#fff",
     fontSize: 16,
+    fontFamily: typography.primary.medium,
   },
   section: {
     padding: 16,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.primary.medium,
     marginBottom: 16,
-    color: colors.textDim,
+    color: "rgba(255,255,255,0.5)",
   },
   modelItem: {
     flexDirection: "row",
@@ -83,15 +85,18 @@ export const styles = StyleSheet.create({
   },
   modelName: {
     fontSize: 16,
-    color: colors.text,
+    fontFamily: typography.primary.normal,
+    color: "#fff",
   },
   modelSize: {
     fontSize: 14,
-    color: colors.textDim,
+    fontFamily: typography.primary.normal,
+    color: "rgba(255,255,255,0.5)",
     marginTop: 4,
   },
   activeIndicator: {
     color: colors.tint,
+    fontFamily: typography.primary.medium,
   },
   downloadButton: {
     backgroundColor: colors.tint,
@@ -102,9 +107,9 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   downloadButtonText: {
-    color: colors.background,
+    color: "#000",
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: typography.primary.medium,
   },
   deleteButton: {
     backgroundColor: colors.errorBackground,
@@ -117,7 +122,7 @@ export const styles = StyleSheet.create({
   deleteButtonText: {
     color: colors.error,
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: typography.primary.medium,
   },
   errorContainer: {
     backgroundColor: colors.errorBackground,
@@ -128,10 +133,12 @@ export const styles = StyleSheet.create({
   errorText: {
     color: colors.error,
     fontSize: 14,
+    fontFamily: typography.primary.normal,
   },
   modelError: {
     color: colors.error,
     fontSize: 12,
+    fontFamily: typography.primary.normal,
     marginTop: 2,
   },
   downloadContainer: {
@@ -140,7 +147,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   cancelButton: {
-    backgroundColor: colors.palette.neutral300,
+    backgroundColor: "rgba(255,255,255,0.1)",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
@@ -148,8 +155,33 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButtonText: {
-    color: colors.textDim,
+    color: "rgba(255,255,255,0.5)",
     fontSize: 14,
+    fontFamily: typography.primary.normal,
+  },
+
+  // Text Input Modal styles
+  buttonText: {
+    fontSize: 17,
+    fontFamily: typography.primary.normal,
+  },
+  cancelText: {
+    color: "#fff",
+  },
+  sendText: {
+    color: "#fff",
+  },
+  disabledText: {
+    color: "rgba(255,255,255,0.5)",
+  },
+  input: {
+    flex: 1,
+    color: "#fff",
+    fontSize: 17,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+    fontFamily: typography.primary.normal,
   },
 
   // Voice recording styles
@@ -165,19 +197,22 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   listeningText: {
-    color: "#888",
+    color: "rgba(255,255,255,0.5)",
     fontSize: 15,
+    fontFamily: typography.primary.normal,
     marginBottom: 20,
   },
   transcriptionText: {
-    color: colors.text,
+    color: "#fff",
     fontSize: 24,
+    fontFamily: typography.primary.normal,
     textAlign: "center",
     lineHeight: 36,
   },
   placeholderText: {
-    color: colors.textDim,
+    color: "rgba(255,255,255,0.5)",
     fontSize: 24,
+    fontFamily: typography.primary.normal,
     textAlign: "center",
   },
 })
