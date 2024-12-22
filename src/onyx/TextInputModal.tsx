@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Modal, Pressable, SafeAreaView, Text, TextInput, View } from "react-native"
+import { Modal, Pressable, Text, TextInput, View } from "react-native"
 import { styles } from "./styles"
 
 interface TextInputModalProps {
@@ -31,7 +31,7 @@ export const TextInputModal = ({ visible, onClose, onSend }: TextInputModalProps
       transparent
       onRequestClose={handleCancel}
     >
-      <SafeAreaView style={styles.modalContainer}>
+      <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Pressable onPress={handleCancel}>
@@ -62,7 +62,7 @@ export const TextInputModal = ({ visible, onClose, onSend }: TextInputModalProps
             onChangeText={setInputText}
           />
         </View>
-      </SafeAreaView>
+      </View>
     </Modal>
   )
 }
