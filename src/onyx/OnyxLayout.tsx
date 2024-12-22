@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Image, TextInput, TouchableOpacity, View, Keyboard } from "react-native"
+import { Image, Keyboard, TextInput, TouchableOpacity, View } from "react-native"
 import { typography } from "@/theme"
 
 export const OnyxLayout = () => {
@@ -63,10 +63,7 @@ export const OnyxLayout = () => {
           zIndex: 8,
         }}
       >
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={handleTextPress}
-        >
+        <TouchableOpacity activeOpacity={0.8} onPress={handleTextPress}>
           <Image
             source={require("../../assets/icons/text.png")}
             style={{ width: ICON_SIZE, height: ICON_SIZE }}
@@ -81,3 +78,4 @@ export const OnyxLayout = () => {
       </View>
     </>
   )
+}
