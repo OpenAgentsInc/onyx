@@ -1,18 +1,26 @@
 import { flow } from "mobx-state-tree"
 import { LocalModelService } from "@/services/local-models/LocalModelService"
 import { ILLMStore, IModelInfo } from "../types"
+import * as FileSystem from "expo-file-system"
+
+const MODELS_DIR = `${FileSystem.cacheDirectory}models`
 
 export const withModelManagement = (self: ILLMStore) => {
   const localModelService = new LocalModelService()
+  let downloadResumable: FileSystem.DownloadResumable | null = null
+
+  const cleanupTempFile = async (tempPath: string) => {
+    try {
+      const tempFileInfo = await FileSystem.getInfoAsync(tempPath)
+      if (tempFileInfo.exists) {
+        await FileSystem.deleteAsync(tempPath)
+      }
+    } catch (cleanupError) {
+      console.error("Error cleaning up temp file:", cleanupError)
+    }
+  }
 
   return {
-    updateModelProgress(modelKey: string, progress: number) {
-      const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
-      if (modelIndex !== -1) {
-        self.models[modelIndex].progress = progress
-      }
-    },
-
     startModelDownload: flow(function* (modelKey: string) {
       try {
         // Find model in store
@@ -25,9 +33,50 @@ export const withModelManagement = (self: ILLMStore) => {
         self.models[modelIndex].status = "downloading"
         self.models[modelIndex].error = undefined
 
+        // Create temp path
+        const model = self.models[modelIndex]
+        const tempPath = `${FileSystem.cacheDirectory}temp_${model.key}`
+        const finalPath = `${MODELS_DIR}/${model.key}`
+
+        // Ensure directory exists
+        yield FileSystem.makeDirectoryAsync(MODELS_DIR, { intermediates: true })
+
         // Start download
-        const finalPath = yield localModelService.startDownload(modelKey, (progress) => {
-          self.updateModelProgress(modelKey, progress)
+        downloadResumable = FileSystem.createDownloadResumable(
+          `https://huggingface.co/${model.key}/resolve/main/${model.key}`,
+          tempPath,
+          {},
+          (downloadProgress) => {
+            const progress = parseFloat(
+              ((downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100)
+              .toFixed(1)
+            )
+            // Only update if still downloading
+            if (self.models[modelIndex].status === "downloading") {
+              self.models[modelIndex].progress = progress
+            }
+          }
+        )
+
+        const result = yield downloadResumable.downloadAsync()
+        
+        // If download was cancelled or failed
+        if (!result?.uri) {
+          yield cleanupTempFile(tempPath)
+          return
+        }
+
+        // Validate file
+        const fileInfo = yield FileSystem.getInfoAsync(result.uri)
+        if (!fileInfo.exists || fileInfo.size < 100 * 1024 * 1024) {
+          yield cleanupTempFile(tempPath)
+          throw new Error("Downloaded file is invalid or too small")
+        }
+
+        // Move to final location
+        yield FileSystem.moveAsync({
+          from: result.uri,
+          to: finalPath
         })
 
         // Update model info
@@ -41,6 +90,8 @@ export const withModelManagement = (self: ILLMStore) => {
         }
 
         self.error = null
+        downloadResumable = null
+
       } catch (error) {
         console.error("[LLMStore] Download error:", error)
         const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
@@ -54,10 +105,16 @@ export const withModelManagement = (self: ILLMStore) => {
 
     cancelModelDownload: flow(function* (modelKey: string) {
       try {
-        yield localModelService.cancelDownload()
+        if (downloadResumable) {
+          yield downloadResumable.cancelAsync()
+          downloadResumable = null
+        }
         
         const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
         if (modelIndex !== -1) {
+          const tempPath = `${FileSystem.cacheDirectory}temp_${modelKey}`
+          yield cleanupTempFile(tempPath)
+          
           self.models[modelIndex].status = "idle"
           self.models[modelIndex].progress = 0
           self.models[modelIndex].error = undefined
