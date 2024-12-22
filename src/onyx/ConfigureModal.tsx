@@ -1,7 +1,16 @@
+import { observer } from "mobx-react-lite"
 import React from "react"
-import { Alert, Modal, Text, TouchableOpacity, View, ActivityIndicator, ScrollView } from "react-native"
-import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native"
 import { useStores } from "@/models"
+import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
 import { styles } from "./styles"
 
 interface ConfigureModalProps {
@@ -9,7 +18,10 @@ interface ConfigureModalProps {
   onClose: () => void
 }
 
-export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
+export const ConfigureModal = observer(function ConfigureModal({
+  visible,
+  onClose,
+}: ConfigureModalProps) {
   const { llmStore } = useStores()
 
   const handleDeleteModel = async (modelKey: string) => {
@@ -48,8 +60,8 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   }
 
   const isModelDownloaded = (modelKey: string) => {
-    const model = llmStore.models.find(m => m.key === modelKey)
-    return model?.status === 'ready'
+    const model = llmStore.models.find((m) => m.key === modelKey)
+    return model?.status === "ready"
   }
 
   const getModelSize = (modelKey: string): string => {
@@ -57,27 +69,22 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   }
 
   const getModelStatus = (modelKey: string) => {
-    const model = llmStore.models.find(m => m.key === modelKey)
-    return model?.status || 'idle'
+    const model = llmStore.models.find((m) => m.key === modelKey)
+    return model?.status || "idle"
   }
 
   const getModelProgress = (modelKey: string) => {
-    const model = llmStore.models.find(m => m.key === modelKey)
+    const model = llmStore.models.find((m) => m.key === modelKey)
     return model?.progress || 0
   }
 
   const getModelError = (modelKey: string) => {
-    const model = llmStore.models.find(m => m.key === modelKey)
+    const model = llmStore.models.find((m) => m.key === modelKey)
     return model?.error
   }
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={false}
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
@@ -102,7 +109,7 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
                 const modelError = getModelError(key)
                 const downloaded = isModelDownloaded(key)
                 const isActive = key === llmStore.selectedModelKey
-                const isDownloading = status === 'downloading'
+                const isDownloading = status === "downloading"
 
                 return (
                   <View key={key} style={styles.modelItem}>
@@ -116,9 +123,7 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
                           {model.displayName}
                           {isActive && <Text style={styles.activeIndicator}> ✓</Text>}
                         </Text>
-                        {modelError && (
-                          <Text style={styles.modelError}>{modelError}</Text>
-                        )}
+                        {modelError && <Text style={styles.modelError}>{modelError}</Text>}
                       </View>
                       <Text style={styles.modelSize}>
                         {isDownloading ? `${progress}%` : getModelSize(key)}
@@ -164,4 +169,4 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
       </View>
     </Modal>
   )
-}
+})
