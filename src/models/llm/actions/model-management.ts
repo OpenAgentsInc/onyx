@@ -1,15 +1,15 @@
 import { flow } from "mobx-state-tree"
 import { LocalModelService } from "@/services/local-models/LocalModelService"
-import { LLMStore } from "../types"
+import { ILLMStore, IModelInfo } from "../types"
 
-export const withModelManagement = (self: LLMStore) => {
+export const withModelManagement = (self: ILLMStore) => {
   const localModelService = new LocalModelService()
 
   return {
     startModelDownload: flow(function* (modelKey: string) {
       try {
         // Find model in store
-        const modelIndex = self.models.findIndex(m => m.key === modelKey)
+        const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
         if (modelIndex === -1) {
           throw new Error("Model not found")
         }
@@ -36,7 +36,7 @@ export const withModelManagement = (self: LLMStore) => {
         self.error = null
       } catch (error) {
         console.error("[LLMStore] Download error:", error)
-        const modelIndex = self.models.findIndex(m => m.key === modelKey)
+        const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
         if (modelIndex !== -1) {
           self.models[modelIndex].status = "error"
           self.models[modelIndex].error = error instanceof Error ? error.message : "Download failed"
@@ -49,7 +49,7 @@ export const withModelManagement = (self: LLMStore) => {
       try {
         yield localModelService.cancelDownload()
         
-        const modelIndex = self.models.findIndex(m => m.key === modelKey)
+        const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
         if (modelIndex !== -1) {
           self.models[modelIndex].status = "idle"
           self.models[modelIndex].progress = 0
@@ -67,7 +67,7 @@ export const withModelManagement = (self: LLMStore) => {
       try {
         yield localModelService.deleteModel(modelKey)
         
-        const modelIndex = self.models.findIndex(m => m.key === modelKey)
+        const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
         if (modelIndex !== -1) {
           self.models[modelIndex].status = "idle"
           self.models[modelIndex].path = null
