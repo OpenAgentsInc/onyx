@@ -86,6 +86,11 @@
     "react-native-screens": "~4.1.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
+    "reactotron-core-client": "^2.9.4",
+    "reactotron-mst": "^3.1.7",
+    "reactotron-react-js": "^3.3.11",
+    "reactotron-react-native": "^5.0.5",
+    "reactotron-react-native-mmkv": "^0.2.6",
     "text-encoding-polyfill": "^0.6.7",
     "three": "^0.171.0",
     "zustand": "^5.0.2"

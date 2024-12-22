@@ -1,3 +1,10 @@
+if (__DEV__) {
+  // Load Reactotron in development only.
+  // Note that you must be using metro's `inlineRequires` for this to work.
+  // If you turn it off in metro.config.js, you'll have to manually import it.
+  require("./devtools/ReactotronConfig.ts")
+}
+
 import "@/utils/crypto-polyfill"
 import "text-encoding-polyfill"
 import "@/theme/global.css"
@@ -9,8 +16,8 @@ import { AppRegistry, Image, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
+import { useInitialRootStore } from "./models"
 import { OnyxLayout } from "./onyx/OnyxLayout"
-import ChatContainer from "./screens/Chat/ChatContainer"
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
@@ -25,6 +32,9 @@ function App(props: AppProps) {
   React.useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync()
+      console.tron.display({
+        name: "Loaded",
+      })
     }
   }, [loaded])
 
