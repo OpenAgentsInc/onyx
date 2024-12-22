@@ -5,7 +5,8 @@ import { colors } from "@/theme/colors"
 export const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.85)",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
   },
   modalHeader: {
     flexDirection: "row",
@@ -97,9 +98,10 @@ export const styles = StyleSheet.create({
   },
   // Configure modal styles
   configureModalContent: {
+    height: "50%",
     backgroundColor: colors.background,
-    margin: 20,
-    borderRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     overflow: "hidden",
   },
   configureHeader: {
@@ -112,13 +114,22 @@ export const styles = StyleSheet.create({
   },
   headerTitle: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: typography.primary.medium,
+  },
+  closeButton: {
+    padding: 8,
+  },
+  closeButtonDisabled: {
+    opacity: 0.5,
   },
   closeButtonText: {
     color: colors.tint,
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: typography.primary.medium,
+  },
+  closeButtonTextDisabled: {
+    color: colors.textDim,
   },
   section: {
     padding: 16,
@@ -145,52 +156,47 @@ export const styles = StyleSheet.create({
   },
   modelName: {
     color: colors.text,
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: typography.primary.normal,
   },
   activeIndicator: {
     color: colors.tint,
+    fontFamily: typography.primary.medium,
   },
   modelSize: {
     color: colors.textDim,
     fontSize: 12,
     fontFamily: typography.primary.normal,
-    marginTop: 4,
-  },
-  actionButton: {
-    backgroundColor: colors.background,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-    minWidth: 90,
-    alignItems: "center",
-  },
-  selectedButton: {
-    backgroundColor: colors.tint,
-    borderColor: colors.tint,
-  },
-  actionButtonText: {
-    color: colors.text,
-    fontSize: 14,
-    fontFamily: typography.primary.medium,
-  },
-  selectedButtonText: {
-    color: colors.background,
+    marginTop: 2,
   },
   downloadButton: {
     backgroundColor: colors.tint,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    minWidth: 90,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    minWidth: 80,
     alignItems: "center",
+  },
+  downloadingButton: {
+    backgroundColor: colors.palette.neutral300,
   },
   downloadButtonText: {
     color: colors.background,
-    fontSize: 14,
     fontFamily: typography.primary.medium,
+    fontSize: 12,
+  },
+  deleteButton: {
+    backgroundColor: colors.errorBackground,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  deleteButtonText: {
+    color: colors.error,
+    fontFamily: typography.primary.medium,
+    fontSize: 12,
   },
   storageInfo: {
     flexDirection: "row",
