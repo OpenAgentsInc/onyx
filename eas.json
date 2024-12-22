@@ -17,7 +17,8 @@
       "env": {
         "ENVIRONMENT": "development"
       },
-      "environment": "development"
+      "environment": "development",
+      "channel": "development"
     },
     "development:device": {
       "extends": "development",
@@ -29,7 +30,8 @@
       "env": {
         "ENVIRONMENT": "development"
       },
-      "environment": "development"
+      "environment": "development",
+      "channel": "development-device"
     },
     "preview": {
       "extends": "production",
@@ -43,7 +45,8 @@
       "env": {
         "ENVIRONMENT": "preview"
       },
-      "environment": "preview"
+      "environment": "preview",
+      "channel": "preview"
     },
     "preview:device": {
       "extends": "preview",
@@ -53,20 +56,23 @@
       "env": {
         "ENVIRONMENT": "preview"
       },
-      "environment": "preview"
+      "environment": "preview",
+      "channel": "preview-device"
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "ENVIRONMENT": "production"
       },
-      "environment": "production"
+      "environment": "production",
+      "channel": "production"
     },
     "production-apk": {
       "extends": "production",
       "android": {
         "buildType": "apk"
-      }
+      },
+      "channel": "production-apk"
     }
   },
   "submit": {

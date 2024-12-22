@@ -3,16 +3,11 @@
     "name": "Onyx",
     "slug": "onyx",
     "scheme": "onyx",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "icon": "./assets/images/app-icon-all.png",
     "backgroundColor": "#000000",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#000000"
-    },
     "newArchEnabled": true,
     "jsEngine": "hermes",
     "assetBundlePatterns": [
@@ -27,15 +22,27 @@
         "backgroundColor": "#000000"
       },
       "permissions": [
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
       ]
     },
     "ios": {
       "icon": "./assets/images/app-icon-all.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.openagents.onyx",
+      "splash": {
+        "image": "./assets/images/splash.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#000000"
+      },
       "config": {
         "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Allow Onyx to securely recognize your speech",
+        "NSMicrophoneUsageDescription": "Allow Onyx to access your microphone for voice commands",
+        "NSPhotoLibraryUsageDescription": "Allow Onyx to access your photos for AI analysis."
       }
     },
     "web": {
@@ -70,6 +77,13 @@
           "resizeMode": "contain",
           "backgroundColor": "#000000"
         }
+      ],
+      [
+        "@react-native-voice/voice",
+        {
+          "microphonePermission": "Allow Onyx to access your microphone for voice commands",
+          "speechRecognitionPermission": "Allow Onyx to securely recognize your speech"
+        }
       ]
     ],
     "experiments": {
@@ -83,6 +97,9 @@
     "owner": "openagents",
     "runtimeVersion": {
       "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/69b52e85-13c8-439b-be19-8d2580e481fc"
     }
   }
 }
