@@ -1,26 +1,27 @@
 import React from "react"
 import { Modal, StyleSheet, Text, View } from "react-native"
-import { colors } from "@/theme/colors"
-import { typography } from "@/theme"
 import { LoadingIndicator } from "@/screens/Chat/components/LoadingIndicator"
 import { useModelStore } from "@/store/useModelStore"
+import { typography } from "@/theme"
+import { colors } from "@/theme/colors"
 
 export const DownloadModal = () => {
   const { status, progress } = useModelStore()
-  const isVisible = status === 'downloading' || status === 'initializing'
+  // const isVisible = status === "downloading" || status === "initializing"
+  const isVisible = false
 
   return (
     <Modal
       visible={isVisible}
       transparent={true}
       animationType="fade"
-      onRequestClose={() => {}}  // Empty function to prevent dismissal
+      onRequestClose={() => {}} // Empty function to prevent dismissal
     >
       <View style={styles.container}>
         <View style={styles.content}>
-          <LoadingIndicator 
-            message={status === 'downloading' ? "Downloading model..." : "Initializing model..."}
-            progress={status === 'downloading' ? progress : undefined}
+          <LoadingIndicator
+            message={status === "downloading" ? "Downloading model..." : "Initializing model..."}
+            progress={status === "downloading" ? progress : undefined}
           />
           <Text style={styles.warning}>
             Please keep the app open during download.{"\n"}
