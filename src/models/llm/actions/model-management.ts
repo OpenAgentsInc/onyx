@@ -1,12 +1,10 @@
-import { flow } from "mobx-state-tree"
-import { LocalModelService } from "@/services/local-models/LocalModelService"
+import { flow, getType } from "mobx-state-tree"
 import { ILLMStore, IModelInfo } from "../types"
 import * as FileSystem from "expo-file-system"
 
 const MODELS_DIR = `${FileSystem.cacheDirectory}models`
 
 export const withModelManagement = (self: ILLMStore) => {
-  const localModelService = new LocalModelService()
   let downloadResumable: FileSystem.DownloadResumable | null = null
 
   const cleanupTempFile = async (tempPath: string) => {
@@ -20,6 +18,46 @@ export const withModelManagement = (self: ILLMStore) => {
     }
   }
 
+  const setModelStatus = (modelIndex: number, status: string) => {
+    const model = self.models[modelIndex]
+    const ModelType = getType(model)
+    ModelType.actions(m => ({
+      setStatus() {
+        m.status = status
+      }
+    })).call(model)
+  }
+
+  const setModelProgress = (modelIndex: number, progress: number) => {
+    const model = self.models[modelIndex]
+    const ModelType = getType(model)
+    ModelType.actions(m => ({
+      setProgress() {
+        m.progress = progress
+      }
+    })).call(model)
+  }
+
+  const setModelError = (modelIndex: number, error: string | undefined) => {
+    const model = self.models[modelIndex]
+    const ModelType = getType(model)
+    ModelType.actions(m => ({
+      setError() {
+        m.error = error
+      }
+    })).call(model)
+  }
+
+  const setModelPath = (modelIndex: number, path: string | null) => {
+    const model = self.models[modelIndex]
+    const ModelType = getType(model)
+    ModelType.actions(m => ({
+      setPath() {
+        m.path = path
+      }
+    })).call(model)
+  }
+
   return {
     startModelDownload: flow(function* (modelKey: string) {
       try {
@@ -30,8 +68,8 @@ export const withModelManagement = (self: ILLMStore) => {
         }
 
         // Update status
-        self.models[modelIndex].status = "downloading"
-        self.models[modelIndex].error = undefined
+        setModelStatus(modelIndex, "downloading")
+        setModelError(modelIndex, undefined)
 
         // Create temp path
         const model = self.models[modelIndex]
@@ -53,7 +91,7 @@ export const withModelManagement = (self: ILLMStore) => {
             )
             // Only update if still downloading
             if (self.models[modelIndex].status === "downloading") {
-              self.models[modelIndex].progress = progress
+              setModelProgress(modelIndex, progress)
             }
           }
         )
@@ -80,9 +118,9 @@ export const withModelManagement = (self: ILLMStore) => {
         })
 
         // Update model info
-        self.models[modelIndex].path = finalPath
-        self.models[modelIndex].status = "ready"
-        self.models[modelIndex].progress = 100
+        setModelPath(modelIndex, finalPath)
+        setModelStatus(modelIndex, "ready")
+        setModelProgress(modelIndex, 100)
 
         // Select this model if none selected
         if (!self.selectedModelKey) {
@@ -96,8 +134,8 @@ export const withModelManagement = (self: ILLMStore) => {
         console.error("[LLMStore] Download error:", error)
         const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
         if (modelIndex !== -1) {
-          self.models[modelIndex].status = "error"
-          self.models[modelIndex].error = error instanceof Error ? error.message : "Download failed"
+          setModelStatus(modelIndex, "error")
+          setModelError(modelIndex, error instanceof Error ? error.message : "Download failed")
         }
         self.error = error instanceof Error ? error.message : "Failed to download model"
       }
@@ -115,9 +153,9 @@ export const withModelManagement = (self: ILLMStore) => {
           const tempPath = `${FileSystem.cacheDirectory}temp_${modelKey}`
           yield cleanupTempFile(tempPath)
           
-          self.models[modelIndex].status = "idle"
-          self.models[modelIndex].progress = 0
-          self.models[modelIndex].error = undefined
+          setModelStatus(modelIndex, "idle")
+          setModelProgress(modelIndex, 0)
+          setModelError(modelIndex, undefined)
         }
         
         self.error = null
@@ -129,14 +167,17 @@ export const withModelManagement = (self: ILLMStore) => {
 
     deleteModel: flow(function* (modelKey: string) {
       try {
-        yield localModelService.deleteModel(modelKey)
-        
         const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
         if (modelIndex !== -1) {
-          self.models[modelIndex].status = "idle"
-          self.models[modelIndex].path = null
-          self.models[modelIndex].progress = 0
-          self.models[modelIndex].error = undefined
+          const model = self.models[modelIndex]
+          if (model.path) {
+            yield FileSystem.deleteAsync(model.path, { idempotent: true })
+          }
+          
+          setModelStatus(modelIndex, "idle")
+          setModelPath(modelIndex, null)
+          setModelProgress(modelIndex, 0)
+          setModelError(modelIndex, undefined)
         }
 
         // If this was the selected model, clear selection
