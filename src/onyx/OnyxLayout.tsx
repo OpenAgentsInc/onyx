@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { Image, TouchableOpacity, View } from "react-native"
+import { styles } from "./styles"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
-import { styles } from "./styles"
 
 export const OnyxLayout = () => {
   const [showTextInput, setShowTextInput] = useState(false)
@@ -57,23 +57,11 @@ export const OnyxLayout = () => {
       </TouchableOpacity>
 
       <View style={styles.bottomButtons}>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={handleTextPress}
-        >
-          <Image
-            source={require("../../assets/icons/text.png")}
-            style={styles.iconButton}
-          />
+        <TouchableOpacity activeOpacity={0.8} onPress={handleTextPress}>
+          <Image source={require("../../assets/icons/text.png")} style={styles.iconButton} />
         </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={handleVoicePress}
-        >
-          <Image
-            source={require("../../assets/icons/voice.png")}
-            style={styles.iconButton}
-          />
+        <TouchableOpacity activeOpacity={0.8} onPress={handleVoicePress}>
+          <Image source={require("../../assets/icons/voice.png")} style={styles.iconButton} />
         </TouchableOpacity>
       </View>
     </View>
