@@ -14,41 +14,47 @@ import ChatContainer from "./screens/Chat/ChatContainer"
 function App() {
   useAutoUpdate()
 
-  const [loaded] = useFonts(customFontsToLoad);
+  const [loaded] = useFonts(customFontsToLoad)
 
   React.useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      SplashScreen.hideAsync()
     }
-  }, [loaded]);
+  }, [loaded])
 
   if (!loaded) {
-    return null;
+    return null
   }
 
   return (
     <View style={$container}>
       <StatusBar style="light" />
-      <View style={$routerContainer}>
-        {/* <Text style={{ fontFamily: typography.primary.medium, color: 'white' }}>Onyx</Text> */}
-        {/* <RouterWrapper /> */}
-        <ChatContainer />
-      </View>
+      <View
+        style={{
+          position: "absolute",
+          backgroundColor: "#1B1B1B",
+          left: 30,
+          right: 30,
+          height: 40,
+          bottom: 40,
+          zIndex: 8,
+          borderRadius: 10,
+        }}
+      />
       <View style={$canvasContainer}>
         <Canvas />
       </View>
-
     </View>
-  );
+  )
 }
 
 const $container: ViewStyle = {
   flex: 1,
-  backgroundColor: '#000',
+  backgroundColor: "#000",
 }
 
 const $canvasContainer: ViewStyle = {
-  position: 'absolute',
+  position: "absolute",
   top: 0,
   left: 0,
   right: 0,
@@ -57,18 +63,18 @@ const $canvasContainer: ViewStyle = {
 }
 
 const $routerContainer: ViewStyle = {
-  position: 'absolute',
+  position: "absolute",
   top: 0,
   left: 0,
   right: 0,
   bottom: 0,
   zIndex: 1,
-  backgroundColor: 'transparent',
-  justifyContent: 'center',
-  alignItems: 'center',
+  backgroundColor: "transparent",
+  justifyContent: "center",
+  alignItems: "center",
   flex: 1,
 }
 
-AppRegistry.registerComponent('main', () => App);
+AppRegistry.registerComponent("main", () => App)
 
-export default App;
+export default App
