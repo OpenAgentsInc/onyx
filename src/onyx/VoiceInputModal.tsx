@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { Modal, Pressable, Text, View, ActivityIndicator } from "react-native"
+import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native"
 import Voice, { SpeechResultsEvent } from "@react-native-voice/voice"
-import { styles } from "./styles"
 import { useVoicePermissions } from "../hooks/useVoicePermissions"
+import { styles } from "./styles"
 
 interface VoiceInputModalProps {
   visible: boolean
@@ -107,22 +107,17 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
   }
 
   return (
-    <Modal
-      visible={visible}
-      animationType="fade"
-      transparent
-      onRequestClose={handleCancel}
-    >
+    <Modal visible={visible} animationType="fade" transparent onRequestClose={handleCancel}>
       <View style={styles.modalContainer}>
         <View style={styles.modalHeader}>
           <Pressable onPress={handleCancel}>
-            <Text style={[styles.buttonText, styles.cancelText]}>
-              Cancel
-            </Text>
+            <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
           </Pressable>
-          
+
           <Pressable onPress={handleSend} disabled={!transcribedText}>
-            <Text style={[styles.buttonText, transcribedText ? styles.sendText : styles.disabledText]}>
+            <Text
+              style={[styles.buttonText, transcribedText ? styles.sendText : styles.disabledText]}
+            >
               Send
             </Text>
           </Pressable>
@@ -135,17 +130,11 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
             <Text style={styles.errorText}>{error}</Text>
           ) : (
             <View style={styles.transcriptionContainer}>
-              <Text style={styles.listeningText}>
-                {isRecording ? "Listening..." : "Paused"}
-              </Text>
+              <Text style={styles.listeningText}>{isRecording ? "Listening" : "Paused"}</Text>
               {transcribedText ? (
-                <Text style={styles.transcriptionText}>
-                  {transcribedText}
-                </Text>
+                <Text style={styles.transcriptionText}>{transcribedText}</Text>
               ) : (
-                <Text style={styles.placeholderText}>
-                  Start speaking...
-                </Text>
+                <Text style={styles.placeholderText}>Start speaking...</Text>
               )}
             </View>
           )}
