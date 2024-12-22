@@ -6,14 +6,10 @@ export const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
   },
   modalContent: {
-    height: "50%",
+    flex: 1,
     backgroundColor: colors.background,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    overflow: "hidden",
   },
   modalHeader: {
     flexDirection: "row",
@@ -22,6 +18,7 @@ export const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    paddingTop: 60, // Add safe area padding for status bar
   },
   buttonText: {
     fontSize: 17,
