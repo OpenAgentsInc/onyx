@@ -131,7 +131,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
   errorText: {
-    color: colors.error,
+    color: 'red',
     fontSize: 14,
     fontFamily: typography.primary.normal,
   },
