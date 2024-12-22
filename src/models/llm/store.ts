@@ -5,7 +5,7 @@ import { withModelManagement } from "./actions/model-management"
 import { ModelInfoModel } from "./types"
 import { withViews } from "./views"
 
-export const LLMStoreModel = types
+const LLMStoreModel = types
   .model("LLMStore")
   .props({
     isInitialized: types.optional(types.boolean, false),
@@ -29,3 +29,5 @@ export const createLLMStoreDefaultModel = () =>
     models: [],
     selectedModelKey: null,
   })
+
+export { LLMStoreModel }
