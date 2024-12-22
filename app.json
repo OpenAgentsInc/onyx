@@ -38,6 +38,10 @@
       },
       "config": {
         "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Allow Onyx to securely recognize your speech",
+        "NSMicrophoneUsageDescription": "Allow Onyx to access your microphone for voice commands"
       }
     },
     "web": {
@@ -79,7 +83,8 @@
           "microphonePermission": "Allow Onyx to access your microphone for voice commands",
           "speechRecognitionPermission": "Allow Onyx to securely recognize your speech"
         }
-      ]
+      ],
+      "expo-speech"
     ],
     "experiments": {
       "tsconfigPaths": true
