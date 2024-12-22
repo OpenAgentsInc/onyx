@@ -13,6 +13,7 @@ import * as SplashScreen from "expo-splash-screen"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
 import { AppRegistry, Image, View, ViewStyle } from "react-native"
+import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
@@ -49,36 +50,29 @@ function App(props: AppProps) {
   })
 
   // Initialize wallet store
-  const { llmStore } = useStores()
-  React.useEffect(() => {
-    llmStore.initialize()
-  }, [llmStore])
+  // const { llmStore } = useStores()
+  // React.useEffect(() => {
+  //   llmStore.initialize()
+  // }, [llmStore])
 
   if (!loaded) {
     return null
   }
 
   return (
-    <View style={$container}>
-      <StatusBar style="light" />
-      {/* <View
-        style={{
-          position: "absolute",
-          backgroundColor: "#1B1B1B",
-          left: 30,
-          right: 30,
-          height: 40,
-          bottom: 40,
-          zIndex: 8,
-          borderRadius: 10,
-        }}
-      /> */}
-      <OnyxLayout />
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+      <ErrorBoundary catchErrors={Config.catchErrors}>
+        <View style={$container}>
+          <StatusBar style="light" />
 
-      <View style={$canvasContainer}>
-        <Canvas />
-      </View>
-    </View>
+          <OnyxLayout />
+
+          <View style={$canvasContainer}>
+            <Canvas />
+          </View>
+        </View>
+      </ErrorBoundary>
+    </SafeAreaProvider>
   )
 }
 
