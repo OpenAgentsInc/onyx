@@ -126,7 +126,7 @@ export const ConfigureModal = observer(function ConfigureModal({
                         {modelError && <Text style={styles.modelError}>{modelError}</Text>}
                       </View>
                       <Text style={styles.modelSize}>
-                        {isDownloading ? `${progress}%` : getModelSize(key)}
+                        {isDownloading ? `${progress.toFixed(1)}%` : getModelSize(key)}
                       </Text>
                     </TouchableOpacity>
 
@@ -142,7 +142,7 @@ export const ConfigureModal = observer(function ConfigureModal({
                       <View style={styles.downloadContainer}>
                         {isDownloading ? (
                           <>
-                            <ActivityIndicator size="small" color="#007AFF" />
+                            <ActivityIndicator size="small" color="#FFFFFF" />
                             <TouchableOpacity
                               onPress={() => handleCancelDownload(key)}
                               style={styles.cancelButton}
