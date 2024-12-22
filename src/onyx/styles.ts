@@ -48,6 +48,13 @@ export const styles = StyleSheet.create({
     width: 56,
     height: 56,
   },
+  configureButton: {
+    width: 40,
+    height: 40,
+    position: "absolute",
+    right: 20,
+    top: 50,
+  },
   // Voice recording styles
   voiceContainer: {
     flex: 1,
