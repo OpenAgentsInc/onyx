@@ -57,7 +57,7 @@ function App(props: AppProps) {
   //   llmStore.initialize()
   // }, [llmStore])
 
-  if (!loaded) {
+  if (!loaded || !rehydrated) {
     return null
   }
 
