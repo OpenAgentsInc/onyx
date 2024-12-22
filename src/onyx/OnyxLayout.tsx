@@ -42,11 +42,10 @@ export const OnyxLayout = () => {
           <View
             style={{
               flexDirection: "row",
-              alignItems: "center",
+              justifyContent: "space-between",
               paddingHorizontal: 20,
               paddingTop: 60,
-              paddingBottom: 20,
-              gap: 15,
+              paddingBottom: 15,
             }}
           >
             <Pressable onPress={handleCancel}>
@@ -61,24 +60,6 @@ export const OnyxLayout = () => {
               </Text>
             </Pressable>
             
-            <TextInput
-              style={{
-                flex: 1,
-                color: "#fff",
-                fontSize: 17,
-                height: 40,
-                backgroundColor: "#1B1B1B",
-                borderRadius: 10,
-                paddingHorizontal: 15,
-                fontFamily: typography.primary.normal,
-              }}
-              placeholder="Type a message..."
-              placeholderTextColor="#666"
-              autoFocus
-              value={inputText}
-              onChangeText={setInputText}
-            />
-
             <Pressable onPress={handleSend}>
               <Text
                 style={{
@@ -91,6 +72,22 @@ export const OnyxLayout = () => {
               </Text>
             </Pressable>
           </View>
+
+          <TextInput
+            style={{
+              color: "#fff",
+              fontSize: 17,
+              paddingHorizontal: 20,
+              paddingTop: 0,
+              fontFamily: typography.primary.normal,
+            }}
+            placeholder="Type a message..."
+            placeholderTextColor="#666"
+            autoFocus
+            multiline
+            value={inputText}
+            onChangeText={setInputText}
+          />
         </View>
       </Modal>
 
