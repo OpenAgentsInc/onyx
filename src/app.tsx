@@ -8,9 +8,11 @@ import * as React from "react"
 import { AppRegistry, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
+import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import ChatContainer from "./screens/Chat/ChatContainer"
 
 function App() {
+  useAutoUpdate()
 
   const [loaded] = useFonts(customFontsToLoad);
 
