@@ -78,17 +78,20 @@ export const useModelDownload = () => {
               )
 
               // Start download
-              const { uri } = await downloadResumable.downloadAsync()
+              const result = await downloadResumable.downloadAsync()
+              if (!result) {
+                throw new Error("Download was cancelled")
+              }
 
               // Validate file
-              const fileInfo = await FileSystem.getInfoAsync(uri)
+              const fileInfo = await FileSystem.getInfoAsync(result.uri)
               if (!fileInfo.exists || fileInfo.size < 100 * 1024 * 1024) {
                 throw new Error("Downloaded file is invalid or too small")
               }
 
               // Move to final location
               await FileSystem.moveAsync({
-                from: uri,
+                from: result.uri,
                 to: finalPath
               })
 
