@@ -32,7 +32,7 @@ export const OnyxLayout = () => {
   }
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <TextInputModal
         visible={showTextInput}
         onClose={() => setShowTextInput(false)}
@@ -48,7 +48,7 @@ export const OnyxLayout = () => {
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={handleConfigurePress}
-        style={styles.configureButton}
+        style={[styles.configureButton, { pointerEvents: "box-none" }]}
       >
         <Image
           source={require("../../assets/icons/configure.png")}
@@ -76,6 +76,6 @@ export const OnyxLayout = () => {
           />
         </TouchableOpacity>
       </View>
-    </>
+    </View>
   )
 }
