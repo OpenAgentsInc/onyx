@@ -1,20 +1,74 @@
-import { Modal, Pressable, Text, View } from "react-native"
+import { useEffect, useState } from "react"
+import { Modal, Pressable, Text, View, Platform } from "react-native"
+import Voice, { SpeechResultsEvent } from "@react-native-voice/voice"
 import { styles } from "./styles"
 
 interface VoiceInputModalProps {
   visible: boolean
   onClose: () => void
-  onSend: (audioData: any) => void // TODO: Define proper audio data type
+  onSend: (text: string) => void
 }
 
 export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalProps) => {
-  const handleCancel = () => {
-    // TODO: Stop recording if in progress
+  const [isRecording, setIsRecording] = useState(false)
+  const [transcribedText, setTranscribedText] = useState("")
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    // Initialize voice
+    Voice.onSpeechStart = () => setIsRecording(true)
+    Voice.onSpeechEnd = () => setIsRecording(false)
+    Voice.onSpeechResults = (e: SpeechResultsEvent) => {
+      if (e.value) {
+        setTranscribedText(e.value[0])
+      }
+    }
+    Voice.onSpeechError = (e: any) => {
+      setError(e.error?.message || "Error occurred")
+      setIsRecording(false)
+    }
+
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners)
+    }
+  }, [])
+
+  const startRecording = async () => {
+    try {
+      setError("")
+      setTranscribedText("")
+      await Voice.start(Platform.OS === "ios" ? "en-US" : "en")
+    } catch (e: any) {
+      setError(e.message || "Error starting recording")
+    }
+  }
+
+  const stopRecording = async () => {
+    try {
+      await Voice.stop()
+    } catch (e: any) {
+      setError(e.message || "Error stopping recording")
+    }
+  }
+
+  const handleCancel = async () => {
+    if (isRecording) {
+      await stopRecording()
+    }
+    setTranscribedText("")
+    setError("")
     onClose()
   }
 
-  const handleSend = () => {
-    // TODO: Implement voice recording handling
+  const handleSend = async () => {
+    if (isRecording) {
+      await stopRecording()
+    }
+    if (transcribedText) {
+      onSend(transcribedText)
+    }
+    setTranscribedText("")
+    setError("")
     onClose()
   }
 
@@ -33,17 +87,30 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
             </Text>
           </Pressable>
           
-          <Pressable onPress={handleSend}>
-            <Text style={[styles.buttonText, styles.disabledText]}>
+          <Pressable onPress={handleSend} disabled={!transcribedText}>
+            <Text style={[styles.buttonText, transcribedText ? styles.sendText : styles.disabledText]}>
               Send
             </Text>
           </Pressable>
         </View>
 
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text style={[styles.buttonText, styles.sendText]}>
-            Recording... (TODO)
-          </Text>
+        <View style={styles.voiceContainer}>
+          <Pressable 
+            onPress={isRecording ? stopRecording : startRecording}
+            style={[styles.recordButton, isRecording && styles.recordingButton]}
+          >
+            <Text style={styles.recordButtonText}>
+              {isRecording ? "Stop" : "Start Recording"}
+            </Text>
+          </Pressable>
+
+          {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : (
+            <Text style={styles.transcriptionText}>
+              {isRecording ? "Listening..." : transcribedText || "Tap button to start recording"}
+            </Text>
+          )}
         </View>
       </View>
     </Modal>
