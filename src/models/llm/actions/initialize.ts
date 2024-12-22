@@ -18,7 +18,7 @@ export const withInitialize = (self: ILLMStore) => {
 
         // Initialize models array from available models
         const models = Object.entries(AVAILABLE_MODELS).map(([key, model]) => {
-          const modelPath = `${MODELS_DIR}/${key}`
+          const modelPath = `${MODELS_DIR}/${model.filename}`
           return ModelInfoModel.create({
             key,
             displayName: model.displayName,
@@ -34,7 +34,10 @@ export const withInitialize = (self: ILLMStore) => {
 
         // Check each model's file
         for (const model of self.models) {
-          const modelPath = `${MODELS_DIR}/${model.key}`
+          const modelConfig = AVAILABLE_MODELS[model.key]
+          if (!modelConfig) continue
+          
+          const modelPath = `${MODELS_DIR}/${modelConfig.filename}`
           const fileInfo = yield FileSystem.getInfoAsync(modelPath)
           if (fileInfo.exists) {
             model.path = modelPath
