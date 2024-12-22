@@ -1,5 +1,14 @@
 import { useState } from "react"
-import { Image, TextInput, TouchableOpacity, View, Keyboard, Modal, Pressable, Text } from "react-native"
+import {
+  Image,
+  Keyboard,
+  Modal,
+  Pressable,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native"
 import { typography } from "@/theme"
 
 export const OnyxLayout = () => {
@@ -27,12 +36,7 @@ export const OnyxLayout = () => {
 
   return (
     <>
-      <Modal
-        visible={showTextInput}
-        animationType="fade"
-        transparent
-        onRequestClose={handleCancel}
-      >
+      <Modal visible={showTextInput} animationType="fade" transparent onRequestClose={handleCancel}>
         <View
           style={{
             flex: 1,
@@ -53,19 +57,19 @@ export const OnyxLayout = () => {
                 style={{
                   color: "#666",
                   fontSize: 17,
-                  fontFamily: typography.primary.normal,
+                  fontFamily: typography.primary.light,
                 }}
               >
                 Cancel
               </Text>
             </Pressable>
-            
+
             <Pressable onPress={handleSend}>
               <Text
                 style={{
                   color: inputText.trim() ? "#fff" : "#666",
                   fontSize: 17,
-                  fontFamily: typography.primary.normal,
+                  fontFamily: typography.primary.semiBold,
                 }}
               >
                 Send
@@ -104,10 +108,7 @@ export const OnyxLayout = () => {
           zIndex: 8,
         }}
       >
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={handleTextPress}
-        >
+        <TouchableOpacity activeOpacity={0.8} onPress={handleTextPress}>
           <Image
             source={require("../../assets/icons/text.png")}
             style={{ width: ICON_SIZE, height: ICON_SIZE }}
