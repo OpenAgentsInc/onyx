@@ -53,7 +53,8 @@ export const styles = StyleSheet.create({
     height: 40,
     position: "absolute",
     right: 20,
-    top: 50,
+    top: 70,
+    zIndex: 10,
   },
   // Voice recording styles
   voiceContainer: {
