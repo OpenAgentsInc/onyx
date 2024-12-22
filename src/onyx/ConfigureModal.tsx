@@ -1,5 +1,5 @@
 import React from "react"
-import { Alert, Modal, Text, TouchableOpacity, View, ActivityIndicator } from "react-native"
+import { Alert, Modal, Text, TouchableOpacity, View, ActivityIndicator, ScrollView } from "react-native"
 import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
 import { useStores } from "@/models"
 import { styles } from "./styles"
@@ -75,7 +75,7 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
     <Modal
       visible={visible}
       animationType="slide"
-      transparent={true}
+      transparent={false}
       onRequestClose={onClose}
     >
       <View style={styles.modalContainer}>
@@ -87,77 +87,79 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
             </TouchableOpacity>
           </View>
 
-          {llmStore.error && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{llmStore.error}</Text>
-            </View>
-          )}
+          <ScrollView>
+            {llmStore.error && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{llmStore.error}</Text>
+              </View>
+            )}
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Model Selection</Text>
-            {Object.entries(AVAILABLE_MODELS).map(([key, model]) => {
-              const status = getModelStatus(key)
-              const progress = getModelProgress(key)
-              const modelError = getModelError(key)
-              const downloaded = isModelDownloaded(key)
-              const isActive = key === llmStore.selectedModelKey
-              const isDownloading = status === 'downloading'
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Model Selection</Text>
+              {Object.entries(AVAILABLE_MODELS).map(([key, model]) => {
+                const status = getModelStatus(key)
+                const progress = getModelProgress(key)
+                const modelError = getModelError(key)
+                const downloaded = isModelDownloaded(key)
+                const isActive = key === llmStore.selectedModelKey
+                const isDownloading = status === 'downloading'
 
-              return (
-                <View key={key} style={styles.modelItem}>
-                  <TouchableOpacity
-                    style={styles.modelInfo}
-                    onPress={() => downloaded && handleSelectModel(key)}
-                    disabled={!downloaded || isDownloading}
-                  >
-                    <View style={styles.modelNameContainer}>
-                      <Text style={styles.modelName}>
-                        {model.displayName}
-                        {isActive && <Text style={styles.activeIndicator}> ✓</Text>}
-                      </Text>
-                      {modelError && (
-                        <Text style={styles.modelError}>{modelError}</Text>
-                      )}
-                    </View>
-                    <Text style={styles.modelSize}>
-                      {isDownloading ? `${progress}%` : getModelSize(key)}
-                    </Text>
-                  </TouchableOpacity>
-
-                  {downloaded ? (
+                return (
+                  <View key={key} style={styles.modelItem}>
                     <TouchableOpacity
-                      onPress={() => handleDeleteModel(key)}
-                      style={styles.deleteButton}
-                      disabled={isDownloading}
+                      style={styles.modelInfo}
+                      onPress={() => downloaded && handleSelectModel(key)}
+                      disabled={!downloaded || isDownloading}
                     >
-                      <Text style={styles.deleteButtonText}>Delete</Text>
+                      <View style={styles.modelNameContainer}>
+                        <Text style={styles.modelName}>
+                          {model.displayName}
+                          {isActive && <Text style={styles.activeIndicator}> ✓</Text>}
+                        </Text>
+                        {modelError && (
+                          <Text style={styles.modelError}>{modelError}</Text>
+                        )}
+                      </View>
+                      <Text style={styles.modelSize}>
+                        {isDownloading ? `${progress}%` : getModelSize(key)}
+                      </Text>
                     </TouchableOpacity>
-                  ) : (
-                    <View style={styles.downloadContainer}>
-                      {isDownloading ? (
-                        <>
-                          <ActivityIndicator size="small" color="#007AFF" />
+
+                    {downloaded ? (
+                      <TouchableOpacity
+                        onPress={() => handleDeleteModel(key)}
+                        style={styles.deleteButton}
+                        disabled={isDownloading}
+                      >
+                        <Text style={styles.deleteButtonText}>Delete</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <View style={styles.downloadContainer}>
+                        {isDownloading ? (
+                          <>
+                            <ActivityIndicator size="small" color="#007AFF" />
+                            <TouchableOpacity
+                              onPress={() => handleCancelDownload(key)}
+                              style={styles.cancelButton}
+                            >
+                              <Text style={styles.cancelButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                          </>
+                        ) : (
                           <TouchableOpacity
-                            onPress={() => handleCancelDownload(key)}
-                            style={styles.cancelButton}
+                            onPress={() => handleDownloadPress(key)}
+                            style={styles.downloadButton}
                           >
-                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                            <Text style={styles.downloadButtonText}>Download</Text>
                           </TouchableOpacity>
-                        </>
-                      ) : (
-                        <TouchableOpacity
-                          onPress={() => handleDownloadPress(key)}
-                          style={styles.downloadButton}
-                        >
-                          <Text style={styles.downloadButtonText}>Download</Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                  )}
-                </View>
-              )
-            })}
-          </View>
+                        )}
+                      </View>
+                    )}
+                  </View>
+                )
+              })}
+            </View>
+          </ScrollView>
         </View>
       </View>
     </Modal>
