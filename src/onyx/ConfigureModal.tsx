@@ -1,9 +1,8 @@
 import * as FileSystem from "expo-file-system"
 import React, { useEffect, useState } from "react"
-import { Alert, Modal, Text, TouchableOpacity, View } from "react-native"
+import { Alert, Modal, Text, TouchableOpacity, View, ActivityIndicator } from "react-native"
 import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
 import { useModelStore } from "@/store/useModelStore"
-import { useModelDownload } from "../hooks/useModelDownload"
 import { styles } from "./styles"
 
 interface ConfigureModalProps {
@@ -13,32 +12,27 @@ interface ConfigureModalProps {
 
 export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
   const [modelFiles, setModelFiles] = useState<string[]>([])
-  // Inside the ConfigureModal component:
-  const { startDownload } = useModelDownload()
 
   const {
     selectedModelKey,
-    status,
-    progress,
-    selectModel,
-    startInitialization,
+    models,
+    error,
+    startModelDownload,
+    cancelModelDownload,
     deleteModel,
-    confirmDeletion,
+    selectModel,
   } = useModelStore()
 
   const modelsDir = `${FileSystem.cacheDirectory}models`
 
   const loadModelFiles = async () => {
     try {
-      // Ensure directory exists
       const dirInfo = await FileSystem.getInfoAsync(modelsDir)
       if (!dirInfo.exists) {
         await FileSystem.makeDirectoryAsync(modelsDir, { intermediates: true })
         setModelFiles([])
         return
       }
-
-      // Read directory contents
       const files = await FileSystem.readDirectoryAsync(modelsDir)
       setModelFiles(files)
     } catch (error) {
@@ -58,28 +52,9 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
           style: "destructive",
           onPress: async () => {
             try {
-              console.log(`[Model Delete] Starting deletion process for ${modelKey}`)
-              const filePath = `${modelsDir}/${model.filename}`
-
-              // First notify store to handle any context release
-              deleteModel(modelKey)
-
-              // Wait a bit for context release if needed
-              await new Promise((resolve) => setTimeout(resolve, 500))
-
-              // Delete the file
-              console.log(`[Model Delete] Deleting file: ${filePath}`)
-              await FileSystem.deleteAsync(filePath)
-
-              // Confirm deletion in store
-              confirmDeletion(modelKey)
-
-              // Refresh list
+              await deleteModel(modelKey)
               await loadModelFiles()
-
-              console.log(`[Model Delete] Successfully deleted model: ${modelKey}`)
             } catch (error) {
-              console.error("Failed to delete model file:", error)
               Alert.alert("Error", "Failed to delete model file")
             }
           },
@@ -88,35 +63,18 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
     )
   }
 
-  const handleSelectModel = async (modelKey: string) => {
-    // First select the model in the store
+  const handleSelectModel = (modelKey: string) => {
     selectModel(modelKey)
-
-    // Start initialization
-    startInitialization()
-
-    // Close the modal
     onClose()
   }
 
-  // Then replace the handleDownloadPress function with:
   const handleDownloadPress = (modelKey: string) => {
-    // First select the model
-    selectModel(modelKey)
-    // Start download using the new hook
-    startDownload()
+    startModelDownload(modelKey)
   }
 
-  // const handleDownloadPress = (modelKey: string) => {
-  //   // First select the model
-  //   selectModel(modelKey)
-
-  //   // Start download
-  //   startDownload()
-
-  //   // Close the modal
-  //   onClose()
-  // }
+  const handleCancelDownload = (modelKey: string) => {
+    cancelModelDownload(modelKey)
+  }
 
   useEffect(() => {
     if (visible) {
@@ -124,58 +82,65 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
     }
   }, [visible])
 
-  // Refresh list when model status changes
   useEffect(() => {
-    if (status === "idle") {
-      loadModelFiles()
-    }
-  }, [status])
+    loadModelFiles()
+  }, [models])
 
   const isModelDownloaded = (modelKey: string) => {
-    const model = AVAILABLE_MODELS[modelKey]
-    return modelFiles.includes(model.filename)
+    const model = models.find(m => m.key === modelKey)
+    return model?.status === 'ready'
   }
 
   const getModelSize = (modelKey: string): string => {
     return modelKey === "1B" ? "770 MB" : "2.1 GB"
   }
 
-  const isModelActive = (modelKey: string) => {
-    return modelKey === selectedModelKey && status === "ready"
+  const getModelStatus = (modelKey: string) => {
+    const model = models.find(m => m.key === modelKey)
+    return model?.status || 'idle'
   }
 
-  const isDownloading = status === "downloading"
+  const getModelProgress = (modelKey: string) => {
+    const model = models.find(m => m.key === modelKey)
+    return model?.progress || 0
+  }
+
+  const getModelError = (modelKey: string) => {
+    const model = models.find(m => m.key === modelKey)
+    return model?.error
+  }
 
   return (
     <Modal
       visible={visible}
       animationType="slide"
       transparent={true}
-      onRequestClose={() => !isDownloading && onClose()}
+      onRequestClose={onClose}
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Text style={styles.headerTitle}>Configure Onyx</Text>
-            <TouchableOpacity
-              onPress={onClose}
-              style={[styles.closeButton, isDownloading && styles.closeButtonDisabled]}
-              disabled={isDownloading}
-            >
-              <Text
-                style={[styles.closeButtonText, isDownloading && styles.closeButtonTextDisabled]}
-              >
-                Done
-              </Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Done</Text>
             </TouchableOpacity>
           </View>
+
+          {error && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Model Selection</Text>
             {Object.entries(AVAILABLE_MODELS).map(([key, model]) => {
+              const status = getModelStatus(key)
+              const progress = getModelProgress(key)
+              const modelError = getModelError(key)
               const downloaded = isModelDownloaded(key)
-              const active = isModelActive(key)
-              const downloading = isDownloading && key === selectedModelKey
+              const isActive = key === selectedModelKey
+              const isDownloading = status === 'downloading'
 
               return (
                 <View key={key} style={styles.modelItem}>
@@ -184,14 +149,20 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
                     onPress={() => downloaded && handleSelectModel(key)}
                     disabled={!downloaded || isDownloading}
                   >
-                    <Text style={styles.modelName}>
-                      {model.displayName}
-                      {active && <Text style={styles.activeIndicator}> ✓</Text>}
-                    </Text>
+                    <View style={styles.modelNameContainer}>
+                      <Text style={styles.modelName}>
+                        {model.displayName}
+                        {isActive && <Text style={styles.activeIndicator}> ✓</Text>}
+                      </Text>
+                      {modelError && (
+                        <Text style={styles.modelError}>{modelError}</Text>
+                      )}
+                    </View>
                     <Text style={styles.modelSize}>
-                      {downloading ? `Downloading... ${progress}%` : getModelSize(key)}
+                      {isDownloading ? `${progress}%` : getModelSize(key)}
                     </Text>
                   </TouchableOpacity>
+
                   {downloaded ? (
                     <TouchableOpacity
                       onPress={() => handleDeleteModel(key)}
@@ -201,15 +172,26 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
                       <Text style={styles.deleteButtonText}>Delete</Text>
                     </TouchableOpacity>
                   ) : (
-                    <TouchableOpacity
-                      onPress={() => handleDownloadPress(key)}
-                      style={[styles.downloadButton, downloading && styles.downloadingButton]}
-                      disabled={isDownloading}
-                    >
-                      <Text style={styles.downloadButtonText}>
-                        {downloading ? `${progress}%` : "Download"}
-                      </Text>
-                    </TouchableOpacity>
+                    <View style={styles.downloadContainer}>
+                      {isDownloading ? (
+                        <>
+                          <ActivityIndicator size="small" color="#007AFF" />
+                          <TouchableOpacity
+                            onPress={() => handleCancelDownload(key)}
+                            style={styles.cancelButton}
+                          >
+                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                          </TouchableOpacity>
+                        </>
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => handleDownloadPress(key)}
+                          style={styles.downloadButton}
+                        >
+                          <Text style={styles.downloadButtonText}>Download</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
                   )}
                 </View>
               )
