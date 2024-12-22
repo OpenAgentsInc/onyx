@@ -27,7 +27,7 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
       }
     }
     Voice.onSpeechResults = (e: SpeechResultsEvent) => {
-      if (e.value) {
+      if (e.value && e.value[0]) {
         setTranscribedText(e.value[0])
       }
     }
@@ -51,6 +51,7 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
       }
     } else {
       stopRecording()
+      setTranscribedText("")
     }
   }, [visible, hasPermission, isChecking])
 
@@ -125,9 +126,20 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
           ) : error ? (
             <Text style={styles.errorText}>{error}</Text>
           ) : (
-            <Text style={styles.transcriptionText}>
-              {isRecording ? "Listening..." : transcribedText || "Starting..."}
-            </Text>
+            <View style={styles.transcriptionContainer}>
+              <Text style={styles.listeningText}>
+                {isRecording ? "Listening..." : "Paused"}
+              </Text>
+              {transcribedText ? (
+                <Text style={styles.transcriptionText}>
+                  {transcribedText}
+                </Text>
+              ) : (
+                <Text style={styles.placeholderText}>
+                  Start speaking...
+                </Text>
+              )}
+            </View>
           )}
         </View>
       </View>
