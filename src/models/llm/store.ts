@@ -42,4 +42,8 @@ export const createLLMStoreDefaultModel = () => {
   })
 }
 
+// Create and export the default store instance
+const defaultStore = createLLMStoreDefaultModel()
+
 export { LLMStoreModel }
+export default defaultStore
