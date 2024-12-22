@@ -1,11 +1,11 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { LLMStoreModel } from "./LLMStore"
+import { LLMStoreModel, createLLMStoreDefaultModel } from "./llm/store"
 
 /**
  * A RootStore model.
  */
 export const RootStoreModel = types.model("RootStore").props({
-  llmStore: types.optional(LLMStoreModel, {}),
+  llmStore: types.optional(LLMStoreModel, () => createLLMStoreDefaultModel()),
 })
 
 /**
