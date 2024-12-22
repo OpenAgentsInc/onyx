@@ -1,7 +1,7 @@
 interface LogProps {
   name: string
   preview?: string
-  value?: string
+  value?: string | object
   important?: boolean
 }
 

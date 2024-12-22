@@ -15,6 +15,7 @@ import { AppRegistry, Image, View, ViewStyle } from "react-native"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
+import { log } from "@/utils/log"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore, useStores } from "./models"
@@ -38,6 +39,7 @@ function App(props: AppProps) {
   // Initialize LLM store
   const { llmStore } = useStores()
   React.useEffect(() => {
+    log({ name: "App", preview: "Initializing" })
     llmStore.initialize()
   }, [llmStore])
 
