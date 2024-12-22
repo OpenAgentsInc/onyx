@@ -1,8 +1,9 @@
 import React, { useState } from "react"
-import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colors"
 import { AVAILABLE_MODELS, DEFAULT_MODEL_KEY } from "@/screens/Chat/constants"
+import { styles } from "./styles"
 
 interface ConfigureModalProps {
   visible: boolean
@@ -38,8 +39,8 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
       onRequestClose={onClose}
     >
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
+        <View style={styles.configureModalContent}>
+          <View style={styles.configureHeader}>
             <Text style={styles.headerTitle}>Configure Onyx</Text>
             <Pressable onPress={onClose}>
               <Text style={styles.closeButtonText}>Done</Text>
@@ -96,117 +97,3 @@ export const ConfigureModal = ({ visible, onClose }: ConfigureModalProps) => {
     </Modal>
   )
 }
-
-const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.85)",
-    justifyContent: "center",
-  },
-  modalContent: {
-    backgroundColor: colors.background,
-    margin: 20,
-    borderRadius: 20,
-    overflow: "hidden",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  headerTitle: {
-    color: colors.text,
-    fontSize: 18,
-    fontFamily: typography.primary.medium,
-  },
-  closeButtonText: {
-    color: colors.tint,
-    fontSize: 16,
-    fontFamily: typography.primary.medium,
-  },
-  section: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  sectionTitle: {
-    color: colors.textDim,
-    fontSize: 14,
-    fontFamily: typography.primary.medium,
-    marginBottom: 12,
-  },
-  modelItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  modelInfo: {
-    flex: 1,
-    marginRight: 16,
-  },
-  modelName: {
-    color: colors.text,
-    fontSize: 16,
-    fontFamily: typography.primary.normal,
-  },
-  activeIndicator: {
-    color: colors.tint,
-  },
-  modelSize: {
-    color: colors.textDim,
-    fontSize: 12,
-    fontFamily: typography.primary.normal,
-    marginTop: 4,
-  },
-  actionButton: {
-    backgroundColor: colors.background,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-    minWidth: 90,
-    alignItems: "center",
-  },
-  selectedButton: {
-    backgroundColor: colors.tint,
-    borderColor: colors.tint,
-  },
-  actionButtonText: {
-    color: colors.text,
-    fontSize: 14,
-    fontFamily: typography.primary.medium,
-  },
-  selectedButtonText: {
-    color: colors.background,
-  },
-  downloadButton: {
-    backgroundColor: colors.tint,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    minWidth: 90,
-    alignItems: "center",
-  },
-  downloadButtonText: {
-    color: colors.background,
-    fontSize: 14,
-    fontFamily: typography.primary.medium,
-  },
-  storageInfo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-  },
-  storageText: {
-    color: colors.text,
-    fontSize: 14,
-    fontFamily: typography.primary.normal,
-  },
-})
