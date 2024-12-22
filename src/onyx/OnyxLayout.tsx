@@ -4,6 +4,7 @@ import { styles } from "./styles"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
 import { ConfigureModal } from "./ConfigureModal"
+import { DownloadModal } from "./DownloadModal"
 
 export const OnyxLayout = () => {
   const [showTextInput, setShowTextInput] = useState(false)
@@ -51,6 +52,8 @@ export const OnyxLayout = () => {
         visible={showConfigureModal}
         onClose={() => setShowConfigureModal(false)}
       />
+
+      <DownloadModal />
 
       <TouchableOpacity
         activeOpacity={0.8}
