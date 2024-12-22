@@ -31,12 +31,12 @@ export const styles = StyleSheet.create({
   // Modal styles
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "#000",
   },
   modalContent: {
     flex: 1,
     backgroundColor: "#000",
-    marginTop: 60, // Add safe area padding for status bar
+    paddingTop: 60, // Changed from marginTop to paddingTop
   },
   modalHeader: {
     flexDirection: "row",
