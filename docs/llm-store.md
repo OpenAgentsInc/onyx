@@ -22,10 +22,12 @@ src/models/llm/
 The store maintains the following state:
 
 ```typescript
-{
+interface ILLMStore extends IStateTreeNode {
   isInitialized: boolean
   error: string | null
-  models: ModelInfo[]
+  models: IModelInfo[] & {
+    replace(items: IModelInfo[]): void
+  }
   selectedModelKey: string | null
 }
 ```
@@ -35,7 +37,7 @@ The store maintains the following state:
 Each model in the store has the following properties:
 
 ```typescript
-{
+interface IModelInfo {
   key: string            // Unique identifier
   displayName: string    // Human-readable name
   path: string | null    // Local file path when downloaded
@@ -53,6 +55,27 @@ Each model in the store has the following properties:
 - `ready`: Model is downloaded and ready to use
 - `error`: An error occurred
 
+## Type System
+
+The store uses a combination of MobX-State-Tree types and TypeScript interfaces:
+
+```typescript
+// MST Model Definition
+const ModelInfoModel = types.model("ModelInfo", {
+  key: types.string,
+  displayName: types.string,
+  path: types.maybeNull(types.string),
+  status: types.enumeration(["idle", "downloading", "initializing", "ready", "error"]),
+  progress: types.number,
+  error: types.maybe(types.string),
+})
+
+// TypeScript Interface
+interface IModelInfo extends Instance<typeof ModelInfoModel> {}
+```
+
+The store extends `IStateTreeNode` to provide access to MST functionality while maintaining type safety.
+
 ## Actions
 
 ### Initialization
@@ -65,7 +88,7 @@ await store.initialize()
 The initialize action:
 1. Creates the models directory if needed
 2. Scans for locally downloaded models
-3. Updates store state with found models
+3. Updates store state with found models using MST's `replace` action
 4. Automatically selects a ready model if available
 
 ### Model Management
@@ -194,3 +217,13 @@ if (model?.status === "ready") {
 8. Use TypeScript interfaces for type safety
 9. Follow the modular architecture pattern
 10. Document new features and changes
+
+## Type Safety Notes
+
+1. The store uses MST's type system for runtime validation
+2. TypeScript interfaces provide compile-time type checking
+3. Array methods from MST (like `replace`) are properly typed
+4. Model status is enforced via TypeScript enum
+5. All action parameters are strictly typed
+6. Views maintain type safety through interfaces
+7. Error handling preserves type information
