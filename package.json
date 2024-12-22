@@ -29,7 +29,8 @@
     "eas-build-on-success": "echo 'Build succeeded!'",
     "eas-build-on-error": "echo 'Build failed!'",
     "eas-build-on-complete": "echo 'Build completed!'",
-    "eas-build-on-cancel": "echo 'Build was canceled!'"
+    "eas-build-on-cancel": "echo 'Build was canceled!'",
+    "update:prod": "eas update --channel production --environment production --message"
   },
   "jest": {
     "preset": "jest-expo"
