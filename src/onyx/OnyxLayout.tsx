@@ -1,54 +1,98 @@
 import { useState } from "react"
-import { Image, Keyboard, TextInput, TouchableOpacity, View } from "react-native"
+import { Image, TextInput, TouchableOpacity, View, Keyboard, Modal, Pressable, Text } from "react-native"
 import { typography } from "@/theme"
 
 export const OnyxLayout = () => {
   const ICON_SIZE = 56
   const [showTextInput, setShowTextInput] = useState(false)
+  const [inputText, setInputText] = useState("")
 
   const handleTextPress = () => {
-    if (showTextInput) {
-      Keyboard.dismiss()
-      setShowTextInput(false)
-    } else {
-      setShowTextInput(true)
+    setShowTextInput(true)
+  }
+
+  const handleCancel = () => {
+    Keyboard.dismiss()
+    setInputText("")
+    setShowTextInput(false)
+  }
+
+  const handleSend = () => {
+    if (inputText.trim()) {
+      // TODO: Handle send
+      console.log("Sending:", inputText)
     }
+    handleCancel()
   }
 
   return (
     <>
-      {showTextInput && (
+      <Modal
+        visible={showTextInput}
+        animationType="fade"
+        transparent
+        onRequestClose={handleCancel}
+      >
         <View
           style={{
-            position: "absolute",
-            backgroundColor: "#1B1B1B",
-            left: 30,
-            right: 30,
-            height: 40,
-            bottom: 120,
-            zIndex: 8,
-            borderRadius: 10,
-            paddingHorizontal: 15,
-            justifyContent: "center",
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.85)",
           }}
         >
-          <TextInput
+          <View
             style={{
-              color: "#fff",
-              fontSize: 16,
-              height: "100%",
-              fontFamily: typography.primary.normal,
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 20,
+              paddingTop: 60,
+              paddingBottom: 20,
+              gap: 15,
             }}
-            placeholder="Type a message..."
-            placeholderTextColor="#666"
-            autoFocus
-            onBlur={() => {
-              Keyboard.dismiss()
-              setShowTextInput(false)
-            }}
-          />
+          >
+            <Pressable onPress={handleCancel}>
+              <Text
+                style={{
+                  color: "#666",
+                  fontSize: 17,
+                  fontFamily: typography.primary.normal,
+                }}
+              >
+                Cancel
+              </Text>
+            </Pressable>
+            
+            <TextInput
+              style={{
+                flex: 1,
+                color: "#fff",
+                fontSize: 17,
+                height: 40,
+                backgroundColor: "#1B1B1B",
+                borderRadius: 10,
+                paddingHorizontal: 15,
+                fontFamily: typography.primary.normal,
+              }}
+              placeholder="Type a message..."
+              placeholderTextColor="#666"
+              autoFocus
+              value={inputText}
+              onChangeText={setInputText}
+            />
+
+            <Pressable onPress={handleSend}>
+              <Text
+                style={{
+                  color: inputText.trim() ? "#fff" : "#666",
+                  fontSize: 17,
+                  fontFamily: typography.primary.normal,
+                }}
+              >
+                Send
+              </Text>
+            </Pressable>
+          </View>
         </View>
-      )}
+      </Modal>
 
       <View
         style={{
@@ -63,7 +107,10 @@ export const OnyxLayout = () => {
           zIndex: 8,
         }}
       >
-        <TouchableOpacity activeOpacity={0.8} onPress={handleTextPress}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={handleTextPress}
+        >
           <Image
             source={require("../../assets/icons/text.png")}
             style={{ width: ICON_SIZE, height: ICON_SIZE }}
