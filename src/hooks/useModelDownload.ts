@@ -68,8 +68,10 @@ export const useModelDownload = () => {
                 tempPath,
                 {},
                 (downloadProgress) => {
-                  const progress =
-                    (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100
+                  const progress = parseFloat(
+                    ((downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100)
+                    .toFixed(1)
+                  )
                   updateProgress(progress)
                 }
               )
