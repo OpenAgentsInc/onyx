@@ -1,4 +1,5 @@
 import { flow, Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
+import { LocalModelService } from "@/services/local-models/LocalModelService"
 import { withSetPropAction } from "./helpers/withSetPropAction"
 
 export const LLMStoreModel = types
@@ -18,6 +19,14 @@ export const LLMStoreModel = types
       console.tron.display({
         name: 'Initialize',
         value: 'placeholder'
+      })
+
+      // See if we have any models loaded locally (first set checking)
+      const localModelService = new LocalModelService()
+      const models = yield localModelService.getLocalModels()
+      console.tron.display({
+        name: 'Local Models',
+        value: models
       })
     })
 
