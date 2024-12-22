@@ -56,7 +56,8 @@ export const useModelDownload = () => {
           onPress: async () => {
             try {
               // First set the store status to downloading
-              useModelStore.getState().startDownload()
+              const store = useModelStore.getState()
+              store.startDownload()
 
               const tempPath = `${FileSystem.cacheDirectory}temp_${model.filename}`
               const finalPath = `${MODELS_DIR}/${model.filename}`
@@ -69,7 +70,8 @@ export const useModelDownload = () => {
                 (downloadProgress) => {
                   const progress =
                     (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100
-                  updateProgress(progress)
+                  // Get fresh store instance to update progress
+                  useModelStore.getState().updateProgress(progress)
                 }
               )
 
@@ -89,11 +91,11 @@ export const useModelDownload = () => {
               })
 
               // Update state with final path
-              setModelPath(finalPath)
+              useModelStore.getState().setModelPath(finalPath)
 
             } catch (error: any) {
               console.error("Download error:", error)
-              setError(error.message || "Failed to download model")
+              useModelStore.getState().setError(error.message || "Failed to download model")
 
               // Clean up temp file
               try {
