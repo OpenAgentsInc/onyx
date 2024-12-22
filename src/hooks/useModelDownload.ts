@@ -42,7 +42,7 @@ export const useModelDownload = () => {
     }
 
     const size = selectedModelKey === "1B" ? "770 MB" : "1.9 GB"
-    
+
     Alert.alert(
       "Download Model",
       `This will download ${model.displayName} (${size}). Please ensure:\n\n` +
@@ -51,10 +51,13 @@ export const useModelDownload = () => {
       "• Keep the app open during download",
       [
         { text: "Cancel", style: "cancel" },
-        { 
+        {
           text: "Download",
           onPress: async () => {
             try {
+              // First set the store status to downloading
+              useModelStore.getState().startDownload()
+
               const tempPath = `${FileSystem.cacheDirectory}temp_${model.filename}`
               const finalPath = `${MODELS_DIR}/${model.filename}`
 
@@ -64,7 +67,7 @@ export const useModelDownload = () => {
                 tempPath,
                 {},
                 (downloadProgress) => {
-                  const progress = 
+                  const progress =
                     (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100
                   updateProgress(progress)
                 }
@@ -72,7 +75,7 @@ export const useModelDownload = () => {
 
               // Start download
               const { uri } = await downloadResumable.downloadAsync()
-              
+
               // Validate file
               const fileInfo = await FileSystem.getInfoAsync(uri)
               if (!fileInfo.exists || fileInfo.size < 100 * 1024 * 1024) {
@@ -91,17 +94,16 @@ export const useModelDownload = () => {
             } catch (error: any) {
               console.error("Download error:", error)
               setError(error.message || "Failed to download model")
-              
+
               // Clean up temp file
               try {
                 await FileSystem.deleteAsync(tempPath)
-              } catch {}
+              } catch { }
             }
           }
         }
       ]
     )
   }, [selectedModelKey, setError, updateProgress, setModelPath])
-
   return { startDownload }
 }
