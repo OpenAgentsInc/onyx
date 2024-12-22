@@ -21,9 +21,10 @@ export const OnyxLayout = () => {
     console.log("Sending text:", text)
   }
 
-  const handleVoiceSend = (audioData: any) => {
-    // TODO: Handle sending voice message
-    console.log("Sending voice:", audioData)
+  const handleVoiceSend = (transcribedText: string) => {
+    // Handle the transcribed text the same way as text input
+    console.log("Sending transcribed text:", transcribedText)
+    handleTextSend(transcribedText)
   }
 
   return (
