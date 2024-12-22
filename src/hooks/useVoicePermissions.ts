@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import Voice from '@react-native-voice/voice'
-import * as ExpoPermissions from 'expo-permissions'
-import { Platform } from 'react-native'
+import { Platform, PermissionsAndroid } from 'react-native'
 
 export const useVoicePermissions = () => {
   const [hasPermission, setHasPermission] = useState(false)
@@ -15,25 +14,28 @@ export const useVoicePermissions = () => {
     try {
       setIsChecking(true)
       
-      // Check microphone permission
-      const { status: micStatus } = await ExpoPermissions.getAsync(ExpoPermissions.AUDIO_RECORDING)
-      
-      // On iOS, we also need to check speech recognition permission
-      let speechStatus = 'granted'
-      if (Platform.OS === 'ios') {
-        const { status } = await ExpoPermissions.getAsync(ExpoPermissions.SPEECH_RECOGNITION)
-        speechStatus = status
-      }
-
-      if (micStatus !== 'granted' || speechStatus !== 'granted') {
-        const results = await Promise.all([
-          ExpoPermissions.askAsync(ExpoPermissions.AUDIO_RECORDING),
-          Platform.OS === 'ios' ? ExpoPermissions.askAsync(ExpoPermissions.SPEECH_RECOGNITION) : Promise.resolve({ status: 'granted' })
-        ])
-
-        const allGranted = results.every(result => result.status === 'granted')
-        setHasPermission(allGranted)
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
+        )
+        
+        if (!granted) {
+          const result = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+            {
+              title: "Microphone Permission",
+              message: "Onyx needs access to your microphone for voice input",
+              buttonNeutral: "Ask Me Later",
+              buttonNegative: "Cancel",
+              buttonPositive: "OK"
+            }
+          )
+          setHasPermission(result === PermissionsAndroid.RESULTS.GRANTED)
+        } else {
+          setHasPermission(true)
+        }
       } else {
+        // iOS automatically handles permissions through Voice API
         setHasPermission(true)
       }
     } catch (error) {
@@ -48,14 +50,26 @@ export const useVoicePermissions = () => {
     try {
       setIsChecking(true)
       
-      const results = await Promise.all([
-        ExpoPermissions.askAsync(ExpoPermissions.AUDIO_RECORDING),
-        Platform.OS === 'ios' ? ExpoPermissions.askAsync(ExpoPermissions.SPEECH_RECOGNITION) : Promise.resolve({ status: 'granted' })
-      ])
-
-      const allGranted = results.every(result => result.status === 'granted')
-      setHasPermission(allGranted)
-      return allGranted
+      if (Platform.OS === 'android') {
+        const result = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          {
+            title: "Microphone Permission",
+            message: "Onyx needs access to your microphone for voice input",
+            buttonNeutral: "Ask Me Later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK"
+          }
+        )
+        
+        const granted = result === PermissionsAndroid.RESULTS.GRANTED
+        setHasPermission(granted)
+        return granted
+      }
+      
+      // iOS will handle permissions through the Voice API
+      setHasPermission(true)
+      return true
     } catch (error) {
       console.error('Error requesting voice permissions:', error)
       setHasPermission(false)
