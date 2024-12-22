@@ -1,123 +1,62 @@
 import { useState } from "react"
-import {
-  Image,
-  Keyboard,
-  Modal,
-  Pressable,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native"
-import { typography } from "@/theme"
+import { Image, TouchableOpacity, View } from "react-native"
+import { TextInputModal } from "./TextInputModal"
+import { VoiceInputModal } from "./VoiceInputModal"
+import { styles } from "./styles"
 
 export const OnyxLayout = () => {
-  const ICON_SIZE = 56
   const [showTextInput, setShowTextInput] = useState(false)
-  const [inputText, setInputText] = useState("")
+  const [showVoiceInput, setShowVoiceInput] = useState(false)
 
   const handleTextPress = () => {
     setShowTextInput(true)
   }
 
-  const handleCancel = () => {
-    Keyboard.dismiss()
-    setInputText("")
-    setShowTextInput(false)
+  const handleVoicePress = () => {
+    setShowVoiceInput(true)
   }
 
-  const handleSend = () => {
-    if (inputText.trim()) {
-      // TODO: Handle send
-      console.log("Sending:", inputText)
-    }
-    handleCancel()
+  const handleTextSend = (text: string) => {
+    // TODO: Handle sending text message
+    console.log("Sending text:", text)
+  }
+
+  const handleVoiceSend = (audioData: any) => {
+    // TODO: Handle sending voice message
+    console.log("Sending voice:", audioData)
   }
 
   return (
     <>
-      <Modal visible={showTextInput} animationType="fade" transparent onRequestClose={handleCancel}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.85)",
-          }}
+      <TextInputModal
+        visible={showTextInput}
+        onClose={() => setShowTextInput(false)}
+        onSend={handleTextSend}
+      />
+
+      <VoiceInputModal
+        visible={showVoiceInput}
+        onClose={() => setShowVoiceInput(false)}
+        onSend={handleVoiceSend}
+      />
+
+      <View style={styles.bottomButtons}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={handleTextPress}
         >
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              paddingHorizontal: 20,
-              paddingTop: 60,
-              paddingBottom: 15,
-            }}
-          >
-            <Pressable onPress={handleCancel}>
-              <Text
-                style={{
-                  color: "#666",
-                  fontSize: 17,
-                  fontFamily: typography.primary.light,
-                }}
-              >
-                Cancel
-              </Text>
-            </Pressable>
-
-            <Pressable onPress={handleSend}>
-              <Text
-                style={{
-                  color: inputText.trim() ? "#fff" : "#666",
-                  fontSize: 17,
-                  fontFamily: typography.primary.semiBold,
-                }}
-              >
-                Send
-              </Text>
-            </Pressable>
-          </View>
-
-          <TextInput
-            style={{
-              color: "#fff",
-              fontSize: 17,
-              paddingHorizontal: 20,
-              paddingTop: 0,
-              fontFamily: typography.primary.normal,
-            }}
-            placeholder="Type a message..."
-            placeholderTextColor="#666"
-            autoFocus
-            multiline
-            value={inputText}
-            onChangeText={setInputText}
-          />
-        </View>
-      </Modal>
-
-      <View
-        style={{
-          position: "absolute",
-          bottom: 50,
-          left: 0,
-          right: 0,
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 20,
-          zIndex: 8,
-        }}
-      >
-        <TouchableOpacity activeOpacity={0.8} onPress={handleTextPress}>
           <Image
             source={require("../../assets/icons/text.png")}
-            style={{ width: ICON_SIZE, height: ICON_SIZE }}
+            style={styles.iconButton}
           />
         </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={handleVoicePress}
+        >
           <Image
             source={require("../../assets/icons/voice.png")}
-            style={{ width: ICON_SIZE, height: ICON_SIZE }}
+            style={styles.iconButton}
           />
         </TouchableOpacity>
       </View>
