@@ -3,10 +3,12 @@ import { Image, TouchableOpacity, View } from "react-native"
 import { styles } from "./styles"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
+import { ConfigureModal } from "./ConfigureModal"
 
 export const OnyxLayout = () => {
   const [showTextInput, setShowTextInput] = useState(false)
   const [showVoiceInput, setShowVoiceInput] = useState(false)
+  const [showConfigureModal, setShowConfigureModal] = useState(false)
 
   const handleTextPress = () => {
     setShowTextInput(true)
@@ -17,7 +19,7 @@ export const OnyxLayout = () => {
   }
 
   const handleConfigurePress = () => {
-    console.log("Configure button pressed")
+    setShowConfigureModal(true)
   }
 
   const handleTextSend = (text: string) => {
@@ -43,6 +45,11 @@ export const OnyxLayout = () => {
         visible={showVoiceInput}
         onClose={() => setShowVoiceInput(false)}
         onSend={handleVoiceSend}
+      />
+
+      <ConfigureModal
+        visible={showConfigureModal}
+        onClose={() => setShowConfigureModal(false)}
       />
 
       <TouchableOpacity
