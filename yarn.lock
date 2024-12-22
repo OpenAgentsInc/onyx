@@ -3488,6 +3488,11 @@ expo-secure-store@~14.0.0:
   resolved "https://registry.yarnpkg.com/expo-secure-store/-/expo-secure-store-14.0.0.tgz#cf6eb7f73e619f8907d5a073e2f438927b5fc2ab"
   integrity sha512-VyhtRFXP+7hQmHhKlHIOWid1Q/IRpM7Uif32tZHLZHvQ6FNz2cUkr26XWGvCa7btYbrR6OL++FBFZYjbIcRZTw==
 
+expo-speech@~13.0.0:
+  version "13.0.0"
+  resolved "https://registry.yarnpkg.com/expo-speech/-/expo-speech-13.0.0.tgz#a37d7091bd6d10b1fd446e361891d6559cac33d1"
+  integrity sha512-LscUm2vnRyW6ej8PP8/5E80ivix8PP3hnagOcb/7TGFyDIFVIXy1zyEjT/1kTkpT0FzN2ha+qxtLzQyQvHQcJA==
+
 expo-splash-screen@~0.29.18:
   version "0.29.18"
   resolved "https://registry.yarnpkg.com/expo-splash-screen/-/expo-splash-screen-0.29.18.tgz#96ccce3d5a03389a9061743903b0a77c22a16796"
