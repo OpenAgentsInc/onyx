@@ -16,7 +16,7 @@ import { AppRegistry, Image, View, ViewStyle } from "react-native"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
-import { useInitialRootStore } from "./models"
+import { useInitialRootStore, useStores } from "./models"
 import { OnyxLayout } from "./onyx/OnyxLayout"
 
 interface AppProps {
@@ -47,6 +47,12 @@ function App(props: AppProps) {
     // Note: (vanilla iOS) You might notice the splash-screen logo change size. This happens in debug/development mode. Try building the app for release.
     setTimeout(hideSplashScreen, 500)
   })
+
+  // Initialize wallet store
+  const { llmStore } = useStores()
+  React.useEffect(() => {
+    llmStore.initialize()
+  }, [llmStore])
 
   if (!loaded) {
     return null
