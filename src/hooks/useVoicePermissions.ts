@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Voice from '@react-native-voice/voice'
 import * as ExpoPermissions from 'expo-permissions'
+import { Platform } from 'react-native'
 
 export const useVoicePermissions = () => {
   const [hasPermission, setHasPermission] = useState(false)
@@ -13,11 +14,25 @@ export const useVoicePermissions = () => {
   const checkPermissions = async () => {
     try {
       setIsChecking(true)
+      
+      // Check microphone permission
       const { status: micStatus } = await ExpoPermissions.getAsync(ExpoPermissions.AUDIO_RECORDING)
       
-      if (micStatus !== 'granted') {
-        const { status } = await ExpoPermissions.askAsync(ExpoPermissions.AUDIO_RECORDING)
-        setHasPermission(status === 'granted')
+      // On iOS, we also need to check speech recognition permission
+      let speechStatus = 'granted'
+      if (Platform.OS === 'ios') {
+        const { status } = await ExpoPermissions.getAsync(ExpoPermissions.SPEECH_RECOGNITION)
+        speechStatus = status
+      }
+
+      if (micStatus !== 'granted' || speechStatus !== 'granted') {
+        const results = await Promise.all([
+          ExpoPermissions.askAsync(ExpoPermissions.AUDIO_RECORDING),
+          Platform.OS === 'ios' ? ExpoPermissions.askAsync(ExpoPermissions.SPEECH_RECOGNITION) : Promise.resolve({ status: 'granted' })
+        ])
+
+        const allGranted = results.every(result => result.status === 'granted')
+        setHasPermission(allGranted)
       } else {
         setHasPermission(true)
       }
@@ -32,9 +47,15 @@ export const useVoicePermissions = () => {
   const requestPermissions = async () => {
     try {
       setIsChecking(true)
-      const { status } = await ExpoPermissions.askAsync(ExpoPermissions.AUDIO_RECORDING)
-      setHasPermission(status === 'granted')
-      return status === 'granted'
+      
+      const results = await Promise.all([
+        ExpoPermissions.askAsync(ExpoPermissions.AUDIO_RECORDING),
+        Platform.OS === 'ios' ? ExpoPermissions.askAsync(ExpoPermissions.SPEECH_RECOGNITION) : Promise.resolve({ status: 'granted' })
+      ])
+
+      const allGranted = results.every(result => result.status === 'granted')
+      setHasPermission(allGranted)
+      return allGranted
     } catch (error) {
       console.error('Error requesting voice permissions:', error)
       setHasPermission(false)
