@@ -1,4 +1,4 @@
-import { Instance, types } from "mobx-state-tree"
+import { Instance, IStateTreeNode, types } from "mobx-state-tree"
 
 export const ModelInfoModel = types.model("ModelInfo", {
   key: types.string,
@@ -11,10 +11,12 @@ export const ModelInfoModel = types.model("ModelInfo", {
 
 export interface IModelInfo extends Instance<typeof ModelInfoModel> {}
 
-// Base store interface without the circular reference
-export interface ILLMStore {
+// Base store interface with MST array type
+export interface ILLMStore extends IStateTreeNode {
   isInitialized: boolean
   error: string | null
-  models: IModelInfo[]
+  models: IModelInfo[] & {
+    replace(items: IModelInfo[]): void
+  }
   selectedModelKey: string | null
 }
