@@ -62,16 +62,16 @@ export const withModelManagement = (self: ILLMStore) => {
   return {
     startModelDownload: flow(function* (modelKey: string) {
       try {
-        // Find model in store
-        const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
-        if (modelIndex === -1) {
-          throw new Error("Model not found")
-        }
-
         // Get model config
         const modelConfig = AVAILABLE_MODELS[modelKey]
         if (!modelConfig) {
           throw new Error("Model configuration not found")
+        }
+
+        // Find model in store
+        const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
+        if (modelIndex === -1) {
+          throw new Error("Model not found in store")
         }
 
         // Update status
@@ -79,8 +79,8 @@ export const withModelManagement = (self: ILLMStore) => {
         setModelError(modelIndex, undefined)
 
         // Create temp path
-        const tempPath = `${FileSystem.cacheDirectory}temp_${modelKey}`
-        const finalPath = `${MODELS_DIR}/${modelKey}`
+        const tempPath = `${FileSystem.cacheDirectory}temp_${modelConfig.filename}`
+        const finalPath = `${MODELS_DIR}/${modelConfig.filename}`
 
         // Ensure directory exists
         yield FileSystem.makeDirectoryAsync(MODELS_DIR, { intermediates: true })
@@ -156,7 +156,12 @@ export const withModelManagement = (self: ILLMStore) => {
         
         const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
         if (modelIndex !== -1) {
-          const tempPath = `${FileSystem.cacheDirectory}temp_${modelKey}`
+          const modelConfig = AVAILABLE_MODELS[modelKey]
+          if (!modelConfig) {
+            throw new Error("Model configuration not found")
+          }
+          
+          const tempPath = `${FileSystem.cacheDirectory}temp_${modelConfig.filename}`
           yield cleanupTempFile(tempPath)
           
           setModelStatus(modelIndex, "idle")
