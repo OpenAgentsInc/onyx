@@ -128,7 +128,7 @@ export const withChatCompletion = (self: ILLMStore) => ({
       log({
         name: "[LLMStore] Chat Completion",
         preview: "Error",
-        value: error,
+        value: error instanceof Error ? error.message : "Unknown error",
         important: true
       })
       self.inferencing = false
