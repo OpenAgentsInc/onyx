@@ -27,6 +27,14 @@ export const styles = StyleSheet.create({
     top: 70,
     zIndex: 10,
   },
+  trashButton: {
+    width: 24,
+    height: 24,
+    position: "absolute",
+    right: 20,
+    bottom: 20,
+    zIndex: 10,
+  },
 
   // Chat Overlay styles
   chatOverlay: {
