@@ -1,24 +1,58 @@
 import { IChatStore } from "../types"
+import { initLlama } from "llama.rn"
+import { Platform } from "react-native"
+import { log } from "@/utils/log"
 
 export const withContextManagement = (self: IChatStore) => ({
   setActiveModel(modelKey: string | null) {
     self.activeModelKey = modelKey
   },
 
-  addContext(
+  async addContext(
     id: string,
     modelKey: string,
-    gpu: boolean = false,
-    reasonNoGPU: string = "",
+    modelPath: string,
+    onProgress?: (progress: number) => void
   ) {
-    self.contexts.push({
-      id,
-      modelKey,
-      isLoaded: false,
-      gpu,
-      reasonNoGPU,
-      sessionPath: null,
-    })
+    try {
+      // Initialize llama context
+      const context = await initLlama(
+        {
+          model: modelPath,
+          use_mlock: true,
+          n_gpu_layers: Platform.OS === "ios" ? 99 : 0, // Enable GPU on iOS
+        },
+        onProgress
+      )
+
+      // Add context to store
+      self.contexts.push({
+        id,
+        modelKey,
+        isLoaded: true,
+        gpu: context.gpu,
+        reasonNoGPU: context.reasonNoGPU || "",
+        sessionPath: null,
+        ...context // Spread llama.rn context methods
+      })
+
+      log({
+        name: "[ChatStore] Context initialized",
+        data: {
+          id,
+          modelKey,
+          gpu: context.gpu,
+          reasonNoGPU: context.reasonNoGPU
+        }
+      })
+
+    } catch (error) {
+      log({
+        name: "[ChatStore] Context initialization failed",
+        data: error
+      })
+      throw error
+    }
   },
 
   setContextLoaded(contextId: string, loaded: boolean = true) {
@@ -35,10 +69,23 @@ export const withContextManagement = (self: IChatStore) => ({
     }
   },
 
-  removeContext(contextId: string) {
-    const index = self.contexts.findIndex(ctx => ctx.id === contextId)
-    if (index >= 0) {
-      self.contexts.splice(index, 1)
+  async removeContext(contextId: string) {
+    const context = self.contexts.find(ctx => ctx.id === contextId)
+    if (context) {
+      try {
+        // Release llama context
+        await context.release()
+      } catch (error) {
+        log({
+          name: "[ChatStore] Context release failed",
+          data: error
+        })
+      }
+      // Remove from store
+      const index = self.contexts.findIndex(ctx => ctx.id === contextId)
+      if (index >= 0) {
+        self.contexts.splice(index, 1)
+      }
     }
   }
 })
