@@ -16,6 +16,7 @@ export interface ModelInfo {
 export class LocalModelService {
   private downloadResumable: FileSystem.DownloadResumable | null = null
   private currentTempPath: string | null = null
+  private onProgressCallback: ((progress: number) => void) | null = null
 
   constructor() {
     // Ensure models directory exists
@@ -49,13 +50,17 @@ export class LocalModelService {
   }
 
   async startDownload(modelKey: string, onProgress?: (progress: number) => void): Promise<string> {
+    // Cancel any existing download first
+    await this.cancelDownload()
+
     const model = AVAILABLE_MODELS[modelKey]
     if (!model) {
       throw new Error("Invalid model selected")
     }
 
-    // Store temp path so we can clean it up if cancelled
+    // Store temp path and callback so we can clean up if cancelled
     this.currentTempPath = `${FileSystem.cacheDirectory}temp_${model.filename}`
+    this.onProgressCallback = onProgress || null
     const finalPath = `${MODELS_DIR}/${model.filename}`
 
     // Create download
@@ -66,7 +71,7 @@ export class LocalModelService {
       (downloadProgress) => {
         const progress =
           (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100
-        onProgress?.(progress)
+        this.onProgressCallback?.(progress)
       }
     )
 
@@ -91,6 +96,7 @@ export class LocalModelService {
 
       this.downloadResumable = null
       this.currentTempPath = null
+      this.onProgressCallback = null
       return finalPath
 
     } catch (error) {
@@ -101,6 +107,8 @@ export class LocalModelService {
         } catch { }
         this.currentTempPath = null
       }
+      this.downloadResumable = null
+      this.onProgressCallback = null
 
       throw error
     }
@@ -109,6 +117,7 @@ export class LocalModelService {
   async cancelDownload() {
     if (this.downloadResumable) {
       try {
+        // Cancel the download first
         await this.downloadResumable.cancelAsync()
         
         // Clean up temp file after cancelling
@@ -120,6 +129,7 @@ export class LocalModelService {
         console.error("Error cancelling download:", error)
       }
       this.downloadResumable = null
+      this.onProgressCallback = null
     }
   }
 
