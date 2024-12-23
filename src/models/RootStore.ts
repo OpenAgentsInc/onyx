@@ -14,7 +14,12 @@ export const RootStoreModel = types.model("RootStore").props({
     activeModelKey: null,
     inferencing: false,
   }),
-  llmStore: types.optional(LLMStoreModel, {}),
+  llmStore: types.optional(LLMStoreModel, {
+    isInitialized: false,
+    error: null,
+    models: [],
+    selectedModelKey: null,
+  }),
 })
 
 /**
