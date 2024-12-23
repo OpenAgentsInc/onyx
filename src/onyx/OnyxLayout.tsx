@@ -1,91 +1,109 @@
 import { useState } from "react"
-import { Image, TouchableOpacity, View } from "react-native"
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { styles } from "./styles"
-import { TextInputModal } from "./TextInputModal"
-import { VoiceInputModal } from "./VoiceInputModal"
+import { TextChat } from "./TextChat"
+import { VoiceChat } from "./VoiceChat"
 import { ConfigureModal } from "./ConfigureModal"
 import { DownloadModal } from "./DownloadModal"
+import { useChatStore } from "./hooks/useChatStore"
+import { observer } from "mobx-react-lite"
 
-export const OnyxLayout = () => {
-  const [showTextInput, setShowTextInput] = useState(false)
-  const [showVoiceInput, setShowVoiceInput] = useState(false)
+export const OnyxLayout = observer(() => {
   const [showConfigureModal, setShowConfigureModal] = useState(false)
-
-  const handleTextPress = () => {
-    setShowTextInput(true)
-  }
-
-  const handleVoicePress = () => {
-    setShowVoiceInput(true)
-  }
+  const { conversationMessages, isInferencing } = useChatStore()
 
   const handleConfigurePress = () => {
     setShowConfigureModal(true)
   }
 
-  const handleTextSend = (text: string) => {
-    // TODO: Handle sending text message
-    console.log("Sending text:", text)
-  }
-
-  const handleVoiceSend = (transcribedText: string) => {
-    // Handle the transcribed text the same way as text input
-    console.log("Sending transcribed text:", transcribedText)
-    handleTextSend(transcribedText)
-  }
-
   return (
-    <View style={{ flex: 1, backgroundColor: 'black' }}>
-      {/* Modals */}
-      <TextInputModal
-        visible={showTextInput}
-        onClose={() => setShowTextInput(false)}
-        onSend={handleTextSend}
-      />
+    <TextChat>
+      {({ showTextModal: handleTextPress }) => (
+        <VoiceChat>
+          {({ showVoiceModal: handleVoicePress }) => (
+            <View style={styles.container}>
+              {/* Messages */}
+              <ScrollView 
+                style={styles.messagesContainer}
+                contentContainerStyle={styles.messagesContent}
+                inverted
+              >
+                {conversationMessages.map((message) => (
+                  <View 
+                    key={message.id}
+                    style={[
+                      styles.messageContainer,
+                      message.role === "user" ? styles.userMessage : styles.assistantMessage
+                    ]}
+                  >
+                    <Text style={styles.messageText}>{message.text}</Text>
+                    {message.metadata?.timings && (
+                      <Text style={styles.timingText}>{message.metadata.timings}</Text>
+                    )}
+                  </View>
+                ))}
+              </ScrollView>
 
-      <VoiceInputModal
-        visible={showVoiceInput}
-        onClose={() => setShowVoiceInput(false)}
-        onSend={handleVoiceSend}
-      />
+              {/* Configure Button */}
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleConfigurePress}
+                style={styles.configureButton}
+                disabled={isInferencing}
+              >
+                <Image
+                  source={require("../../assets/icons/configure.png")}
+                  style={[
+                    styles.configureImage,
+                    isInferencing && styles.disabledButton
+                  ]}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
 
-      <ConfigureModal
-        visible={showConfigureModal}
-        onClose={() => setShowConfigureModal(false)}
-      />
+              {/* Bottom Buttons */}
+              <View style={styles.bottomButtons}>
+                <TouchableOpacity 
+                  activeOpacity={0.8} 
+                  onPress={handleTextPress}
+                  disabled={isInferencing}
+                >
+                  <Image 
+                    source={require("../../assets/icons/text.png")} 
+                    style={[
+                      styles.iconButton,
+                      isInferencing && styles.disabledButton
+                    ]}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  activeOpacity={0.8} 
+                  onPress={handleVoicePress}
+                  disabled={isInferencing}
+                >
+                  <Image 
+                    source={require("../../assets/icons/voice.png")} 
+                    style={[
+                      styles.iconButton,
+                      isInferencing && styles.disabledButton
+                    ]}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </View>
 
-      <DownloadModal />
+              {/* Modals */}
+              <ConfigureModal
+                visible={showConfigureModal}
+                onClose={() => setShowConfigureModal(false)}
+              />
 
-      {/* Configure Button */}
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={handleConfigurePress}
-        style={styles.configureButton}
-      >
-        <Image
-          source={require("../../assets/icons/configure.png")}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
-
-      {/* Bottom Buttons */}
-      <View style={styles.bottomButtons}>
-        <TouchableOpacity activeOpacity={0.8} onPress={handleTextPress}>
-          <Image 
-            source={require("../../assets/icons/text.png")} 
-            style={styles.iconButton}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.8} onPress={handleVoicePress}>
-          <Image 
-            source={require("../../assets/icons/voice.png")} 
-            style={styles.iconButton}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View>
-    </View>
+              <DownloadModal />
+            </View>
+          )}
+        </VoiceChat>
+      )}
+    </TextChat>
   )
-}
+})
