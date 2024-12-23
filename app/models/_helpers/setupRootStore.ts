@@ -12,9 +12,9 @@ export async function setupRootStore() {
     // Load the last known state from storage
     data = (await storage.load(ROOT_STATE_STORAGE_KEY)) || {}
     rootStore = RootStoreModel.create(data)
-  } catch (e) {
+  } catch (error) {
     // If there's any problems loading, then inform the dev what happened
-    console.error(e.message, null)
+    console.error(error instanceof Error ? error.message : "Unknown error loading root store")
     rootStore = RootStoreModel.create({})
   }
 
