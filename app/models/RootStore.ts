@@ -1,10 +1,12 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { ChatStoreModel } from "./chat"
 import { LLMStoreModel } from "./llm"
 
 /**
  * A RootStore model.
  */
 export const RootStoreModel = types.model("RootStore").props({
+  chatStore: types.optional(ChatStoreModel, {}),
   llmStore: types.optional(LLMStoreModel, {}),
 })
 
