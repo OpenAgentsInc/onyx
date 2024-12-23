@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { View } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
@@ -15,6 +15,10 @@ export const OnyxLayout = observer(() => {
   const [showConfigure, setShowConfigure] = useState(false)
   const [transcript, setTranscript] = useState("")
 
+  useEffect(() => {
+    llmStore.initialize()
+  }, [llmStore])
+
   const handleStartVoiceInput = () => {
     setTranscript("") // Reset transcript
     setShowVoiceInput(true)
@@ -28,7 +32,7 @@ export const OnyxLayout = observer(() => {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "black" }}>
       <TextInputModal
         visible={showTextInput}
         onClose={() => setShowTextInput(false)}
