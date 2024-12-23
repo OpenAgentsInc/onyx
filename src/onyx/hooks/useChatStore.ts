@@ -2,12 +2,7 @@ import { useStores } from "@/models"
 import { useCallback } from "react"
 import { ChatStore } from "@/models/chat/store"
 import { log } from "@/utils/log"
-
-// System message that prefixes all conversations
-const systemMessage = {
-  role: "system" as const,
-  content: "This is a conversation between user and assistant, a friendly chatbot.\n\n"
-}
+import { systemMessage } from "@/screens/Chat/constants"
 
 export const useChatStore = () => {
   const { chatStore } = useStores() as { chatStore: ChatStore }
