@@ -18,6 +18,11 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
     if (!text.trim()) return
 
     try {
+      // Ensure context is initialized before proceeding
+      if (!llmStore.context || !llmStore.isInitialized) {
+        await llmStore.initContext()
+      }
+
       await llmStore.chatCompletion(text)
       setText("")
       onClose()
