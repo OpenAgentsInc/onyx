@@ -4,16 +4,12 @@ import { styles as configureStyles } from "./ConfigureModal.styles"
 import { styles as baseStyles } from "./styles"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
+import { AVAILABLE_MODELS } from "@/services/local-models/constants"
 
-const AVAILABLE_MODELS = {
-  "1B": {
-    displayName: "Onyx 1B",
-    size: "770 MB"
-  },
-  "7B": {
-    displayName: "Onyx 7B",
-    size: "2.1 GB"
-  }
+// Model sizes (could move to constants.ts)
+const MODEL_SIZES = {
+  "1B": "770 MB",
+  "3B": "2.1 GB"
 }
 
 interface ConfigureModalProps {
@@ -65,7 +61,7 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
   }
 
   const getModelSize = (modelKey: string): string => {
-    return AVAILABLE_MODELS[modelKey].size
+    return MODEL_SIZES[modelKey] || "Unknown"
   }
 
   const getModelStatus = (modelKey: string) => {
