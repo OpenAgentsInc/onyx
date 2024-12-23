@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Modal, TextInput, TouchableOpacity, View, Text } from "react-native"
-import { styles } from "./styles"
+import { styles as baseStyles } from "./styles"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
 import { log } from "@/utils/log"
@@ -43,10 +43,10 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+      <View style={baseStyles.modalContainer}>
+        <View style={baseStyles.modalContent}>
           <TextInput
-            style={styles.input}
+            style={baseStyles.input}
             value={text}
             onChangeText={setText}
             placeholder="Type your message..."
@@ -54,21 +54,21 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
             multiline
             autoFocus
           />
-          <View style={styles.modalHeader}>
+          <View style={baseStyles.modalHeader}>
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+              style={[baseStyles.button, baseStyles.cancelButton]}
               onPress={onClose}
             >
-              <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
+              <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.button, styles.sendButton]}
+              style={[baseStyles.button, baseStyles.sendButton]}
               onPress={handleSend}
               disabled={!text.trim() || llmStore.inferencing}
             >
               <Text style={[
-                styles.buttonText,
-                !text.trim() || llmStore.inferencing ? styles.disabledText : styles.sendText
+                baseStyles.buttonText,
+                !text.trim() || llmStore.inferencing ? baseStyles.disabledText : baseStyles.sendText
               ]}>
                 {llmStore.inferencing ? "Sending..." : "Send"}
               </Text>
