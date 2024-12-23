@@ -13,6 +13,17 @@ export const useChatStore = () => {
       return
     }
 
+    log({
+      name: "[ChatStore] Active context check",
+      value: {
+        id: chatStore.activeContext.id,
+        modelKey: chatStore.activeContext.modelKey,
+        methods: Object.keys(chatStore.activeContext),
+        completion: chatStore.activeContext.completion,
+        completionType: typeof chatStore.activeContext.completion
+      }
+    })
+
     // Add user message
     const messageId = chatStore.addMessage({
       text,
@@ -52,9 +63,20 @@ export const useChatStore = () => {
         name: "[ChatStore] Starting completion",
         value: {
           messages: msgs,
-          contextId: chatStore.activeContext.id
+          contextId: chatStore.activeContext.id,
+          context: {
+            id: chatStore.activeContext.id,
+            modelKey: chatStore.activeContext.modelKey,
+            methods: Object.keys(chatStore.activeContext),
+            completion: chatStore.activeContext.completion,
+            completionType: typeof chatStore.activeContext.completion
+          }
         }
       })
+
+      if (!chatStore.activeContext.completion) {
+        throw new Error("Completion method not available on context")
+      }
 
       // Start completion with streaming
       const completionResult = await chatStore.activeContext.completion(
@@ -115,7 +137,14 @@ export const useChatStore = () => {
         name: "[ChatStore] Completion error",
         value: {
           error,
-          errorMessage: error instanceof Error ? error.message : String(error)
+          errorMessage: error instanceof Error ? error.message : String(error),
+          context: chatStore.activeContext ? {
+            id: chatStore.activeContext.id,
+            modelKey: chatStore.activeContext.modelKey,
+            methods: Object.keys(chatStore.activeContext),
+            completion: chatStore.activeContext.completion,
+            completionType: typeof chatStore.activeContext.completion
+          } : null
         },
         important: true
       })
