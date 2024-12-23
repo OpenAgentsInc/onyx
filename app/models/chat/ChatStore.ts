@@ -3,6 +3,7 @@ import {
 } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
+import { withGroqActions } from "./ChatActions"
 
 // Message Types
 export const MessageModel = types
@@ -32,6 +33,7 @@ export const ChatStoreModel = types
     error: types.maybeNull(types.string),
     messages: types.array(MessageModel),
     currentConversationId: types.optional(types.string, "default"),
+    isGenerating: types.optional(types.boolean, false),
   })
   .actions(withSetPropAction)
   .actions((self) => ({
@@ -67,6 +69,14 @@ export const ChatStoreModel = types
 
     setCurrentConversationId(id: string) {
       self.currentConversationId = id
+    },
+
+    setIsGenerating(value: boolean) {
+      self.isGenerating = value
+    },
+
+    setError(error: string | null) {
+      self.error = error
     }
   }))
   .views((self) => ({
@@ -76,6 +86,7 @@ export const ChatStoreModel = types
         .slice()
     }
   }))
+  .extend(withGroqActions) // Add Groq actions
 
 export interface ChatStore extends Instance<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> { }
@@ -86,7 +97,8 @@ export const createChatStoreDefaultModel = () =>
     isInitialized: false,
     error: null,
     messages: [],
-    currentConversationId: "default"
+    currentConversationId: "default",
+    isGenerating: false,
   })
 
 // Types
@@ -95,8 +107,13 @@ export interface IChatStore extends IStateTreeNode {
   error: string | null
   messages: IMessage[]
   currentConversationId: string
+  isGenerating: boolean
   addMessage: (message: { role: "system" | "user" | "assistant", content: string, metadata?: any }) => IMessage
   updateMessage: (messageId: string, updates: { content?: string, metadata?: any }) => void
   clearMessages: () => void
   setCurrentConversationId: (id: string) => void
+  setIsGenerating: (value: boolean) => void
+  setError: (error: string | null) => void
+  sendMessage: (content: string) => Promise<void>
+  sendStreamingMessage: (content: string) => Promise<void>
 }
