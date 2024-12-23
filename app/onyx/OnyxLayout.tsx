@@ -1,36 +1,34 @@
-import { useState, useEffect } from "react"
-import { Image, TouchableOpacity, View } from "react-native"
+import React, { useState } from "react"
+import { View } from "react-native"
+import { observer } from "mobx-react-lite"
+import { useStores } from "@/models"
 import { ConfigureModal } from "./ConfigureModal"
-import { styles } from "./styles"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
-import { useStores } from "@/models"
+import { BottomButtons } from "./BottomButtons"
+import { styles } from "./styles"
 
-export const OnyxLayout = () => {
+export const OnyxLayout = observer(() => {
+  const { llmStore } = useStores()
   const [showTextInput, setShowTextInput] = useState(false)
   const [showVoiceInput, setShowVoiceInput] = useState(false)
-  const [showConfigureModal, setShowConfigureModal] = useState(false)
-  const { llmStore } = useStores()
+  const [showConfigure, setShowConfigure] = useState(false)
+  const [transcript, setTranscript] = useState("")
 
-  useEffect(() => {
-    llmStore.initialize()
-  }, [llmStore])
-
-  const handleTextPress = () => {
-    setShowTextInput(true)
-  }
-
-  const handleVoicePress = () => {
+  const handleStartVoiceInput = () => {
+    setTranscript("") // Reset transcript
     setShowVoiceInput(true)
+    // TODO: Start voice recording here
   }
 
-  const handleConfigurePress = () => {
-    setShowConfigureModal(true)
+  const handleStopVoiceInput = () => {
+    // TODO: Stop voice recording here
+    setShowVoiceInput(false)
+    setTranscript("")
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "black" }}>
-      {/* Modals */}
+    <View style={{ flex: 1 }}>
       <TextInputModal
         visible={showTextInput}
         onClose={() => setShowTextInput(false)}
@@ -38,41 +36,20 @@ export const OnyxLayout = () => {
 
       <VoiceInputModal
         visible={showVoiceInput}
-        onClose={() => setShowVoiceInput(false)}
+        onClose={handleStopVoiceInput}
+        transcript={transcript}
       />
 
-      <ConfigureModal visible={showConfigureModal} onClose={() => setShowConfigureModal(false)} />
+      <ConfigureModal
+        visible={showConfigure}
+        onClose={() => setShowConfigure(false)}
+      />
 
-      {/* Configure Button */}
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={handleConfigurePress}
-        style={styles.configureButton}
-      >
-        <Image
-          source={require("../../assets/icons/configure.png")}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
-
-      {/* Bottom Buttons */}
-      <View style={styles.bottomButtons}>
-        <TouchableOpacity activeOpacity={0.8} onPress={handleTextPress}>
-          <Image
-            source={require("../../assets/icons/text.png")}
-            style={styles.iconButton}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.8} onPress={handleVoicePress}>
-          <Image
-            source={require("../../assets/icons/voice.png")}
-            style={styles.iconButton}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View>
+      <BottomButtons
+        onTextPress={() => setShowTextInput(true)}
+        onVoicePress={handleStartVoiceInput}
+        onConfigurePress={() => setShowConfigure(true)}
+      />
     </View>
   )
-}
+})
