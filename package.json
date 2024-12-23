@@ -39,6 +39,7 @@
   "dependencies": {
     "@breeztech/react-native-breez-sdk-liquid": "^0.5.1",
     "@expo-google-fonts/jetbrains-mono": "^0.2.3",
+    "@expo/config-plugins": "~9.0.0",
     "@expo/metro-runtime": "~4.0.0",
     "@expo/vector-icons": "^14.0.2",
     "@flyerhq/react-native-chat-ui": "^1.4.3",
