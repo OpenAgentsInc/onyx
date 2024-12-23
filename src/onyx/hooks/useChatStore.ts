@@ -59,7 +59,7 @@ export const useChatStore = () => {
       // Log the formatted chat for debugging
       log({ 
         name: "[ChatStore] Formatted chat",
-        data: formattedChat
+        value: formattedChat
       })
 
       // Start completion with streaming
@@ -103,7 +103,7 @@ export const useChatStore = () => {
       // Log completion result
       log({
         name: "[ChatStore] Completion result",
-        data: completionResult
+        value: completionResult
       })
 
       // Update message with timing metadata
