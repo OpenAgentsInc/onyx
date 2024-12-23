@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import { Modal, TouchableOpacity, View, Text } from "react-native"
 import { styles } from "./styles"
 import { observer } from "mobx-react-lite"
@@ -8,10 +8,10 @@ import { log } from "@/utils/log"
 interface VoiceInputModalProps {
   visible: boolean
   onClose: () => void
-  transcript: string
+  transcript?: string // Make transcript optional
 }
 
-export const VoiceInputModal = observer(({ visible, onClose, transcript }: VoiceInputModalProps) => {
+export const VoiceInputModal = observer(({ visible, onClose, transcript = "" }: VoiceInputModalProps) => {
   const { llmStore } = useStores()
 
   const handleSend = async () => {
@@ -44,7 +44,7 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.transcriptText}>{transcript}</Text>
+          <Text style={styles.transcriptionText}>{transcript}</Text>
           <View style={styles.modalHeader}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
