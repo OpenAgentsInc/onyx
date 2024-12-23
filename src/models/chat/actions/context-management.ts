@@ -64,7 +64,10 @@ export const withContextManagement = (self: IChatStore) => ({
       })
 
       // Store the context directly
-      self.contexts.push(context)
+      self.addContext({
+        ...context,
+        modelKey: modelPath // Add modelKey for lookup
+      })
 
       // Set as active model
       self.setActiveModel(modelPath)
@@ -104,7 +107,7 @@ export const withContextManagement = (self: IChatStore) => ({
   }),
 
   releaseContext: flow(function* (contextId: string) {
-    const context = self.contexts.find(ctx => ctx.id === contextId)
+    const context = self.getContext(contextId)
     if (context) {
       try {
         log({
@@ -115,11 +118,8 @@ export const withContextManagement = (self: IChatStore) => ({
         // Release llama context
         yield context.release()
         
-        // Remove from store using action
-        const index = self.contexts.findIndex(ctx => ctx.id === contextId)
-        if (index >= 0) {
-          self.contexts.splice(index, 1)
-        }
+        // Remove from store
+        self.removeContext(contextId)
 
         // Clear active model if this was it
         if (self.activeModelKey === context.modelKey) {
@@ -150,22 +150,22 @@ export const withContextManagement = (self: IChatStore) => ({
   }),
 
   setContextLoaded(contextId: string, loaded: boolean = true) {
-    const context = self.contexts.find(ctx => ctx.id === contextId)
+    const context = self.getContext(contextId)
     if (context) {
       context.isLoaded = loaded
     }
   },
 
   setContextSession(contextId: string, sessionPath: string | null) {
-    const context = self.contexts.find(ctx => ctx.id === contextId)
+    const context = self.getContext(contextId)
     if (context) {
       context.sessionPath = sessionPath
     }
   },
 
   removeContext: flow(function* (contextId: string) {
-    const index = self.contexts.findIndex(ctx => ctx.id === contextId)
-    if (index >= 0) {
+    const context = self.getContext(contextId)
+    if (context) {
       try {
         log({
           name: "[ChatStore] Starting context removal",
@@ -173,9 +173,9 @@ export const withContextManagement = (self: IChatStore) => ({
         })
 
         // Release context first
-        yield self.releaseContext(contextId)
-        // Remove from store using action
-        self.contexts.splice(index, 1)
+        yield this.releaseContext(contextId)
+        // Remove from store
+        self.removeContext(contextId)
 
         log({
           name: "[ChatStore] Context removed successfully",
