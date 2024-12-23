@@ -53,7 +53,16 @@ export const ChatStoreModel = types
   .actions(withMessageManagement)
   .views(withViews)
 
-export interface ChatStore extends Instance<typeof ChatStoreModel> { }
+export interface ChatStore extends Instance<typeof ChatStoreModel> {
+  // Expose the initializeContext method in the interface
+  initializeContext: (
+    id: string,
+    modelPath: string,
+    loraPath?: string | null,
+    onProgress?: (progress: number) => void
+  ) => Promise<LlamaContext>
+}
+
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotIn extends SnapshotIn<typeof ChatStoreModel> { }
 
