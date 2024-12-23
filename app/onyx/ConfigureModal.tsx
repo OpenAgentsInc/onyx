@@ -6,8 +6,8 @@ import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
 import { AVAILABLE_MODELS } from "@/services/local-models/constants"
 
-// Model sizes (could move to constants.ts)
-const MODEL_SIZES = {
+// Model sizes with proper type definition
+const MODEL_SIZES: Record<string, string> = {
   "1B": "770 MB",
   "3B": "2.1 GB"
 }
@@ -131,7 +131,7 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
                   </TouchableOpacity>
 
                   {downloaded ? (
-                    <View style={configureStyles.buttonContainer}>
+                    <View style={configureStyles.downloadContainer}>
                       <TouchableOpacity
                         onPress={() => handleDeleteModel(key)}
                         style={configureStyles.deleteButton}
@@ -153,7 +153,7 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
                           </TouchableOpacity>
                         </>
                       ) : (
-                        <View style={configureStyles.buttonContainer}>
+                        <View style={configureStyles.downloadContainer}>
                           <TouchableOpacity
                             onPress={() => handleDownloadPress(key)}
                             style={configureStyles.downloadButton}
