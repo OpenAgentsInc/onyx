@@ -17,6 +17,45 @@ export const ChatStoreModel = types
     inferencing: types.optional(types.boolean, false),
   })
   .actions(withSetPropAction)
+  .actions((self) => ({
+    // Basic actions
+    setError(error: string | null) {
+      self.error = error
+    },
+    setInferencing(value: boolean) {
+      self.inferencing = value
+    },
+    setActiveModel(modelKey: string | null) {
+      self.activeModelKey = modelKey
+    },
+    // Message actions
+    addMessage(message: {
+      text: string
+      role: "user" | "assistant" | "system"
+      metadata?: {
+        contextId?: string
+        conversationId?: string
+        timings?: string
+        system?: boolean
+        copyable?: boolean
+      }
+    }) {
+      const id = Math.random().toString(36).substring(2, 9)
+      const timestamp = Date.now()
+      self.messages.push({ id, timestamp, ...message })
+      return id
+    },
+    // Context actions
+    addContext(id: string, modelKey: string) {
+      self.contexts.push({
+        id,
+        modelKey,
+        isLoaded: false,
+        gpu: false,
+        reasonNoGPU: "",
+      })
+    },
+  }))
   .actions(withInitialize)
   .actions(withContextManagement)
   .actions(withMessageManagement)
