@@ -23,7 +23,7 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
       onClose() // Close modal immediately
 
       // Send message after modal is closed
-      await chatStore.sendStreamingMessage(messageToSend)
+      await chatStore.sendMessage(messageToSend)
     } catch (error) {
       log({
         name: "[TextInputModal]",
