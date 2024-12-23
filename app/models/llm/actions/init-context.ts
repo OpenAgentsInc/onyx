@@ -2,7 +2,16 @@ import { flow } from "mobx-state-tree"
 import { ILLMStore } from "../"
 import { log } from "@/utils/log"
 import { Platform } from "react-native"
-import type { LlamaContext } from "llama.rn"
+import { initLlama } from "llama.rn"
+
+interface LlamaContext {
+  id: string
+  gpu: boolean
+  reasonNoGPU: string
+  model: {
+    isChatTemplateSupported: boolean
+  }
+}
 
 export const withInitContext = (self: ILLMStore) => ({
   initContext: flow(function* (): Generator<any, LlamaContext, any> {
@@ -21,18 +30,26 @@ export const withInitContext = (self: ILLMStore) => ({
         throw new Error("Model path not found")
       }
 
-      log("[LLMStore] Initializing context for model:", modelPath)
+      log({
+        type: "info",
+        message: "[LLMStore] Initializing context for model",
+        data: modelPath
+      })
 
-      const context = yield self.localModelService.init({
+      const context = yield initLlama({
         model: modelPath,
         use_mlock: true,
         n_gpu_layers: Platform.OS === "ios" ? 99 : 0, // Enable GPU on iOS
       })
 
-      log("[LLMStore] Context initialized:", {
-        gpu: context.gpu,
-        reasonNoGPU: context.reasonNoGPU,
-        isChatTemplateSupported: context.model.isChatTemplateSupported
+      log({
+        type: "info",
+        message: "[LLMStore] Context initialized",
+        data: {
+          gpu: context.gpu,
+          reasonNoGPU: context.reasonNoGPU,
+          isChatTemplateSupported: context.model.isChatTemplateSupported
+        }
       })
 
       self.context = context
@@ -42,7 +59,11 @@ export const withInitContext = (self: ILLMStore) => ({
       return context
 
     } catch (error) {
-      log("[LLMStore] Init context error:", error)
+      log({
+        type: "error",
+        message: "[LLMStore] Init context error",
+        data: error
+      })
       self.error = error instanceof Error ? error.message : "Failed to initialize context"
       throw error
     }
