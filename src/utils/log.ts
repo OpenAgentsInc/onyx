@@ -8,6 +8,7 @@ interface LogProps {
 export const log = (object: LogProps) => {
   if (__DEV__) {
     console.tron.display(object)
+    console.log(object)
   } else {
     console.log(object)
   }
