@@ -1,9 +1,9 @@
 import { useEffect } from "react"
-import { useChatStore } from "./useChatStore"
 import { useStores } from "@/models"
+import { ChatStore } from "@/models/chat/store"
 
 export const useInitialContext = () => {
-  const { chatStore } = useStores()
+  const { chatStore } = useStores() as { chatStore: ChatStore }
   
   useEffect(() => {
     // Create a temporary context if none exists
