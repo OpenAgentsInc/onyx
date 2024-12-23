@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { View, ScrollView, Text } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
@@ -10,10 +10,20 @@ import { styles } from "./styles"
 
 const ChatOverlay = observer(() => {
   const { chatStore } = useStores()
+  const scrollViewRef = useRef<ScrollView>(null)
   
+  useEffect(() => {
+    // Scroll to bottom whenever messages change
+    scrollViewRef.current?.scrollToEnd({ animated: true })
+  }, [chatStore.currentMessages])
+
   return (
     <View style={styles.chatOverlay}>
-      <ScrollView style={styles.messageList}>
+      <ScrollView 
+        ref={scrollViewRef}
+        style={styles.messageList}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}
+      >
         {chatStore.currentMessages.map((message) => (
           <View key={message.id} style={styles.message}>
             <Text style={styles.messageText}>
