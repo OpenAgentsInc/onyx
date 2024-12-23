@@ -22,30 +22,17 @@ export const OnyxLayout = () => {
     setShowConfigureModal(true)
   }
 
-  const handleTextSend = (text: string) => {
-    // TODO: Handle sending text message
-    console.log("Sending text:", text)
-  }
-
-  const handleVoiceSend = (transcribedText: string) => {
-    // Handle the transcribed text the same way as text input
-    console.log("Sending transcribed text:", transcribedText)
-    handleTextSend(transcribedText)
-  }
-
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
       {/* Modals */}
       <TextInputModal
         visible={showTextInput}
         onClose={() => setShowTextInput(false)}
-        onSend={handleTextSend}
       />
 
       <VoiceInputModal
         visible={showVoiceInput}
         onClose={() => setShowVoiceInput(false)}
-        onSend={handleVoiceSend}
       />
 
       <ConfigureModal visible={showConfigureModal} onClose={() => setShowConfigureModal(false)} />
