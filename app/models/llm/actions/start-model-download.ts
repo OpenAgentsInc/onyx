@@ -20,6 +20,13 @@ export const withStartModelDownload = (self: ILLMStore) => {
           self.updateModelProgress(modelKey, progress)
         })
 
+        // If download was cancelled (empty path returned), just reset the state
+        if (!finalPath) {
+          self.models[modelIndex].status = "idle"
+          self.models[modelIndex].progress = 0
+          return
+        }
+
         // Update model info
         self.models[modelIndex].path = finalPath
         self.models[modelIndex].status = "ready"
