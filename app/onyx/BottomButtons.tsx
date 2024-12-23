@@ -2,7 +2,7 @@ import React from "react"
 import { TouchableOpacity, View, Image } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { useStores } from "@/models"
-import { styles } from "./styles"
+import { styles } from "./BottomButtons.styles"
 
 interface BottomButtonsProps {
   onTextPress: () => void

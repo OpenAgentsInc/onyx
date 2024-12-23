@@ -20,8 +20,8 @@ export const AVAILABLE_MODELS: { [key: string]: ModelConfig } = {
 export const DEFAULT_MODEL_KEY = '1B'
 export const DEFAULT_MODEL = AVAILABLE_MODELS[DEFAULT_MODEL_KEY]
 
-export const systemMessage = {
-  role: 'system',
+export const DEFAULT_SYSTEM_MESSAGE = {
+  role: 'system' as const,
   content: `You are Onyx, the user's personal AI agent. Here is what the user knows about you:
 
 "Onyx is your personal AI agent that responds to voice commands, grows smarter & more capable over time, and earns you bitcoin. It's part of the OpenAgents network where every agent makes all agents smarter.
