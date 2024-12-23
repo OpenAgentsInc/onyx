@@ -3,7 +3,6 @@ import {
 } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
-import { withGroqActions } from "./ChatActions"
 
 // Message Types
 export const MessageModel = types
@@ -26,7 +25,7 @@ export const MessageModel = types
 export interface IMessage extends Instance<typeof MessageModel> { }
 
 // Store Model
-export const ChatStoreModel = types
+const ChatStoreModel = types
   .model("ChatStore")
   .props({
     isInitialized: types.optional(types.boolean, false),
@@ -86,7 +85,6 @@ export const ChatStoreModel = types
         .slice()
     }
   }))
-  .extend(withGroqActions) // Add Groq actions
 
 export interface ChatStore extends Instance<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> { }
@@ -101,19 +99,6 @@ export const createChatStoreDefaultModel = () =>
     isGenerating: false,
   })
 
-// Types
-export interface IChatStore extends IStateTreeNode {
-  isInitialized: boolean
-  error: string | null
-  messages: IMessage[]
-  currentConversationId: string
-  isGenerating: boolean
-  addMessage: (message: { role: "system" | "user" | "assistant", content: string, metadata?: any }) => IMessage
-  updateMessage: (messageId: string, updates: { content?: string, metadata?: any }) => void
-  clearMessages: () => void
-  setCurrentConversationId: (id: string) => void
-  setIsGenerating: (value: boolean) => void
-  setError: (error: string | null) => void
-  sendMessage: (content: string) => Promise<void>
-  sendStreamingMessage: (content: string) => Promise<void>
-}
+// Add Groq actions after ChatStore is defined to avoid circular dependency
+import { withGroqActions } from "./ChatActions"
+export const ChatStoreWithActions = ChatStoreModel.extend(withGroqActions)
