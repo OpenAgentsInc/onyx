@@ -1,5 +1,5 @@
 import React from "react"
-import { Modal, TouchableOpacity, View, Text } from "react-native"
+import { Modal, TouchableOpacity, View, Text, Pressable } from "react-native"
 import { styles as baseStyles } from "./styles"
 import { styles as voiceStyles } from "./VoiceInputModal.styles"
 import { observer } from "mobx-react-lite"
@@ -9,7 +9,7 @@ import { log } from "@/utils/log"
 interface VoiceInputModalProps {
   visible: boolean
   onClose: () => void
-  transcript?: string // Make transcript optional
+  transcript?: string
 }
 
 export const VoiceInputModal = observer(({ visible, onClose, transcript = "" }: VoiceInputModalProps) => {
@@ -38,33 +38,35 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript = "" }: 
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
     >
       <View style={baseStyles.modalContainer}>
-        <View style={baseStyles.modalContent}>
-          <Text style={voiceStyles.transcriptionText}>{transcript}</Text>
-          <View style={baseStyles.modalHeader}>
-            <TouchableOpacity
-              style={[baseStyles.button, baseStyles.cancelButton]}
-              onPress={onClose}
-            >
-              <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[baseStyles.button, baseStyles.sendButton]}
-              onPress={handleSend}
-              disabled={!transcript.trim() || llmStore.inferencing}
-            >
-              <Text style={[
-                baseStyles.buttonText,
-                !transcript.trim() || llmStore.inferencing ? baseStyles.disabledText : baseStyles.sendText
-              ]}>
-                {llmStore.inferencing ? "Sending..." : "Send"}
-              </Text>
-            </TouchableOpacity>
+        <View style={baseStyles.modalHeader}>
+          <Pressable onPress={onClose}>
+            <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
+          </Pressable>
+
+          <Pressable onPress={handleSend} disabled={!transcript.trim() || llmStore.inferencing}>
+            <Text style={[
+              baseStyles.buttonText,
+              !transcript.trim() || llmStore.inferencing ? baseStyles.disabledText : baseStyles.sendText
+            ]}>
+              {llmStore.inferencing ? "Sending..." : "Send"}
+            </Text>
+          </Pressable>
+        </View>
+
+        <View style={voiceStyles.voiceContainer}>
+          <View style={voiceStyles.transcriptionContainer}>
+            <Text style={voiceStyles.listeningText}>Listening...</Text>
+            {transcript ? (
+              <Text style={voiceStyles.transcriptionText}>{transcript}</Text>
+            ) : (
+              <Text style={voiceStyles.placeholderText}>Start speaking...</Text>
+            )}
           </View>
         </View>
       </View>
