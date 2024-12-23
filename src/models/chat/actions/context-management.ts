@@ -27,7 +27,7 @@ export const withContextManagement = (self: IChatStore) => ({
           onProgress?.(progress)
           log({
             name: "[ChatStore] Model loading progress",
-            data: { progress }
+            value: { progress }
           })
         }
       )
@@ -48,7 +48,7 @@ export const withContextManagement = (self: IChatStore) => ({
 
       log({
         name: "[ChatStore] Context initialized",
-        data: {
+        value: {
           id,
           modelPath,
           gpu: context.gpu,
@@ -59,7 +59,7 @@ export const withContextManagement = (self: IChatStore) => ({
     } catch (error) {
       log({
         name: "[ChatStore] Context initialization failed",
-        data: { error }
+        value: error
       })
       throw error
     }
@@ -82,12 +82,12 @@ export const withContextManagement = (self: IChatStore) => ({
 
         log({
           name: "[ChatStore] Context released",
-          data: { contextId }
+          value: { contextId }
         })
       } catch (error) {
         log({
           name: "[ChatStore] Context release failed",
-          data: { error }
+          value: error
         })
         throw error
       }
@@ -115,7 +115,7 @@ export const withContextManagement = (self: IChatStore) => ({
       this.releaseContext(contextId).catch(error => {
         log({
           name: "[ChatStore] Error releasing context during removal",
-          data: { error }
+          value: error
         })
       })
       // Remove from store
