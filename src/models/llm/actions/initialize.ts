@@ -1,5 +1,6 @@
 import { flow } from "mobx-state-tree"
 import { LocalModelService } from "@/services/local-models/LocalModelService"
+import { log } from "@/utils/log"
 import { ILLMStore, IModelInfo } from "../types"
 
 export const withInitialize = (self: ILLMStore) => ({
@@ -20,7 +21,7 @@ export const withInitialize = (self: ILLMStore) => ({
       self.isInitialized = true
       self.error = null
 
-      console.tron.display({
+      log({
         name: "LLMStore",
         value: self,
         preview: "Initialized",
