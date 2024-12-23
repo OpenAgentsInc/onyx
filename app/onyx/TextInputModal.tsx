@@ -22,7 +22,12 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
       setText("")
       onClose()
     } catch (error) {
-      log("[TextInputModal] Error sending message:", error)
+      log({
+        name: "[TextInputModal]",
+        preview: "Error sending message",
+        value: error,
+        important: true
+      })
     }
   }
 
@@ -36,7 +41,7 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <TextInput
-            style={styles.textInput}
+            style={styles.input}
             value={text}
             onChangeText={setText}
             placeholder="Type your message..."
@@ -44,19 +49,22 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
             multiline
             autoFocus
           />
-          <View style={styles.modalButtons}>
+          <View style={styles.modalHeader}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
               onPress={onClose}
             >
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.sendButton]}
               onPress={handleSend}
               disabled={!text.trim() || llmStore.inferencing}
             >
-              <Text style={styles.buttonText}>
+              <Text style={[
+                styles.buttonText,
+                !text.trim() || llmStore.inferencing ? styles.disabledText : styles.sendText
+              ]}>
                 {llmStore.inferencing ? "Sending..." : "Send"}
               </Text>
             </TouchableOpacity>
