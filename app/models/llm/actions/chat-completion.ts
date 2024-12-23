@@ -4,7 +4,6 @@ import { log } from "@/utils/log"
 import { getRoot } from "mobx-state-tree"
 import { RootStore } from "@/models"
 import type { IMessage } from "@/models/chat/ChatStore"
-import type { CompletionResult } from "llama.rn"
 
 const DEFAULT_SYSTEM_MESSAGE = {
   role: "system" as const,
@@ -14,6 +13,14 @@ const DEFAULT_SYSTEM_MESSAGE = {
 interface Message {
   role: "system" | "user" | "assistant"
   content: string
+}
+
+interface CompletionResult {
+  text: string
+  timings: {
+    predicted_per_token_ms: number
+    predicted_per_second: number
+  }
 }
 
 export const withChatCompletion = (self: ILLMStore) => ({
@@ -42,12 +49,16 @@ export const withChatCompletion = (self: ILLMStore) => ({
         ...chatStore.currentMessages
           .filter((msg: IMessage) => !msg.metadata?.system)
           .map((msg: IMessage) => ({
-            role: msg.role,
+            role: msg.role as "system" | "user" | "assistant",
             content: msg.content
           }))
       ]
 
-      log("[LLMStore] Starting chat completion with messages:", messages)
+      log({
+        type: "info",
+        message: "[LLMStore] Starting chat completion with messages",
+        data: messages
+      })
 
       // Create placeholder for assistant response
       const assistantMsg = chatStore.addMessage({
@@ -64,7 +75,11 @@ export const withChatCompletion = (self: ILLMStore) => ({
       self.inferencing = true
 
       const formattedChat = yield self.context.getFormattedChat(messages)
-      log("[LLMStore] Formatted chat:", formattedChat)
+      log({
+        type: "debug",
+        message: "[LLMStore] Formatted chat",
+        data: formattedChat
+      })
 
       const result: CompletionResult = yield self.context.completion({
         messages,
@@ -90,7 +105,11 @@ export const withChatCompletion = (self: ILLMStore) => ({
         assistantMsg.content = (assistantMsg.content + token).replace(/^\s+/, "")
       })
 
-      log("[LLMStore] Completion result:", result)
+      log({
+        type: "info",
+        message: "[LLMStore] Completion result",
+        data: result
+      })
 
       // Update metadata with timing info
       assistantMsg.metadata = {
@@ -106,7 +125,11 @@ export const withChatCompletion = (self: ILLMStore) => ({
       return result
 
     } catch (error) {
-      log("[LLMStore] Chat completion error:", error)
+      log({
+        type: "error",
+        message: "[LLMStore] Chat completion error",
+        data: error
+      })
       self.inferencing = false
       self.error = error instanceof Error ? error.message : "Chat completion failed"
       throw error
