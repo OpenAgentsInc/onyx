@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Modal, Text, TouchableOpacity, View } from "react-native"
+import { Modal, TouchableOpacity, View, Text } from "react-native"
 import { styles } from "./styles"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
@@ -8,19 +8,22 @@ import { log } from "@/utils/log"
 interface VoiceInputModalProps {
   visible: boolean
   onClose: () => void
+  transcript: string
 }
 
-export const VoiceInputModal = observer(({ visible, onClose }: VoiceInputModalProps) => {
+export const VoiceInputModal = observer(({ visible, onClose, transcript }: VoiceInputModalProps) => {
   const { llmStore } = useStores()
-  const [isRecording, setIsRecording] = useState(false)
-  const [transcribedText, setTranscribedText] = useState("")
 
   const handleSend = async () => {
-    if (!transcribedText.trim()) return
+    if (!transcript.trim()) return
 
     try {
-      await llmStore.chatCompletion(transcribedText)
-      setTranscribedText("")
+      // Ensure context is initialized before proceeding
+      if (!llmStore.context || !llmStore.isInitialized) {
+        await llmStore.initContext()
+      }
+
+      await llmStore.chatCompletion(transcript)
       onClose()
     } catch (error) {
       log({
@@ -32,16 +35,6 @@ export const VoiceInputModal = observer(({ visible, onClose }: VoiceInputModalPr
     }
   }
 
-  const handleStartRecording = () => {
-    setIsRecording(true)
-    // TODO: Implement voice recording
-  }
-
-  const handleStopRecording = () => {
-    setIsRecording(false)
-    // TODO: Implement voice recording stop
-  }
-
   return (
     <Modal
       animationType="slide"
@@ -51,21 +44,7 @@ export const VoiceInputModal = observer(({ visible, onClose }: VoiceInputModalPr
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <View style={styles.voiceContainer}>
-            <TouchableOpacity
-              onPress={isRecording ? handleStopRecording : handleStartRecording}
-            >
-              <View style={styles.transcriptionContainer}>
-                <Text style={styles.listeningText}>{isRecording ? "Listening" : "Paused"}</Text>
-                {transcribedText ? (
-                  <Text style={styles.transcriptionText}>{transcribedText}</Text>
-                ) : (
-                  <Text style={styles.placeholderText}>Start speaking...</Text>
-                )}
-              </View>
-            </TouchableOpacity>
-          </View>
-
+          <Text style={styles.transcriptText}>{transcript}</Text>
           <View style={styles.modalHeader}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
@@ -76,11 +55,11 @@ export const VoiceInputModal = observer(({ visible, onClose }: VoiceInputModalPr
             <TouchableOpacity
               style={[styles.button, styles.sendButton]}
               onPress={handleSend}
-              disabled={!transcribedText.trim() || llmStore.inferencing}
+              disabled={!transcript.trim() || llmStore.inferencing}
             >
               <Text style={[
                 styles.buttonText,
-                !transcribedText.trim() || llmStore.inferencing ? styles.disabledText : styles.sendText
+                !transcript.trim() || llmStore.inferencing ? styles.disabledText : styles.sendText
               ]}>
                 {llmStore.inferencing ? "Sending..." : "Send"}
               </Text>
