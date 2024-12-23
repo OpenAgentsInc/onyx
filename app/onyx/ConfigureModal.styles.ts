@@ -117,4 +117,10 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: typography.primary.medium,
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    gap: 12,
+  },
 })
