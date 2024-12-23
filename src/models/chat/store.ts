@@ -53,6 +53,7 @@ export const ChatStoreModel = types
         isLoaded: false,
         gpu: false,
         reasonNoGPU: "",
+        sessionPath: undefined, // Use undefined instead of null
       })
     },
   }))
