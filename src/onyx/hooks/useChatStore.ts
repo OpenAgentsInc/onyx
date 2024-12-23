@@ -1,6 +1,13 @@
 import { useStores } from "@/models"
 import { useCallback } from "react"
 import { ChatStore } from "@/models/chat/store"
+import { log } from "@/utils/log"
+
+// System message that prefixes all conversations
+const systemMessage = {
+  role: "system" as const,
+  content: "This is a conversation between user and assistant, a friendly chatbot.\n\n"
+}
 
 export const useChatStore = () => {
   const { chatStore } = useStores() as { chatStore: ChatStore }
@@ -25,17 +32,90 @@ export const useChatStore = () => {
     chatStore.setInferencing(true)
 
     try {
-      // TODO: Add actual inference logic here
-      // For now, just add a mock response
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      chatStore.addMessage({
-        text: `Response to: ${text}`,
+      // Format conversation history
+      const msgs = [
+        systemMessage,
+        ...chatStore.conversationMessages
+          .filter(msg => !msg.metadata?.system)
+          .map(msg => ({
+            role: msg.role,
+            content: msg.text
+          }))
+      ]
+
+      // Create assistant message placeholder
+      const assistantMessageId = chatStore.addMessage({
+        text: "",
         role: "assistant",
         metadata: {
           contextId: chatStore.activeContext.id,
           conversationId: chatStore.activeContext.id,
         }
       })
+
+      // Get formatted chat from context
+      const formattedChat = await chatStore.activeContext.getFormattedChat(msgs)
+      
+      // Log the formatted chat for debugging
+      log({ 
+        name: "[ChatStore] Formatted chat",
+        data: formattedChat
+      })
+
+      // Start completion with streaming
+      const completionResult = await chatStore.activeContext.completion(
+        {
+          messages: msgs,
+          n_predict: 100,
+          grammar: undefined,
+          seed: -1,
+          n_probs: 0,
+
+          // Sampling params
+          top_k: 40,
+          top_p: 0.5,
+          min_p: 0.05,
+          temperature: 0.7,
+          repeat_penalty: 1.1,
+          
+          // Stop sequences
+          stop: [
+            "</s>",
+            "<|end|>",
+            "<|eot_id|>", 
+            "<|end_of_text|>",
+            "<|im_end|>",
+            "<|EOT|>",
+            "<|END_OF_TURN_TOKEN|>",
+            "<|end_of_turn|>",
+            "<|endoftext|>",
+          ],
+        },
+        (data) => {
+          const { token } = data
+          // Update assistant message with new token
+          chatStore.updateMessage(assistantMessageId, {
+            text: (chatStore.messages.find(m => m.id === assistantMessageId)?.text || "") + token
+          })
+        }
+      )
+
+      // Log completion result
+      log({
+        name: "[ChatStore] Completion result",
+        data: completionResult
+      })
+
+      // Update message with timing metadata
+      const timings = `${completionResult.timings.predicted_per_token_ms.toFixed()}ms per token, ${completionResult.timings.predicted_per_second.toFixed(2)} tokens per second`
+      
+      chatStore.updateMessage(assistantMessageId, {
+        metadata: {
+          ...chatStore.messages.find(m => m.id === assistantMessageId)?.metadata,
+          timings
+        }
+      })
+
     } catch (error) {
       chatStore.setError(error instanceof Error ? error.message : "Unknown error occurred")
     } finally {
