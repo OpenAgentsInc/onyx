@@ -3,36 +3,52 @@
 const fs = require("fs");
 const path = require("path");
 const glob = require("glob");
-const minimatch = require("minimatch").minimatch;
+const { minimatch } = require("minimatch");
 
 // Where we will write the final tree
 const OUTPUT_PATH = path.join(__dirname, "..", "docs", "hierarchy.md");
 
-// Read and parse .gitignore file into patterns
+/**
+ * Reads .gitignore and returns an array of "positive" ignore patterns (no '!' lines).
+ * Also transforms lines starting with "/" into something minimatch can handle, e.g. "/android" -> "android/**".
+ */
 function getIgnorePatterns(rootDir) {
   const gitignorePath = path.join(rootDir, ".gitignore");
   if (!fs.existsSync(gitignorePath)) {
+    console.log("[DEBUG] No .gitignore file found.");
     return [];
   }
 
-  const lines = fs
-    .readFileSync(gitignorePath, "utf8")
-    .split("\n")
+  const rawLines = fs.readFileSync(gitignorePath, "utf8").split("\n");
+  const cleanedLines = rawLines
     .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith("#")); // ignore comments & empty lines
+    // skip blank lines, lines with "#", or lines that start with "!"
+    .filter((line) => line && !line.startsWith("#") && !line.startsWith("!"))
+    .map((line) => {
+      // If it starts with a slash, remove slash, then append "**" to match all subfiles
+      // e.g. "/android" -> "android/**"
+      if (line.startsWith("/")) {
+        const noSlash = line.slice(1); // remove leading slash
+        // If it doesn't already end with "/", let's ensure it matches entire sub-tree
+        return noSlash.endsWith("/")
+          ? `${noSlash}**`
+          : `${noSlash}/**`;
+      }
+      return line; // unchanged if it doesn’t start with slash
+    });
 
-  return lines;
+  console.log("[DEBUG] Using these .gitignore patterns:", cleanedLines);
+  return cleanedLines;
 }
 
-// Build an ASCII tree (or similar) for the given list of paths
-// Expects an array of file paths (relative) like ["app.js", "src/index.js", "src/utils/test.js"]
+/**
+ * Converts an array of file paths into a nested object, then prints as ASCII tree.
+ */
 function buildTree(paths) {
-  // Convert to a nested object structure for easy printing
   const tree = {};
 
   paths.forEach((filePath) => {
     const segments = filePath.split(path.sep);
-
     let currentNode = tree;
     segments.forEach((segment, idx) => {
       const isLast = idx === segments.length - 1;
@@ -45,17 +61,15 @@ function buildTree(paths) {
     });
   });
 
-  // Recursive printer
   function printNode(node, depth = 0) {
     const indent = "  ".repeat(depth);
-    const entries = Object.keys(node).sort(); // sort alphabetically
+    const entries = Object.keys(node).sort();
     let output = "";
 
     entries.forEach((entry) => {
       const value = node[entry];
       output += `${indent}├── ${entry}\n`;
       if (value && typeof value === "object") {
-        // It's a folder
         output += printNode(value, depth + 1);
       }
     });
@@ -66,43 +80,47 @@ function buildTree(paths) {
   return printNode(tree);
 }
 
-// Main driver
 function generateHierarchy() {
   const rootDir = path.join(__dirname, "..");
   const ignorePatterns = getIgnorePatterns(rootDir);
 
-  // Grab all files and folders except .git, node_modules, etc.
-  // We'll use glob's pattern "**/*" to get everything (including subfolders).
-  // We pass glob options to avoid matching dotfiles or special directories automatically
+  // Grab all files/folders except node_modules & .git
   const allPaths = glob.sync("**/*", {
     cwd: rootDir,
-    dot: false,         // skip hidden files
-    nodir: false,       // include directories in the match
+    dot: false,    // skip hidden files/folders
+    nodir: false,  // match directories too
     ignore: [
-      // We'll ignore node_modules, .git, etc. as a fallback
       "node_modules/**",
       ".git/**",
-      // The user’s .gitignore patterns will also be applied
     ],
   });
 
-  // Filter out anything matching .gitignore patterns
+  console.log(`[DEBUG] Found ${allPaths.length} items in allPaths.`);
+
+  // Filter out anything matching the ignore patterns from .gitignore
   const filtered = allPaths.filter((relPath) => {
-    // If any pattern matches, we exclude the path
-    return !ignorePatterns.some((pattern) =>
+    // If it matches any pattern, exclude it
+    const isIgnored = ignorePatterns.some((pattern) =>
       minimatch(relPath, pattern, { dot: true })
     );
+    return !isIgnored;
   });
 
-  // Filter out the docs/hierarchy.md file itself to avoid recursion
+  console.log(`[DEBUG] After ignoring patterns, ${filtered.length} remain.`);
+
+  // Also exclude docs/hierarchy.md and this script itself
   const finalPaths = filtered.filter(
-    (p) => !p.includes("docs/hierarchy.md") && !p.includes("scripts/generate-hierarchy.js")
+    (p) =>
+      !p.includes("docs/hierarchy.md") &&
+      !p.includes("scripts/generate-hierarchy.js")
   );
 
-  // Build the hierarchical tree structure in text
+  console.log(`[DEBUG] finalPaths has ${finalPaths.length} items.`);
+
+  // Build the final ASCII tree
   const treeText = buildTree(finalPaths);
 
-  // Prepare final markdown content
+  // Prepare the output Markdown
   const outputContent = `# Project File Hierarchy
 
 \`\`\`
@@ -114,4 +132,5 @@ ${treeText.trim()}
   console.log(`Updated file hierarchy written to: ${OUTPUT_PATH}`);
 }
 
+// Run
 generateHierarchy();

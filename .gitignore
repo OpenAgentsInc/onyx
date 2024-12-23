@@ -90,7 +90,7 @@ web-build/
 # Yarn
 .yarn/*
 
-dist/
+/dist
 
 .env
 .env.local
