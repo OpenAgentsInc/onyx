@@ -55,9 +55,9 @@ export const withChatCompletion = (self: ILLMStore) => ({
       ]
 
       log({
-        type: "info",
-        message: "[LLMStore] Starting chat completion with messages",
-        data: messages
+        name: "[LLMStore] Chat Completion",
+        preview: "Starting chat completion",
+        value: messages
       })
 
       // Create placeholder for assistant response
@@ -76,9 +76,9 @@ export const withChatCompletion = (self: ILLMStore) => ({
 
       const formattedChat = yield self.context.getFormattedChat(messages)
       log({
-        type: "debug",
-        message: "[LLMStore] Formatted chat",
-        data: formattedChat
+        name: "[LLMStore] Chat Completion",
+        preview: "Formatted chat",
+        value: formattedChat
       })
 
       const result: CompletionResult = yield self.context.completion({
@@ -106,9 +106,9 @@ export const withChatCompletion = (self: ILLMStore) => ({
       })
 
       log({
-        type: "info",
-        message: "[LLMStore] Completion result",
-        data: result
+        name: "[LLMStore] Chat Completion",
+        preview: "Completion result",
+        value: result
       })
 
       // Update metadata with timing info
@@ -126,9 +126,10 @@ export const withChatCompletion = (self: ILLMStore) => ({
 
     } catch (error) {
       log({
-        type: "error",
-        message: "[LLMStore] Chat completion error",
-        data: error
+        name: "[LLMStore] Chat Completion",
+        preview: "Error",
+        value: error,
+        important: true
       })
       self.inferencing = false
       self.error = error instanceof Error ? error.message : "Chat completion failed"
