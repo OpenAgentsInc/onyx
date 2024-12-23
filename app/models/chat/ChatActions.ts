@@ -1,12 +1,12 @@
 import { flow } from "mobx-state-tree"
 import { groqChatApi } from "../../services/groq/groq-chat"
-import type { IChatStore } from "./ChatStore"
+import type { ChatStore } from "./ChatStore"
 import { log } from "@/utils/log"
 
 /**
  * Chat actions that integrate with the Groq API
  */
-export const withGroqActions = (self: IChatStore) => ({
+export const withGroqActions = (self: ChatStore) => ({
   /**
    * Sends a message to Groq and handles the response
    */
@@ -31,9 +31,11 @@ export const withGroqActions = (self: IChatStore) => ({
         },
       })
 
+      self.setIsGenerating(true)
+
       // Get chat completion from Groq
       const result = yield groqChatApi.createChatCompletion(
-        self.currentMessages,
+        self.messages,
         "llama3-70b-8192",
         {
           temperature: 0.7,
@@ -62,14 +64,16 @@ export const withGroqActions = (self: IChatStore) => ({
           },
         })
         if (__DEV__) {
-          log.error("[ChatActions] Error sending message:", result.kind)
+          log.error("[ChatActions]", `Error sending message: ${result.kind}`)
         }
       }
     } catch (error) {
       if (__DEV__) {
-        log.error("[ChatActions] Error in sendMessage:", error)
+        log.error("[ChatActions]", `Error in sendMessage: ${error}`)
       }
-      self.error = "Failed to send message"
+      self.setError("Failed to send message")
+    } finally {
+      self.setIsGenerating(false)
     }
   }),
 
@@ -97,9 +101,11 @@ export const withGroqActions = (self: IChatStore) => ({
         },
       })
 
+      self.setIsGenerating(true)
+
       // Stream chat completion from Groq
       const stream = groqChatApi.createStreamingChatCompletion(
-        self.currentMessages,
+        self.messages,
         "llama3-70b-8192",
         {
           temperature: 0.7,
@@ -121,7 +127,7 @@ export const withGroqActions = (self: IChatStore) => ({
             },
           })
           if (__DEV__) {
-            log.error("[ChatActions] Error in stream:", chunk.kind)
+            log.error("[ChatActions]", `Error in stream: ${chunk.kind}`)
           }
           return
         }
@@ -145,9 +151,11 @@ export const withGroqActions = (self: IChatStore) => ({
       })
     } catch (error) {
       if (__DEV__) {
-        log.error("[ChatActions] Error in sendStreamingMessage:", error)
+        log.error("[ChatActions]", `Error in sendStreamingMessage: ${error}`)
       }
-      self.error = "Failed to send message"
+      self.setError("Failed to send message")
+    } finally {
+      self.setIsGenerating(false)
     }
   }),
 })
