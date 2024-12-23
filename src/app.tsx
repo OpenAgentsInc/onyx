@@ -37,10 +37,6 @@ function App(props: AppProps) {
   // Initialize LLM store
   const { llmStore } = useStores()
   React.useEffect(() => {
-    console.tron.display({
-      name: "Initializing",
-    })
-
     llmStore.initialize()
   }, [llmStore])
 
