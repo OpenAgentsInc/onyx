@@ -1,135 +1,60 @@
-import { useEffect, useState } from "react"
-import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native"
-import Voice, { SpeechResultsEvent } from "@react-native-voice/voice"
-import { useVoicePermissions } from "../hooks/useVoicePermissions"
+import React, { useState } from "react"
+import { Modal, Text, TouchableOpacity, View } from "react-native"
 import { styles } from "./styles"
+import { observer } from "mobx-react-lite"
+import { useStores } from "@/models"
+import { log } from "@/utils/log"
 
 interface VoiceInputModalProps {
   visible: boolean
   onClose: () => void
-  onSend: (text: string) => void
 }
 
-export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalProps) => {
+export const VoiceInputModal = observer(({ visible, onClose }: VoiceInputModalProps) => {
+  const { llmStore } = useStores()
   const [isRecording, setIsRecording] = useState(false)
   const [transcribedText, setTranscribedText] = useState("")
-  const [error, setError] = useState("")
-  const { hasPermission, isChecking, requestPermissions } = useVoicePermissions()
-
-  useEffect(() => {
-    // Initialize voice handlers
-    Voice.onSpeechStart = () => setIsRecording(true)
-    Voice.onSpeechEnd = () => {
-      setIsRecording(false)
-      // Automatically restart recording when speech ends
-      if (hasPermission && visible) {
-        startRecording()
-      }
-    }
-    Voice.onSpeechResults = (e: SpeechResultsEvent) => {
-      if (e.value && e.value[0]) {
-        setTranscribedText(e.value[0])
-      }
-    }
-    Voice.onSpeechError = (e: any) => {
-      setError(e.error?.message || "Error occurred")
-      setIsRecording(false)
-    }
-
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners)
-    }
-  }, [hasPermission, visible])
-
-  // Start recording when modal becomes visible and we have permission
-  useEffect(() => {
-    if (visible) {
-      if (hasPermission) {
-        startRecording()
-      } else if (!isChecking) {
-        handleRequestPermission()
-      }
-    } else {
-      cleanup()
-    }
-  }, [visible, hasPermission, isChecking])
-
-  const handleRequestPermission = async () => {
-    const granted = await requestPermissions()
-    if (granted) {
-      startRecording()
-    } else {
-      setError("Microphone permission is required for voice input")
-    }
-  }
-
-  const cleanup = async () => {
-    try {
-      await Voice.stop()
-      await Voice.destroy()
-      setTranscribedText("")
-      setError("")
-      setIsRecording(false)
-    } catch (e) {
-      console.error("Error cleaning up voice:", e)
-    }
-  }
-
-  const startRecording = async () => {
-    try {
-      setError("")
-      await Voice.start("en-US")
-    } catch (e: any) {
-      setError(e.message || "Error starting recording")
-    }
-  }
-
-  const stopRecording = async () => {
-    try {
-      await Voice.stop()
-    } catch (e: any) {
-      setError(e.message || "Error stopping recording")
-    }
-  }
-
-  const handleCancel = async () => {
-    await cleanup()
-    onClose()
-  }
 
   const handleSend = async () => {
-    const textToSend = transcribedText // Capture current text
-    await cleanup()
-    if (textToSend) {
-      onSend(textToSend)
+    if (!transcribedText.trim()) return
+
+    try {
+      await llmStore.chatCompletion(transcribedText)
+      setTranscribedText("")
+      onClose()
+    } catch (error) {
+      log({
+        name: "[VoiceInputModal]",
+        preview: "Error sending message",
+        value: error instanceof Error ? error.message : "Unknown error",
+        important: true
+      })
     }
-    onClose()
+  }
+
+  const handleStartRecording = () => {
+    setIsRecording(true)
+    // TODO: Implement voice recording
+  }
+
+  const handleStopRecording = () => {
+    setIsRecording(false)
+    // TODO: Implement voice recording stop
   }
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleCancel}>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Pressable onPress={handleCancel}>
-              <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
-            </Pressable>
-
-            <Pressable onPress={handleSend} disabled={!transcribedText}>
-              <Text
-                style={[styles.buttonText, transcribedText ? styles.sendText : styles.disabledText]}
-              >
-                Send
-              </Text>
-            </Pressable>
-          </View>
-
           <View style={styles.voiceContainer}>
-            {isChecking ? (
-              <ActivityIndicator size="large" color="#fff" />
-            ) : error ? (
-              <Text style={styles.errorText}>{error}</Text>
-            ) : (
+            <TouchableOpacity
+              onPress={isRecording ? handleStopRecording : handleStartRecording}
+            >
               <View style={styles.transcriptionContainer}>
                 <Text style={styles.listeningText}>{isRecording ? "Listening" : "Paused"}</Text>
                 {transcribedText ? (
@@ -138,10 +63,31 @@ export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalPro
                   <Text style={styles.placeholderText}>Start speaking...</Text>
                 )}
               </View>
-            )}
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.modalHeader}>
+            <TouchableOpacity
+              style={[styles.button, styles.cancelButton]}
+              onPress={onClose}
+            >
+              <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.sendButton]}
+              onPress={handleSend}
+              disabled={!transcribedText.trim() || llmStore.inferencing}
+            >
+              <Text style={[
+                styles.buttonText,
+                !transcribedText.trim() || llmStore.inferencing ? styles.disabledText : styles.sendText
+              ]}>
+                {llmStore.inferencing ? "Sending..." : "Send"}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
     </Modal>
   )
-}
+})
