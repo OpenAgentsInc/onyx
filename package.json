@@ -17,7 +17,7 @@
     "build:ios:dev": "eas build --profile development:device --platform ios --local",
     "build:ios:prod": "eas build --profile production --platform ios",
     "build:android:prod": "eas build --profile production --platform android",
-    "build:android:apk": "eas build --profile production-apk --platform android",
+    "build:android:apk": "npx expo prebuild --platform android && eas build --profile production-apk --platform android",
     "prebuild:clean": "npx expo prebuild --clean --platform ios",
     "submit:ios": "eas submit -p ios",
     "t": "tsc --noEmit",
