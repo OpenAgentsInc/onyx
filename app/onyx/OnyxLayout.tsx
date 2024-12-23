@@ -1,14 +1,20 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Image, TouchableOpacity, View } from "react-native"
 import { ConfigureModal } from "./ConfigureModal"
 import { styles } from "./styles"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
+import { useStores } from "@/models"
 
 export const OnyxLayout = () => {
   const [showTextInput, setShowTextInput] = useState(false)
   const [showVoiceInput, setShowVoiceInput] = useState(false)
   const [showConfigureModal, setShowConfigureModal] = useState(false)
+  const { llmStore } = useStores()
+
+  useEffect(() => {
+    llmStore.initialize()
+  }, [llmStore])
 
   const handleTextPress = () => {
     setShowTextInput(true)
