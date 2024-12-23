@@ -6,13 +6,6 @@ export const withModelManagement = (self: ILLMStore) => {
   const localModelService = new LocalModelService()
 
   return {
-    updateModelProgress(modelKey: string, progress: number) {
-      const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
-      if (modelIndex !== -1) {
-        self.models[modelIndex].progress = progress
-      }
-    },
-
     startModelDownload: flow(function* (modelKey: string) {
       try {
         // Find model in store
