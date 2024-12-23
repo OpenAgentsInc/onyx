@@ -1,7 +1,4 @@
 if (__DEV__) {
-  // Load Reactotron in development only.
-  // Note that you must be using metro's `inlineRequires` for this to work.
-  // If you turn it off in metro.config.js, you'll have to manually import it.
   require("./devtools/ReactotronConfig.ts")
 }
 
@@ -16,7 +13,7 @@ import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
-import { useInitialRootStore, useStores } from "./models"
+import { RootStoreProvider, createRootStoreDefaultModel } from "./models"
 import { OnyxLayout } from "./onyx/OnyxLayout"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 
@@ -24,22 +21,19 @@ interface AppProps {
   hideSplashScreen: () => Promise<void>
 }
 
-function App(props: AppProps) {
+const rootStore = createRootStoreDefaultModel()
+
+function AppContents(props: AppProps) {
   useAutoUpdate()
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
-  const { rehydrated } = useInitialRootStore(() => {
-    // This runs after the root store has been initialized and rehydrated.
-    setTimeout(hideSplashScreen, 500)
-  })
 
-  // Initialize LLM store
-  const { llmStore } = useStores()
   React.useEffect(() => {
-    llmStore.initialize()
-  }, [llmStore])
+    // This runs after the root store has been initialized
+    setTimeout(hideSplashScreen, 500)
+  }, [hideSplashScreen])
 
-  if (!loaded || !rehydrated) {
+  if (!loaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#fff" />
@@ -61,6 +55,14 @@ function App(props: AppProps) {
         </View>
       </ErrorBoundary>
     </SafeAreaProvider>
+  )
+}
+
+function App(props: AppProps) {
+  return (
+    <RootStoreProvider value={rootStore}>
+      <AppContents {...props} />
+    </RootStoreProvider>
   )
 }
 
