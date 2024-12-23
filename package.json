@@ -62,7 +62,6 @@
     "expo-gl": "~15.0.2",
     "expo-haptics": "~14.0.0",
     "expo-linking": "~7.0.3",
-    "expo-permissions": "^14.4.0",
     "expo-secure-store": "~14.0.0",
     "expo-speech": "~13.0.0",
     "expo-splash-screen": "~0.29.18",
