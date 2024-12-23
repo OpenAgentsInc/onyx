@@ -3,13 +3,39 @@ import { colors } from "@/theme/colors"
 import { typography } from "@/theme/typography"
 
 export const styles = StyleSheet.create({
+  modalContent: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 15,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: typography.primary.semiBold,
+    color: "#fff",
+  },
+  closeButton: {
+    padding: 8,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: typography.primary.medium,
+  },
   section: {
     marginTop: 20,
+    paddingHorizontal: 20,
   },
   sectionTitle: {
     fontSize: 16,
     fontFamily: typography.primary.medium,
-    color: "rgba(255,255,255,0.5)",
+    color: "#666",
     marginBottom: 12,
   },
   modelItem: {
@@ -24,57 +50,13 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 12,
   },
+  modelNameContainer: {
+    flex: 1,
+  },
   modelName: {
     fontSize: 16,
     fontFamily: typography.primary.medium,
     color: "#fff",
-  },
-  modelStatus: {
-    fontSize: 14,
-    fontFamily: typography.primary.normal,
-    color: "rgba(255,255,255,0.5)",
-  },
-  modelProgress: {
-    fontSize: 14,
-    fontFamily: typography.primary.normal,
-    color: colors.tint,
-    marginTop: 4,
-  },
-  modelError: {
-    fontSize: 14,
-    fontFamily: typography.primary.normal,
-    color: colors.error,
-    marginTop: 4,
-  },
-  modelActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 8,
-  },
-  actionButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    backgroundColor: "rgba(255,255,255,0.1)",
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontFamily: typography.primary.medium,
-    color: "#fff",
-  },
-  selectedButton: {
-    backgroundColor: colors.tint,
-  },
-  closeButton: {
-    padding: 8,
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontFamily: typography.primary.medium,
-  },
-  modelNameContainer: {
-    flex: 1,
   },
   activeIndicator: {
     color: colors.tint,
@@ -83,8 +65,18 @@ export const styles = StyleSheet.create({
   modelSize: {
     fontSize: 14,
     fontFamily: typography.primary.normal,
-    color: "rgba(255,255,255,0.5)",
+    color: "#666",
+  },
+  modelError: {
+    fontSize: 14,
+    fontFamily: typography.primary.normal,
+    color: colors.error,
     marginTop: 4,
+  },
+  downloadContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
   },
   downloadButton: {
     backgroundColor: colors.tint,
@@ -96,6 +88,17 @@ export const styles = StyleSheet.create({
   },
   downloadButtonText: {
     color: "#000",
+    fontSize: 14,
+    fontFamily: typography.primary.medium,
+  },
+  cancelButton: {
+    backgroundColor: "rgba(255,255,255,0.1)",
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  cancelButtonText: {
+    color: "#fff",
     fontSize: 14,
     fontFamily: typography.primary.medium,
   },
