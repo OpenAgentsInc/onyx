@@ -11,12 +11,13 @@ import { useVoicePermissions } from "@/hooks/useVoicePermissions"
 interface VoiceInputModalProps {
   visible: boolean
   onClose: () => void
+  transcript?: string // Make transcript optional
 }
 
-export const VoiceInputModal = observer(({ visible, onClose }: VoiceInputModalProps) => {
+export const VoiceInputModal = observer(({ visible, onClose, transcript }: VoiceInputModalProps) => {
   const { llmStore } = useStores()
   const [isRecording, setIsRecording] = useState(false)
-  const [transcribedText, setTranscribedText] = useState("")
+  const [transcribedText, setTranscribedText] = useState(transcript || "")
   const [error, setError] = useState("")
   const { hasPermission, isChecking, requestPermissions } = useVoicePermissions()
 
