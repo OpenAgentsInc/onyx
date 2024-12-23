@@ -20,6 +20,7 @@ import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore, useStores } from "./models"
 import { OnyxLayout } from "./onyx/OnyxLayout"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
+import { log } from "./utils/log"
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
@@ -34,11 +35,47 @@ function App(props: AppProps) {
     setTimeout(hideSplashScreen, 500)
   })
 
-  // Initialize LLM store
-  const { llmStore } = useStores()
+  // Initialize stores
+  const { chatStore, llmStore } = useStores()
   React.useEffect(() => {
-    llmStore.initialize()
-  }, [llmStore])
+    const initStores = async () => {
+      try {
+        log({
+          name: "[App] Initializing stores",
+          value: {
+            chatStoreInitialized: chatStore.isInitialized,
+            llmStoreInitialized: llmStore.isInitialized
+          }
+        })
+
+        // Initialize chat store
+        if (!chatStore.isInitialized) {
+          chatStore.setup()
+        }
+
+        // Initialize LLM store
+        if (!llmStore.isInitialized) {
+          await llmStore.initialize()
+        }
+
+        log({
+          name: "[App] Stores initialized",
+          value: {
+            chatStoreInitialized: chatStore.isInitialized,
+            llmStoreInitialized: llmStore.isInitialized
+          }
+        })
+      } catch (error) {
+        log({
+          name: "[App] Failed to initialize stores",
+          value: error,
+          important: true
+        })
+      }
+    }
+
+    initStores()
+  }, [chatStore, llmStore])
 
   if (!loaded || !rehydrated) {
     return null
