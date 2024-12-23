@@ -36,7 +36,6 @@ export interface ILLMStore extends IStateTreeNode {
   inferencing: boolean
   updateModelProgress(modelKey: string, progress: number): void
   localModelService: LocalModelService
-  initialize(): Promise<void>
 }
 
 // Views
