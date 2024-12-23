@@ -1,10 +1,12 @@
-import { Instance, IStateTreeNode, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
-import { withSetPropAction } from "./helpers/withSetPropAction"
-import { withInitialize } from "./llm/actions/initialize"
-import { withStartModelDownload } from "./llm/actions/start-model-download"
-import { withCancelModelDownload } from "./llm/actions/cancel-model-download"
-import { withDeleteModel } from "./llm/actions/delete-model"
-import { withSelectModel } from "./llm/actions/select-model"
+import {
+  Instance, IStateTreeNode, SnapshotIn, SnapshotOut, types
+} from "mobx-state-tree"
+import { withSetPropAction } from "../helpers/withSetPropAction"
+import { withCancelModelDownload } from "./actions/cancel-model-download"
+import { withDeleteModel } from "./actions/delete-model"
+import { withInitialize } from "./actions/initialize"
+import { withSelectModel } from "./actions/select-model"
+import { withStartModelDownload } from "./actions/start-model-download"
 
 // Types
 export const ModelInfoModel = types.model("ModelInfo", {
@@ -16,7 +18,7 @@ export const ModelInfoModel = types.model("ModelInfo", {
   error: types.maybe(types.string),
 })
 
-export interface IModelInfo extends Instance<typeof ModelInfoModel> {}
+export interface IModelInfo extends Instance<typeof ModelInfoModel> { }
 
 export interface ILLMStore extends IStateTreeNode {
   isInitialized: boolean
@@ -31,15 +33,15 @@ export interface ILLMStore extends IStateTreeNode {
 // Views
 const withViews = (self: ILLMStore) => ({
   get selectedModel() {
-    return self.selectedModelKey 
+    return self.selectedModelKey
       ? self.models.find((m: IModelInfo) => m.key === self.selectedModelKey) ?? null
       : null
   },
-  
+
   get downloadingModel() {
     return self.models.find((m: IModelInfo) => m.status === "downloading") ?? null
   },
-  
+
   get hasReadyModel() {
     return self.models.some((m: IModelInfo) => m.status === "ready")
   }
@@ -70,9 +72,9 @@ export const LLMStoreModel = types
   .actions(withSelectModel)
   .views(withViews)
 
-export interface LLMStore extends Instance<typeof LLMStoreModel> {}
-export interface LLMStoreSnapshotOut extends SnapshotOut<typeof LLMStoreModel> {}
-export interface LLMStoreSnapshotIn extends SnapshotIn<typeof LLMStoreModel> {}
+export interface LLMStore extends Instance<typeof LLMStoreModel> { }
+export interface LLMStoreSnapshotOut extends SnapshotOut<typeof LLMStoreModel> { }
+export interface LLMStoreSnapshotIn extends SnapshotIn<typeof LLMStoreModel> { }
 
 export const createLLMStoreDefaultModel = () =>
   LLMStoreModel.create({

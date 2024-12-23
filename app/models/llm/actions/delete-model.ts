@@ -1,6 +1,6 @@
 import { flow } from "mobx-state-tree"
 import { LocalModelService } from "@/services/local-models/LocalModelService"
-import { ILLMStore, IModelInfo } from "../types"
+import { ILLMStore, IModelInfo } from "../"
 
 export const withDeleteModel = (self: ILLMStore) => {
   const localModelService = new LocalModelService()
@@ -9,7 +9,7 @@ export const withDeleteModel = (self: ILLMStore) => {
     deleteModel: flow(function* (modelKey: string) {
       try {
         yield localModelService.deleteModel(modelKey)
-        
+
         const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
         if (modelIndex !== -1) {
           self.models[modelIndex].status = "idle"
@@ -22,7 +22,7 @@ export const withDeleteModel = (self: ILLMStore) => {
         if (self.selectedModelKey === modelKey) {
           self.selectedModelKey = null
         }
-        
+
         self.error = null
       } catch (error) {
         console.error("[LLMStore] Delete model error:", error)

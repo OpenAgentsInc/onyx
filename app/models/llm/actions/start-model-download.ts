@@ -1,6 +1,6 @@
 import { flow } from "mobx-state-tree"
 import { LocalModelService } from "@/services/local-models/LocalModelService"
-import { ILLMStore, IModelInfo } from "../types"
+import { ILLMStore, IModelInfo } from "../"
 
 export const withStartModelDownload = (self: ILLMStore) => {
   const localModelService = new LocalModelService()
