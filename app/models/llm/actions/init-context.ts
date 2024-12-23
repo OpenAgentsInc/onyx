@@ -2,16 +2,7 @@ import { flow } from "mobx-state-tree"
 import { ILLMStore } from "../"
 import { log } from "@/utils/log"
 import { Platform } from "react-native"
-import { initLlama } from "llama.rn"
-
-interface LlamaContext {
-  id: string
-  gpu: boolean
-  reasonNoGPU: string
-  model: {
-    isChatTemplateSupported: boolean
-  }
-}
+import { initLlama, type LlamaContext } from "llama.rn"
 
 export const withInitContext = (self: ILLMStore) => ({
   initContext: flow(function* () {
