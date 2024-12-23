@@ -11,24 +11,19 @@ interface TextInputModalProps {
 }
 
 export const TextInputModal = observer(({ visible, onClose }: TextInputModalProps) => {
-  const { llmStore } = useStores()
+  const { chatStore } = useStores()
   const [text, setText] = useState("")
 
   const handleSend = async () => {
     if (!text.trim()) return
 
     try {
-      // Ensure context is initialized before proceeding
-      if (!llmStore.context || !llmStore.isInitialized) {
-        await llmStore.initContext()
-      }
-
       const messageToSend = text // Capture current text
       setText("") // Clear input
       onClose() // Close modal immediately
 
       // Send message after modal is closed
-      await llmStore.chatCompletion(messageToSend)
+      await chatStore.sendStreamingMessage(messageToSend)
     } catch (error) {
       log({
         name: "[TextInputModal]",
@@ -52,10 +47,10 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
             <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
           </Pressable>
 
-          <Pressable onPress={handleSend} disabled={!text.trim() || llmStore.inferencing}>
+          <Pressable onPress={handleSend} disabled={!text.trim() || chatStore.isGenerating}>
             <Text style={[
               baseStyles.buttonText,
-              !text.trim() || llmStore.inferencing ? baseStyles.disabledText : baseStyles.sendText
+              !text.trim() || chatStore.isGenerating ? baseStyles.disabledText : baseStyles.sendText
             ]}>
               Send
             </Text>
