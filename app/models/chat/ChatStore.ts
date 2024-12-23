@@ -1,5 +1,5 @@
 import {
-  Instance, IStateTreeNode, SnapshotIn, SnapshotOut, types
+  Instance, IStateTreeNode, SnapshotIn, SnapshotOut, types, IAnyModelType
 } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
@@ -90,15 +90,22 @@ export interface ChatStore extends Instance<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotIn extends SnapshotIn<typeof ChatStoreModel> { }
 
+// Add Groq actions after ChatStore is defined to avoid circular dependency
+import { withGroqActions } from "./ChatActions"
+
+// Create a new model that includes the Groq actions
+export const ChatStoreWithActions = types.compose(
+  "ChatStoreWithActions",
+  ChatStoreModel,
+  types.model({})
+    .actions(withGroqActions)
+)
+
 export const createChatStoreDefaultModel = () =>
-  ChatStoreModel.create({
+  ChatStoreWithActions.create({
     isInitialized: false,
     error: null,
     messages: [],
     currentConversationId: "default",
     isGenerating: false,
   })
-
-// Add Groq actions after ChatStore is defined to avoid circular dependency
-import { withGroqActions } from "./ChatActions"
-export const ChatStoreWithActions = ChatStoreModel.extend(withGroqActions)
