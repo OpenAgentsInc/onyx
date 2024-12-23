@@ -3,9 +3,15 @@ import { RootStore, RootStoreModel } from "../RootStore"
 import { setupRootStore } from "./setupRootStore"
 
 /**
- * Create the initial context
+ * Create the initial (empty) global RootStore instance here.
  */
-export const RootStoreContext = createContext<RootStore>({} as RootStore)
+const _rootStore = RootStoreModel.create({})
+
+/**
+ * The RootStoreContext provides a way to access
+ * the RootStore in any screen or component.
+ */
+export const RootStoreContext = createContext<RootStore>(_rootStore)
 
 /**
  * The provider our root component will use to expose the root store
@@ -13,9 +19,7 @@ export const RootStoreContext = createContext<RootStore>({} as RootStore)
 export const RootStoreProvider = RootStoreContext.Provider
 
 /**
- * A hook that screens can use to gain access to our stores:
- *
- * const rootStore = useStores()
+ * A hook that screens and other components can use to gain access to our stores
  */
 export const useStores = () => useContext(RootStoreContext)
 
@@ -24,14 +28,22 @@ export const useStores = () => useContext(RootStoreContext)
  * and then rehydrates it.
  */
 export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
+  const rootStore = useStores()
   const [rehydrated, setRehydrated] = useState(false)
 
-  // Kick off initial async loading actions
+  // Kick off initial async loading actions, like loading fonts and rehydrating RootStore
   useEffect(() => {
-    let rootStore: RootStore
+    let _unsubscribe: () => void | undefined
     ;(async () => {
-      // set up the RootStore
-      rootStore = await setupRootStore()
+      // set up the RootStore (returns the state restored from AsyncStorage)
+      const { unsubscribe } = await setupRootStore(rootStore)
+      _unsubscribe = unsubscribe
+
+      // reactotron integration with the MST root store (DEV only)
+      if (__DEV__) {
+        // @ts-ignore
+        console.tron.trackMstNode(rootStore)
+      }
 
       // let the app know we've finished rehydrating
       setRehydrated(true)
@@ -39,6 +51,11 @@ export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
       // invoke the callback, if provided
       if (callback) await callback()
     })()
+
+    return () => {
+      // cleanup
+      if (_unsubscribe !== undefined) _unsubscribe()
+    }
   }, [])
 
   return { rehydrated }
