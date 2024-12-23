@@ -25,16 +25,7 @@
         "RECORD_AUDIO",
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
-      ],
-      "androidXEnabled": true,
-      "enableJetifier": true,
-      "buildToolsVersion": "33.0.0",
-      "compileSdkVersion": 33,
-      "targetSdkVersion": 33,
-      "gradleProperties": {
-        "android.useAndroidX": "true",
-        "android.enableJetifier": "true"
-      }
+      ]
     },
     "ios": {
       "icon": "./assets/images/app-icon-all.png",
@@ -93,7 +84,8 @@
           "microphonePermission": "Allow Onyx to access your microphone for voice commands",
           "speechRecognitionPermission": "Allow Onyx to securely recognize your speech"
         }
-      ]
+      ],
+      "expo-build-properties"
     ],
     "experiments": {
       "tsconfigPaths": true
