@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
-import Voice from '@react-native-voice/voice'
-import { Platform, PermissionsAndroid } from 'react-native'
+import { useEffect, useState } from "react"
+import { PermissionsAndroid, Platform } from "react-native"
 
 export const useVoicePermissions = () => {
   const [hasPermission, setHasPermission] = useState(false)
@@ -13,12 +12,12 @@ export const useVoicePermissions = () => {
   const checkPermissions = async () => {
     try {
       setIsChecking(true)
-      
+
       if (Platform.OS === 'android') {
         const granted = await PermissionsAndroid.check(
           PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
         )
-        
+
         if (!granted) {
           const result = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
@@ -49,7 +48,7 @@ export const useVoicePermissions = () => {
   const requestPermissions = async () => {
     try {
       setIsChecking(true)
-      
+
       if (Platform.OS === 'android') {
         const result = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
@@ -61,12 +60,12 @@ export const useVoicePermissions = () => {
             buttonPositive: "OK"
           }
         )
-        
+
         const granted = result === PermissionsAndroid.RESULTS.GRANTED
         setHasPermission(granted)
         return granted
       }
-      
+
       // iOS will handle permissions through the Voice API
       setHasPermission(true)
       return true
