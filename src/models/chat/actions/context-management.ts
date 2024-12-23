@@ -69,17 +69,16 @@ export const withContextManagement = (self: IChatStore) => ({
         gpu: llamaContext.gpu,
         reasonNoGPU: llamaContext.reasonNoGPU || "",
         sessionPath: null,
-        // Spread only the methods and non-id properties
-        completion: llamaContext.completion,
-        release: llamaContext.release,
-        bench: llamaContext.bench,
-        tokenize: llamaContext.tokenize,
-        detokenize: llamaContext.detokenize,
-        embedding: llamaContext.embedding,
-        getFormattedChat: llamaContext.getFormattedChat,
-        saveSession: llamaContext.saveSession,
-        loadSession: llamaContext.loadSession,
-        stopCompletion: llamaContext.stopCompletion,
+        // Explicitly list methods instead of spreading
+        completion: llamaContext.completion?.bind(llamaContext),
+        release: llamaContext.release?.bind(llamaContext),
+        bench: llamaContext.bench?.bind(llamaContext),
+        tokenize: llamaContext.tokenize?.bind(llamaContext),
+        detokenize: llamaContext.detokenize?.bind(llamaContext),
+        embedding: llamaContext.embedding?.bind(llamaContext),
+        saveSession: llamaContext.saveSession?.bind(llamaContext),
+        loadSession: llamaContext.loadSession?.bind(llamaContext),
+        stopCompletion: llamaContext.stopCompletion?.bind(llamaContext),
         model: llamaContext.model,
       }
       
