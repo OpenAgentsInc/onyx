@@ -80,6 +80,7 @@
     ├── useIsFocused.ts
     ├── useIsMounted.ts
 ├── app.json
+├── asdfasdfasd.md
 ├── assets
   ├── icons
     ├── configure.png
@@ -112,7 +113,6 @@
   ├── @react-native-voice+voice+3.2.4.patch
 ├── scripts
   ├── patch-android-build.sh
-├── test.md
 ├── tsconfig.json
 ├── yarn.lock
 ```
