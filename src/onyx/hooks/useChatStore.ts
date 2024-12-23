@@ -1,8 +1,9 @@
 import { useStores } from "@/models"
 import { useCallback } from "react"
+import { ChatStore } from "@/models/chat/store"
 
 export const useChatStore = () => {
-  const { chatStore } = useStores()
+  const { chatStore } = useStores() as { chatStore: ChatStore }
 
   const sendMessage = useCallback(async (text: string) => {
     if (!chatStore.activeContext) {
