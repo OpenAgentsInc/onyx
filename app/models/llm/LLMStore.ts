@@ -1,13 +1,13 @@
 import {
   Instance, IStateTreeNode, SnapshotIn, SnapshotOut, types
 } from "mobx-state-tree"
-import { withSetPropAction } from "../helpers/withSetPropAction"
+import { LocalModelService } from "@/services/local-models/LocalModelService"
+import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { withCancelModelDownload } from "./actions/cancel-model-download"
 import { withDeleteModel } from "./actions/delete-model"
 import { withInitialize } from "./actions/initialize"
 import { withSelectModel } from "./actions/select-model"
 import { withStartModelDownload } from "./actions/start-model-download"
-import { LocalModelService } from "@/services/local-models/LocalModelService"
 
 // Types
 export const ModelInfoModel = types.model("ModelInfo", {
