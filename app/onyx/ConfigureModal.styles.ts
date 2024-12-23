@@ -77,14 +77,15 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+    justifyContent: "flex-end",
   },
   downloadButton: {
     backgroundColor: colors.tint,
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 8,
-    minWidth: 80,
     alignItems: "center",
+    alignSelf: "flex-end",
   },
   downloadButtonText: {
     color: "#000",
@@ -107,8 +108,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 8,
-    minWidth: 80,
     alignItems: "center",
+    alignSelf: "flex-end",
   },
   deleteButtonText: {
     color: colors.error,
