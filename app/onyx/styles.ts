@@ -163,4 +163,85 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: typography.primary.normal,
   },
+
+  // Additional styles for ConfigureModal
+  closeButton: {
+    padding: 8,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: typography.primary.medium,
+  },
+  modelNameContainer: {
+    flex: 1,
+  },
+  activeIndicator: {
+    color: colors.tint,
+    fontFamily: typography.primary.medium,
+  },
+  modelSize: {
+    fontSize: 14,
+    fontFamily: typography.primary.normal,
+    color: "rgba(255,255,255,0.5)",
+    marginTop: 4,
+  },
+  downloadButton: {
+    backgroundColor: colors.tint,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 8,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  downloadButtonText: {
+    color: "#000",
+    fontSize: 14,
+    fontFamily: typography.primary.medium,
+  },
+  deleteButton: {
+    backgroundColor: colors.errorBackground,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 8,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  deleteButtonText: {
+    color: colors.error,
+    fontSize: 14,
+    fontFamily: typography.primary.medium,
+  },
+
+  // Voice Modal styles
+  voiceContainer: {
+    flex: 1,
+    justifyContent: "flex-start",
+    alignItems: "stretch",
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  transcriptionContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+  listeningText: {
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 15,
+    fontFamily: typography.primary.normal,
+    marginBottom: 20,
+  },
+  transcriptionText: {
+    color: "#fff",
+    fontSize: 24,
+    fontFamily: typography.primary.normal,
+    textAlign: "center",
+    lineHeight: 36,
+  },
+  placeholderText: {
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 24,
+    fontFamily: typography.primary.normal,
+    textAlign: "center",
+  },
 })
