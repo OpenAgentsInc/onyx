@@ -83,25 +83,6 @@
           "microphonePermission": "Allow Onyx to access your microphone for voice commands",
           "speechRecognitionPermission": "Allow Onyx to securely recognize your speech"
         }
-      ],
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 34,
-            "buildToolsVersion": "34.0.0",
-            "enableJetifier": true,
-            "enableProguardInReleaseBuilds": true,
-            "extraMavenRepos": [
-              "https://maven.google.com"
-            ],
-            "manifestApplicationAttributes": {
-              "android:appComponentFactory": "androidx.core.app.CoreComponentFactory",
-              "tools:replace": "android:appComponentFactory"
-            }
-          }
-        }
       ]
     ],
     "experiments": {
