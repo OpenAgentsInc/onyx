@@ -19,4 +19,5 @@ export interface ILLMStore extends IStateTreeNode {
     replace(items: IModelInfo[]): void
   }
   selectedModelKey: string | null
+  updateModelProgress(modelKey: string, progress: number): void
 }
