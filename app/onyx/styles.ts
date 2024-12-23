@@ -31,188 +31,136 @@ export const styles = StyleSheet.create({
   // Modal styles
   modalContainer: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "rgba(0,0,0,0.75)",
+    justifyContent: "flex-end",
   },
   modalContent: {
-    flex: 1,
     backgroundColor: "#000",
-    paddingTop: 60, // Changed from marginTop to paddingTop
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    minHeight: 200,
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    marginTop: 16,
   },
   headerTitle: {
     fontSize: 20,
     fontFamily: typography.primary.semiBold,
     color: "#fff",
   },
-  closeButton: {
-    padding: 8,
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontFamily: typography.primary.medium,
-  },
-  section: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontFamily: typography.primary.medium,
-    marginBottom: 16,
-    color: "rgba(255,255,255,0.5)",
-  },
-  modelItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  modelInfo: {
-    flex: 1,
-    marginRight: 16,
-  },
-  modelNameContainer: {
-    flex: 1,
-  },
-  modelName: {
-    fontSize: 16,
-    fontFamily: typography.primary.normal,
-    color: "#fff",
-  },
-  modelSize: {
-    fontSize: 14,
-    fontFamily: typography.primary.normal,
-    color: "rgba(255,255,255,0.5)",
-    marginTop: 4,
-  },
-  activeIndicator: {
-    color: colors.tint,
-    fontFamily: typography.primary.medium,
-  },
-  downloadButton: {
-    backgroundColor: colors.tint,
-    paddingHorizontal: 15,
+  button: {
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    minWidth: 80,
-    alignItems: "center",
   },
-  downloadButtonText: {
-    color: "#000",
-    fontSize: 14,
+  buttonText: {
+    fontSize: 17,
     fontFamily: typography.primary.medium,
-  },
-  deleteButton: {
-    backgroundColor: colors.errorBackground,
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 8,
-    minWidth: 80,
-    alignItems: "center",
-  },
-  deleteButtonText: {
-    color: colors.error,
-    fontSize: 14,
-    fontFamily: typography.primary.medium,
-  },
-  errorContainer: {
-    backgroundColor: colors.errorBackground,
-    padding: 12,
-    margin: 16,
-    borderRadius: 8,
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 14,
-    fontFamily: typography.primary.normal,
-  },
-  modelError: {
-    color: colors.error,
-    fontSize: 12,
-    fontFamily: typography.primary.normal,
-    marginTop: 2,
-  },
-  downloadContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
   },
   cancelButton: {
     backgroundColor: "rgba(255,255,255,0.1)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    minWidth: 80,
-    alignItems: "center",
   },
-  cancelButtonText: {
-    color: "rgba(255,255,255,0.5)",
-    fontSize: 14,
-    fontFamily: typography.primary.normal,
-  },
-
-  // Text Input Modal styles
-  buttonText: {
-    fontSize: 17,
-    fontFamily: typography.primary.normal,
+  sendButton: {
+    backgroundColor: colors.tint,
   },
   cancelText: {
     color: "#fff",
   },
   sendText: {
-    color: "#fff",
+    color: "#000",
   },
   disabledText: {
     color: "rgba(255,255,255,0.5)",
   },
+
+  // Input styles
   input: {
-    flex: 1,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 12,
+    padding: 16,
     color: "#fff",
     fontSize: 17,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
     fontFamily: typography.primary.normal,
+    minHeight: 100,
+    textAlignVertical: "top",
   },
 
-  // Voice recording styles
-  voiceContainer: {
-    flex: 1,
-    justifyContent: "flex-start",
-    alignItems: "stretch",
-    paddingHorizontal: 20,
-    paddingTop: 20,
+  // Configure Modal styles
+  section: {
+    marginTop: 20,
   },
-  transcriptionContainer: {
-    flex: 1,
+  sectionTitle: {
+    fontSize: 16,
+    fontFamily: typography.primary.medium,
+    color: "rgba(255,255,255,0.5)",
+    marginBottom: 12,
+  },
+  modelItem: {
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  modelInfo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 12,
   },
-  listeningText: {
-    color: "rgba(255,255,255,0.5)",
-    fontSize: 15,
-    fontFamily: typography.primary.normal,
-    marginBottom: 20,
-  },
-  transcriptionText: {
+  modelName: {
+    fontSize: 16,
+    fontFamily: typography.primary.medium,
     color: "#fff",
-    fontSize: 24,
-    fontFamily: typography.primary.normal,
-    textAlign: "center",
-    lineHeight: 36,
   },
-  placeholderText: {
-    color: "rgba(255,255,255,0.5)",
-    fontSize: 24,
+  modelStatus: {
+    fontSize: 14,
     fontFamily: typography.primary.normal,
-    textAlign: "center",
+    color: "rgba(255,255,255,0.5)",
+  },
+  modelProgress: {
+    fontSize: 14,
+    fontFamily: typography.primary.normal,
+    color: colors.tint,
+    marginTop: 4,
+  },
+  modelError: {
+    fontSize: 14,
+    fontFamily: typography.primary.normal,
+    color: colors.error,
+    marginTop: 4,
+  },
+  modelActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
+  },
+  actionButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: "rgba(255,255,255,0.1)",
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontFamily: typography.primary.medium,
+    color: "#fff",
+  },
+  selectedButton: {
+    backgroundColor: colors.tint,
+  },
+  errorContainer: {
+    backgroundColor: colors.errorBackground,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: 14,
+    fontFamily: typography.primary.normal,
   },
 })
