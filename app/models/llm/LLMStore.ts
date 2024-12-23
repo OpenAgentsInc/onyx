@@ -4,12 +4,13 @@ import {
 import { LocalModelService } from "@/services/local-models/LocalModelService"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { withCancelModelDownload } from "./actions/cancel-model-download"
+import { withChatCompletion } from "./actions/chat-completion"
 import { withDeleteModel } from "./actions/delete-model"
+import { withInitContext } from "./actions/init-context"
 import { withInitialize } from "./actions/initialize"
 import { withSelectModel } from "./actions/select-model"
 import { withStartModelDownload } from "./actions/start-model-download"
-import { withInitContext } from "./actions/init-context"
-import { withChatCompletion } from "./actions/chat-completion"
+
 import type { LlamaContext } from "llama.rn"
 
 // Types
