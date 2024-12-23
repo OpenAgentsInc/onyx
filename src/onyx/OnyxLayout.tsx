@@ -20,6 +20,9 @@ export const OnyxLayout = observer(() => {
     setShowConfigureModal(true)
   }
 
+  // Reverse messages for display (newest first)
+  const displayMessages = [...(conversationMessages || [])].reverse()
+
   return (
     <TextChat>
       {({ showTextModal: handleTextPress }) => (
@@ -30,9 +33,8 @@ export const OnyxLayout = observer(() => {
               <ScrollView 
                 style={styles.messagesContainer}
                 contentContainerStyle={styles.messagesContent}
-                inverted
               >
-                {conversationMessages?.map((message) => (
+                {displayMessages.map((message) => (
                   <View 
                     key={message.id}
                     style={[
