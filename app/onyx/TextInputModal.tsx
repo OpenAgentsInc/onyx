@@ -34,6 +34,8 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
     }
   }
 
+  const isDisabled = !text.trim() || chatStore.isGenerating
+
   return (
     <Modal
       animationType="fade"
@@ -47,10 +49,10 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
             <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
           </Pressable>
 
-          <Pressable onPress={handleSend} disabled={!text.trim() || chatStore.isGenerating}>
+          <Pressable onPress={handleSend} disabled={isDisabled}>
             <Text style={[
               baseStyles.buttonText,
-              !text.trim() || chatStore.isGenerating ? baseStyles.disabledText : baseStyles.sendText
+              isDisabled ? baseStyles.disabledText : baseStyles.sendText
             ]}>
               Send
             </Text>
