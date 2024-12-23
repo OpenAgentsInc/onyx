@@ -1,4 +1,5 @@
 import { Instance, IStateTreeNode, types } from "mobx-state-tree"
+import type { LlamaContext } from "llama.rn"
 
 /**
  * Message model with enhanced metadata
@@ -30,7 +31,9 @@ export const ChatContextModel = types.model("ChatContext", {
 })
 
 export interface IMessage extends Instance<typeof MessageModel> {}
-export interface IChatContext extends Instance<typeof ChatContextModel> {}
+
+// Extend ChatContext to include llama.rn methods
+export interface IChatContext extends Instance<typeof ChatContextModel>, Omit<LlamaContext, keyof Instance<typeof ChatContextModel>> {}
 
 // Base store interface
 export interface IChatStore extends IStateTreeNode {
