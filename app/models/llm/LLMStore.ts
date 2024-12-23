@@ -8,6 +8,9 @@ import { withDeleteModel } from "./actions/delete-model"
 import { withInitialize } from "./actions/initialize"
 import { withSelectModel } from "./actions/select-model"
 import { withStartModelDownload } from "./actions/start-model-download"
+import { withInitContext } from "./actions/init-context"
+import { withChatCompletion } from "./actions/chat-completion"
+import type { LlamaContext } from "llama.rn"
 
 // Types
 export const ModelInfoModel = types.model("ModelInfo", {
@@ -28,6 +31,8 @@ export interface ILLMStore extends IStateTreeNode {
     replace(items: IModelInfo[]): void
   }
   selectedModelKey: string | null
+  context: LlamaContext | null
+  inferencing: boolean
   updateModelProgress(modelKey: string, progress: number): void
   localModelService: LocalModelService
 }
@@ -57,9 +62,11 @@ export const LLMStoreModel = types
     error: types.maybeNull(types.string),
     models: types.array(ModelInfoModel),
     selectedModelKey: types.maybeNull(types.string),
+    inferencing: types.optional(types.boolean, false)
   })
   .volatile(self => ({
-    localModelService: new LocalModelService()
+    localModelService: new LocalModelService(),
+    context: null as LlamaContext | null
   }))
   .actions((self) => ({
     updateModelProgress(modelKey: string, progress: number) {
@@ -75,6 +82,8 @@ export const LLMStoreModel = types
   .actions(withCancelModelDownload)
   .actions(withDeleteModel)
   .actions(withSelectModel)
+  .actions(withInitContext)
+  .actions(withChatCompletion)
   .views(withViews)
 
 export interface LLMStore extends Instance<typeof LLMStoreModel> { }
@@ -87,4 +96,5 @@ export const createLLMStoreDefaultModel = () =>
     error: null,
     models: [],
     selectedModelKey: null,
+    inferencing: false
   })
