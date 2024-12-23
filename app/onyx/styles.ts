@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
   // Layout styles
   bottomButtons: {
     position: "absolute",
-    bottom: 50,
+    bottom: 70,
     left: 0,
     right: 0,
     flexDirection: "row",
@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
     top: 60,
     left: 0,
     right: 0,
-    bottom: 80,
+    bottom: 120,
     padding: 20,
     zIndex: 5,
   },
