@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native"
 import { useStores } from "@/models"
-import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
+import { AVAILABLE_MODELS } from "@/services/local-models/constants"
 import { styles } from "./styles"
 
 interface ConfigureModalProps {

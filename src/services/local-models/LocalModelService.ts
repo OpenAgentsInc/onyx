@@ -1,6 +1,6 @@
 import * as FileSystem from "expo-file-system"
 import { AppState } from "react-native"
-import { AVAILABLE_MODELS } from "@/screens/Chat/constants"
+import { AVAILABLE_MODELS } from "./constants"
 
 const MODELS_DIR = `${FileSystem.cacheDirectory}models`
 
@@ -34,7 +34,7 @@ export class LocalModelService {
     for (const [key, model] of Object.entries(AVAILABLE_MODELS)) {
       const path = `${MODELS_DIR}/${model.filename}`
       const fileInfo = await FileSystem.getInfoAsync(path)
-      
+
       models.push({
         key,
         displayName: model.displayName,
@@ -62,7 +62,7 @@ export class LocalModelService {
       tempPath,
       {},
       (downloadProgress) => {
-        const progress = 
+        const progress =
           (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100
         onProgress?.(progress)
       }
@@ -91,8 +91,8 @@ export class LocalModelService {
       // Clean up temp file
       try {
         await FileSystem.deleteAsync(tempPath)
-      } catch {}
-      
+      } catch { }
+
       throw error
     }
   }
