@@ -1,2 +1,2 @@
 export * from "./RootStore"
-export { useStores, RootStoreProvider } from "./_helpers/useStores"
+export { useStores, RootStoreProvider, useInitialRootStore } from "./_helpers/useStores"
