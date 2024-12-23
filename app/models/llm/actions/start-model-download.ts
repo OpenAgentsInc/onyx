@@ -1,10 +1,7 @@
 import { flow } from "mobx-state-tree"
-import { LocalModelService } from "@/services/local-models/LocalModelService"
 import { ILLMStore, IModelInfo } from "../"
 
 export const withStartModelDownload = (self: ILLMStore) => {
-  const localModelService = new LocalModelService()
-
   return {
     startModelDownload: flow(function* (modelKey: string) {
       try {
@@ -19,7 +16,7 @@ export const withStartModelDownload = (self: ILLMStore) => {
         self.models[modelIndex].error = undefined
 
         // Start download
-        const finalPath = yield localModelService.startDownload(modelKey, (progress) => {
+        const finalPath = yield self.localModelService.startDownload(modelKey, (progress) => {
           self.updateModelProgress(modelKey, progress)
         })
 
