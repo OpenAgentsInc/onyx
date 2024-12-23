@@ -1,12 +1,19 @@
-import { getRoot, IStateTreeNode } from "mobx-state-tree"
-import { RootStore, RootStoreModel } from "../RootStore"
+import { createContext, useContext } from "react"
+import { RootStore } from "../RootStore"
 
 /**
- * Returns a RootStore object in strongly typed way
- * for stores to access other stores.
- * @param {IStateTreeNode} self - The store instance.
- * @returns {RootStore} - The RootStore instance.
+ * Create the initial context
  */
-export const getRootStore = (self: IStateTreeNode): RootStore => {
-  return getRoot<typeof RootStoreModel>(self)
-}
+export const RootStoreContext = createContext<RootStore>({} as RootStore)
+
+/**
+ * The provider our root component will use to expose the root store
+ */
+export const RootStoreProvider = RootStoreContext.Provider
+
+/**
+ * A hook that screens can use to gain access to our stores:
+ *
+ * const rootStore = useStores()
+ */
+export const useStores = () => useContext(RootStoreContext)
