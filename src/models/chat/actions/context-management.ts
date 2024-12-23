@@ -36,7 +36,7 @@ export const withContextManagement = (self: IChatStore) => ({
         }
       })
 
-      const context = yield initLlama(
+      const llamaContext = yield initLlama(
         {
           model: modelPath,
           use_mlock: true,
@@ -55,21 +55,32 @@ export const withContextManagement = (self: IChatStore) => ({
       log({
         name: "[ChatStore] initLlama completed",
         value: {
-          gpu: context.gpu,
-          reasonNoGPU: context.reasonNoGPU,
-          contextMethods: Object.keys(context)
+          gpu: llamaContext.gpu,
+          reasonNoGPU: llamaContext.reasonNoGPU,
+          contextMethods: Object.keys(llamaContext)
         }
       })
 
       // Add context to store using action
       const contextData = {
-        id,
+        id, // Use our string ID instead of llama's numeric one
         modelKey: modelPath,
         isLoaded: true,
-        gpu: context.gpu,
-        reasonNoGPU: context.reasonNoGPU || "",
+        gpu: llamaContext.gpu,
+        reasonNoGPU: llamaContext.reasonNoGPU || "",
         sessionPath: null,
-        ...context // Spread llama.rn context methods
+        // Spread only the methods and non-id properties
+        completion: llamaContext.completion,
+        release: llamaContext.release,
+        bench: llamaContext.bench,
+        tokenize: llamaContext.tokenize,
+        detokenize: llamaContext.detokenize,
+        embedding: llamaContext.embedding,
+        getFormattedChat: llamaContext.getFormattedChat,
+        saveSession: llamaContext.saveSession,
+        loadSession: llamaContext.loadSession,
+        stopCompletion: llamaContext.stopCompletion,
+        model: llamaContext.model,
       }
       
       log({
@@ -92,8 +103,8 @@ export const withContextManagement = (self: IChatStore) => ({
         value: {
           id,
           modelPath,
-          gpu: context.gpu,
-          reasonNoGPU: context.reasonNoGPU,
+          gpu: llamaContext.gpu,
+          reasonNoGPU: llamaContext.reasonNoGPU,
           activeModel: self.activeModelKey,
           contextsCount: self.contexts.length
         },
