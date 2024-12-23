@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { LLMStoreModel } from "./LLMStore"
+import { LLMStoreModel } from "./llm"
 
 /**
  * A RootStore model.
