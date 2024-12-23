@@ -117,7 +117,12 @@ export class GroqChatApi {
       }
 
       // Cast response.data to ReadableStream
-      const stream = response.data as unknown as ReadableStream<Uint8Array>
+      const stream = response.data as unknown as {
+        getReader(): {
+          read(): Promise<{ done: boolean; value: Uint8Array }>
+          releaseLock(): void
+        }
+      }
       const reader = stream.getReader()
       const decoder = new TextDecoder()
       let buffer = ""
