@@ -24,6 +24,15 @@ interface CompletionResult {
 }
 
 export const withChatCompletion = (self: ILLMStore) => ({
+  updateAssistantMessage: (messageId: string, content: string) => {
+    const root = getRoot<RootStore>(self)
+    const chatStore = root.chatStore
+    const message = chatStore.messages.find(msg => msg.id === messageId)
+    if (message) {
+      message.setProp('content', content)
+    }
+  },
+
   chatCompletion: flow(function* (message: string): Generator<any, CompletionResult, any> {
     try {
       if (!self.context || !self.isInitialized) {
@@ -81,6 +90,7 @@ export const withChatCompletion = (self: ILLMStore) => ({
         value: formattedChat
       })
 
+      let currentContent = ""
       const result: CompletionResult = yield self.context.completion({
         messages,
         n_predict: 400,
@@ -102,7 +112,8 @@ export const withChatCompletion = (self: ILLMStore) => ({
       }, (data) => {
         // Update assistant message with new token
         const { token } = data
-        assistantMsg.content = (assistantMsg.content + token).replace(/^\s+/, "")
+        currentContent = (currentContent + token).replace(/^\s+/, "")
+        self.updateAssistantMessage(assistantMsg.id, currentContent)
       })
 
       log({
@@ -112,14 +123,14 @@ export const withChatCompletion = (self: ILLMStore) => ({
       })
 
       // Update metadata with timing info
-      assistantMsg.metadata = {
+      assistantMsg.setProp('metadata', {
         ...assistantMsg.metadata,
         inProgress: false,
         timings: {
           predictedPerTokenMs: result.timings.predicted_per_token_ms,
           predictedPerSecond: result.timings.predicted_per_second
         }
-      }
+      })
 
       self.inferencing = false
       return result
