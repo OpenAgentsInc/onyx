@@ -17,6 +17,7 @@ export class LocalModelService {
   private downloadResumable: FileSystem.DownloadResumable | null = null
   private currentTempPath: string | null = null
   private onProgressCallback: ((progress: number) => void) | null = null
+  private isCancelled: boolean = false
 
   constructor() {
     // Ensure models directory exists
@@ -52,6 +53,7 @@ export class LocalModelService {
   async startDownload(modelKey: string, onProgress?: (progress: number) => void): Promise<string> {
     // Cancel any existing download first
     await this.cancelDownload()
+    this.isCancelled = false
 
     const model = AVAILABLE_MODELS[modelKey]
     if (!model) {
@@ -69,15 +71,20 @@ export class LocalModelService {
       this.currentTempPath,
       {},
       (downloadProgress) => {
-        const progress =
-          (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100
-        this.onProgressCallback?.(progress)
+        if (!this.isCancelled) {
+          const progress =
+            (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100
+          this.onProgressCallback?.(progress)
+        }
       }
     )
 
     try {
       // Start download
       const result = await this.downloadResumable.downloadAsync()
+      if (this.isCancelled) {
+        return ""  // Return empty string to indicate cancelled download
+      }
       if (!result?.uri) {
         throw new Error("Download failed - no URI received")
       }
@@ -100,6 +107,11 @@ export class LocalModelService {
       return finalPath
 
     } catch (error) {
+      // If cancelled, don't treat as error
+      if (this.isCancelled) {
+        return ""
+      }
+
       // Clean up temp file
       if (this.currentTempPath) {
         try {
@@ -116,6 +128,7 @@ export class LocalModelService {
 
   async cancelDownload() {
     if (this.downloadResumable) {
+      this.isCancelled = true
       try {
         // Cancel the download first
         await this.downloadResumable.cancelAsync()
