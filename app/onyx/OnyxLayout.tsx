@@ -6,7 +6,7 @@ import { ConfigureModal } from "./ConfigureModal"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
 import { BottomButtons } from "./BottomButtons"
-import { styles } from "./styles"
+import { styles as baseStyles } from "./styles"
 
 const ChatOverlay = observer(() => {
   const { chatStore } = useStores()
@@ -18,15 +18,15 @@ const ChatOverlay = observer(() => {
   }, [chatStore.currentMessages])
 
   return (
-    <View style={styles.chatOverlay}>
+    <View style={baseStyles.chatOverlay}>
       <ScrollView 
         ref={scrollViewRef}
-        style={styles.messageList}
+        style={baseStyles.messageList}
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}
       >
         {chatStore.currentMessages.map((message) => (
-          <View key={message.id} style={styles.message}>
-            <Text style={styles.messageText}>
+          <View key={message.id} style={baseStyles.message}>
+            <Text style={baseStyles.messageText}>
               {message.role === "user" ? "> " : ""}{message.content}
             </Text>
           </View>
