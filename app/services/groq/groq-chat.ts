@@ -1,13 +1,13 @@
 import { ApiResponse, ApisauceInstance, create } from "apisauce"
+import { log } from "@/utils/log"
 import Config from "../../config"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
+
 import type { GroqConfig, ChatMessage, ChatCompletionResponse } from "./groq-api.types"
 import type { IMessage } from "../../models/chat/ChatStore"
-import { log } from "@/utils/log"
-
 const DEFAULT_CONFIG: GroqConfig = {
   apiKey: Config.GROQ_API_KEY ?? "",
-  baseURL: "https://api.groq.com/v1",
+  baseURL: "https://api.groq.com/openai/v1",
   timeout: 30000,
 }
 
@@ -45,7 +45,7 @@ export class GroqChatApi {
    */
   async createChatCompletion(
     messages: IMessage[],
-    model: string = "llama3-70b-8192",
+    model: string = "llama-3.2-3b-preview",
     options: {
       temperature?: number
       max_tokens?: number
@@ -56,7 +56,7 @@ export class GroqChatApi {
   ): Promise<{ kind: "ok"; response: ChatCompletionResponse } | GeneralApiProblem> {
     try {
       const groqMessages = this.convertToGroqMessages(messages)
-      
+
       const response: ApiResponse<ChatCompletionResponse> = await this.apisauce.post(
         "/chat/completions",
         {
@@ -65,6 +65,13 @@ export class GroqChatApi {
           ...options,
         },
       )
+
+      log({
+        name: "[GroqChatApi] createChatCompletion",
+        preview: "Chat completion response",
+        value: response.data,
+        important: true,
+      })
 
       if (!response.ok) {
         const problem = getGeneralApiProblem(response)

@@ -1,6 +1,7 @@
 import { ApiResponse, ApisauceInstance, create } from "apisauce"
 import Config from "../../config"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
+
 import type {
   GroqConfig,
   ChatCompletionRequest,
@@ -11,7 +12,7 @@ import type {
 
 const DEFAULT_CONFIG: GroqConfig = {
   apiKey: Config.GROQ_API_KEY ?? "",
-  baseURL: "https://api.groq.com/v1",
+  baseURL: "https://api.groq.com/openai/v1",
   timeout: 30000,
 }
 
