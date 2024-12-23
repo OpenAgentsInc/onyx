@@ -1,6 +1,6 @@
-import { IChatStore } from "../types"
-import { initLlama } from "llama.rn"
 import { Platform } from "react-native"
+import { initLlama } from "llama.rn"
+import { IChatStore } from "../types"
 import { log } from "@/utils/log"
 
 export const withContextManagement = (self: IChatStore) => ({
@@ -8,10 +8,10 @@ export const withContextManagement = (self: IChatStore) => ({
     self.activeModelKey = modelKey
   },
 
-  async addContext(
+  async initializeContext(
     id: string,
-    modelKey: string,
     modelPath: string,
+    loraPath?: string | null,
     onProgress?: (progress: number) => void
   ) {
     try {
@@ -21,14 +21,21 @@ export const withContextManagement = (self: IChatStore) => ({
           model: modelPath,
           use_mlock: true,
           n_gpu_layers: Platform.OS === "ios" ? 99 : 0, // Enable GPU on iOS
+          lora_list: loraPath ? [{ path: loraPath, scaled: 1.0 }] : undefined,
         },
-        onProgress
+        (progress) => {
+          onProgress?.(progress)
+          log({
+            name: "[ChatStore] Model loading progress",
+            data: { progress }
+          })
+        }
       )
 
       // Add context to store
       self.contexts.push({
         id,
-        modelKey,
+        modelKey: modelPath,
         isLoaded: true,
         gpu: context.gpu,
         reasonNoGPU: context.reasonNoGPU || "",
@@ -36,11 +43,14 @@ export const withContextManagement = (self: IChatStore) => ({
         ...context // Spread llama.rn context methods
       })
 
+      // Set as active model
+      self.setActiveModel(modelPath)
+
       log({
         name: "[ChatStore] Context initialized",
         data: {
           id,
-          modelKey,
+          modelPath,
           gpu: context.gpu,
           reasonNoGPU: context.reasonNoGPU
         }
@@ -49,9 +59,38 @@ export const withContextManagement = (self: IChatStore) => ({
     } catch (error) {
       log({
         name: "[ChatStore] Context initialization failed",
-        data: error
+        data: { error }
       })
       throw error
+    }
+  },
+
+  async releaseContext(contextId: string) {
+    const context = self.contexts.find(ctx => ctx.id === contextId)
+    if (context) {
+      try {
+        // Release llama context
+        await context.release()
+        
+        // Remove from store
+        self.contexts.splice(self.contexts.indexOf(context), 1)
+
+        // Clear active model if this was it
+        if (self.activeModelKey === context.modelKey) {
+          self.setActiveModel(null)
+        }
+
+        log({
+          name: "[ChatStore] Context released",
+          data: { contextId }
+        })
+      } catch (error) {
+        log({
+          name: "[ChatStore] Context release failed",
+          data: { error }
+        })
+        throw error
+      }
     }
   },
 
@@ -69,23 +108,18 @@ export const withContextManagement = (self: IChatStore) => ({
     }
   },
 
-  async removeContext(contextId: string) {
-    const context = self.contexts.find(ctx => ctx.id === contextId)
-    if (context) {
-      try {
-        // Release llama context
-        await context.release()
-      } catch (error) {
+  removeContext(contextId: string) {
+    const index = self.contexts.findIndex(ctx => ctx.id === contextId)
+    if (index >= 0) {
+      // Release context first
+      this.releaseContext(contextId).catch(error => {
         log({
-          name: "[ChatStore] Context release failed",
-          data: error
+          name: "[ChatStore] Error releasing context during removal",
+          data: { error }
         })
-      }
+      })
       // Remove from store
-      const index = self.contexts.findIndex(ctx => ctx.id === contextId)
-      if (index >= 0) {
-        self.contexts.splice(index, 1)
-      }
+      self.contexts.splice(index, 1)
     }
   }
 })
