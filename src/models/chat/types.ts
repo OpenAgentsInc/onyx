@@ -34,4 +34,5 @@ export interface IChatStore extends IStateTreeNode {
   removeContext(contextId: string): void
   getContext(contextId: string): LlamaContext | undefined
   contexts: LlamaContext[]
+  volatileContexts: Map<string, LlamaContext>
 }
