@@ -32,6 +32,7 @@
       ├── useStores.ts
       ├── withSetPropAction.ts
     ├── chat
+      ├── ChatActions.ts
       ├── ChatStore.ts
       ├── index.ts
     ├── index.ts
@@ -61,6 +62,16 @@
       ├── ErrorBoundary.tsx
       ├── ErrorDetails.tsx
   ├── services
+    ├── api
+      ├── api.ts
+      ├── api.types.ts
+      ├── apiProblem.test.ts
+      ├── apiProblem.ts
+      ├── index.ts
+    ├── groq
+      ├── groq-api.types.ts
+      ├── groq-chat.ts
+      ├── index.ts
     ├── local-models
       ├── LocalModelService.ts
       ├── constants.ts
@@ -79,6 +90,7 @@
       ├── storage.ts
     ├── useIsFocused.ts
     ├── useIsMounted.ts
+├── app.config.ts
 ├── app.json
 ├── assets
   ├── icons
@@ -95,6 +107,7 @@
   ├── 148.md
   ├── ai-design-language.md
   ├── data-marketplace.md
+  ├── groq.md
   ├── init.md
   ├── keys.md
   ├── llm-store.md
