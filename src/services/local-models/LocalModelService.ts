@@ -70,17 +70,20 @@ export class LocalModelService {
 
     try {
       // Start download
-      const { uri } = await this.downloadResumable.downloadAsync()
+      const result = await this.downloadResumable.downloadAsync()
+      if (!result?.uri) {
+        throw new Error("Download failed - no URI received")
+      }
 
       // Validate file
-      const fileInfo = await FileSystem.getInfoAsync(uri)
+      const fileInfo = await FileSystem.getInfoAsync(result.uri)
       if (!fileInfo.exists || fileInfo.size < 100 * 1024 * 1024) {
         throw new Error("Downloaded file is invalid or too small")
       }
 
       // Move to final location
       await FileSystem.moveAsync({
-        from: uri,
+        from: result.uri,
         to: finalPath
       })
 
