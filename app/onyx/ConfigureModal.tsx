@@ -62,7 +62,7 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
           <View style={styles.modalHeader}>
             <Text style={styles.headerTitle}>Configure Models</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Done</Text>
+              <Text style={styles.buttonText}>Done</Text>
             </TouchableOpacity>
           </View>
 
@@ -103,28 +103,28 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
                   <View style={styles.modelActions}>
                     {model.status === "idle" && (
                       <TouchableOpacity
-                        style={styles.downloadButton}
+                        style={styles.actionButton}
                         onPress={() => handleDownload(model.key)}
                       >
-                        <Text style={styles.downloadButtonText}>Download</Text>
+                        <Text style={styles.actionButtonText}>Download</Text>
                       </TouchableOpacity>
                     )}
 
                     {model.status === "downloading" && (
                       <TouchableOpacity
-                        style={styles.cancelButton}
+                        style={styles.actionButton}
                         onPress={() => handleCancel(model.key)}
                       >
-                        <Text style={styles.cancelButtonText}>Cancel</Text>
+                        <Text style={styles.actionButtonText}>Cancel</Text>
                       </TouchableOpacity>
                     )}
 
                     {(model.status === "ready" || model.status === "error") && (
                       <TouchableOpacity
-                        style={styles.deleteButton}
+                        style={styles.actionButton}
                         onPress={() => handleDelete(model.key)}
                       >
-                        <Text style={styles.deleteButtonText}>Delete</Text>
+                        <Text style={styles.actionButtonText}>Delete</Text>
                       </TouchableOpacity>
                     )}
                   </View>
