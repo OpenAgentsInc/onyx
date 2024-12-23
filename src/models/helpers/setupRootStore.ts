@@ -16,7 +16,7 @@ import { RootStore, RootStoreSnapshot } from "../RootStore"
 /**
  * The key we'll be saving our state as within async storage.
  */
-const ROOT_STATE_STORAGE_KEY = "root-v1aa1ab31111"
+const ROOT_STATE_STORAGE_KEY = "root-v1aa1ab311211"
 
 /**
  * Setup the root state.
