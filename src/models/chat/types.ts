@@ -26,7 +26,7 @@ export const ChatContextModel = types.model("ChatContext", {
   isLoaded: types.boolean,
   gpu: types.optional(types.boolean, false),
   reasonNoGPU: types.optional(types.string, ""),
-  sessionPath: types.maybe(types.string), // This allows undefined but not null
+  sessionPath: types.optional(types.maybeNull(types.string), undefined),
 })
 
 export interface IMessage extends Instance<typeof MessageModel> {}
