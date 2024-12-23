@@ -74,7 +74,6 @@ export const ChatStoreModel = types
       return self.messages
         .filter(msg => !msg.metadata?.conversationId || msg.metadata.conversationId === self.currentConversationId)
         .slice()
-        .reverse()
     }
   }))
 
