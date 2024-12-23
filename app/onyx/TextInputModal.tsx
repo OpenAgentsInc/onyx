@@ -23,9 +23,12 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
         await llmStore.initContext()
       }
 
-      await llmStore.chatCompletion(text)
-      setText("")
-      onClose()
+      const messageToSend = text // Capture current text
+      setText("") // Clear input
+      onClose() // Close modal immediately
+
+      // Send message after modal is closed
+      await llmStore.chatCompletion(messageToSend)
     } catch (error) {
       log({
         name: "[TextInputModal]",
@@ -54,7 +57,7 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
               baseStyles.buttonText,
               !text.trim() || llmStore.inferencing ? baseStyles.disabledText : baseStyles.sendText
             ]}>
-              {llmStore.inferencing ? "Sending..." : "Send"}
+              Send
             </Text>
           </Pressable>
         </View>
