@@ -28,6 +28,28 @@ export const styles = StyleSheet.create({
     zIndex: 10,
   },
 
+  // Chat Overlay styles
+  chatOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 150,
+    padding: 20,
+    zIndex: 5,
+  },
+  messageList: {
+    flex: 1,
+  },
+  message: {
+    marginBottom: 12,
+  },
+  messageText: {
+    color: "#fff",
+    fontSize: 15,
+    fontFamily: typography.primary.normal,
+  },
+
   // Modal styles
   modalContainer: {
     flex: 1,
