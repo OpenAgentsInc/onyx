@@ -1,18 +1,17 @@
+import { observer } from "mobx-react-lite"
 import { useState } from "react"
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
+import { ConfigureModal } from "./ConfigureModal"
+import { useChatStore } from "./hooks/useChatStore"
+import { useInitialContext } from "./hooks/useInitialContext"
 import { styles } from "./styles"
 import { TextChat } from "./TextChat"
 import { VoiceChat } from "./VoiceChat"
-import { ConfigureModal } from "./ConfigureModal"
-import { DownloadModal } from "./DownloadModal"
-import { useChatStore } from "./hooks/useChatStore"
-import { useInitialContext } from "./hooks/useInitialContext"
-import { observer } from "mobx-react-lite"
 
 export const OnyxLayout = observer(() => {
   const [showConfigureModal, setShowConfigureModal] = useState(false)
   const { conversationMessages, isInferencing } = useChatStore()
-  
+
   // Initialize a temporary context for testing
   useInitialContext()
 
@@ -30,16 +29,16 @@ export const OnyxLayout = observer(() => {
           {({ showVoiceModal: handleVoicePress }) => (
             <View style={styles.container}>
               {/* Messages */}
-              <ScrollView 
+              <ScrollView
                 style={styles.messagesContainer}
                 contentContainerStyle={styles.messagesContent}
               >
                 {displayMessages.map((message) => (
-                  <View 
+                  <View
                     key={message.id}
                     style={[
                       styles.messageContainer,
-                      message.role === "user" ? styles.userMessage : styles.assistantMessage
+                      message.role === "user" ? styles.userMessage : styles.assistantMessage,
                     ]}
                   >
                     <Text style={styles.messageText}>{message.text}</Text>
@@ -59,41 +58,32 @@ export const OnyxLayout = observer(() => {
               >
                 <Image
                   source={require("../../assets/icons/configure.png")}
-                  style={[
-                    styles.configureImage,
-                    isInferencing && styles.disabledButton
-                  ]}
+                  style={[styles.configureImage, isInferencing && styles.disabledButton]}
                   resizeMode="contain"
                 />
               </TouchableOpacity>
 
               {/* Bottom Buttons */}
               <View style={styles.bottomButtons}>
-                <TouchableOpacity 
-                  activeOpacity={0.8} 
+                <TouchableOpacity
+                  activeOpacity={0.8}
                   onPress={handleTextPress}
                   disabled={isInferencing}
                 >
-                  <Image 
-                    source={require("../../assets/icons/text.png")} 
-                    style={[
-                      styles.iconButton,
-                      isInferencing && styles.disabledButton
-                    ]}
+                  <Image
+                    source={require("../../assets/icons/text.png")}
+                    style={[styles.iconButton, isInferencing && styles.disabledButton]}
                     resizeMode="contain"
                   />
                 </TouchableOpacity>
-                <TouchableOpacity 
-                  activeOpacity={0.8} 
+                <TouchableOpacity
+                  activeOpacity={0.8}
                   onPress={handleVoicePress}
                   disabled={isInferencing}
                 >
-                  <Image 
-                    source={require("../../assets/icons/voice.png")} 
-                    style={[
-                      styles.iconButton,
-                      isInferencing && styles.disabledButton
-                    ]}
+                  <Image
+                    source={require("../../assets/icons/voice.png")}
+                    style={[styles.iconButton, isInferencing && styles.disabledButton]}
                     resizeMode="contain"
                   />
                 </TouchableOpacity>
@@ -104,8 +94,6 @@ export const OnyxLayout = observer(() => {
                 visible={showConfigureModal}
                 onClose={() => setShowConfigureModal(false)}
               />
-
-              <DownloadModal />
             </View>
           )}
         </VoiceChat>
