@@ -46,5 +46,6 @@ export const useChatStore = () => {
     sendMessage,
     isInferencing: chatStore.inferencing,
     error: chatStore.error,
+    conversationMessages: chatStore.conversationMessages,
   }
 }
