@@ -18,27 +18,20 @@ export const MessageModel = types.model("Message", {
   }), {})
 })
 
-/**
- * Model context state
- */
-export const ChatContextModel = types.model("ChatContext", {
-  id: types.identifier,
-  modelKey: types.string,
-  isLoaded: types.boolean,
-  gpu: types.optional(types.boolean, false),
-  reasonNoGPU: types.optional(types.string, ""),
-  sessionPath: types.optional(types.maybeNull(types.string), undefined),
-})
-
 export interface IMessage extends Instance<typeof MessageModel> {}
 
-// Base store interface with MST array type
+// Base store interface
 export interface IChatStore extends IStateTreeNode {
   isInitialized: boolean
   error: string | null
-  contexts: LlamaContext[] & {
-    replace(items: LlamaContext[]): void
+  messages: IMessage[] & {
+    replace(items: IMessage[]): void
   }
   activeModelKey: string | null
   inferencing: boolean
+  // Context management
+  addContext(context: LlamaContext & { modelKey: string }): void
+  removeContext(contextId: string): void
+  getContext(contextId: string): LlamaContext | undefined
+  contexts: LlamaContext[]
 }
