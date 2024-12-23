@@ -1,147 +1,72 @@
-import { useEffect, useState } from "react"
-import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native"
-import Voice, { SpeechResultsEvent } from "@react-native-voice/voice"
-import { useVoicePermissions } from "../hooks/useVoicePermissions"
+import React from "react"
+import { Modal, TouchableOpacity, View, Text } from "react-native"
 import { styles } from "./styles"
+import { observer } from "mobx-react-lite"
+import { useStores } from "@/models"
+import { log } from "@/utils/log"
 
 interface VoiceInputModalProps {
   visible: boolean
   onClose: () => void
-  onSend: (text: string) => void
+  transcript?: string // Make transcript optional
 }
 
-export const VoiceInputModal = ({ visible, onClose, onSend }: VoiceInputModalProps) => {
-  const [isRecording, setIsRecording] = useState(false)
-  const [transcribedText, setTranscribedText] = useState("")
-  const [error, setError] = useState("")
-  const { hasPermission, isChecking, requestPermissions } = useVoicePermissions()
-
-  useEffect(() => {
-    // Initialize voice handlers
-    Voice.onSpeechStart = () => setIsRecording(true)
-    Voice.onSpeechEnd = () => {
-      setIsRecording(false)
-      // Automatically restart recording when speech ends
-      if (hasPermission && visible) {
-        startRecording()
-      }
-    }
-    Voice.onSpeechResults = (e: SpeechResultsEvent) => {
-      if (e.value && e.value[0]) {
-        setTranscribedText(e.value[0])
-      }
-    }
-    Voice.onSpeechError = (e: any) => {
-      setError(e.error?.message || "Error occurred")
-      setIsRecording(false)
-    }
-
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners)
-    }
-  }, [hasPermission, visible])
-
-  // Start recording when modal becomes visible and we have permission
-  useEffect(() => {
-    if (visible) {
-      if (hasPermission) {
-        startRecording()
-      } else if (!isChecking) {
-        handleRequestPermission()
-      }
-    } else {
-      cleanup()
-    }
-  }, [visible, hasPermission, isChecking])
-
-  const handleRequestPermission = async () => {
-    const granted = await requestPermissions()
-    if (granted) {
-      startRecording()
-    } else {
-      setError("Microphone permission is required for voice input")
-    }
-  }
-
-  const cleanup = async () => {
-    try {
-      await Voice.stop()
-      await Voice.destroy()
-      setTranscribedText("")
-      setError("")
-      setIsRecording(false)
-    } catch (e) {
-      console.error("Error cleaning up voice:", e)
-    }
-  }
-
-  const startRecording = async () => {
-    try {
-      setError("")
-      await Voice.start("en-US")
-    } catch (e: any) {
-      setError(e.message || "Error starting recording")
-    }
-  }
-
-  const stopRecording = async () => {
-    try {
-      await Voice.stop()
-    } catch (e: any) {
-      setError(e.message || "Error stopping recording")
-    }
-  }
-
-  const handleCancel = async () => {
-    await cleanup()
-    onClose()
-  }
+export const VoiceInputModal = observer(({ visible, onClose, transcript = "" }: VoiceInputModalProps) => {
+  const { llmStore } = useStores()
 
   const handleSend = async () => {
-    const textToSend = transcribedText // Capture current text
-    await cleanup()
-    if (textToSend) {
-      onSend(textToSend)
+    if (!transcript.trim()) return
+
+    try {
+      // Ensure context is initialized before proceeding
+      if (!llmStore.context || !llmStore.isInitialized) {
+        await llmStore.initContext()
+      }
+
+      await llmStore.chatCompletion(transcript)
+      onClose()
+    } catch (error) {
+      log({
+        name: "[VoiceInputModal]",
+        preview: "Error sending message",
+        value: error instanceof Error ? error.message : "Unknown error",
+        important: true
+      })
     }
-    onClose()
   }
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleCancel}>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
+          <Text style={styles.transcriptionText}>{transcript}</Text>
           <View style={styles.modalHeader}>
-            <Pressable onPress={handleCancel}>
+            <TouchableOpacity
+              style={[styles.button, styles.cancelButton]}
+              onPress={onClose}
+            >
               <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
-            </Pressable>
-
-            <Pressable onPress={handleSend} disabled={!transcribedText}>
-              <Text
-                style={[styles.buttonText, transcribedText ? styles.sendText : styles.disabledText]}
-              >
-                Send
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.sendButton]}
+              onPress={handleSend}
+              disabled={!transcript.trim() || llmStore.inferencing}
+            >
+              <Text style={[
+                styles.buttonText,
+                !transcript.trim() || llmStore.inferencing ? styles.disabledText : styles.sendText
+              ]}>
+                {llmStore.inferencing ? "Sending..." : "Send"}
               </Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.voiceContainer}>
-            {isChecking ? (
-              <ActivityIndicator size="large" color="#fff" />
-            ) : error ? (
-              <Text style={styles.errorText}>{error}</Text>
-            ) : (
-              <View style={styles.transcriptionContainer}>
-                <Text style={styles.listeningText}>{isRecording ? "Listening" : "Paused"}</Text>
-                {transcribedText ? (
-                  <Text style={styles.transcriptionText}>{transcribedText}</Text>
-                ) : (
-                  <Text style={styles.placeholderText}>Start speaking...</Text>
-                )}
-              </View>
-            )}
+            </TouchableOpacity>
           </View>
         </View>
       </View>
     </Modal>
   )
-}
+})

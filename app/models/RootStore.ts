@@ -1,19 +1,18 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { LLMStoreModel } from "./llm"
+import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
+import { ChatStoreModel } from "./chat/ChatStore"
+import { LLMStoreModel } from "./llm/LLMStore"
 
-/**
- * A RootStore model.
- */
 export const RootStoreModel = types.model("RootStore").props({
-  llmStore: types.optional(LLMStoreModel, {}),
+  chatStore: types.optional(ChatStoreModel, {}),
+  llmStore: types.optional(LLMStoreModel, {})
 })
 
-/**
- * The RootStore instance.
- */
-export interface RootStore extends Instance<typeof RootStoreModel> { }
+export interface RootStore extends Instance<typeof RootStoreModel> {}
+export interface RootStoreSnapshotOut extends SnapshotOut<typeof RootStoreModel> {}
+export interface RootStoreSnapshotIn extends SnapshotIn<typeof RootStoreModel> {}
 
-/**
- * The data of a RootStore.
- */
-export interface RootStoreSnapshot extends SnapshotOut<typeof RootStoreModel> { }
+export const createRootStoreDefaultModel = () =>
+  RootStoreModel.create({
+    chatStore: {},
+    llmStore: {}
+  })

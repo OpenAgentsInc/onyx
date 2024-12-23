@@ -1,85 +1,89 @@
-import { useState } from "react"
-import { Image, TouchableOpacity, View } from "react-native"
+import React, { useState, useEffect, useRef } from "react"
+import { View, ScrollView, Text } from "react-native"
+import { observer } from "mobx-react-lite"
+import { useStores } from "@/models"
 import { ConfigureModal } from "./ConfigureModal"
-import { styles } from "./styles"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
+import { BottomButtons } from "./BottomButtons"
+import { styles } from "./styles"
 
-export const OnyxLayout = () => {
+const ChatOverlay = observer(() => {
+  const { chatStore } = useStores()
+  const scrollViewRef = useRef<ScrollView>(null)
+  
+  useEffect(() => {
+    // Scroll to bottom whenever messages change
+    scrollViewRef.current?.scrollToEnd({ animated: true })
+  }, [chatStore.currentMessages])
+
+  return (
+    <View style={styles.chatOverlay}>
+      <ScrollView 
+        ref={scrollViewRef}
+        style={styles.messageList}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}
+      >
+        {chatStore.currentMessages.map((message) => (
+          <View key={message.id} style={styles.message}>
+            <Text style={styles.messageText}>
+              {message.role === "user" ? "> " : ""}{message.content}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  )
+})
+
+export const OnyxLayout = observer(() => {
+  const { llmStore } = useStores()
   const [showTextInput, setShowTextInput] = useState(false)
   const [showVoiceInput, setShowVoiceInput] = useState(false)
-  const [showConfigureModal, setShowConfigureModal] = useState(false)
+  const [showConfigure, setShowConfigure] = useState(false)
+  const [transcript, setTranscript] = useState("")
 
-  const handleTextPress = () => {
-    setShowTextInput(true)
-  }
+  useEffect(() => {
+    llmStore.initialize()
+  }, [llmStore])
 
-  const handleVoicePress = () => {
+  const handleStartVoiceInput = () => {
+    setTranscript("") // Reset transcript
     setShowVoiceInput(true)
+    // TODO: Start voice recording here
   }
 
-  const handleConfigurePress = () => {
-    setShowConfigureModal(true)
-  }
-
-  const handleTextSend = (text: string) => {
-    // TODO: Handle sending text message
-    console.log("Sending text:", text)
-  }
-
-  const handleVoiceSend = (transcribedText: string) => {
-    // Handle the transcribed text the same way as text input
-    console.log("Sending transcribed text:", transcribedText)
-    handleTextSend(transcribedText)
+  const handleStopVoiceInput = () => {
+    // TODO: Stop voice recording here
+    setShowVoiceInput(false)
+    setTranscript("")
   }
 
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-      {/* Modals */}
+      <ChatOverlay />
+      
       <TextInputModal
         visible={showTextInput}
         onClose={() => setShowTextInput(false)}
-        onSend={handleTextSend}
       />
 
       <VoiceInputModal
         visible={showVoiceInput}
-        onClose={() => setShowVoiceInput(false)}
-        onSend={handleVoiceSend}
+        onClose={handleStopVoiceInput}
+        transcript={transcript}
       />
 
-      <ConfigureModal visible={showConfigureModal} onClose={() => setShowConfigureModal(false)} />
+      <ConfigureModal
+        visible={showConfigure}
+        onClose={() => setShowConfigure(false)}
+      />
 
-      {/* Configure Button */}
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={handleConfigurePress}
-        style={styles.configureButton}
-      >
-        <Image
-          source={require("../../assets/icons/configure.png")}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
-
-      {/* Bottom Buttons */}
-      <View style={styles.bottomButtons}>
-        <TouchableOpacity activeOpacity={0.8} onPress={handleTextPress}>
-          <Image
-            source={require("../../assets/icons/text.png")}
-            style={styles.iconButton}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.8} onPress={handleVoicePress}>
-          <Image
-            source={require("../../assets/icons/voice.png")}
-            style={styles.iconButton}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View>
+      <BottomButtons
+        onTextPress={() => setShowTextInput(true)}
+        onVoicePress={handleStartVoiceInput}
+        onConfigurePress={() => setShowConfigure(true)}
+      />
     </View>
   )
-}
+})

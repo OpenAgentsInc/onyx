@@ -1,96 +1,68 @@
-import { observer } from "mobx-react-lite"
 import React from "react"
-import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native"
-import { useStores } from "@/models"
-import { AVAILABLE_MODELS } from "@/services/local-models/constants"
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { styles } from "./styles"
+import { observer } from "mobx-react-lite"
+import { useStores } from "@/models"
+import { IModelInfo } from "@/models/llm/LLMStore"
 
 interface ConfigureModalProps {
   visible: boolean
   onClose: () => void
 }
 
-export const ConfigureModal = observer(function ConfigureModal({
-  visible,
-  onClose,
-}: ConfigureModalProps) {
+export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProps) => {
   const { llmStore } = useStores()
 
-  const handleDeleteModel = async (modelKey: string) => {
-    const model = AVAILABLE_MODELS[modelKey]
-    Alert.alert(
-      "Delete Model?",
-      `Delete ${model.displayName}? You'll need to download it again to use it.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await llmStore.deleteModel(modelKey)
-            } catch (error) {
-              Alert.alert("Error", "Failed to delete model file")
-            }
-          },
-        },
-      ],
-    )
+  const handleDownload = async (modelKey: string) => {
+    const model = llmStore.models.find((m: IModelInfo) => m.key === modelKey)
+    if (!model) return
+
+    if (model.status === "idle") {
+      await llmStore.startModelDownload(modelKey)
+    }
   }
 
-  const handleSelectModel = (modelKey: string) => {
-    llmStore.selectModel(modelKey)
-    onClose()
+  const handleCancel = async (modelKey: string) => {
+    const model = llmStore.models.find((m: IModelInfo) => m.key === modelKey)
+    if (!model) return
+
+    if (model.status === "downloading") {
+      await llmStore.cancelModelDownload(modelKey)
+    }
   }
 
-  const handleDownloadPress = (modelKey: string) => {
-    llmStore.startModelDownload(modelKey)
+  const handleDelete = async (modelKey: string) => {
+    const model = llmStore.models.find((m: IModelInfo) => m.key === modelKey)
+    if (!model) return
+
+    if (model.status === "ready" || model.status === "error") {
+      await llmStore.deleteModel(modelKey)
+    }
   }
 
-  const handleCancelDownload = (modelKey: string) => {
-    llmStore.cancelModelDownload(modelKey)
-  }
+  const handleSelect = async (modelKey: string) => {
+    const model = llmStore.models.find((m: IModelInfo) => m.key === modelKey)
+    if (!model) return
 
-  const isModelDownloaded = (modelKey: string) => {
-    const model = llmStore.models.find((m) => m.key === modelKey)
-    return model?.status === "ready"
-  }
-
-  const getModelSize = (modelKey: string): string => {
-    return modelKey === "1B" ? "770 MB" : "2.1 GB"
-  }
-
-  const getModelStatus = (modelKey: string) => {
-    const model = llmStore.models.find((m) => m.key === modelKey)
-    return model?.status || "idle"
-  }
-
-  const getModelProgress = (modelKey: string) => {
-    const model = llmStore.models.find((m) => m.key === modelKey)
-    return model?.progress || 0
-  }
-
-  const getModelError = (modelKey: string) => {
-    const model = llmStore.models.find((m) => m.key === modelKey)
-    return model?.error
+    if (model.status === "ready") {
+      await llmStore.selectModel(modelKey)
+      onClose()
+    }
   }
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.headerTitle}>Configure Onyx</Text>
+            <Text style={styles.headerTitle}>Configure Models</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Done</Text>
+              <Text style={styles.buttonText}>Done</Text>
             </TouchableOpacity>
           </View>
 
@@ -103,66 +75,61 @@ export const ConfigureModal = observer(function ConfigureModal({
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Model Selection</Text>
-              {Object.entries(AVAILABLE_MODELS).map(([key, model]) => {
-                const status = getModelStatus(key)
-                const progress = getModelProgress(key)
-                const modelError = getModelError(key)
-                const downloaded = isModelDownloaded(key)
-                const isActive = key === llmStore.selectedModelKey
-                const isDownloading = status === "downloading"
-
-                return (
-                  <View key={key} style={styles.modelItem}>
-                    <TouchableOpacity
-                      style={styles.modelInfo}
-                      onPress={() => downloaded && handleSelectModel(key)}
-                      disabled={!downloaded || isDownloading}
-                    >
-                      <View style={styles.modelNameContainer}>
-                        <Text style={styles.modelName}>
-                          {model.displayName}
-                          {isActive && <Text style={styles.activeIndicator}> ✓</Text>}
-                        </Text>
-                        {modelError && <Text style={styles.modelError}>{modelError}</Text>}
-                      </View>
-                      <Text style={styles.modelSize}>
-                        {isDownloading ? `${progress.toFixed(1)}%` : getModelSize(key)}
-                      </Text>
-                    </TouchableOpacity>
-
-                    {downloaded ? (
-                      <TouchableOpacity
-                        onPress={() => handleDeleteModel(key)}
-                        style={styles.deleteButton}
-                        disabled={isDownloading}
-                      >
-                        <Text style={styles.deleteButtonText}>Delete</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <View style={styles.downloadContainer}>
-                        {isDownloading ? (
-                          <>
-                            <ActivityIndicator size="small" color="#FFFFFF" />
-                            <TouchableOpacity
-                              onPress={() => handleCancelDownload(key)}
-                              style={styles.cancelButton}
-                            >
-                              <Text style={styles.cancelButtonText}>Cancel</Text>
-                            </TouchableOpacity>
-                          </>
-                        ) : (
-                          <TouchableOpacity
-                            onPress={() => handleDownloadPress(key)}
-                            style={styles.downloadButton}
-                          >
-                            <Text style={styles.downloadButtonText}>Download</Text>
-                          </TouchableOpacity>
+              {llmStore.models.map((model) => (
+                <View key={model.key} style={styles.modelItem}>
+                  <TouchableOpacity
+                    style={styles.modelInfo}
+                    onPress={() => model.status === "ready" && handleSelect(model.key)}
+                    disabled={model.status !== "ready"}
+                  >
+                    <View style={styles.modelNameContainer}>
+                      <Text style={styles.modelName}>
+                        {model.displayName}
+                        {model.key === llmStore.selectedModelKey && (
+                          <Text style={styles.activeIndicator}> ✓</Text>
                         )}
-                      </View>
+                      </Text>
+                      {model.error && (
+                        <Text style={styles.modelError}>{model.error}</Text>
+                      )}
+                    </View>
+                    <Text style={styles.modelSize}>
+                      {model.status === "downloading" 
+                        ? `${model.progress.toFixed(1)}%` 
+                        : ""}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <View style={styles.modelActions}>
+                    {model.status === "idle" && (
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDownload(model.key)}
+                      >
+                        <Text style={styles.actionButtonText}>Download</Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {model.status === "downloading" && (
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleCancel(model.key)}
+                      >
+                        <Text style={styles.actionButtonText}>Cancel</Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {(model.status === "ready" || model.status === "error") && (
+                      <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => handleDelete(model.key)}
+                      >
+                        <Text style={styles.actionButtonText}>Delete</Text>
+                      </TouchableOpacity>
                     )}
                   </View>
-                )
-              })}
+                </View>
+              ))}
             </View>
           </ScrollView>
         </View>

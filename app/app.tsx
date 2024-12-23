@@ -1,7 +1,4 @@
 if (__DEV__) {
-  // Load Reactotron in development only.
-  // Note that you must be using metro's `inlineRequires` for this to work.
-  // If you turn it off in metro.config.js, you'll have to manually import it.
   require("./devtools/ReactotronConfig.ts")
 }
 
@@ -16,7 +13,7 @@ import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
-import { useInitialRootStore, useStores } from "./models"
+import { RootStoreProvider, useInitialRootStore } from "./models"
 import { OnyxLayout } from "./onyx/OnyxLayout"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 
@@ -24,7 +21,7 @@ interface AppProps {
   hideSplashScreen: () => Promise<void>
 }
 
-function App(props: AppProps) {
+function AppContents(props: AppProps) {
   useAutoUpdate()
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
@@ -32,12 +29,6 @@ function App(props: AppProps) {
     // This runs after the root store has been initialized and rehydrated.
     setTimeout(hideSplashScreen, 500)
   })
-
-  // Initialize LLM store
-  const { llmStore } = useStores()
-  React.useEffect(() => {
-    llmStore.initialize()
-  }, [llmStore])
 
   if (!loaded || !rehydrated) {
     return (
@@ -62,6 +53,10 @@ function App(props: AppProps) {
       </ErrorBoundary>
     </SafeAreaProvider>
   )
+}
+
+function App(props: AppProps) {
+  return <AppContents {...props} />
 }
 
 const $container: ViewStyle = {
