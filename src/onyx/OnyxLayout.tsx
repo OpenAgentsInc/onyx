@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Image, TouchableOpacity, View } from "react-native"
 import { ConfigureModal } from "./ConfigureModal"
-import { DownloadModal } from "./DownloadModal"
 import { styles } from "./styles"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
