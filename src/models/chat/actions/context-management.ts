@@ -57,7 +57,9 @@ export const withContextManagement = (self: IChatStore) => ({
         value: {
           gpu: llamaContext.gpu,
           reasonNoGPU: llamaContext.reasonNoGPU,
-          contextMethods: Object.keys(llamaContext)
+          contextMethods: Object.keys(llamaContext),
+          completion: llamaContext.completion,
+          completionType: typeof llamaContext.completion
         }
       })
 
@@ -70,25 +72,27 @@ export const withContextManagement = (self: IChatStore) => ({
         reasonNoGPU: llamaContext.reasonNoGPU || "",
         sessionPath: null,
         // Explicitly list methods instead of spreading
-        completion: llamaContext.completion?.bind(llamaContext),
-        release: llamaContext.release?.bind(llamaContext),
-        bench: llamaContext.bench?.bind(llamaContext),
-        tokenize: llamaContext.tokenize?.bind(llamaContext),
-        detokenize: llamaContext.detokenize?.bind(llamaContext),
-        embedding: llamaContext.embedding?.bind(llamaContext),
-        saveSession: llamaContext.saveSession?.bind(llamaContext),
-        loadSession: llamaContext.loadSession?.bind(llamaContext),
-        stopCompletion: llamaContext.stopCompletion?.bind(llamaContext),
+        completion: llamaContext.completion,
+        release: llamaContext.release,
+        bench: llamaContext.bench,
+        tokenize: llamaContext.tokenize,
+        detokenize: llamaContext.detokenize,
+        embedding: llamaContext.embedding,
+        saveSession: llamaContext.saveSession,
+        loadSession: llamaContext.loadSession,
+        stopCompletion: llamaContext.stopCompletion,
         model: llamaContext.model,
       }
       
       log({
-        name: "[ChatStore] Adding context to store",
+        name: "[ChatStore] Context data prepared",
         value: {
           id: contextData.id,
           modelKey: contextData.modelKey,
           gpu: contextData.gpu,
-          methods: Object.keys(contextData).filter(k => typeof contextData[k] === 'function')
+          methods: Object.keys(contextData).filter(k => typeof contextData[k] === 'function'),
+          completion: contextData.completion,
+          completionType: typeof contextData.completion
         }
       })
 
@@ -105,7 +109,10 @@ export const withContextManagement = (self: IChatStore) => ({
           gpu: llamaContext.gpu,
           reasonNoGPU: llamaContext.reasonNoGPU,
           activeModel: self.activeModelKey,
-          contextsCount: self.contexts.length
+          contextsCount: self.contexts.length,
+          context: self.contexts[self.contexts.length - 1],
+          completion: self.contexts[self.contexts.length - 1].completion,
+          completionType: typeof self.contexts[self.contexts.length - 1].completion
         },
         important: true
       })
