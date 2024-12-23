@@ -27,7 +27,14 @@
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "androidXEnabled": true,
-      "enableJetifier": true
+      "enableJetifier": true,
+      "buildToolsVersion": "33.0.0",
+      "compileSdkVersion": 33,
+      "targetSdkVersion": 33,
+      "gradleProperties": {
+        "android.useAndroidX": "true",
+        "android.enableJetifier": "true"
+      }
     },
     "ios": {
       "icon": "./assets/images/app-icon-all.png",

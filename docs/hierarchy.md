@@ -54,7 +54,7 @@ Key Architectural Points:
   - useModelInitialization: Model initialization
   - useChatHandlers: Message handling
 
-## State Management
+## State Managementj
 - useModelStore: Central model state
 - Persistent storage for model paths
 - Clear state transitions
