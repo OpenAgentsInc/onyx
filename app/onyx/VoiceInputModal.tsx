@@ -15,7 +15,7 @@ interface VoiceInputModalProps {
 }
 
 export const VoiceInputModal = observer(({ visible, onClose, transcript }: VoiceInputModalProps) => {
-  const { llmStore } = useStores()
+  const { chatStore } = useStores()
   const [isRecording, setIsRecording] = useState(false)
   const [transcribedText, setTranscribedText] = useState(transcript || "")
   const [error, setError] = useState("")
@@ -98,17 +98,12 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
     if (!transcribedText.trim()) return
 
     try {
-      // Ensure context is initialized before proceeding
-      if (!llmStore.context || !llmStore.isInitialized) {
-        await llmStore.initContext()
-      }
-
       const textToSend = transcribedText // Capture current text
       await cleanup() // Clean up voice recording
       onClose() // Close modal immediately
 
       // Send message after modal is closed
-      await llmStore.chatCompletion(textToSend)
+      await chatStore.sendMessage(textToSend)
     } catch (error) {
       log({
         name: "[VoiceInputModal]",
@@ -118,6 +113,8 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
       })
     }
   }
+
+  const isDisabled = !transcribedText.trim() || chatStore.isGenerating
 
   return (
     <Modal
@@ -132,10 +129,10 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
             <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
           </Pressable>
 
-          <Pressable onPress={handleSend} disabled={!transcribedText.trim()}>
+          <Pressable onPress={handleSend} disabled={isDisabled}>
             <Text style={[
               baseStyles.buttonText,
-              !transcribedText.trim() ? baseStyles.disabledText : baseStyles.sendText
+              isDisabled ? baseStyles.disabledText : baseStyles.sendText
             ]}>
               Send
             </Text>
