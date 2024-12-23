@@ -5,11 +5,19 @@ interface LogProps {
   important?: boolean
 }
 
-export const log = (object: LogProps) => {
-  if (__DEV__) {
-    console.tron.display(object)
-    console.log(object)
+export const log = (input: LogProps | string) => {
+  if (typeof input === 'string') {
+    if (__DEV__) {
+      console.tron.display({ name: input })
+    } else {
+      console.log(input)
+    }
   } else {
-    console.log(object)
+    if (__DEV__) {
+      console.tron.display(input)
+      console.log(input)
+    } else {
+      console.log(input)
+    }
   }
 }
