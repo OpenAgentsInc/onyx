@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { ChatStoreModel } from "./ChatStore"
+import { ChatStoreModel } from "./chat/store"
 import { LLMStoreModel } from "./LLMStore"
 
 /**
@@ -9,7 +9,6 @@ export const RootStoreModel = types.model("RootStore").props({
   chatStore: types.optional(ChatStoreModel, {
     isInitialized: false,
     error: null,
-    contexts: [],
     messages: [],
     activeModelKey: null,
     inferencing: false,
