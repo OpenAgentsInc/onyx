@@ -1,5 +1,7 @@
 import React from "react"
-import { Image, TouchableOpacity, View } from "react-native"
+import { TouchableOpacity, View, Image } from "react-native"
+import { Ionicons } from "@expo/vector-icons"
+import { useStores } from "@/models"
 import { styles } from "./styles"
 
 interface BottomButtonsProps {
@@ -9,6 +11,12 @@ interface BottomButtonsProps {
 }
 
 export const BottomButtons = ({ onTextPress, onVoicePress, onConfigurePress }: BottomButtonsProps) => {
+  const { chatStore } = useStores()
+
+  const handleClearChat = () => {
+    chatStore.clearMessages()
+  }
+
   return (
     <>
       {/* Configure Button */}
@@ -22,6 +30,15 @@ export const BottomButtons = ({ onTextPress, onVoicePress, onConfigurePress }: B
           style={{ width: "100%", height: "100%" }}
           resizeMode="contain"
         />
+      </TouchableOpacity>
+
+      {/* Trash Button */}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={handleClearChat}
+        style={styles.trashButton}
+      >
+        <Ionicons name="trash-outline" size={24} color="white" />
       </TouchableOpacity>
 
       {/* Bottom Buttons */}
