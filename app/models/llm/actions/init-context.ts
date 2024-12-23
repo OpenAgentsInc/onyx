@@ -59,13 +59,14 @@ export const withInitContext = (self: ILLMStore) => ({
       return context
 
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
       log({
         name: "[LLMStore] Init Context",
         preview: "Error",
-        value: error,
+        value: errorMessage,
         important: true
       })
-      self.error = error instanceof Error ? error.message : "Failed to initialize context"
+      self.error = errorMessage
       throw error
     }
   })
