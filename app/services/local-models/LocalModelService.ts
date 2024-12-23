@@ -15,6 +15,7 @@ export interface ModelInfo {
 
 export class LocalModelService {
   private downloadResumable: FileSystem.DownloadResumable | null = null
+  private currentTempPath: string | null = null
 
   constructor() {
     // Ensure models directory exists
@@ -53,13 +54,14 @@ export class LocalModelService {
       throw new Error("Invalid model selected")
     }
 
-    const tempPath = `${FileSystem.cacheDirectory}temp_${model.filename}`
+    // Store temp path so we can clean it up if cancelled
+    this.currentTempPath = `${FileSystem.cacheDirectory}temp_${model.filename}`
     const finalPath = `${MODELS_DIR}/${model.filename}`
 
     // Create download
     this.downloadResumable = FileSystem.createDownloadResumable(
       `https://huggingface.co/${model.repoId}/resolve/main/${model.filename}`,
-      tempPath,
+      this.currentTempPath,
       {},
       (downloadProgress) => {
         const progress =
@@ -88,13 +90,17 @@ export class LocalModelService {
       })
 
       this.downloadResumable = null
+      this.currentTempPath = null
       return finalPath
 
     } catch (error) {
       // Clean up temp file
-      try {
-        await FileSystem.deleteAsync(tempPath)
-      } catch { }
+      if (this.currentTempPath) {
+        try {
+          await FileSystem.deleteAsync(this.currentTempPath, { idempotent: true })
+        } catch { }
+        this.currentTempPath = null
+      }
 
       throw error
     }
@@ -104,6 +110,12 @@ export class LocalModelService {
     if (this.downloadResumable) {
       try {
         await this.downloadResumable.cancelAsync()
+        
+        // Clean up temp file after cancelling
+        if (this.currentTempPath) {
+          await FileSystem.deleteAsync(this.currentTempPath, { idempotent: true })
+          this.currentTempPath = null
+        }
       } catch (error) {
         console.error("Error cancelling download:", error)
       }
