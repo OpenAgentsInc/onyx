@@ -7,13 +7,24 @@ import { useInitialContext } from "./hooks/useInitialContext"
 import { styles } from "./styles"
 import { TextChat } from "./TextChat"
 import { VoiceChat } from "./VoiceChat"
+import { useStores } from "@/models"
 
 export const OnyxLayout = observer(() => {
   const [showConfigureModal, setShowConfigureModal] = useState(false)
   const { conversationMessages, isInferencing } = useChatStore()
+  const { chatStore, llmStore } = useStores()
 
   // Initialize a temporary context for testing
   useInitialContext()
+
+  // Show loading state while stores are initializing
+  if (!chatStore.isInitialized || !llmStore.isInitialized) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    )
+  }
 
   const handleConfigurePress = () => {
     setShowConfigureModal(true)
