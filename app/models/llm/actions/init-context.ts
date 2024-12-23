@@ -31,9 +31,9 @@ export const withInitContext = (self: ILLMStore) => ({
       }
 
       log({
-        type: "info",
-        message: "[LLMStore] Initializing context for model",
-        data: modelPath
+        name: "[LLMStore] Init Context",
+        preview: "Initializing context for model",
+        value: modelPath
       })
 
       const context = yield initLlama({
@@ -43,9 +43,9 @@ export const withInitContext = (self: ILLMStore) => ({
       })
 
       log({
-        type: "info",
-        message: "[LLMStore] Context initialized",
-        data: {
+        name: "[LLMStore] Init Context",
+        preview: "Context initialized",
+        value: {
           gpu: context.gpu,
           reasonNoGPU: context.reasonNoGPU,
           isChatTemplateSupported: context.model.isChatTemplateSupported
@@ -60,9 +60,10 @@ export const withInitContext = (self: ILLMStore) => ({
 
     } catch (error) {
       log({
-        type: "error",
-        message: "[LLMStore] Init context error",
-        data: error
+        name: "[LLMStore] Init Context",
+        preview: "Error",
+        value: error,
+        important: true
       })
       self.error = error instanceof Error ? error.message : "Failed to initialize context"
       throw error
