@@ -35,4 +35,11 @@ export interface IChatStore extends IStateTreeNode {
   getContext(contextId: string): LlamaContext | undefined
   contexts: LlamaContext[]
   volatileContexts: Map<string, LlamaContext>
+  // Initialize context
+  initializeContext(
+    id: string,
+    modelPath: string,
+    loraPath?: string | null,
+    onProgress?: (progress: number) => void
+  ): Promise<LlamaContext>
 }
