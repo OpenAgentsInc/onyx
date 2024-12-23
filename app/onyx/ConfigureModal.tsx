@@ -135,13 +135,15 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
                   </TouchableOpacity>
 
                   {downloaded ? (
-                    <TouchableOpacity
-                      onPress={() => handleDeleteModel(key)}
-                      style={configureStyles.deleteButton}
-                      disabled={isDownloading}
-                    >
-                      <Text style={configureStyles.deleteButtonText}>Delete</Text>
-                    </TouchableOpacity>
+                    <View style={configureStyles.buttonContainer}>
+                      <TouchableOpacity
+                        onPress={() => handleDeleteModel(key)}
+                        style={configureStyles.deleteButton}
+                        disabled={isDownloading}
+                      >
+                        <Text style={configureStyles.deleteButtonText}>Delete</Text>
+                      </TouchableOpacity>
+                    </View>
                   ) : (
                     <View style={configureStyles.downloadContainer}>
                       {isDownloading ? (
@@ -155,12 +157,14 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
                           </TouchableOpacity>
                         </>
                       ) : (
-                        <TouchableOpacity
-                          onPress={() => handleDownloadPress(key)}
-                          style={configureStyles.downloadButton}
-                        >
-                          <Text style={configureStyles.downloadButtonText}>Download</Text>
-                        </TouchableOpacity>
+                        <View style={configureStyles.buttonContainer}>
+                          <TouchableOpacity
+                            onPress={() => handleDownloadPress(key)}
+                            style={configureStyles.downloadButton}
+                          >
+                            <Text style={configureStyles.downloadButtonText}>Download</Text>
+                          </TouchableOpacity>
+                        </View>
                       )}
                     </View>
                   )}
