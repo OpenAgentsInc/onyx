@@ -1,6 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { ChatStoreModel } from "./chat/store"
-import { LLMStoreModel } from "./llm/store"
+import { ChatStoreModel } from "./ChatStore"
+import { LLMStoreModel } from "./LLMStore"
 
 /**
  * A RootStore model.
