@@ -4,6 +4,10 @@ import { typography } from "@/theme/typography"
 
 export const styles = StyleSheet.create({
   // Layout styles
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
   bottomButtons: {
     position: "absolute",
     bottom: 50,
@@ -27,6 +31,48 @@ export const styles = StyleSheet.create({
     top: 70,
     zIndex: 10,
   },
+  configureImage: {
+    width: "100%",
+    height: "100%",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+
+  // Messages styles
+  messagesContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 120,
+    paddingBottom: 120,
+  },
+  messagesContent: {
+    gap: 8,
+  },
+  messageContainer: {
+    padding: 12,
+    borderRadius: 16,
+    maxWidth: "80%",
+    alignSelf: "flex-start",
+  },
+  userMessage: {
+    backgroundColor: colors.tint,
+    alignSelf: "flex-end",
+  },
+  assistantMessage: {
+    backgroundColor: "#333",
+  },
+  messageText: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: typography.primary.normal,
+  },
+  timingText: {
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 12,
+    fontFamily: typography.primary.normal,
+    marginTop: 4,
+  },
 
   // Modal styles
   modalContainer: {
@@ -36,7 +82,7 @@ export const styles = StyleSheet.create({
   modalContent: {
     flex: 1,
     backgroundColor: "#000",
-    paddingTop: 60, // Changed from marginTop to paddingTop
+    paddingTop: 60,
   },
   modalHeader: {
     flexDirection: "row",
@@ -131,7 +177,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
   errorText: {
-    color: 'red',
+    color: "red",
     fontSize: 14,
     fontFamily: typography.primary.normal,
   },
@@ -182,6 +228,9 @@ export const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 16,
     fontFamily: typography.primary.normal,
+  },
+  disabledInput: {
+    opacity: 0.5,
   },
 
   // Voice recording styles
