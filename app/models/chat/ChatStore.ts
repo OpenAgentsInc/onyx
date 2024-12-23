@@ -5,13 +5,22 @@ import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
 
 // Message Types
-export const MessageModel = types.model("Message", {
-  id: types.string,
-  role: types.enumeration(["system", "user", "assistant"]),
-  content: types.string,
-  createdAt: types.number,
-  metadata: types.optional(types.frozen(), {}),
-})
+export const MessageModel = types
+  .model("Message", {
+    id: types.string,
+    role: types.enumeration(["system", "user", "assistant"]),
+    content: types.string,
+    createdAt: types.number,
+    metadata: types.optional(types.frozen(), {}),
+  })
+  .actions(self => ({
+    updateContent(content: string) {
+      self.content = content
+    },
+    updateMetadata(metadata: any) {
+      self.metadata = metadata
+    }
+  }))
 
 export interface IMessage extends Instance<typeof MessageModel> { }
 
@@ -38,6 +47,18 @@ export const ChatStoreModel = types
       })
       self.messages.push(msg)
       return msg
+    },
+
+    updateMessage(messageId: string, updates: { content?: string, metadata?: any }) {
+      const message = self.messages.find(msg => msg.id === messageId)
+      if (message) {
+        if (updates.content !== undefined) {
+          message.updateContent(updates.content)
+        }
+        if (updates.metadata !== undefined) {
+          message.updateMetadata(updates.metadata)
+        }
+      }
     },
 
     clearMessages() {
@@ -76,6 +97,7 @@ export interface IChatStore extends IStateTreeNode {
   messages: IMessage[]
   currentConversationId: string
   addMessage: (message: { role: "system" | "user" | "assistant", content: string, metadata?: any }) => IMessage
+  updateMessage: (messageId: string, updates: { content?: string, metadata?: any }) => void
   clearMessages: () => void
   setCurrentConversationId: (id: string) => void
 }
