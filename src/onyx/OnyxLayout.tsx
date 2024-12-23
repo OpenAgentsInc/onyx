@@ -6,11 +6,15 @@ import { VoiceChat } from "./VoiceChat"
 import { ConfigureModal } from "./ConfigureModal"
 import { DownloadModal } from "./DownloadModal"
 import { useChatStore } from "./hooks/useChatStore"
+import { useInitialContext } from "./hooks/useInitialContext"
 import { observer } from "mobx-react-lite"
 
 export const OnyxLayout = observer(() => {
   const [showConfigureModal, setShowConfigureModal] = useState(false)
   const { conversationMessages, isInferencing } = useChatStore()
+  
+  // Initialize a temporary context for testing
+  useInitialContext()
 
   const handleConfigurePress = () => {
     setShowConfigureModal(true)
@@ -28,7 +32,7 @@ export const OnyxLayout = observer(() => {
                 contentContainerStyle={styles.messagesContent}
                 inverted
               >
-                {conversationMessages.map((message) => (
+                {conversationMessages?.map((message) => (
                   <View 
                     key={message.id}
                     style={[
