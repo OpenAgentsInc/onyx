@@ -1,7 +1,7 @@
 {
   "name": "onyx",
   "main": "app/app.tsx",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "license": "AGPL-3.0-only",
   "scripts": {
     "start": "expo start",
