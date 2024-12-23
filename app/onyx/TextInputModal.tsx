@@ -25,7 +25,7 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
       log({
         name: "[TextInputModal]",
         preview: "Error sending message",
-        value: error,
+        value: error instanceof Error ? error.message : "Unknown error",
         important: true
       })
     }
