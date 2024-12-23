@@ -48,13 +48,12 @@ export const useChatStore = () => {
         }
       })
 
-      // Get formatted chat from context
-      const formattedChat = await chatStore.activeContext.getFormattedChat(msgs)
-      
-      // Log the formatted chat for debugging
       log({ 
-        name: "[ChatStore] Formatted chat",
-        value: formattedChat
+        name: "[ChatStore] Starting completion",
+        value: {
+          messages: msgs,
+          contextId: chatStore.activeContext.id
+        }
       })
 
       // Start completion with streaming
@@ -112,6 +111,14 @@ export const useChatStore = () => {
       })
 
     } catch (error) {
+      log({
+        name: "[ChatStore] Completion error",
+        value: {
+          error,
+          errorMessage: error instanceof Error ? error.message : String(error)
+        },
+        important: true
+      })
       chatStore.setError(error instanceof Error ? error.message : "Unknown error occurred")
     } finally {
       chatStore.setInferencing(false)
