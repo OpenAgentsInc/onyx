@@ -1,3 +1,5 @@
+import Constants from "expo-constants"
+
 export interface ConfigBaseProps {
   persistNavigation: "always" | "dev" | "prod" | "never"
   catchErrors: "always" | "dev" | "prod" | "never"
@@ -7,6 +9,8 @@ export interface ConfigBaseProps {
 }
 
 export type PersistNavigationConfig = ConfigBaseProps["persistNavigation"]
+
+console.log(Constants.expoConfig)
 
 const BaseConfig: ConfigBaseProps = {
   // This feature is particularly useful in development mode, but
@@ -32,7 +36,7 @@ const BaseConfig: ConfigBaseProps = {
   /**
    * The Groq API key for chat completions
    */
-  GROQ_API_KEY: process.env.GROQ_API_KEY ?? null,
+  GROQ_API_KEY: Constants.expoConfig?.extra?.GROQ_API_KEY ?? "grrr"
 }
 
 export default BaseConfig

@@ -9,7 +9,6 @@
     "android": "expo run:android",
     "postinstall": "patch-package",
     "precommit:hierarchy": "yarn hierarchy && git add docs/hierarchy.md",
-    "prepare": "husky install",
     "fix-llama": "sed -i '' 's|#import <ReactCommon\\/RCTTurboModule.h>|#import \\\"RCTTurboModule.h\\\"|' ios/build/generated/ios/RNLlamaSpec/RNLlamaSpec.h",
     "fix-llama:linux": "sed -i.bak 's|#import <ReactCommon/RCTTurboModule.h>|#import \"RCTTurboModule.h\"|' ios/build/generated/ios/RNLlamaSpec/RNLlamaSpec.h && rm ios/build/generated/ios/RNLlamaSpec/RNLlamaSpec.h.bak",
     "ios": "npx expo prebuild --platform ios --clean && cd ios && pod install && cd .. && yarn fix-llama && npx expo run:ios",
@@ -115,6 +114,7 @@
     "jest-expo": "~52.0.2",
     "minimatch": "9.0.3",
     "react-test-renderer": "18.3.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
   "private": true,
