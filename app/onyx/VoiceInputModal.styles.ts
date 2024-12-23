@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   listeningText: {
-    color: "rgba(255,255,255,0.5)",
+    color: "#888",
     fontSize: 15,
     fontFamily: typography.primary.normal,
     marginBottom: 20,
@@ -27,9 +27,16 @@ export const styles = StyleSheet.create({
     lineHeight: 36,
   },
   placeholderText: {
-    color: "rgba(255,255,255,0.5)",
+    color: "#666",
     fontSize: 24,
     fontFamily: typography.primary.normal,
     textAlign: "center",
+  },
+  errorText: {
+    color: "#ff4444",
+    fontSize: 16,
+    fontFamily: typography.primary.normal,
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
 })
