@@ -1,6 +1,7 @@
 import React from "react"
 import { Modal, TouchableOpacity, View, Text } from "react-native"
-import { styles } from "./styles"
+import { styles as baseStyles } from "./styles"
+import { styles as voiceStyles } from "./VoiceInputModal.styles"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
 import { log } from "@/utils/log"
@@ -42,24 +43,24 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript = "" }: 
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.transcriptionText}>{transcript}</Text>
-          <View style={styles.modalHeader}>
+      <View style={baseStyles.modalContainer}>
+        <View style={baseStyles.modalContent}>
+          <Text style={voiceStyles.transcriptionText}>{transcript}</Text>
+          <View style={baseStyles.modalHeader}>
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+              style={[baseStyles.button, baseStyles.cancelButton]}
               onPress={onClose}
             >
-              <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
+              <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.button, styles.sendButton]}
+              style={[baseStyles.button, baseStyles.sendButton]}
               onPress={handleSend}
               disabled={!transcript.trim() || llmStore.inferencing}
             >
               <Text style={[
-                styles.buttonText,
-                !transcript.trim() || llmStore.inferencing ? styles.disabledText : styles.sendText
+                baseStyles.buttonText,
+                !transcript.trim() || llmStore.inferencing ? baseStyles.disabledText : baseStyles.sendText
               ]}>
                 {llmStore.inferencing ? "Sending..." : "Send"}
               </Text>
