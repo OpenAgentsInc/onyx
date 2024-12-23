@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Modal, TextInput, TouchableOpacity, View } from "react-native"
+import { Modal, TextInput, TouchableOpacity, View, Text } from "react-native"
 import { styles } from "./styles"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
