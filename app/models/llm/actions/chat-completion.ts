@@ -1,15 +1,10 @@
-import { flow } from "mobx-state-tree"
-import { ILLMStore } from "../"
-import { log } from "@/utils/log"
-import { getRoot } from "mobx-state-tree"
+import { flow, getRoot } from "mobx-state-tree"
 import { RootStore } from "@/models"
+import { DEFAULT_SYSTEM_MESSAGE } from "@/services/local-models/constants"
+import { log } from "@/utils/log"
+import { ILLMStore } from "../"
+
 import type { IMessage } from "@/models/chat/ChatStore"
-
-const DEFAULT_SYSTEM_MESSAGE = {
-  role: "system" as const,
-  content: "This is a conversation between user and assistant, a friendly chatbot.\n\n"
-}
-
 interface Message {
   role: "system" | "user" | "assistant"
   content: string
