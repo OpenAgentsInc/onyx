@@ -2,6 +2,7 @@ import { ApiResponse, ApisauceInstance, create } from "apisauce"
 import { log } from "@/utils/log"
 import Config from "../../config"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
+import { DEFAULT_SYSTEM_MESSAGE } from "../local-models/constants"
 
 import type { GroqConfig, ChatMessage, ChatCompletionResponse } from "./groq-api.types"
 import type { IMessage } from "../../models/chat/ChatStore"
@@ -40,6 +41,10 @@ export class GroqChatApi {
    * Converts ChatStore messages to Groq API format
    */
   private convertToGroqMessages(messages: IMessage[]): ChatMessage[] {
+    // Add system message if not present
+    if (!messages.find(msg => msg.role === "system")) {
+      messages = [DEFAULT_SYSTEM_MESSAGE, ...messages]
+    }
     return messages.map(msg => ({
       role: msg.role as "system" | "user" | "assistant",
       content: msg.content
@@ -51,7 +56,7 @@ export class GroqChatApi {
    */
   async createChatCompletion(
     messages: IMessage[],
-    model: string = "llama-3.2-3b-preview",
+    model: string = "llama3-70b-8192",
     options: {
       temperature?: number
       max_tokens?: number
