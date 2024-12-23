@@ -35,7 +35,7 @@ export const ChatStoreModel = types
       self.activeModelKey = modelKey
     },
     // Context management
-    addContext(context: LlamaContext) {
+    addContext(context: LlamaContext & { modelKey: string }) {
       self.volatileContexts.set(context.id, context)
     },
     removeContext(contextId: string) {
