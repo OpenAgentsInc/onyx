@@ -35,7 +35,7 @@ export class GroqChatApi {
    */
   private convertToGroqMessages(messages: IMessage[]): ChatMessage[] {
     return messages.map(msg => ({
-      role: msg.role,
+      role: msg.role as "system" | "user" | "assistant",
       content: msg.content
     }))
   }
@@ -76,8 +76,8 @@ export class GroqChatApi {
 
       return { kind: "ok", response: response.data }
     } catch (e) {
-      if (__DEV__ && e instanceof Error) {
-        log.error(`[GroqChatApi] Error: ${e.message}`, e.stack)
+      if (__DEV__) {
+        log.error("[GroqChatApi]", e instanceof Error ? e.message : "Unknown error")
       }
       return { kind: "bad-data" }
     }
@@ -116,7 +116,9 @@ export class GroqChatApi {
         return
       }
 
-      const reader = response.data.getReader()
+      // Cast response.data to ReadableStream
+      const stream = response.data as unknown as ReadableStream<Uint8Array>
+      const reader = stream.getReader()
       const decoder = new TextDecoder()
       let buffer = ""
 
@@ -138,7 +140,7 @@ export class GroqChatApi {
                 yield parsed
               } catch (e) {
                 if (__DEV__) {
-                  log.error("[GroqChatApi] Failed to parse SSE data:", e)
+                  log.error("[GroqChatApi] Parse Error", e)
                 }
               }
             }
@@ -148,8 +150,8 @@ export class GroqChatApi {
         reader.releaseLock()
       }
     } catch (e) {
-      if (__DEV__ && e instanceof Error) {
-        log.error(`[GroqChatApi] Streaming Error: ${e.message}`, e.stack)
+      if (__DEV__) {
+        log.error("[GroqChatApi] Stream Error", e instanceof Error ? e.message : "Unknown error")
       }
       yield { kind: "bad-data" }
     }
