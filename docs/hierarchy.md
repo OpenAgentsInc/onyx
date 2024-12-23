@@ -80,7 +80,6 @@
     ├── useIsFocused.ts
     ├── useIsMounted.ts
 ├── app.json
-├── asdfasdfasd.md
 ├── assets
   ├── icons
     ├── configure.png
