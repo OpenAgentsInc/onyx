@@ -1,6 +1,7 @@
 import { useState } from "react"
-import { Modal, Pressable, Text, TextInput, View } from "react-native"
+import { ActivityIndicator, Modal, Pressable, Text, TextInput, View } from "react-native"
 import { styles } from "./styles"
+import { useChatStore } from "./hooks/useChatStore"
 
 interface TextInputModalProps {
   visible: boolean
@@ -10,19 +11,23 @@ interface TextInputModalProps {
 
 export const TextInputModal = ({ visible, onClose, onSend }: TextInputModalProps) => {
   const [inputText, setInputText] = useState("")
+  const { isInferencing, error } = useChatStore()
 
   const handleCancel = () => {
     setInputText("")
     onClose()
   }
 
-  const handleSend = () => {
-    if (inputText.trim()) {
-      onSend(inputText.trim())
+  const handleSend = async () => {
+    const textToSend = inputText.trim()
+    if (textToSend) {
       setInputText("")
+      await onSend(textToSend)
     }
     onClose()
   }
+
+  const isDisabled = !inputText.trim() || isInferencing
 
   return (
     <Modal
@@ -40,26 +45,38 @@ export const TextInputModal = ({ visible, onClose, onSend }: TextInputModalProps
               </Text>
             </Pressable>
             
-            <Pressable onPress={handleSend}>
-              <Text
-                style={[
-                  styles.buttonText,
-                  inputText.trim() ? styles.sendText : styles.disabledText,
-                ]}
-              >
-                Send
-              </Text>
+            <Pressable onPress={handleSend} disabled={isDisabled}>
+              {isInferencing ? (
+                <ActivityIndicator size="small" color="#0A84FF" />
+              ) : (
+                <Text
+                  style={[
+                    styles.buttonText,
+                    isDisabled ? styles.disabledText : styles.sendText,
+                  ]}
+                >
+                  Send
+                </Text>
+              )}
             </Pressable>
           </View>
 
+          {error && (
+            <Text style={styles.errorText}>{error}</Text>
+          )}
+
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              isInferencing && styles.disabledInput
+            ]}
             placeholder="Type a message..."
             placeholderTextColor="#666"
             autoFocus
             multiline
             value={inputText}
             onChangeText={setInputText}
+            editable={!isInferencing}
           />
         </View>
       </View>
