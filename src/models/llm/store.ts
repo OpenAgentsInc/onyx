@@ -13,6 +13,14 @@ const LLMStoreModel = types
     models: types.array(ModelInfoModel),
     selectedModelKey: types.maybeNull(types.string),
   })
+  .actions((self) => ({
+    updateModelProgress(modelKey: string, progress: number) {
+      const modelIndex = self.models.findIndex((m) => m.key === modelKey)
+      if (modelIndex !== -1) {
+        self.models[modelIndex].progress = progress
+      }
+    }
+  }))
   .actions(withSetPropAction)
   .actions(withInitialize)
   .actions(withModelManagement)
