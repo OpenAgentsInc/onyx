@@ -13,7 +13,7 @@ import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
-import { RootStoreProvider, createRootStoreDefaultModel } from "./models"
+import { RootStoreProvider, useInitialRootStore } from "./models"
 import { OnyxLayout } from "./onyx/OnyxLayout"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 
@@ -21,19 +21,16 @@ interface AppProps {
   hideSplashScreen: () => Promise<void>
 }
 
-const rootStore = createRootStoreDefaultModel()
-
 function AppContents(props: AppProps) {
   useAutoUpdate()
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
-
-  React.useEffect(() => {
-    // This runs after the root store has been initialized
+  const { rehydrated } = useInitialRootStore(() => {
+    // This runs after the root store has been initialized and rehydrated.
     setTimeout(hideSplashScreen, 500)
-  }, [hideSplashScreen])
+  })
 
-  if (!loaded) {
+  if (!loaded || !rehydrated) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#fff" />
@@ -59,11 +56,7 @@ function AppContents(props: AppProps) {
 }
 
 function App(props: AppProps) {
-  return (
-    <RootStoreProvider value={rootStore}>
-      <AppContents {...props} />
-    </RootStoreProvider>
-  )
+  return <AppContents {...props} />
 }
 
 const $container: ViewStyle = {
