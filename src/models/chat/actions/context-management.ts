@@ -9,7 +9,8 @@ export const withContextManagement = (self: IChatStore) => ({
     self.activeModelKey = modelKey
   },
 
-  initializeContext: flow(function* (
+  // Make this a named function so it shows up in the store interface
+  initializeContext: flow(function* initializeContext(
     id: string,
     modelPath: string,
     loraPath?: string | null,
