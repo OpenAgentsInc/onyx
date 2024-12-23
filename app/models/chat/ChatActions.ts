@@ -1,4 +1,4 @@
-import { flow } from "mobx-state-tree"
+import { flow, Instance } from "mobx-state-tree"
 import { groqChatApi } from "../../services/groq/groq-chat"
 import type { ChatStore } from "./ChatStore"
 import { log } from "@/utils/log"
@@ -6,7 +6,7 @@ import { log } from "@/utils/log"
 /**
  * Chat actions that integrate with the Groq API
  */
-export const withGroqActions = (self: ChatStore) => ({
+export const withGroqActions = (self: Instance<any>) => ({
   /**
    * Sends a message to Groq and handles the response
    */
