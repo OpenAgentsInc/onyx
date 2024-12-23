@@ -1,7 +1,7 @@
 import { ApiResponse, ApisauceInstance, create } from "apisauce"
 import Config from "../../config"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
-import type { GroqConfig, ChatMessage, ChatCompletionResponse, ChatCompletionStreamResponse } from "./groq-api.types"
+import type { GroqConfig, ChatMessage, ChatCompletionResponse } from "./groq-api.types"
 import type { IMessage } from "../../models/chat/ChatStore"
 import { log } from "@/utils/log"
 
@@ -51,7 +51,6 @@ export class GroqChatApi {
       max_tokens?: number
       top_p?: number
       stop?: string | string[]
-      stream?: boolean
       response_format?: { type: "json_object" }
     } = {},
   ): Promise<{ kind: "ok"; response: ChatCompletionResponse } | GeneralApiProblem> {
@@ -80,85 +79,6 @@ export class GroqChatApi {
         log.error("[GroqChatApi]", e instanceof Error ? e.message : "Unknown error")
       }
       return { kind: "bad-data" }
-    }
-  }
-
-  /**
-   * Creates a streaming chat completion with the Groq API
-   */
-  async *createStreamingChatCompletion(
-    messages: IMessage[],
-    model: string = "llama3-70b-8192",
-    options: {
-      temperature?: number
-      max_tokens?: number
-      top_p?: number
-      stop?: string | string[]
-    } = {},
-  ): AsyncGenerator<ChatCompletionStreamResponse | GeneralApiProblem, void, unknown> {
-    try {
-      const groqMessages = this.convertToGroqMessages(messages)
-      
-      const response = await this.apisauce.post(
-        "/chat/completions",
-        {
-          messages: groqMessages,
-          model,
-          stream: true,
-          ...options,
-        },
-        { responseType: "stream" },
-      )
-
-      if (!response.ok || !response.data) {
-        const problem = getGeneralApiProblem(response)
-        if (problem) yield problem
-        return
-      }
-
-      // Cast response.data to ReadableStream
-      const stream = response.data as unknown as {
-        getReader(): {
-          read(): Promise<{ done: boolean; value: Uint8Array }>
-          releaseLock(): void
-        }
-      }
-      const reader = stream.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ""
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          buffer += decoder.decode(value, { stream: true })
-          const lines = buffer.split("\n")
-          buffer = lines.pop() || ""
-
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              const data = line.slice(6)
-              if (data === "[DONE]") return
-              try {
-                const parsed: ChatCompletionStreamResponse = JSON.parse(data)
-                yield parsed
-              } catch (e) {
-                if (__DEV__) {
-                  log.error("[GroqChatApi] Parse Error", e)
-                }
-              }
-            }
-          }
-        }
-      } finally {
-        reader.releaseLock()
-      }
-    } catch (e) {
-      if (__DEV__) {
-        log.error("[GroqChatApi] Stream Error", e instanceof Error ? e.message : "Unknown error")
-      }
-      yield { kind: "bad-data" }
     }
   }
 }
