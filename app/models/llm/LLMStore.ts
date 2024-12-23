@@ -7,6 +7,7 @@ import { withDeleteModel } from "./actions/delete-model"
 import { withInitialize } from "./actions/initialize"
 import { withSelectModel } from "./actions/select-model"
 import { withStartModelDownload } from "./actions/start-model-download"
+import { LocalModelService } from "@/services/local-models/LocalModelService"
 
 // Types
 export const ModelInfoModel = types.model("ModelInfo", {
@@ -28,6 +29,7 @@ export interface ILLMStore extends IStateTreeNode {
   }
   selectedModelKey: string | null
   updateModelProgress(modelKey: string, progress: number): void
+  localModelService: LocalModelService
 }
 
 // Views
@@ -56,10 +58,13 @@ export const LLMStoreModel = types
     models: types.array(ModelInfoModel),
     selectedModelKey: types.maybeNull(types.string),
   })
+  .volatile(self => ({
+    localModelService: new LocalModelService()
+  }))
   .actions((self) => ({
     updateModelProgress(modelKey: string, progress: number) {
       const modelIndex = self.models.findIndex((m) => m.key === modelKey)
-      if (modelIndex !== -1) {
+      if (modelIndex !== -1 && self.models[modelIndex].status === "downloading") {
         self.models[modelIndex].progress = progress
       }
     }
