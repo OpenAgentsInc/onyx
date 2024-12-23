@@ -1,14 +1,11 @@
 import { flow } from "mobx-state-tree"
-import { LocalModelService } from "@/services/local-models/LocalModelService"
 import { ILLMStore, IModelInfo } from "../"
 
 export const withCancelModelDownload = (self: ILLMStore) => {
-  const localModelService = new LocalModelService()
-
   return {
     cancelModelDownload: flow(function* (modelKey: string) {
       try {
-        yield localModelService.cancelDownload()
+        yield self.localModelService.cancelDownload()
 
         const modelIndex = self.models.findIndex((m: IModelInfo) => m.key === modelKey)
         if (modelIndex !== -1) {
