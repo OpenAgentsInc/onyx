@@ -11,7 +11,7 @@ import "@/theme/global.css"
 import { useFonts } from "expo-font"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
-import { AppRegistry, Image, View, ViewStyle } from "react-native"
+import { ActivityIndicator, AppRegistry, View, ViewStyle } from "react-native"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
@@ -37,15 +37,15 @@ function App(props: AppProps) {
   // Initialize LLM store
   const { llmStore } = useStores()
   React.useEffect(() => {
-    console.tron.display({
-      name: "Initializing",
-    })
-
     llmStore.initialize()
   }, [llmStore])
 
   if (!loaded || !rehydrated) {
-    return null
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    )
   }
 
   return (
