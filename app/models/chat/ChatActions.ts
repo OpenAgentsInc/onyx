@@ -35,7 +35,7 @@ export const withGroqActions = (self: ChatStore) => ({
 
       // Get chat completion from Groq
       const result = yield groqChatApi.createChatCompletion(
-        self.messages,
+        self.currentMessages,
         "llama3-70b-8192",
         {
           temperature: 0.7,
@@ -105,7 +105,7 @@ export const withGroqActions = (self: ChatStore) => ({
 
       // Stream chat completion from Groq
       const stream = groqChatApi.createStreamingChatCompletion(
-        self.messages,
+        self.currentMessages,
         "llama3-70b-8192",
         {
           temperature: 0.7,
@@ -115,7 +115,11 @@ export const withGroqActions = (self: ChatStore) => ({
 
       let accumulatedContent = ""
 
-      for await (const chunk of stream) {
+      // Use a while loop with yield to handle streaming in a generator
+      while (true) {
+        const { value: chunk, done } = yield stream.next()
+        if (done) break
+
         if ("kind" in chunk) {
           // Handle error chunk
           self.updateMessage(assistantMessage.id, {
