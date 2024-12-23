@@ -1,8 +1,9 @@
 import { Instance } from "mobx-state-tree"
 import { ChatStoreModel } from "./store"
+import type { LlamaContext } from "llama.rn"
 
 export const withViews = (self: Instance<typeof ChatStoreModel>) => ({
-  get activeContext() {
+  get activeContext(): LlamaContext | null {
     if (!self.activeModelKey) return null
     return self.contexts.find(ctx => ctx.modelKey === self.activeModelKey) || null
   },
