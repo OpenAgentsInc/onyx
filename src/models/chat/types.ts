@@ -32,18 +32,12 @@ export const ChatContextModel = types.model("ChatContext", {
 
 export interface IMessage extends Instance<typeof MessageModel> {}
 
-// Extend ChatContext to include llama.rn methods
-export interface IChatContext extends Instance<typeof ChatContextModel>, Omit<LlamaContext, keyof Instance<typeof ChatContextModel>> {}
-
-// Base store interface
+// Base store interface with MST array type
 export interface IChatStore extends IStateTreeNode {
   isInitialized: boolean
   error: string | null
-  contexts: IChatContext[] & {
-    replace(items: IChatContext[]): void
-  }
-  messages: IMessage[] & {
-    replace(items: IMessage[]): void
+  contexts: LlamaContext[] & {
+    replace(items: LlamaContext[]): void
   }
   activeModelKey: string | null
   inferencing: boolean
