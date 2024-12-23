@@ -7,7 +7,6 @@ if (__DEV__) {
 
 import "@/utils/crypto-polyfill"
 import "text-encoding-polyfill"
-import "@/theme/global.css"
 import { useFonts } from "expo-font"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
