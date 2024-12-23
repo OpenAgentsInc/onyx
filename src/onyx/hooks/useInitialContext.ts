@@ -1,22 +1,22 @@
 import { useEffect } from "react"
 import { useStores } from "@/models"
 import { ChatStore } from "@/models/chat/store"
-import { log } from "@/utils/log"
 import { DEFAULT_MODEL_KEY } from "@/screens/Chat/constants"
+import { log } from "@/utils/log"
 
 export const useInitialContext = () => {
-  const { chatStore, llmStore } = useStores() as { 
+  const { chatStore, llmStore } = useStores() as {
     chatStore: ChatStore,
     llmStore: any // TODO: Add proper type
   }
-  
+
   useEffect(() => {
     const initContext = async () => {
       // Create a temporary context if none exists
       if (!chatStore.activeContext) {
-        log({ 
+        log({
           name: "[useInitialContext] Starting initialization",
-          value: { 
+          value: {
             llmStoreInitialized: llmStore.isInitialized,
             selectedModelKey: llmStore.selectedModelKey,
             models: llmStore.models.map((m: any) => ({
@@ -32,7 +32,7 @@ export const useInitialContext = () => {
           log({ name: "[useInitialContext] Initializing LLM store" })
           try {
             await llmStore.initialize()
-            log({ 
+            log({
               name: "[useInitialContext] LLM store initialized",
               value: {
                 models: llmStore.models.map((m: any) => ({
@@ -55,17 +55,17 @@ export const useInitialContext = () => {
 
         // Get the selected model or default model
         const modelKey = llmStore.selectedModelKey || DEFAULT_MODEL_KEY
-        log({ 
+        log({
           name: "[useInitialContext] Looking for model",
           value: { modelKey }
         })
-        
+
         const model = llmStore.models.find((m: any) => m.key === modelKey)
 
         if (!model) {
           log({
             name: "[useInitialContext] Model not found",
-            value: { 
+            value: {
               modelKey,
               availableModels: llmStore.models.map((m: any) => m.key)
             },
@@ -113,7 +113,7 @@ export const useInitialContext = () => {
 
         // Initialize chat context with model
         const contextId = "ctx-" + Math.random().toString(36).substring(7)
-        
+
         log({
           name: "[useInitialContext] Initializing chat context",
           value: {
@@ -129,7 +129,7 @@ export const useInitialContext = () => {
             model.path!, // We know it's not null because status is "ready"
             null, // No LoRA for now
             (progress) => {
-              log({ 
+              log({
                 name: "[useInitialContext] Loading model",
                 value: { progress }
               })
@@ -141,6 +141,7 @@ export const useInitialContext = () => {
             important: true
           })
         } catch (error) {
+          console.log(error)
           log({
             name: "[useInitialContext] Failed to initialize context",
             value: {
