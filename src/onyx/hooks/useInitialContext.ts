@@ -9,7 +9,10 @@ export const useInitialContext = () => {
   useEffect(() => {
     // Create a temporary context if none exists
     if (!chatStore.activeContext) {
-      log({ name: "[useInitialContext] No active context found" })
+      log({ 
+        name: "[useInitialContext] No active context found",
+        value: { activeModelKey: chatStore.activeModelKey }
+      })
 
       // TODO: Replace with actual model path from LLMStore
       // For now using a placeholder that will be replaced by model picker
@@ -23,13 +26,13 @@ export const useInitialContext = () => {
         (progress) => {
           log({ 
             name: "[useInitialContext] Loading model",
-            data: { progress }
+            value: { progress }
           })
         }
       ).catch(error => {
         log({
           name: "[useInitialContext] Failed to initialize context",
-          data: { error }
+          value: error
         })
         chatStore.setError("Failed to initialize model context")
       })
