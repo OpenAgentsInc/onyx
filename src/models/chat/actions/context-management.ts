@@ -16,7 +16,26 @@ export const withContextManagement = (self: IChatStore) => ({
     onProgress?: (progress: number) => void
   ) {
     try {
+      log({
+        name: "[ChatStore] Starting context initialization",
+        value: {
+          id,
+          modelPath,
+          loraPath
+        }
+      })
+
       // Initialize llama context
+      log({
+        name: "[ChatStore] Calling initLlama",
+        value: {
+          model: modelPath,
+          use_mlock: true,
+          n_gpu_layers: Platform.OS === "ios" ? 99 : 0,
+          lora_list: loraPath ? [{ path: loraPath, scaled: 1.0 }] : undefined,
+        }
+      })
+
       const context = yield initLlama(
         {
           model: modelPath,
@@ -33,6 +52,15 @@ export const withContextManagement = (self: IChatStore) => ({
         }
       )
 
+      log({
+        name: "[ChatStore] initLlama completed",
+        value: {
+          gpu: context.gpu,
+          reasonNoGPU: context.reasonNoGPU,
+          contextMethods: Object.keys(context)
+        }
+      })
+
       // Add context to store using action
       const contextData = {
         id,
@@ -44,19 +72,32 @@ export const withContextManagement = (self: IChatStore) => ({
         ...context // Spread llama.rn context methods
       }
       
+      log({
+        name: "[ChatStore] Adding context to store",
+        value: {
+          id: contextData.id,
+          modelKey: contextData.modelKey,
+          gpu: contextData.gpu,
+          methods: Object.keys(contextData).filter(k => typeof contextData[k] === 'function')
+        }
+      })
+
       self.contexts.push(contextData)
 
       // Set as active model
       self.setActiveModel(modelPath)
 
       log({
-        name: "[ChatStore] Context initialized",
+        name: "[ChatStore] Context initialized successfully",
         value: {
           id,
           modelPath,
           gpu: context.gpu,
-          reasonNoGPU: context.reasonNoGPU
-        }
+          reasonNoGPU: context.reasonNoGPU,
+          activeModel: self.activeModelKey,
+          contextsCount: self.contexts.length
+        },
+        important: true
       })
 
       return contextData
@@ -64,7 +105,14 @@ export const withContextManagement = (self: IChatStore) => ({
     } catch (error) {
       log({
         name: "[ChatStore] Context initialization failed",
-        value: error
+        value: {
+          error,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          errorStack: error instanceof Error ? error.stack : undefined,
+          id,
+          modelPath
+        },
+        important: true
       })
       throw error
     }
@@ -74,6 +122,11 @@ export const withContextManagement = (self: IChatStore) => ({
     const context = self.contexts.find(ctx => ctx.id === contextId)
     if (context) {
       try {
+        log({
+          name: "[ChatStore] Starting context release",
+          value: { contextId }
+        })
+
         // Release llama context
         yield context.release()
         
@@ -89,13 +142,22 @@ export const withContextManagement = (self: IChatStore) => ({
         }
 
         log({
-          name: "[ChatStore] Context released",
-          value: { contextId }
+          name: "[ChatStore] Context released successfully",
+          value: { 
+            contextId,
+            remainingContexts: self.contexts.length,
+            activeModel: self.activeModelKey
+          }
         })
       } catch (error) {
         log({
           name: "[ChatStore] Context release failed",
-          value: error
+          value: {
+            error,
+            contextId,
+            errorMessage: error instanceof Error ? error.message : String(error)
+          },
+          important: true
         })
         throw error
       }
@@ -120,14 +182,32 @@ export const withContextManagement = (self: IChatStore) => ({
     const index = self.contexts.findIndex(ctx => ctx.id === contextId)
     if (index >= 0) {
       try {
+        log({
+          name: "[ChatStore] Starting context removal",
+          value: { contextId }
+        })
+
         // Release context first
         yield self.releaseContext(contextId)
         // Remove from store using action
         self.contexts.splice(index, 1)
+
+        log({
+          name: "[ChatStore] Context removed successfully",
+          value: { 
+            contextId,
+            remainingContexts: self.contexts.length
+          }
+        })
       } catch (error) {
         log({
-          name: "[ChatStore] Error releasing context during removal",
-          value: error
+          name: "[ChatStore] Error during context removal",
+          value: {
+            error,
+            contextId,
+            errorMessage: error instanceof Error ? error.message : String(error)
+          },
+          important: true
         })
       }
     }
