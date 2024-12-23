@@ -1,5 +1,5 @@
 import React from "react"
-import { Modal, Text, TouchableOpacity, View } from "react-native"
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { styles } from "./styles"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
@@ -59,70 +59,79 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Configure Models</Text>
+          <View style={styles.modalHeader}>
+            <Text style={styles.headerTitle}>Configure Models</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Done</Text>
+            </TouchableOpacity>
+          </View>
 
-          {llmStore.models.map((model) => (
-            <View key={model.key} style={styles.modelItem}>
-              <Text style={styles.modelName}>{model.displayName}</Text>
-              <Text style={styles.modelStatus}>{model.status}</Text>
-              {model.progress > 0 && model.progress < 100 && (
-                <Text style={styles.modelProgress}>{model.progress}%</Text>
-              )}
-              {model.error && (
-                <Text style={styles.modelError}>{model.error}</Text>
-              )}
+          <ScrollView>
+            {llmStore.error && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{llmStore.error}</Text>
+              </View>
+            )}
 
-              <View style={styles.modelActions}>
-                {model.status === "idle" && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Model Selection</Text>
+              {llmStore.models.map((model) => (
+                <View key={model.key} style={styles.modelItem}>
                   <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={() => handleDownload(model.key)}
+                    style={styles.modelInfo}
+                    onPress={() => model.status === "ready" && handleSelect(model.key)}
+                    disabled={model.status !== "ready"}
                   >
-                    <Text style={styles.actionButtonText}>Download</Text>
-                  </TouchableOpacity>
-                )}
-
-                {model.status === "downloading" && (
-                  <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={() => handleCancel(model.key)}
-                  >
-                    <Text style={styles.actionButtonText}>Cancel</Text>
-                  </TouchableOpacity>
-                )}
-
-                {(model.status === "ready" || model.status === "error") && (
-                  <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={() => handleDelete(model.key)}
-                  >
-                    <Text style={styles.actionButtonText}>Delete</Text>
-                  </TouchableOpacity>
-                )}
-
-                {model.status === "ready" && (
-                  <TouchableOpacity
-                    style={[
-                      styles.actionButton,
-                      model.key === llmStore.selectedModelKey && styles.selectedButton
-                    ]}
-                    onPress={() => handleSelect(model.key)}
-                  >
-                    <Text style={styles.actionButtonText}>
-                      {model.key === llmStore.selectedModelKey ? "Selected" : "Select"}
+                    <View style={styles.modelNameContainer}>
+                      <Text style={styles.modelName}>
+                        {model.displayName}
+                        {model.key === llmStore.selectedModelKey && (
+                          <Text style={styles.activeIndicator}> ✓</Text>
+                        )}
+                      </Text>
+                      {model.error && (
+                        <Text style={styles.modelError}>{model.error}</Text>
+                      )}
+                    </View>
+                    <Text style={styles.modelSize}>
+                      {model.status === "downloading" 
+                        ? `${model.progress.toFixed(1)}%` 
+                        : ""}
                     </Text>
                   </TouchableOpacity>
-                )}
-              </View>
-            </View>
-          ))}
 
-          <TouchableOpacity
-            style={[styles.button, styles.closeButton]}
-            onPress={onClose}
-          >
-            <Text style={styles.buttonText}>Close</Text>
-          </TouchableOpacity>
+                  <View style={styles.modelActions}>
+                    {model.status === "idle" && (
+                      <TouchableOpacity
+                        style={styles.downloadButton}
+                        onPress={() => handleDownload(model.key)}
+                      >
+                        <Text style={styles.downloadButtonText}>Download</Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {model.status === "downloading" && (
+                      <TouchableOpacity
+                        style={styles.cancelButton}
+                        onPress={() => handleCancel(model.key)}
+                      >
+                        <Text style={styles.cancelButtonText}>Cancel</Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {(model.status === "ready" || model.status === "error") && (
+                      <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={() => handleDelete(model.key)}
+                      >
+                        <Text style={styles.deleteButtonText}>Delete</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              ))}
+            </View>
+          </ScrollView>
         </View>
       </View>
     </Modal>
