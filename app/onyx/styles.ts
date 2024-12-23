@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
   // Chat Overlay styles
   chatOverlay: {
     position: "absolute",
-    top: 60,
+    top: 40,
     left: 0,
     right: 0,
     bottom: 120,
