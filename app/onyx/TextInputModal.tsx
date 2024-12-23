@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Modal, TextInput, TouchableOpacity, View, Text } from "react-native"
+import { Modal, TextInput, View, Text, Pressable } from "react-native"
 import { styles as baseStyles } from "./styles"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
@@ -38,43 +38,36 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
     >
       <View style={baseStyles.modalContainer}>
-        <View style={baseStyles.modalContent}>
-          <TextInput
-            style={baseStyles.input}
-            value={text}
-            onChangeText={setText}
-            placeholder="Type your message..."
-            placeholderTextColor="#666"
-            multiline
-            autoFocus
-          />
-          <View style={baseStyles.modalHeader}>
-            <TouchableOpacity
-              style={[baseStyles.button, baseStyles.cancelButton]}
-              onPress={onClose}
-            >
-              <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[baseStyles.button, baseStyles.sendButton]}
-              onPress={handleSend}
-              disabled={!text.trim() || llmStore.inferencing}
-            >
-              <Text style={[
-                baseStyles.buttonText,
-                !text.trim() || llmStore.inferencing ? baseStyles.disabledText : baseStyles.sendText
-              ]}>
-                {llmStore.inferencing ? "Sending..." : "Send"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+        <View style={baseStyles.modalHeader}>
+          <Pressable onPress={onClose}>
+            <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
+          </Pressable>
+
+          <Pressable onPress={handleSend} disabled={!text.trim() || llmStore.inferencing}>
+            <Text style={[
+              baseStyles.buttonText,
+              !text.trim() || llmStore.inferencing ? baseStyles.disabledText : baseStyles.sendText
+            ]}>
+              {llmStore.inferencing ? "Sending..." : "Send"}
+            </Text>
+          </Pressable>
         </View>
+
+        <TextInput
+          style={baseStyles.input}
+          value={text}
+          onChangeText={setText}
+          placeholder="Type your message..."
+          placeholderTextColor="#666"
+          multiline
+          autoFocus
+        />
       </View>
     </Modal>
   )
