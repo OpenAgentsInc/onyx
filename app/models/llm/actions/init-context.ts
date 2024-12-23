@@ -14,7 +14,7 @@ interface LlamaContext {
 }
 
 export const withInitContext = (self: ILLMStore) => ({
-  initContext: flow(function* (): Generator<any, LlamaContext, any> {
+  initContext: flow(function* () {
     try {
       const model = self.models.find(m => m.key === self.selectedModelKey)
       if (!model) {
@@ -36,20 +36,36 @@ export const withInitContext = (self: ILLMStore) => ({
         value: modelPath
       })
 
-      const context = yield initLlama({
-        model: modelPath,
-        use_mlock: true,
-        n_gpu_layers: Platform.OS === "ios" ? 99 : 0, // Enable GPU on iOS
-      })
+      const t0 = Date.now()
 
-      log({
-        name: "[LLMStore] Init Context",
-        preview: "Context initialized",
-        value: {
-          gpu: context.gpu,
-          reasonNoGPU: context.reasonNoGPU,
-          isChatTemplateSupported: context.model.isChatTemplateSupported
-        }
+      // Handle initLlama as a Promise instead of yielding
+      const context = yield new Promise<LlamaContext>((resolve, reject) => {
+        initLlama({
+          model: modelPath,
+          use_mlock: true,
+          n_gpu_layers: Platform.OS === "ios" ? 99 : 0, // Enable GPU on iOS
+        }, (progress) => {
+          log({
+            name: "[LLMStore] Init Context",
+            preview: "Progress",
+            value: `${progress}%`
+          })
+        })
+        .then((ctx) => {
+          const t1 = Date.now()
+          log({
+            name: "[LLMStore] Init Context",
+            preview: "Context initialized",
+            value: {
+              loadTime: `${t1 - t0}ms`,
+              gpu: ctx.gpu,
+              reasonNoGPU: ctx.reasonNoGPU,
+              isChatTemplateSupported: ctx.model.isChatTemplateSupported
+            }
+          })
+          resolve(ctx)
+        })
+        .catch(reject)
       })
 
       self.context = context
