@@ -30,7 +30,8 @@
     "eas-build-on-error": "echo 'Build failed!'",
     "eas-build-on-complete": "echo 'Build completed!'",
     "eas-build-on-cancel": "echo 'Build was canceled!'",
-    "update:prod": "eas update --channel production --environment production --message"
+    "update:prod": "eas update --channel production --environment production --message",
+    "hierarchy": "node scripts/generate-hierarchy.js"
   },
   "jest": {
     "preset": "jest-expo"

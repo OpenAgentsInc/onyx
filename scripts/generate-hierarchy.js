@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const glob = require("glob");
-const minimatch = require("minimatch");
+const minimatch = require("minimatch").minimatch;
 
 // Where we will write the final tree
 const OUTPUT_PATH = path.join(__dirname, "..", "docs", "hierarchy.md");
