@@ -2,6 +2,14 @@ import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { withSetPropAction } from "./helpers/withSetPropAction"
 
+const MessageModel = types.model("Message", {
+  id: types.string,
+  amount: types.number,
+  timestamp: types.number,
+  role: types.enumeration(["user", "assistant", "system"]),
+})
+
+
 export const ChatStoreModel = types
   .model("ChatStore")
   .props({
