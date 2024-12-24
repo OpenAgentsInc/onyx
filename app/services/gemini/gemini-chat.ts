@@ -60,23 +60,31 @@ export class GeminiChatApi {
    * Converts ChatStore messages to Gemini API format
    */
   private convertToGeminiMessages(messages: IMessage[]): ChatMessage[] {
-    // Add system message if not present
-    if (!messages.find(msg => msg.role === "system")) {
-      const systemMessage = MessageModel.create({
+    // For Gemini, convert system message to user message and prepend it
+    const systemMessage = messages.find(msg => msg.role === "system")
+    const nonSystemMessages = messages.filter(msg => msg.role !== "system")
+    
+    if (systemMessage) {
+      nonSystemMessages.unshift({
+        ...systemMessage,
+        role: "user"
+      })
+    } else {
+      // Add default system message as user message
+      nonSystemMessages.unshift(MessageModel.create({
         id: "system",
-        role: "system",
+        role: "user",
         content: DEFAULT_SYSTEM_MESSAGE.content,
         createdAt: Date.now(),
         metadata: {},
-      })
-      messages = [systemMessage, ...messages]
+      }))
     }
 
     // Filter out any messages with empty content and ensure content is a string
-    return messages
+    return nonSystemMessages
       .filter(msg => msg.content && msg.content.trim() !== "")
       .map(msg => ({
-        role: msg.role as "system" | "user" | "assistant",
+        role: msg.role === "system" ? "user" : msg.role as "user" | "assistant",
         content: msg.content.trim(),
         function_call: msg.metadata?.function_call,
       }))
