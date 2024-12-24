@@ -96,7 +96,14 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
 
             // Get the tool implementation
             const rootStore = getRoot<RootStore>(self)
-            const tool = rootStore.toolStore.getToolById(`github_${functionCall.name}`)
+            const toolId = `github_${functionCall.name}`
+            log({
+              name: "[ChatActions] Looking for tool",
+              preview: "Getting tool",
+              value: { toolId, tools: rootStore.toolStore.tools.map(t => t.id) },
+              important: true,
+            })
+            const tool = rootStore.toolStore.getToolById(toolId)
             if (!tool) {
               throw new Error(`Tool ${functionCall.name} not found`)
             }
@@ -107,7 +114,20 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
             }
 
             // Execute the tool
+            log({
+              name: "[ChatActions] Executing tool",
+              preview: "Running implementation",
+              value: { args: functionCall.args },
+              important: true,
+            })
             const toolResult = yield implementation(functionCall.args)
+            log({
+              name: "[ChatActions] Tool result",
+              preview: "Got result",
+              value: { toolResult },
+              important: true,
+            })
+
             if (!toolResult.success) {
               throw new Error(toolResult.error)
             }
@@ -130,7 +150,7 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
           log({
             name: "[ChatActions] Not a function call",
             preview: "Regular message",
-            value: { content },
+            value: { content, error: err },
             important: true,
           })
         }
