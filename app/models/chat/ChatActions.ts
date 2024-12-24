@@ -1,9 +1,9 @@
-import { flow, Instance, getRoot, IStateTreeNode } from "mobx-state-tree"
+import { flow, Instance, getRoot } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { groqChatApi } from "../../services/groq/groq-chat"
 import { geminiChatApi } from "../../services/gemini/gemini-chat"
 import type { RootStore } from "../RootStore"
-import type { ChatStore } from "./ChatStore"
+import type { ChatStore, ChatStoreModel } from "./ChatStore"
 import type { ITool } from "../tools/ToolStore"
 
 type ChatActions = {
@@ -13,7 +13,7 @@ type ChatActions = {
 /**
  * Chat actions that integrate with the Groq and Gemini APIs
  */
-export const withGroqActions = (self: Instance<IStateTreeNode>): ChatActions => ({
+export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActions => ({
   /**
    * Sends a message to the selected model and handles the response
    */
