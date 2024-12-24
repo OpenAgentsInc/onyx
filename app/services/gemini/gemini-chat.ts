@@ -38,18 +38,23 @@ export class GeminiChatApi {
    * Converts a tool to a Gemini function declaration
    */
   private convertToolToFunctionDeclaration(tool: ITool): FunctionDeclaration {
+    // Convert parameters to Gemini format
+    const properties: Record<string, { type: string; description: string }> = {}
+    for (const [key, value] of Object.entries(tool.parameters)) {
+      if (typeof value === "object" && value !== null) {
+        properties[key] = {
+          type: value.type as string,
+          description: value.description as string,
+        }
+      }
+    }
+
     return {
       name: tool.name,
       description: tool.description,
       parameters: {
         type: "object",
-        properties: Object.entries(tool.parameters).reduce((acc, [key, value]) => ({
-          ...acc,
-          [key]: {
-            type: value as string,
-            description: `Parameter ${key} for ${tool.name}`
-          }
-        }), {}),
+        properties,
         required: Object.keys(tool.parameters)
       }
     }
