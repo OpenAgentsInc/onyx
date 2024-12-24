@@ -181,13 +181,14 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
 
             // Add tool result as a function message
             const functionMessage = {
-              role: "function",
+              role: "assistant",
               content: typeof toolResult.data === 'string' 
                 ? toolResult.data 
                 : JSON.stringify(toolResult.data, null, 2),
               metadata: {
                 conversationId: self.currentConversationId,
                 name: functionCall.name,
+                isToolResult: true,
               },
             }
 
