@@ -82,6 +82,7 @@
   ├── utils
     ├── clearStorage.ts
     ├── crypto-polyfill.ts
+    ├── ignore-warnings.ts
     ├── isEmulator.ts
     ├── log.ts
     ├── storage
@@ -104,6 +105,7 @@
 ├── docs
   ├── ai-design-language.md
   ├── data-marketplace.md
+  ├── groq-voice.md
   ├── groq.md
   ├── init.md
   ├── keys.md
@@ -118,14 +120,10 @@
     ├── ep146.md
     ├── ep147.md
     ├── ep148.md
-  ├── voice.md
 ├── eas.json
 ├── ios
 ├── package.json
-├── patches
-  ├── @react-native-voice+voice+3.2.4.patch
 ├── scripts
-  ├── patch-android-build.sh
 ├── tsconfig.json
 ├── yarn.lock
 ```
