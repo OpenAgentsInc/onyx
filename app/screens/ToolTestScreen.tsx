@@ -4,6 +4,7 @@ import { StyleSheet, View, TextInput, ScrollView, TouchableOpacity } from "react
 import { Text } from "react-native"
 import { useStores } from "../models/_helpers/useStores"
 import { colors } from "../theme"
+import type { ToolResult } from "../services/gemini/tools/types"
 
 export const ToolTestScreen: FC = observer(function ToolTestScreen() {
   const { toolStore } = useStores()
@@ -24,12 +25,12 @@ export const ToolTestScreen: FC = observer(function ToolTestScreen() {
         throw new Error("Tool not found")
       }
 
-      const response = yield* toolStore.executeTool("github_view_file", {
+      const response = await tool.metadata.implementation({
         owner,
         repo,
         branch,
         path,
-      })
+      }) as ToolResult<unknown>
 
       if (!response.success) {
         throw new Error(response.error)
@@ -52,12 +53,12 @@ export const ToolTestScreen: FC = observer(function ToolTestScreen() {
         throw new Error("Tool not found")
       }
 
-      const response = yield* toolStore.executeTool("github_view_hierarchy", {
+      const response = await tool.metadata.implementation({
         owner,
         repo,
         branch,
         path,
-      })
+      }) as ToolResult<unknown>
 
       if (!response.success) {
         throw new Error(response.error)
