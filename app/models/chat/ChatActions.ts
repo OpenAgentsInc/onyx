@@ -63,26 +63,85 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
             temperature: 0.7,
             maxOutputTokens: 1024,
             tools: enabledTools,
-            tool_config: {
-              function_calling_config: {
-                mode: "AUTO"
-              }
-            }
           },
         )
       }
 
       if (result.kind === "ok") {
-        // Update assistant message with response
-        self.updateMessage(assistantMessage.id, {
-          content: result.response.choices[0].message.content,
-          metadata: {
-            ...assistantMessage.metadata,
-            isGenerating: false,
-            tokens: result.response.usage?.completion_tokens,
-            model: self.activeModel,
-          },
-        })
+        const response = result.response
+        const message = response.choices[0].message
+
+        // Check if the response contains a function call
+        if (message.function_call) {
+          try {
+            // Parse the function call
+            const functionCall = message.function_call
+            const args = JSON.parse(functionCall.arguments)
+
+            // Update message to show function call
+            self.updateMessage(assistantMessage.id, {
+              content: JSON.stringify({ name: functionCall.name, args }, null, 2),
+              metadata: {
+                ...assistantMessage.metadata,
+                isGenerating: true,
+                tokens: response.usage?.completion_tokens,
+                model: self.activeModel,
+              },
+            })
+
+            // Get the tool implementation
+            const rootStore = getRoot<RootStore>(self)
+            const tool = rootStore.toolStore.getToolById(`github_${functionCall.name}`)
+            if (!tool) {
+              throw new Error(`Tool ${functionCall.name} not found`)
+            }
+
+            const implementation = tool.metadata?.implementation
+            if (!implementation) {
+              throw new Error(`Tool ${functionCall.name} implementation not found`)
+            }
+
+            // Execute the tool
+            const toolResult = yield implementation(args)
+            if (!toolResult.success) {
+              throw new Error(toolResult.error)
+            }
+
+            // Update message with tool result
+            self.updateMessage(assistantMessage.id, {
+              content: JSON.stringify(toolResult.data, null, 2),
+              metadata: {
+                ...assistantMessage.metadata,
+                isGenerating: false,
+                tokens: response.usage?.completion_tokens,
+                model: self.activeModel,
+                toolResult: toolResult.data,
+              },
+            })
+          } catch (error) {
+            // Handle tool execution error
+            self.updateMessage(assistantMessage.id, {
+              content: `Error executing tool: ${error instanceof Error ? error.message : "Unknown error"}`,
+              metadata: {
+                ...assistantMessage.metadata,
+                isGenerating: false,
+                error: true,
+                model: self.activeModel,
+              },
+            })
+          }
+        } else {
+          // Regular message response
+          self.updateMessage(assistantMessage.id, {
+            content: message.content,
+            metadata: {
+              ...assistantMessage.metadata,
+              isGenerating: false,
+              tokens: response.usage?.completion_tokens,
+              model: self.activeModel,
+            },
+          })
+        }
       } else {
         // Handle error
         self.updateMessage(assistantMessage.id, {
