@@ -109,36 +109,46 @@ export const ToolStoreModel = types
           })
 
           // Add GitHub tools with implementations
-          baseActions.addTool({
+          const viewFileTool = baseActions.addTool({
             id: "github_view_file",
             name: "view_file",
             description: githubTools.viewFile.description,
-            parameters: {
-              path: { type: "string", description: "The path of the file to view" },
-              owner: { type: "string", description: "The owner of the repository" },
-              repo: { type: "string", description: "The name of the repository" },
-              branch: { type: "string", description: "The branch to view the file from" }
-            },
+            parameters: githubTools.viewFile.parameters.properties,
             metadata: {
               category: "github",
-              implementation: viewFile,
             },
+            implementation: viewFile,
           })
 
-          baseActions.addTool({
+          log({
+            name: "[ToolStore] Tool added",
+            preview: "Added view_file tool",
+            value: { 
+              id: viewFileTool.id,
+              hasImplementation: !!viewFileTool.metadata?.implementation
+            },
+            important: true,
+          })
+
+          const viewHierarchyTool = baseActions.addTool({
             id: "github_view_hierarchy",
             name: "view_hierarchy",
             description: githubTools.viewHierarchy.description,
-            parameters: {
-              path: { type: "string", description: "The path to view the hierarchy" },
-              owner: { type: "string", description: "The owner of the repository" },
-              repo: { type: "string", description: "The name of the repository" },
-              branch: { type: "string", description: "The branch to view the hierarchy from" }
-            },
+            parameters: githubTools.viewHierarchy.parameters.properties,
             metadata: {
               category: "github",
-              implementation: viewHierarchy,
             },
+            implementation: viewHierarchy,
+          })
+
+          log({
+            name: "[ToolStore] Tool added",
+            preview: "Added view_hierarchy tool",
+            value: { 
+              id: viewHierarchyTool.id,
+              hasImplementation: !!viewHierarchyTool.metadata?.implementation
+            },
+            important: true,
           })
 
           self.isInitialized = true
