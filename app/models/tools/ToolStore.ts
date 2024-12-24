@@ -8,6 +8,7 @@ import {
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
 import { viewFile, viewHierarchy } from "../../services/gemini/tools/github-impl"
+import { githubTools } from "../../services/gemini/tools/github"
 
 export const ToolModel = types
   .model("Tool", {
@@ -107,37 +108,27 @@ export const ToolStoreModel = types
             important: true,
           })
 
-          // Add GitHub tools
+          // Add GitHub tools with implementations
           baseActions.addTool({
             id: "github_view_file",
             name: "view_file",
-            description: "View file contents at path",
-            parameters: {
-              path: "string",
-              owner: "string",
-              repo: "string",
-              branch: "string"
-            },
+            description: githubTools.viewFile.description,
+            parameters: githubTools.viewFile.parameters.properties,
             metadata: {
               category: "github",
+              implementation: viewFile,
             },
-            implementation: viewFile
           })
 
           baseActions.addTool({
             id: "github_view_hierarchy",
             name: "view_hierarchy",
-            description: "View file/folder hierarchy at path",
-            parameters: {
-              path: "string",
-              owner: "string",
-              repo: "string",
-              branch: "string"
-            },
+            description: githubTools.viewHierarchy.description,
+            parameters: githubTools.viewHierarchy.parameters.properties,
             metadata: {
               category: "github",
+              implementation: viewHierarchy,
             },
-            implementation: viewHierarchy
           })
 
           self.isInitialized = true
@@ -145,7 +136,13 @@ export const ToolStoreModel = types
           log({
             name: "[ToolStore] initializeDefaultTools",
             preview: "Tools initialized",
-            value: { tools: self.tools.map(t => t.id) },
+            value: { 
+              tools: self.tools.map(t => ({
+                id: t.id,
+                name: t.name,
+                hasImplementation: !!t.metadata?.implementation
+              }))
+            },
             important: true,
           })
         } catch (error) {
@@ -177,7 +174,15 @@ export const ToolStoreModel = types
       log({
         name: "[ToolStore] getToolById",
         preview: `Getting tool ${id}`,
-        value: { id, found: !!tool, tools: self.tools.map(t => t.id) },
+        value: { 
+          id, 
+          found: !!tool,
+          hasImplementation: tool ? !!tool.metadata?.implementation : false,
+          tools: self.tools.map(t => ({
+            id: t.id,
+            hasImplementation: !!t.metadata?.implementation
+          }))
+        },
         important: true,
       })
       return tool
