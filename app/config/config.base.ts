@@ -36,7 +36,17 @@ const BaseConfig: ConfigBaseProps = {
   /**
    * The Groq API key for chat completions
    */
-  GROQ_API_KEY: Constants.expoConfig?.extra?.GROQ_API_KEY ?? "grrr"
+  GROQ_API_KEY: Constants.expoConfig?.extra?.GROQ_API_KEY ?? "grrr",
+
+  /**
+   * Google Cloud Project ID
+   */
+  GOOGLE_CLOUD_PROJECT: Constants.expoConfig?.extra?.GOOGLE_CLOUD_PROJECT ?? null,
+
+  /**
+   * Google Cloud Region
+   */
+  GOOGLE_CLOUD_REGION: Constants.expoConfig?.extra?.GOOGLE_CLOUD_REGION ?? "us-central1",
 }
 
 export default BaseConfig
