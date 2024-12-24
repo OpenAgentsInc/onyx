@@ -84,14 +84,14 @@ export const ChatStoreModel = types
     }
   }))
   .views((self) => ({
-    get currentMessages() {
+    get currentMessages(): IMessage[] {
       return self.messages
         .filter(msg => !msg.metadata?.conversationId || msg.metadata.conversationId === self.currentConversationId)
         .slice()
     },
-    get conversationText() {
+    get conversationText(): string {
       return self.currentMessages
-        .map(msg => msg.content)
+        .map((msg: IMessage) => msg.content)
         .join('\n\n')
     }
   }))
