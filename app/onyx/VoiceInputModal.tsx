@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { Modal, View, Text, Pressable, ActivityIndicator } from "react-native"
+import { Audio } from "expo-av"
 import { styles as baseStyles } from "./styles"
 import { styles as voiceStyles } from "./VoiceInputModal.styles"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@/models"
 import { log } from "@/utils/log"
-import Voice, { SpeechResultsEvent } from "@react-native-voice/voice"
-import { useVoicePermissions } from "@/hooks/useVoicePermissions"
+import { groqChatApi } from "@/services/groq/groq-chat"
 
 interface VoiceInputModalProps {
   visible: boolean
   onClose: () => void
-  transcript?: string // Make transcript optional
+  transcript?: string
 }
 
 export const VoiceInputModal = observer(({ visible, onClose, transcript }: VoiceInputModalProps) => {
@@ -19,78 +19,101 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
   const [isRecording, setIsRecording] = useState(false)
   const [transcribedText, setTranscribedText] = useState(transcript || "")
   const [error, setError] = useState("")
-  const { hasPermission, isChecking, requestPermissions } = useVoicePermissions()
+  const [isTranscribing, setIsTranscribing] = useState(false)
+  const recording = useRef<Audio.Recording | null>(null)
 
   useEffect(() => {
-    // Initialize voice handlers
-    Voice.onSpeechStart = () => setIsRecording(true)
-    Voice.onSpeechEnd = () => {
-      setIsRecording(false)
-      // Automatically restart recording when speech ends
-      if (hasPermission && visible) {
-        startRecording()
-      }
-    }
-    Voice.onSpeechResults = (e: SpeechResultsEvent) => {
-      if (e.value && e.value[0]) {
-        setTranscribedText(e.value[0])
-      }
-    }
-    Voice.onSpeechError = (e: any) => {
-      setError(e.error?.message || "Error occurred")
-      setIsRecording(false)
-    }
-
     return () => {
-      Voice.destroy().then(Voice.removeAllListeners)
+      stopRecording()
     }
-  }, [hasPermission, visible])
+  }, [])
 
-  // Start recording when modal becomes visible and we have permission
   useEffect(() => {
     if (visible) {
-      if (hasPermission) {
-        startRecording()
-      } else if (!isChecking) {
-        handleRequestPermission()
-      }
+      setupRecording()
     } else {
-      cleanup()
+      stopRecording()
     }
-  }, [visible, hasPermission, isChecking])
+  }, [visible])
 
-  const handleRequestPermission = async () => {
-    const granted = await requestPermissions()
-    if (granted) {
-      startRecording()
-    } else {
-      setError("Microphone permission is required for voice input")
-    }
-  }
-
-  const cleanup = async () => {
+  const setupRecording = async () => {
     try {
-      await Voice.stop()
-      await Voice.destroy()
-      setTranscribedText("")
-      setError("")
-      setIsRecording(false)
-    } catch (e) {
-      console.error("Error cleaning up voice:", e)
+      await Audio.requestPermissionsAsync()
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      })
+      startRecording()
+    } catch (err) {
+      setError("Failed to get recording permissions")
+      log.error("[VoiceInputModal]", "Error setting up recording:", err)
     }
   }
 
   const startRecording = async () => {
     try {
       setError("")
-      await Voice.start("en-US")
-    } catch (e: any) {
-      setError(e.message || "Error starting recording")
+      const { recording: newRecording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      )
+      recording.current = newRecording
+      setIsRecording(true)
+    } catch (err) {
+      setError("Failed to start recording")
+      log.error("[VoiceInputModal]", "Error starting recording:", err)
+    }
+  }
+
+  const stopRecording = async () => {
+    if (!recording.current) return
+
+    try {
+      setIsRecording(false)
+      await recording.current.stopAndUnloadAsync()
+      const uri = recording.current.getURI()
+      recording.current = null
+
+      if (uri) {
+        await transcribeAudio(uri)
+      }
+    } catch (err) {
+      setError("Failed to stop recording")
+      log.error("[VoiceInputModal]", "Error stopping recording:", err)
+    }
+  }
+
+  const transcribeAudio = async (uri: string) => {
+    try {
+      setIsTranscribing(true)
+      setError("")
+
+      // Fetch the audio file and convert it to a blob
+      const response = await fetch(uri)
+      const blob = await response.blob()
+
+      // Send to Groq for transcription
+      const result = await groqChatApi.transcribeAudio(blob, {
+        model: "whisper-large-v3",
+        language: "en",
+      })
+
+      if (result.kind === "ok") {
+        setTranscribedText(result.response.text)
+      } else {
+        setError("Failed to transcribe audio")
+        log.error("[VoiceInputModal]", "Transcription error:", result)
+      }
+    } catch (err) {
+      setError("Failed to transcribe audio")
+      log.error("[VoiceInputModal]", "Error transcribing audio:", err)
+    } finally {
+      setIsTranscribing(false)
     }
   }
 
   const handleCancel = async () => {
-    await cleanup()
+    await stopRecording()
+    setTranscribedText("")
     onClose()
   }
 
@@ -98,11 +121,10 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
     if (!transcribedText.trim()) return
 
     try {
-      const textToSend = transcribedText // Capture current text
-      await cleanup() // Clean up voice recording
-      onClose() // Close modal immediately
+      const textToSend = transcribedText
+      setTranscribedText("")
+      onClose()
 
-      // Send message after modal is closed
       await chatStore.sendMessage(textToSend)
     } catch (error) {
       log({
@@ -111,6 +133,14 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
         value: error instanceof Error ? error.message : "Unknown error",
         important: true
       })
+    }
+  }
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording()
+    } else {
+      startRecording()
     }
   }
 
@@ -140,17 +170,40 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
         </View>
 
         <View style={voiceStyles.voiceContainer}>
-          {isChecking ? (
-            <ActivityIndicator size="large" color="#fff" />
-          ) : error ? (
+          {error ? (
             <Text style={voiceStyles.errorText}>{error}</Text>
           ) : (
             <View style={voiceStyles.transcriptionContainer}>
-              <Text style={voiceStyles.listeningText}>{isRecording ? "Listening" : "Paused"}</Text>
-              {transcribedText ? (
-                <Text style={voiceStyles.transcriptionText}>{transcribedText}</Text>
+              <Pressable 
+                onPress={toggleRecording}
+                style={[
+                  voiceStyles.recordButton,
+                  isRecording && voiceStyles.recordingButton
+                ]}
+              >
+                <Text style={voiceStyles.recordButtonText}>
+                  {isRecording ? "Stop" : "Record"}
+                </Text>
+              </Pressable>
+
+              {isTranscribing ? (
+                <View style={voiceStyles.transcribingContainer}>
+                  <ActivityIndicator size="small" color="#fff" />
+                  <Text style={voiceStyles.transcribingText}>Transcribing...</Text>
+                </View>
               ) : (
-                <Text style={voiceStyles.placeholderText}>Start speaking...</Text>
+                <>
+                  <Text style={voiceStyles.listeningText}>
+                    {isRecording ? "Recording..." : "Press Record to start"}
+                  </Text>
+                  {transcribedText ? (
+                    <Text style={voiceStyles.transcriptionText}>{transcribedText}</Text>
+                  ) : (
+                    <Text style={voiceStyles.placeholderText}>
+                      Transcribed text will appear here...
+                    </Text>
+                  )}
+                </>
               )}
             </View>
           )}
