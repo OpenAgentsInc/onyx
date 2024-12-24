@@ -47,8 +47,7 @@ export class GeminiChatApi {
           ...acc,
           [key]: {
             type: value as string,
-            description: `Parameter ${key} for ${tool.name}`,
-            required: true
+            description: `Parameter ${key} for ${tool.name}`
           }
         }), {}),
         required: Object.keys(tool.parameters)
@@ -121,13 +120,9 @@ export class GeminiChatApi {
           topP: options.topP ?? 0.8,
           topK: options.topK ?? 10,
         },
-        tools: functionDeclarations ? {
-          function_declarations: functionDeclarations
-        } : undefined,
-        tool_choice: options.tool_config?.function_calling_config ? {
-          type: options.tool_config.function_calling_config.mode === "AUTO" ? "auto" : "function",
-          function: options.tool_config.function_calling_config.allowed_function_names?.[0]
-        } : undefined,
+        tools: functionDeclarations ? [{
+          functionDeclarations
+        }] : undefined,
         safetySettings: [
           {
             category: "HARM_CATEGORY_HARASSMENT",
