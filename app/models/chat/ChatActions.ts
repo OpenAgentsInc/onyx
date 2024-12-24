@@ -162,15 +162,38 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
               throw new Error(toolResult.error)
             }
 
-            // Update message with tool result
-            self.updateMessage(assistantMessage.id, {
+            // Add tool result as a function message
+            self.addMessage({
+              role: "function",
               content: typeof toolResult.data === 'string' 
                 ? toolResult.data 
                 : JSON.stringify(toolResult.data, null, 2),
               metadata: {
+                conversationId: self.currentConversationId,
+                name: functionCall.name,
+              },
+            })
+
+            // Get analysis from the model
+            const analysisResult = yield geminiChatApi.createChatCompletion(
+              self.currentMessages,
+              {
+                temperature: 0.7,
+                maxOutputTokens: 1024,
+              }
+            )
+
+            if (analysisResult.kind !== "ok") {
+              throw new Error("Failed to get analysis from model")
+            }
+
+            // Update message with analysis
+            self.updateMessage(assistantMessage.id, {
+              content: analysisResult.response.choices[0].message.content,
+              metadata: {
                 ...assistantMessage.metadata,
                 isGenerating: false,
-                tokens: response.usage?.completion_tokens,
+                tokens: analysisResult.response.usage?.completion_tokens,
                 model: self.activeModel,
                 toolResult: toolResult.data,
               },
