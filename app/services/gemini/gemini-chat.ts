@@ -121,6 +121,13 @@ export class GeminiChatApi {
           topP: options.topP ?? 0.8,
           topK: options.topK ?? 10,
         },
+        tools: functionDeclarations ? {
+          function_declarations: functionDeclarations
+        } : undefined,
+        tool_choice: options.tool_config?.function_calling_config ? {
+          type: options.tool_config.function_calling_config.mode === "AUTO" ? "auto" : "function",
+          function: options.tool_config.function_calling_config.allowed_function_names?.[0]
+        } : undefined,
         safetySettings: [
           {
             category: "HARM_CATEGORY_HARASSMENT",
@@ -141,6 +148,13 @@ export class GeminiChatApi {
         ]
       }
 
+      log({
+        name: "[GeminiChatApi] createChatCompletion",
+        preview: "Request payload",
+        value: { payload },
+        important: true,
+      })
+
       const response: ApiResponse<any> = await this.apisauce.post(
         `/models/gemini-pro:generateContent?key=${this.config.apiKey}`,
         payload
@@ -149,7 +163,7 @@ export class GeminiChatApi {
       log({
         name: "[GeminiChatApi] createChatCompletion",
         preview: "Chat completion response",
-        value: { request: payload, response: response.data },
+        value: { response: response.data },
         important: true,
       })
 
@@ -177,6 +191,10 @@ export class GeminiChatApi {
           message: {
             role: "assistant",
             content,
+            function_call: functionCall ? {
+              name: functionCall.name,
+              arguments: JSON.stringify(functionCall.args)
+            } : undefined
           },
           finish_reason: response.data.candidates[0].finishReason,
         }],
