@@ -185,8 +185,10 @@ export class GeminiChatApi {
       if (functionCall) {
         // Format function call to match expected structure
         content = JSON.stringify({
-          name: functionCall.name,
-          args: functionCall.args
+          functionCall: {
+            name: functionCall.name,
+            args: functionCall.args
+          }
         })
       } else {
         content = response.data.candidates[0].content.parts[0].text
