@@ -43,6 +43,7 @@
   ├── onyx
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
+    ├── ChatOverlay.tsx
     ├── ConfigureModal.tsx
     ├── OnyxLayout.tsx
     ├── TextInputModal.tsx
