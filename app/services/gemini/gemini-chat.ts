@@ -4,8 +4,9 @@ import Config from "../../config"
 import { MessageModel } from "../../models/chat/ChatStore"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
 import { DEFAULT_SYSTEM_MESSAGE } from "../local-models/constants"
+import { ITool } from "../../models/tools/ToolStore"
 
-import type { GeminiConfig, ChatMessage, ChatCompletionResponse, GenerateContentConfig } from "./gemini-api.types"
+import type { GeminiConfig, ChatMessage, ChatCompletionResponse, GenerateContentConfig, FunctionDeclaration } from "./gemini-api.types"
 import type { IMessage } from "../../models/chat/ChatStore"
 
 const DEFAULT_CONFIG: GeminiConfig = {
@@ -34,6 +35,23 @@ export class GeminiChatApi {
   }
 
   /**
+   * Converts a tool to a Gemini function declaration
+   */
+  private convertToolToFunctionDeclaration(tool: ITool): FunctionDeclaration {
+    return {
+      name: tool.name,
+      description: tool.description,
+      parameters: {
+        type: "object",
+        properties: tool.parameters,
+        required: Object.entries(tool.parameters)
+          .filter(([_, param]) => param.required)
+          .map(([name]) => name)
+      }
+    }
+  }
+
+  /**
    * Converts ChatStore messages to Gemini API format
    */
   private convertToGeminiMessages(messages: IMessage[]): ChatMessage[] {
@@ -54,7 +72,8 @@ export class GeminiChatApi {
       .filter(msg => msg.content && msg.content.trim() !== "")
       .map(msg => ({
         role: msg.role as "system" | "user" | "assistant",
-        parts: [{ text: msg.content.trim() }]
+        parts: [{ text: msg.content.trim() }],
+        function_call: msg.metadata?.function_call,
       }))
   }
 
@@ -73,6 +92,11 @@ export class GeminiChatApi {
         throw new Error("No valid messages to send to Gemini API")
       }
 
+      // Convert tools to function declarations if provided
+      const functionDeclarations = options.tools?.map(tool => 
+        this.convertToolToFunctionDeclaration(tool)
+      )
+
       const payload = {
         contents: [{
           parts: geminiMessages.map(msg => ({
@@ -85,6 +109,10 @@ export class GeminiChatApi {
           topP: options.topP ?? 0.8,
           topK: options.topK ?? 10,
         },
+        tools: functionDeclarations ? {
+          function_declarations: functionDeclarations
+        } : undefined,
+        tool_config: options.tool_config
       }
 
       const response: ApiResponse<any> = await this.apisauce.post(
@@ -106,6 +134,12 @@ export class GeminiChatApi {
 
       if (!response.data) throw new Error("No data received from Gemini API")
 
+      // Handle function calls in response
+      const functionCall = response.data.candidates[0].content.parts[0].function_call
+      const content = functionCall 
+        ? JSON.stringify(functionCall)
+        : response.data.candidates[0].content.parts[0].text
+
       // Convert Gemini response to Groq format for consistency
       const formattedResponse: ChatCompletionResponse = {
         id: "gemini-" + Date.now(),
@@ -116,7 +150,8 @@ export class GeminiChatApi {
           index: 0,
           message: {
             role: "assistant",
-            content: response.data.candidates[0].content.parts[0].text,
+            content,
+            function_call: functionCall,
           },
           finish_reason: response.data.candidates[0].finishReason,
         }],
