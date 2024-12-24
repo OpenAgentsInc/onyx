@@ -72,6 +72,7 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
         const message = response.choices[0].message
         const content = message.content
 
+        // Try to parse content as a function call
         let functionCall = null
         try {
           const parsed = JSON.parse(content)
@@ -177,7 +178,7 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
             }
 
             // Add tool result as a function message
-            self.addMessage({
+            const functionMessage = {
               role: "function",
               content: typeof toolResult.data === 'string' 
                 ? toolResult.data 
@@ -186,11 +187,13 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
                 conversationId: self.currentConversationId,
                 name: functionCall.name,
               },
-            })
+            }
+
+            self.addMessage(functionMessage)
 
             // Get analysis from the model
             const analysisResult = yield geminiChatApi.createChatCompletion(
-              self.currentMessages,
+              [...self.currentMessages, functionMessage],
               {
                 temperature: 0.7,
                 maxOutputTokens: 1024,
@@ -229,18 +232,18 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
             })
             return
           }
+        } else {
+          // Regular message response
+          self.updateMessage(assistantMessage.id, {
+            content: content,
+            metadata: {
+              ...assistantMessage.metadata,
+              isGenerating: false,
+              tokens: response.usage?.completion_tokens,
+              model: self.activeModel,
+            },
+          })
         }
-
-        // Regular message response
-        self.updateMessage(assistantMessage.id, {
-          content: content,
-          metadata: {
-            ...assistantMessage.metadata,
-            isGenerating: false,
-            tokens: response.usage?.completion_tokens,
-            model: self.activeModel,
-          },
-        })
       } else {
         // Handle error
         self.updateMessage(assistantMessage.id, {
