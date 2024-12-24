@@ -5,6 +5,7 @@ import { geminiChatApi } from "../../services/gemini/gemini-chat"
 import type { RootStore } from "../RootStore"
 import type { ChatStore, ChatStoreModel } from "./ChatStore"
 import type { ITool } from "../tools/ToolStore"
+import { MessageModel } from "./ChatStore"
 
 type ChatActions = {
   sendMessage: (content: string) => Promise<void>
@@ -179,20 +180,22 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
               throw new Error(toolResult.error)
             }
 
-            // Add tool result as a function message
-            const functionMessage = {
-              role: "assistant" as const,
+            // Create function message using MessageModel
+            const functionMessage = MessageModel.create({
+              id: Math.random().toString(36).substring(2, 9),
+              role: "assistant",
               content: typeof toolResult.data === 'string' 
                 ? toolResult.data 
                 : JSON.stringify(toolResult.data, null, 2),
+              createdAt: Date.now(),
               metadata: {
                 conversationId: self.currentConversationId,
                 name: functionCall.name,
                 isToolResult: true,
               },
-            }
+            })
 
-            self.addMessage(functionMessage)
+            self.messages.push(functionMessage)
 
             // Get analysis from the model
             const analysisResult = yield geminiChatApi.createChatCompletion(
