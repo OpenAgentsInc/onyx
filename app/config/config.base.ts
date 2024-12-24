@@ -8,6 +8,7 @@ export interface ConfigBaseProps {
   GROQ_API_KEY?: string | null
   GOOGLE_CLOUD_PROJECT: string | null
   GOOGLE_CLOUD_REGION: string | null
+  GEMINI_API_KEY: string | null
 }
 
 export type PersistNavigationConfig = ConfigBaseProps["persistNavigation"]
@@ -47,6 +48,11 @@ const BaseConfig: ConfigBaseProps = {
    * Google Cloud Region
    */
   GOOGLE_CLOUD_REGION: Constants.expoConfig?.extra?.GOOGLE_CLOUD_REGION ?? "us-central1",
+
+  /**
+   * Gemini API key
+   */
+  GEMINI_API_KEY: Constants.expoConfig?.extra?.GEMINI_API_KEY ?? null,
 }
 
 export default BaseConfig
