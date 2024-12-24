@@ -12,25 +12,6 @@ type ChatActions = {
 }
 
 /**
- * Creates a summary of file content
- */
-function createContentSummary(content: string, maxLength: number = 300): string {
-  if (content.length <= maxLength) return content
-  
-  // For markdown content, try to extract first heading and paragraph
-  if (content.startsWith('#')) {
-    const lines = content.split('\n')
-    const firstHeading = lines[0]
-    const firstParagraph = lines.slice(1).find(line => line.trim().length > 0) || ''
-    const summary = `${firstHeading}\n${firstParagraph}`
-    if (summary.length <= maxLength) return summary + '\n\n[Click to view full content]'
-  }
-  
-  // Default to truncation
-  return content.substring(0, maxLength) + '...\n\n[Click to view full content]'
-}
-
-/**
  * Chat actions that integrate with the Groq and Gemini APIs
  */
 export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActions => ({
@@ -199,47 +180,28 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
               throw new Error(toolResult.error)
             }
 
-            // Format the tool result data
-            const fullContent = typeof toolResult.data === 'string' 
-              ? toolResult.data 
-              : JSON.stringify(toolResult.data, null, 2)
-
-            // Create a summary of the content
-            const summary = createContentSummary(fullContent)
-
             // Create function message using MessageModel
             const functionMessage = MessageModel.create({
               id: Math.random().toString(36).substring(2, 9),
               role: "assistant",
-              content: summary,
+              content: typeof toolResult.data === 'string' 
+                ? toolResult.data 
+                : JSON.stringify(toolResult.data, null, 2),
               createdAt: Date.now(),
               metadata: {
                 conversationId: self.currentConversationId,
                 name: functionCall.name,
                 isToolResult: true,
-                fullContent: fullContent,
-                path: functionCall.args.path,
               },
             })
 
             self.messages.push(functionMessage)
 
-            // Get analysis from the model with specific instructions
-            const analysisPrompt = `I've just read the content from ${functionCall.args.path}. Please provide a clear, focused summary of the key points in 2-3 sentences. Focus on the main purpose and most important details. If it's documentation, explain what it documents. If it's code, explain its main functionality.
-
-Content to analyze:
-${summary}`
-
+            // Get analysis from the model using the full conversation context
             const analysisResult = yield geminiChatApi.createChatCompletion(
-              [MessageModel.create({
-                id: "analysis",
-                role: "user",
-                content: analysisPrompt,
-                createdAt: Date.now(),
-                metadata: {},
-              })],
+              [...self.currentMessages, functionMessage],
               {
-                temperature: 0.3, // Lower temperature for more focused response
+                temperature: 0.7,
                 maxOutputTokens: 1024,
               }
             )
