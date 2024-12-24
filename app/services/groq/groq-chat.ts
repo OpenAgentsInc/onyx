@@ -6,6 +6,7 @@ import { DEFAULT_SYSTEM_MESSAGE } from "../local-models/constants"
 
 import type { GroqConfig, ChatMessage, ChatCompletionResponse, TranscriptionResponse, TranscriptionConfig } from "./groq-api.types"
 import type { IMessage } from "../../models/chat/ChatStore"
+import { MessageModel } from "../../models/chat/ChatStore"
 
 const DEFAULT_CONFIG: GroqConfig = {
   apiKey: Config.GROQ_API_KEY ?? "",
@@ -44,13 +45,13 @@ export class GroqChatApi {
   private convertToGroqMessages(messages: IMessage[]): ChatMessage[] {
     // Add system message if not present
     if (!messages.find(msg => msg.role === "system")) {
-      const systemMessage: IMessage = {
+      const systemMessage = MessageModel.create({
         id: "system",
         role: "system",
         content: DEFAULT_SYSTEM_MESSAGE.content,
         createdAt: Date.now(),
         metadata: {},
-      }
+      })
       messages = [systemMessage, ...messages]
     }
     return messages.map(msg => ({
