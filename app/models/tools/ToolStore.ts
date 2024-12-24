@@ -55,6 +55,7 @@ export const ToolStoreModel = types
         parameters: Record<string, unknown>
         enabled?: boolean
         metadata?: any
+        implementation?: (...args: any[]) => Promise<any>
       }) {
         const existingTool = self.tools.find(t => t.id === tool.id)
         if (existingTool) {
@@ -64,7 +65,10 @@ export const ToolStoreModel = types
         const newTool = ToolModel.create({
           ...tool,
           enabled: tool.enabled ?? true,
-          metadata: tool.metadata ?? {},
+          metadata: {
+            ...tool.metadata,
+            implementation: tool.implementation,
+          },
         })
         self.tools.push(newTool)
         return newTool
@@ -116,8 +120,8 @@ export const ToolStoreModel = types
             },
             metadata: {
               category: "github",
-              implementation: viewFile
-            }
+            },
+            implementation: viewFile
           })
 
           baseActions.addTool({
@@ -132,8 +136,8 @@ export const ToolStoreModel = types
             },
             metadata: {
               category: "github",
-              implementation: viewHierarchy
-            }
+            },
+            implementation: viewHierarchy
           })
 
           self.isInitialized = true
