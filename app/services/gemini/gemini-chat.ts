@@ -10,7 +10,7 @@ import type { IMessage } from "../../models/chat/ChatStore"
 
 const DEFAULT_CONFIG: GeminiConfig = {
   apiKey: Config.GEMINI_API_KEY ?? "",
-  baseURL: "https://generativelanguage.googleapis.com/v1beta",
+  baseURL: "https://generativelanguage.googleapis.com/v1",
   timeout: 30000,
 }
 
@@ -50,7 +50,7 @@ export class GeminiChatApi {
     }
     return messages.map(msg => ({
       role: msg.role as "system" | "user" | "assistant",
-      content: msg.content
+      parts: [{ text: msg.content }]
     }))
   }
 
@@ -64,26 +64,18 @@ export class GeminiChatApi {
     try {
       const geminiMessages = this.convertToGeminiMessages(messages)
 
-      // Convert messages to Gemini's format
-      const contents = geminiMessages.map(msg => ({
-        role: msg.role,
-        parts: [{ text: msg.content }]
-      }))
-
       const response: ApiResponse<any> = await this.apisauce.post(
-        `/models/gemini-pro/generateContent?key=${this.config.apiKey}`,
+        `/models/gemini-1.5-flash:generateContent?key=${this.config.apiKey}`,
         {
-          contents,
+          contents: geminiMessages,
           generationConfig: {
-            temperature: options.temperature,
-            maxOutputTokens: options.maxOutputTokens,
-            topP: options.topP,
-            topK: options.topK,
+            temperature: options.temperature ?? 0.7,
+            maxOutputTokens: options.maxOutputTokens ?? 1024,
+            topP: options.topP ?? 0.8,
+            topK: options.topK ?? 10,
           },
         },
       )
-
-      console.log("RESPONSE:", response)
 
       log({
         name: "[GeminiChatApi] createChatCompletion",
@@ -104,7 +96,7 @@ export class GeminiChatApi {
         id: "gemini-" + Date.now(),
         object: "chat.completion",
         created: Date.now(),
-        model: "gemini-pro",
+        model: "gemini-1.5-flash",
         choices: [{
           index: 0,
           message: {
