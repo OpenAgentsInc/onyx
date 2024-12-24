@@ -181,7 +181,7 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
 
             // Add tool result as a function message
             const functionMessage = {
-              role: "assistant",
+              role: "assistant" as const,
               content: typeof toolResult.data === 'string' 
                 ? toolResult.data 
                 : JSON.stringify(toolResult.data, null, 2),
@@ -219,17 +219,17 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
               },
             })
             return
-          } catch (toolError) {
+          } catch (toolError: unknown) {
             // Log tool execution error
             log.error("[ChatActions] Tool execution error:", toolError)
             
             // Update message with error
             self.updateMessage(assistantMessage.id, {
-              content: `Error executing tool: ${toolError.message}`,
+              content: `Error executing tool: ${toolError instanceof Error ? toolError.message : 'Unknown error'}`,
               metadata: {
                 ...assistantMessage.metadata,
                 isGenerating: false,
-                error: toolError.message,
+                error: toolError instanceof Error ? toolError.message : 'Unknown error',
                 model: self.activeModel,
               },
             })
