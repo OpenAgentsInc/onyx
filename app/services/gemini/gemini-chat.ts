@@ -1,55 +1,36 @@
+import { ApiResponse, ApisauceInstance, create } from "apisauce"
 import { log } from "@/utils/log"
 import Config from "../../config"
+import { MessageModel } from "../../models/chat/ChatStore"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
 import { DEFAULT_SYSTEM_MESSAGE } from "../local-models/constants"
-import { IMessage } from "../../models/chat/ChatStore"
 
-import type {
-  GeminiConfig,
-  ChatMessage,
-  ChatCompletionResponse,
-  GenerateContentConfig,
-  Tool,
-  ToolCall,
-  ToolResponse
-} from "./gemini-api.types"
+import type { GeminiConfig, ChatMessage, ChatCompletionResponse, GenerateContentConfig } from "./gemini-api.types"
+import type { IMessage } from "../../models/chat/ChatStore"
 
 const DEFAULT_CONFIG: GeminiConfig = {
-  project: Config.GOOGLE_CLOUD_PROJECT ?? "",
-  location: Config.GOOGLE_CLOUD_REGION ?? "us-central1",
-  model: "gemini-2.0-flash-exp",
-  timeout: 30000,
   apiKey: Config.GEMINI_API_KEY ?? "",
+  baseURL: "https://generativelanguage.googleapis.com/v1beta",
+  timeout: 30000,
 }
 
 /**
- * Manages chat interactions with the Gemini API
+ * Manages chat interactions with the Gemini API.
  */
 export class GeminiChatApi {
+  apisauce: ApisauceInstance
   config: GeminiConfig
-  client: any // Will be initialized with Google Gen AI client
 
   constructor(config: GeminiConfig = DEFAULT_CONFIG) {
     this.config = config
-    this.initializeClient()
-  }
 
-  private async initializeClient() {
-    try {
-      const { GoogleGenerativeAI } = await import("@google/generative-ai")
-      this.client = new GoogleGenerativeAI(this.config.apiKey)
-
-      log({
-        name: "GeminiChatApi initialized",
-        preview: "Client created successfully",
-        value: {
-          model: this.config.model,
-        },
-      })
-    } catch (error) {
-      log.error("[GeminiChatApi]", error instanceof Error ? error.message : "Unknown error")
-      throw error
-    }
+    this.apisauce = create({
+      baseURL: this.config.baseURL,
+      timeout: this.config.timeout,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
   }
 
   /**
@@ -58,50 +39,19 @@ export class GeminiChatApi {
   private convertToGeminiMessages(messages: IMessage[]): ChatMessage[] {
     // Add system message if not present
     if (!messages.find(msg => msg.role === "system")) {
-      messages = [{
+      const systemMessage = MessageModel.create({
         id: "system",
         role: "system",
         content: DEFAULT_SYSTEM_MESSAGE.content,
         createdAt: Date.now(),
         metadata: {},
-      } as IMessage, ...messages]
+      })
+      messages = [systemMessage, ...messages]
     }
-
     return messages.map(msg => ({
       role: msg.role as "system" | "user" | "assistant",
-      content: msg.content,
-      tools: msg.metadata?.tools,
+      content: msg.content
     }))
-  }
-
-  /**
-   * Handles tool calls from Gemini
-   */
-  private async handleToolCalls(toolCalls: ToolCall[], tools: Tool[]): Promise<ToolResponse[]> {
-    const responses: ToolResponse[] = []
-
-    for (const call of toolCalls) {
-      try {
-        const tool = tools.find(t => t.name === call.name)
-        if (!tool) {
-          throw new Error(`Tool ${call.name} not found`)
-        }
-
-        const result = await tool.execute(call.parameters)
-        responses.push({
-          toolCallId: call.id,
-          result,
-        })
-      } catch (error) {
-        log.error("[GeminiChatApi]", error instanceof Error ? error.message : "Unknown error")
-        responses.push({
-          toolCallId: call.id,
-          result: { error: error instanceof Error ? error.message : "Unknown error" },
-        })
-      }
-    }
-
-    return responses
   }
 
   /**
@@ -109,82 +59,70 @@ export class GeminiChatApi {
    */
   async createChatCompletion(
     messages: IMessage[],
-    config: GenerateContentConfig = {},
+    options: GenerateContentConfig = {},
   ): Promise<{ kind: "ok"; response: ChatCompletionResponse } | GeneralApiProblem> {
     try {
       const geminiMessages = this.convertToGeminiMessages(messages)
 
-      // Get the model
-      const model = this.client.getGenerativeModel({
-        model: this.config.model,
-        generationConfig: {
-          temperature: config.temperature,
-          maxOutputTokens: config.maxOutputTokens,
-          topP: config.topP,
-          topK: config.topK,
-          stopSequences: config.stopSequences,
-          candidateCount: config.candidateCount,
+      // Convert messages to Gemini's format
+      const contents = geminiMessages.map(msg => ({
+        role: msg.role,
+        parts: [{ text: msg.content }]
+      }))
+
+      const response: ApiResponse<any> = await this.apisauce.post(
+        `/models/gemini-pro/generateContent?key=${this.config.apiKey}`,
+        {
+          contents,
+          generationConfig: {
+            temperature: options.temperature,
+            maxOutputTokens: options.maxOutputTokens,
+            topP: options.topP,
+            topK: options.topK,
+          },
         },
-        tools: config.tools,
+      )
+
+      log({
+        name: "[GeminiChatApi] createChatCompletion",
+        preview: "Chat completion response",
+        value: response.data,
+        important: true,
       })
 
-      // Start chat
-      const chat = model.startChat()
-
-      // Send messages
-      const response = await chat.sendMessage(geminiMessages[geminiMessages.length - 1].content)
-      const result = await response.response
-
-      // Handle tool calls if present
-      if (result.candidates[0].toolCalls && config.tools) {
-        const toolResponses = await this.handleToolCalls(
-          result.candidates[0].toolCalls,
-          config.tools
-        )
-
-        // Send tool responses back to continue the conversation
-        const finalResponse = await chat.sendMessage(
-          JSON.stringify(toolResponses)
-        )
-
-        return { 
-          kind: "ok", 
-          response: {
-            candidates: [{
-              message: {
-                role: "assistant",
-                content: await finalResponse.response.text(),
-              },
-              finishReason: "STOP",
-            }],
-            usage: {
-              promptTokens: 0,
-              completionTokens: 0,
-              totalTokens: 0,
-            }
-          }
-        }
+      if (!response.ok) {
+        const problem = getGeneralApiProblem(response)
+        if (problem) return problem
       }
 
-      return { 
-        kind: "ok", 
-        response: {
-          candidates: [{
-            message: {
-              role: "assistant",
-              content: await result.text(),
-            },
-            finishReason: "STOP",
-          }],
-          usage: {
-            promptTokens: 0,
-            completionTokens: 0,
-            totalTokens: 0,
-          }
-        }
+      if (!response.data) throw new Error("No data received from Gemini API")
+
+      // Convert Gemini response to Groq format for consistency
+      const formattedResponse: ChatCompletionResponse = {
+        id: "gemini-" + Date.now(),
+        object: "chat.completion",
+        created: Date.now(),
+        model: "gemini-pro",
+        choices: [{
+          index: 0,
+          message: {
+            role: "assistant",
+            content: response.data.candidates[0].content.parts[0].text,
+          },
+          finish_reason: response.data.candidates[0].finishReason,
+        }],
+        usage: {
+          prompt_tokens: 0, // Gemini doesn't provide token counts
+          completion_tokens: 0,
+          total_tokens: 0,
+        },
       }
-    } catch (error) {
-      log.error("[GeminiChatApi]", error instanceof Error ? error.message : "Unknown error")
+
+      return { kind: "ok", response: formattedResponse }
+    } catch (e) {
+      if (__DEV__) {
+        log.error("[GeminiChatApi] " + (e instanceof Error ? e.message : "Unknown error"))
+      }
       return { kind: "bad-data" }
     }
   }
