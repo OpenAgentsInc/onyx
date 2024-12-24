@@ -1,12 +1,10 @@
-export interface GroqConfig {
-  apiKey: string
-  baseURL?: string
-  timeout?: number
-}
-
 export interface ChatMessage {
   role: "system" | "user" | "assistant"
   content: string
+  function_call?: {
+    name: string
+    arguments: string
+  }
 }
 
 export interface ChatCompletionChoice {
@@ -26,20 +24,4 @@ export interface ChatCompletionResponse {
     completion_tokens: number
     total_tokens: number
   }
-}
-
-export interface TranscriptionResponse {
-  text: string
-  x_groq: {
-    id: string
-  }
-}
-
-export interface TranscriptionConfig {
-  model: string
-  language?: string
-  prompt?: string
-  response_format?: "json" | "text" | "verbose_json"
-  temperature?: number
-  timestamp_granularities?: ("word" | "segment")[]
 }
