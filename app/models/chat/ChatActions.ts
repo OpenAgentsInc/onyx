@@ -97,16 +97,44 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
             // Get the tool implementation
             const rootStore = getRoot<RootStore>(self)
             const toolId = `github_${functionCall.name}`
+            
             log({
               name: "[ChatActions] Looking for tool",
               preview: "Getting tool",
-              value: { toolId, tools: rootStore.toolStore.tools.map(t => t.id) },
+              value: { 
+                toolId, 
+                tools: rootStore.toolStore.tools.map(t => ({ id: t.id, enabled: t.enabled })),
+                isInitialized: rootStore.toolStore.isInitialized
+              },
               important: true,
             })
+
+            // Initialize tools if not initialized
+            if (!rootStore.toolStore.isInitialized) {
+              log({
+                name: "[ChatActions] Tools not initialized",
+                preview: "Initializing tools",
+                important: true,
+              })
+              yield rootStore.toolStore.initializeDefaultTools()
+            }
+
             const tool = rootStore.toolStore.getToolById(toolId)
             if (!tool) {
               throw new Error(`Tool ${functionCall.name} not found`)
             }
+
+            log({
+              name: "[ChatActions] Found tool",
+              preview: "Tool details",
+              value: { 
+                toolId: tool.id,
+                name: tool.name,
+                enabled: tool.enabled,
+                hasImplementation: !!tool.metadata?.implementation
+              },
+              important: true,
+            })
 
             const implementation = tool.metadata?.implementation
             if (!implementation) {
@@ -121,7 +149,6 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
               important: true,
             })
             
-            // Execute the implementation directly
             const toolResult = yield implementation(functionCall.args)
             
             log({
