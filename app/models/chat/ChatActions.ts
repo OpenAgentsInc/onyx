@@ -217,18 +217,29 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
                 conversationId: self.currentConversationId,
                 name: functionCall.name,
                 isToolResult: true,
-                fullContent: fullContent, // Store full content in metadata
-                path: functionCall.args.path, // Store path for context
+                fullContent: fullContent,
+                path: functionCall.args.path,
               },
             })
 
             self.messages.push(functionMessage)
 
-            // Get analysis from the model
+            // Get analysis from the model with specific instructions
+            const analysisPrompt = `I've just read the content from ${functionCall.args.path}. Please provide a clear, focused summary of the key points in 2-3 sentences. Focus on the main purpose and most important details. If it's documentation, explain what it documents. If it's code, explain its main functionality.
+
+Content to analyze:
+${summary}`
+
             const analysisResult = yield geminiChatApi.createChatCompletion(
-              [...self.currentMessages, functionMessage],
+              [MessageModel.create({
+                id: "analysis",
+                role: "user",
+                content: analysisPrompt,
+                createdAt: Date.now(),
+                metadata: {},
+              })],
               {
-                temperature: 0.7,
+                temperature: 0.3, // Lower temperature for more focused response
                 maxOutputTokens: 1024,
               }
             )
