@@ -8,6 +8,7 @@ import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
 import { ToolTestModal } from "./ToolTestModal"
 import { ConfigureModal } from "./ConfigureModal"
+import { IMessage } from "@/models/chat/ChatStore"
 
 const ChatOverlay = observer(() => {
   const { chatStore } = useStores()
@@ -25,7 +26,7 @@ const ChatOverlay = observer(() => {
         style={baseStyles.messageList}
         contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
       >
-        {chatStore.currentMessages.map((message) => (
+        {chatStore.currentMessages.map((message: IMessage) => (
           <View key={message.id} style={baseStyles.message}>
             <Text style={baseStyles.messageText}>
               {message.role === "user" ? "> " : ""}
