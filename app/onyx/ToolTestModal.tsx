@@ -23,14 +23,31 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
   const [result, setResult] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [initializing, setInitializing] = useState(false)
 
   useEffect(() => {
-    if (!toolStore.isInitialized) {
-      toolStore.initializeDefaultTools()
+    const initTools = async () => {
+      if (!toolStore.isInitialized) {
+        setInitializing(true)
+        try {
+          await toolStore.initializeDefaultTools()
+        } catch (err) {
+          log.error("[ToolTestModal]", "Failed to initialize tools:", err)
+          setError("Failed to initialize tools")
+        } finally {
+          setInitializing(false)
+        }
+      }
     }
+    initTools()
   }, [toolStore])
 
   const handleViewFile = async () => {
+    if (!toolStore.isInitialized) {
+      setError("Tools not initialized yet")
+      return
+    }
+
     setLoading(true)
     setError("")
     try {
@@ -74,6 +91,11 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
   }
 
   const handleViewHierarchy = async () => {
+    if (!toolStore.isInitialized) {
+      setError("Tools not initialized yet")
+      return
+    }
+
     setLoading(true)
     setError("")
     try {
@@ -165,22 +187,23 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[styles.button, (loading || initializing) && styles.buttonDisabled]}
             onPress={handleViewFile}
-            disabled={loading}
+            disabled={loading || initializing}
           >
             <Text style={[styles.buttonText, styles.text]}>View File</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[styles.button, (loading || initializing) && styles.buttonDisabled]}
             onPress={handleViewHierarchy}
-            disabled={loading}
+            disabled={loading || initializing}
           >
             <Text style={[styles.buttonText, styles.text]}>View Hierarchy</Text>
           </TouchableOpacity>
         </View>
 
+        {initializing && <Text style={[styles.loading, styles.text]}>Initializing tools...</Text>}
         {loading && <Text style={[styles.loading, styles.text]}>Loading...</Text>}
         {error ? (
           <Text style={[styles.error, styles.text]}>{error}</Text>
