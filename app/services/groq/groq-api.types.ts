@@ -27,3 +27,19 @@ export interface ChatCompletionResponse {
     total_tokens: number
   }
 }
+
+export interface TranscriptionResponse {
+  text: string
+  x_groq: {
+    id: string
+  }
+}
+
+export interface TranscriptionConfig {
+  model: string
+  language?: string
+  prompt?: string
+  response_format?: "json" | "text" | "verbose_json"
+  temperature?: number
+  timestamp_granularities?: ("word" | "segment")[]
+}
