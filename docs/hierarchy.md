@@ -47,6 +47,10 @@
         ├── select-model.ts
         ├── start-model-download.ts
       ├── index.ts
+    ├── tools
+      ├── ToolActions.ts
+      ├── ToolStore.ts
+      ├── index.ts
   ├── onyx
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
@@ -61,6 +65,7 @@
     ├── ErrorScreen
       ├── ErrorBoundary.tsx
       ├── ErrorDetails.tsx
+    ├── ToolTestScreen.tsx
   ├── services
     ├── api
       ├── api.ts
@@ -68,6 +73,15 @@
       ├── apiProblem.test.ts
       ├── apiProblem.ts
       ├── index.ts
+    ├── gemini
+      ├── gemini-api.types.ts
+      ├── gemini-chat.ts
+      ├── index.ts
+      ├── tools
+        ├── github-impl.ts
+        ├── github.ts
+        ├── index.ts
+        ├── types.ts
     ├── groq
       ├── groq-api.types.ts
       ├── groq-chat.ts
@@ -105,6 +119,7 @@
 ├── docs
   ├── ai-design-language.md
   ├── data-marketplace.md
+  ├── gemini.md
   ├── groq-voice.md
   ├── groq.md
   ├── init.md
@@ -116,6 +131,7 @@
   ├── permissions.md
   ├── roadmap-brainstorming.md
   ├── roadmap.md
+  ├── tools.md
   ├── transcripts
     ├── ep146.md
     ├── ep147.md
