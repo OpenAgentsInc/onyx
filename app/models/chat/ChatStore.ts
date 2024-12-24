@@ -99,12 +99,13 @@ export interface ChatStoreSnapshotIn extends SnapshotIn<typeof ChatStoreModel> {
 import { withGroqActions } from "./ChatActions"
 
 // Create a new model that includes the Groq actions
-export const ChatStoreWithActions: IAnyModelType = types.compose(
+export const ChatStoreWithActions = types.compose(
   "ChatStoreWithActions",
   ChatStoreModel,
   types.model({})
-    .actions(withGroqActions)
-)
+).actions(self => ({
+  ...withGroqActions(self)
+}))
 
 export const createChatStoreDefaultModel = () =>
   ChatStoreWithActions.create({
