@@ -33,6 +33,7 @@ const ChatStoreModel = types
     messages: types.array(MessageModel),
     currentConversationId: types.optional(types.string, "default"),
     isGenerating: types.optional(types.boolean, false),
+    activeModel: types.optional(types.enumeration(["groq", "gemini"]), "groq"),
   })
   .actions(withSetPropAction)
   .actions((self) => ({
@@ -76,6 +77,10 @@ const ChatStoreModel = types
 
     setError(error: string | null) {
       self.error = error
+    },
+
+    setActiveModel(model: "groq" | "gemini") {
+      self.activeModel = model
     }
   }))
   .views((self) => ({
@@ -108,4 +113,5 @@ export const createChatStoreDefaultModel = () =>
     messages: [],
     currentConversationId: "default",
     isGenerating: false,
+    activeModel: "groq",
   })
