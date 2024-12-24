@@ -70,17 +70,22 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
       if (result.kind === "ok") {
         const response = result.response
         const message = response.choices[0].message
+        const content = message.content
 
-        // Check if the response contains a function call
-        if (message.function_call) {
-          try {
-            // Parse the function call
-            const functionCall = message.function_call
-            const args = JSON.parse(functionCall.arguments)
+        // Try to parse content as a function call
+        try {
+          const functionCall = JSON.parse(content)
+          if (functionCall && functionCall.name && functionCall.args) {
+            log({
+              name: "[ChatActions] Function Call",
+              preview: "Executing function",
+              value: { functionCall },
+              important: true,
+            })
 
             // Update message to show function call
             self.updateMessage(assistantMessage.id, {
-              content: JSON.stringify({ name: functionCall.name, args }, null, 2),
+              content: JSON.stringify(functionCall, null, 2),
               metadata: {
                 ...assistantMessage.metadata,
                 isGenerating: true,
@@ -102,7 +107,7 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
             }
 
             // Execute the tool
-            const toolResult = yield implementation(args)
+            const toolResult = yield implementation(functionCall.args)
             if (!toolResult.success) {
               throw new Error(toolResult.error)
             }
@@ -118,30 +123,28 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
                 toolResult: toolResult.data,
               },
             })
-          } catch (error) {
-            // Handle tool execution error
-            self.updateMessage(assistantMessage.id, {
-              content: `Error executing tool: ${error instanceof Error ? error.message : "Unknown error"}`,
-              metadata: {
-                ...assistantMessage.metadata,
-                isGenerating: false,
-                error: true,
-                model: self.activeModel,
-              },
-            })
+            return
           }
-        } else {
-          // Regular message response
-          self.updateMessage(assistantMessage.id, {
-            content: message.content,
-            metadata: {
-              ...assistantMessage.metadata,
-              isGenerating: false,
-              tokens: response.usage?.completion_tokens,
-              model: self.activeModel,
-            },
+        } catch (err) {
+          // Not a function call, continue with normal message handling
+          log({
+            name: "[ChatActions] Not a function call",
+            preview: "Regular message",
+            value: { content },
+            important: true,
           })
         }
+
+        // Regular message response
+        self.updateMessage(assistantMessage.id, {
+          content: content,
+          metadata: {
+            ...assistantMessage.metadata,
+            isGenerating: false,
+            tokens: response.usage?.completion_tokens,
+            model: self.activeModel,
+          },
+        })
       } else {
         // Handle error
         self.updateMessage(assistantMessage.id, {
