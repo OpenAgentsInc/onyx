@@ -15,6 +15,10 @@ const DEFAULT_CONFIG: GeminiConfig = {
   timeout: 30000,
 }
 
+interface ExtendedChatMessage extends ChatMessage {
+  name?: string;
+}
+
 /**
  * Manages chat interactions with the Gemini API.
  */
@@ -41,10 +45,10 @@ export class GeminiChatApi {
     // Convert parameters to Gemini format
     const properties: Record<string, { type: string; description: string }> = {}
     for (const [key, value] of Object.entries(tool.parameters)) {
-      if (typeof value === "object" && value !== null) {
+      if (typeof value === 'object' && value !== null && 'type' in value && 'description' in value) {
         properties[key] = {
-          type: value.type as string,
-          description: value.description as string,
+          type: String(value.type),
+          description: String(value.description),
         }
       }
     }
@@ -63,7 +67,7 @@ export class GeminiChatApi {
   /**
    * Converts ChatStore messages to Gemini API format
    */
-  private convertToGeminiMessages(messages: IMessage[]): ChatMessage[] {
+  private convertToGeminiMessages(messages: IMessage[]): ExtendedChatMessage[] {
     // For Gemini, convert system message to user message and prepend it
     const systemMessage = messages.find(msg => msg.role === "system")
     const nonSystemMessages = messages.filter(msg => msg.role !== "system")
@@ -88,9 +92,9 @@ export class GeminiChatApi {
     return nonSystemMessages
       .filter(msg => msg.content && msg.content.trim() !== "")
       .map(msg => ({
-        role: msg.role === "assistant" ? "model" : msg.role === "function" ? "function" : "user",
+        role: msg.role === "assistant" ? "model" : msg.role === "function" ? "model" : "user",
         content: msg.content.trim(),
-        name: msg.metadata?.name, // Include function name for function messages
+        ...(msg.metadata?.name ? { name: msg.metadata.name } : {}),
       }))
   }
 
