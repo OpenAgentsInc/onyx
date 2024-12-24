@@ -48,10 +48,14 @@ export class GeminiChatApi {
       })
       messages = [systemMessage, ...messages]
     }
-    return messages.map(msg => ({
-      role: msg.role as "system" | "user" | "assistant",
-      parts: [{ text: msg.content }]
-    }))
+    
+    // Filter out any messages with empty content and ensure content is a string
+    return messages
+      .filter(msg => msg.content && msg.content.trim() !== "")
+      .map(msg => ({
+        role: msg.role as "system" | "user" | "assistant",
+        parts: [{ text: msg.content.trim() }]
+      }))
   }
 
   /**
@@ -63,24 +67,35 @@ export class GeminiChatApi {
   ): Promise<{ kind: "ok"; response: ChatCompletionResponse } | GeneralApiProblem> {
     try {
       const geminiMessages = this.convertToGeminiMessages(messages)
+      
+      // Validate that we have at least one message with non-empty content
+      if (geminiMessages.length === 0) {
+        throw new Error("No valid messages to send to Gemini API")
+      }
+
+      const payload = {
+        contents: [{
+          parts: geminiMessages.map(msg => ({
+            text: msg.parts[0].text
+          }))
+        }],
+        generationConfig: {
+          temperature: options.temperature ?? 0.7,
+          maxOutputTokens: options.maxOutputTokens ?? 1024,
+          topP: options.topP ?? 0.8,
+          topK: options.topK ?? 10,
+        },
+      }
 
       const response: ApiResponse<any> = await this.apisauce.post(
         `/models/gemini-1.5-flash:generateContent?key=${this.config.apiKey}`,
-        {
-          contents: geminiMessages,
-          generationConfig: {
-            temperature: options.temperature ?? 0.7,
-            maxOutputTokens: options.maxOutputTokens ?? 1024,
-            topP: options.topP ?? 0.8,
-            topK: options.topK ?? 10,
-          },
-        },
+        payload
       )
 
       log({
         name: "[GeminiChatApi] createChatCompletion",
         preview: "Chat completion response",
-        value: response.data,
+        value: { request: payload, response: response.data },
         important: true,
       })
 
