@@ -41,96 +41,108 @@ export const ToolStoreModel = types
     error: types.maybeNull(types.string),
   })
   .actions(withSetPropAction)
-  .actions((self) => ({
-    addTool(tool: {
-      id: string
-      name: string
-      description: string
-      parameters: Record<string, unknown>
-      enabled?: boolean
-      metadata?: any
-    }) {
-      const existingTool = self.tools.find(t => t.id === tool.id)
-      if (existingTool) {
-        return existingTool
-      }
-      
-      const newTool = ToolModel.create({
-        ...tool,
-        enabled: tool.enabled ?? true,
-        metadata: tool.metadata ?? {},
+  .actions((self) => {
+    // Define base actions first
+    const baseActions = {
+      setError(error: string | null) {
+        self.error = error
+      },
+
+      addTool(tool: {
+        id: string
+        name: string
+        description: string
+        parameters: Record<string, unknown>
+        enabled?: boolean
+        metadata?: any
+      }) {
+        const existingTool = self.tools.find(t => t.id === tool.id)
+        if (existingTool) {
+          return existingTool
+        }
+        
+        const newTool = ToolModel.create({
+          ...tool,
+          enabled: tool.enabled ?? true,
+          metadata: tool.metadata ?? {},
+        })
+        self.tools.push(newTool)
+        return newTool
+      },
+
+      removeTool(id: string) {
+        const idx = self.tools.findIndex(t => t.id === id)
+        if (idx >= 0) {
+          self.tools.splice(idx, 1)
+        }
+      },
+
+      enableTool(id: string) {
+        const tool = self.tools.find(t => t.id === id)
+        if (tool) {
+          tool.setEnabled(true)
+        }
+      },
+
+      disableTool(id: string) {
+        const tool = self.tools.find(t => t.id === id)
+        if (tool) {
+          tool.setEnabled(false)
+        }
+      },
+    }
+
+    // Then define actions that depend on base actions
+    const flowActions = {
+      initializeDefaultTools: flow(function* () {
+        try {
+          // Add GitHub tools
+          baseActions.addTool({
+            id: "github_view_file",
+            name: "view_file",
+            description: "View file contents at path",
+            parameters: {
+              path: "string",
+              owner: "string",
+              repo: "string",
+              branch: "string"
+            },
+            metadata: {
+              category: "github",
+              implementation: viewFile
+            }
+          })
+
+          baseActions.addTool({
+            id: "github_view_hierarchy",
+            name: "view_hierarchy",
+            description: "View file/folder hierarchy at path",
+            parameters: {
+              path: "string",
+              owner: "string",
+              repo: "string",
+              branch: "string"
+            },
+            metadata: {
+              category: "github",
+              implementation: viewHierarchy
+            }
+          })
+
+          self.isInitialized = true
+        } catch (error) {
+          log.error("[ToolStore]", error instanceof Error ? error.message : "Unknown error")
+          baseActions.setError("Failed to initialize tools")
+        }
       })
-      self.tools.push(newTool)
-      return newTool
-    },
+    }
 
-    removeTool(id: string) {
-      const idx = self.tools.findIndex(t => t.id === id)
-      if (idx >= 0) {
-        self.tools.splice(idx, 1)
-      }
-    },
-
-    enableTool(id: string) {
-      const tool = self.tools.find(t => t.id === id)
-      if (tool) {
-        tool.setEnabled(true)
-      }
-    },
-
-    disableTool(id: string) {
-      const tool = self.tools.find(t => t.id === id)
-      if (tool) {
-        tool.setEnabled(false)
-      }
-    },
-
-    setError(error: string | null) {
-      self.error = error
-    },
-
-    initializeDefaultTools: flow(function* () {
-      try {
-        // Add GitHub tools
-        self.addTool({
-          id: "github_view_file",
-          name: "view_file",
-          description: "View file contents at path",
-          parameters: {
-            path: "string",
-            owner: "string",
-            repo: "string",
-            branch: "string"
-          },
-          metadata: {
-            category: "github",
-            implementation: viewFile
-          }
-        })
-
-        self.addTool({
-          id: "github_view_hierarchy",
-          name: "view_hierarchy",
-          description: "View file/folder hierarchy at path",
-          parameters: {
-            path: "string",
-            owner: "string",
-            repo: "string",
-            branch: "string"
-          },
-          metadata: {
-            category: "github",
-            implementation: viewHierarchy
-          }
-        })
-
-        self.isInitialized = true
-      } catch (error) {
-        log.error("[ToolStore]", error instanceof Error ? error.message : "Unknown error")
-        self.setError("Failed to initialize tools")
-      }
-    }),
-  }))
+    // Return all actions
+    return {
+      ...baseActions,
+      ...flowActions,
+    }
+  })
   .views((self) => ({
     get enabledTools() {
       return self.tools.filter(tool => tool.enabled)
