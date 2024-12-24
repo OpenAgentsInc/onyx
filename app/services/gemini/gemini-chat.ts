@@ -83,6 +83,8 @@ export class GeminiChatApi {
         },
       )
 
+      console.log("RESPONSE:", response)
+
       log({
         name: "[GeminiChatApi] createChatCompletion",
         preview: "Chat completion response",
