@@ -21,10 +21,11 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
   const [error, setError] = useState("")
   const [isTranscribing, setIsTranscribing] = useState(false)
   const recording = useRef<Audio.Recording | null>(null)
+  const shouldTranscribe = useRef(false)
 
   useEffect(() => {
     return () => {
-      stopRecording()
+      cleanup()
     }
   }, [])
 
@@ -32,9 +33,22 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
     if (visible) {
       setupRecording()
     } else {
-      stopRecording()
+      cleanup()
     }
   }, [visible])
+
+  const cleanup = async () => {
+    shouldTranscribe.current = false
+    if (recording.current) {
+      try {
+        setIsRecording(false)
+        await recording.current.stopAndUnloadAsync()
+        recording.current = null
+      } catch (err) {
+        log.error("[VoiceInputModal] Error cleaning up: " + (err instanceof Error ? err.message : String(err)))
+      }
+    }
+  }
 
   const setupRecording = async () => {
     try {
@@ -63,6 +77,7 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
       )
       recording.current = newRecording
       setIsRecording(true)
+      shouldTranscribe.current = true
     } catch (err) {
       setError("Failed to start recording")
       log.error("[VoiceInputModal] Error starting recording: " + (err instanceof Error ? err.message : String(err)))
@@ -78,7 +93,7 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
       const uri = recording.current.getURI()
       recording.current = null
 
-      if (uri) {
+      if (uri && shouldTranscribe.current) {
         await transcribeAudio(uri)
       }
     } catch (err) {
@@ -113,31 +128,17 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
   }
 
   const handleCancel = async () => {
-    await stopRecording()
+    await cleanup()
     setTranscribedText("")
     onClose()
   }
 
   const handleSend = async () => {
-    if (!transcribedText.trim()) return
-
-    try {
-      const textToSend = transcribedText
-      setTranscribedText("")
-      onClose()
-
-      await chatStore.sendMessage(textToSend)
-    } catch (error) {
-      log({
-        name: "[VoiceInputModal]",
-        preview: "Error sending message",
-        value: error instanceof Error ? error.message : "Unknown error",
-        important: true
-      })
-    }
+    shouldTranscribe.current = true
+    await stopRecording()
   }
 
-  const isDisabled = !transcribedText.trim() || chatStore.isGenerating
+  const isDisabled = chatStore.isGenerating || isTranscribing
 
   return (
     <Modal
