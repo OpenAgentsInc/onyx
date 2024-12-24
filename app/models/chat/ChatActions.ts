@@ -1,9 +1,9 @@
-import { flow, Instance, getRoot, IAnyStateTreeNode } from "mobx-state-tree"
+import { flow, Instance, getRoot } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { groqChatApi } from "../../services/groq/groq-chat"
 import { geminiChatApi } from "../../services/gemini/gemini-chat"
 import type { RootStore } from "../RootStore"
-import type { ChatStore } from "./ChatStore"
+import type { ChatStore, ChatStoreModel } from "./ChatStore"
 import type { ITool } from "../tools/ToolStore"
 
 type ChatActions = {
@@ -13,7 +13,7 @@ type ChatActions = {
 /**
  * Chat actions that integrate with the Groq and Gemini APIs
  */
-export const withGroqActions = (self: ChatStore): ChatActions => ({
+export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActions => ({
   /**
    * Sends a message to the selected model and handles the response
    */
@@ -60,12 +60,14 @@ export const withGroqActions = (self: ChatStore): ChatActions => ({
         result = yield geminiChatApi.createChatCompletion(
           self.currentMessages,
           {
-            model: "models/gemini-1.5-pro-latest",
             temperature: 0.7,
             maxOutputTokens: 1024,
-            candidateCount: 1,
-            topP: 0.8,
-            topK: 40,
+            tools: enabledTools,
+            tool_config: {
+              function_calling_config: {
+                mode: "AUTO"
+              }
+            }
           },
         )
       }
