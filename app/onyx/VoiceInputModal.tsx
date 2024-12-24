@@ -1,164 +1,178 @@
-import React, { useEffect, useState } from "react"
-import { Modal, View, Text, Pressable, ActivityIndicator } from "react-native"
+import { Audio } from "expo-av"
+import { observer } from "mobx-react-lite"
+import React, { useEffect, useRef, useState } from "react"
+import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native"
+import { useStores } from "@/models"
+import { groqChatApi } from "@/services/groq/groq-chat"
+import { log } from "@/utils/log"
 import { styles as baseStyles } from "./styles"
 import { styles as voiceStyles } from "./VoiceInputModal.styles"
-import { observer } from "mobx-react-lite"
-import { useStores } from "@/models"
-import { log } from "@/utils/log"
-import Voice, { SpeechResultsEvent } from "@react-native-voice/voice"
-import { useVoicePermissions } from "@/hooks/useVoicePermissions"
 
 interface VoiceInputModalProps {
   visible: boolean
   onClose: () => void
-  transcript?: string // Make transcript optional
+  transcript?: string
 }
 
-export const VoiceInputModal = observer(({ visible, onClose, transcript }: VoiceInputModalProps) => {
-  const { llmStore } = useStores()
-  const [isRecording, setIsRecording] = useState(false)
-  const [transcribedText, setTranscribedText] = useState(transcript || "")
-  const [error, setError] = useState("")
-  const { hasPermission, isChecking, requestPermissions } = useVoicePermissions()
+export const VoiceInputModal = observer(
+  ({ visible, onClose, transcript }: VoiceInputModalProps) => {
+    const { chatStore } = useStores()
+    const [isRecording, setIsRecording] = useState(false)
+    const [error, setError] = useState("")
+    const recording = useRef<Audio.Recording | null>(null)
 
-  useEffect(() => {
-    // Initialize voice handlers
-    Voice.onSpeechStart = () => setIsRecording(true)
-    Voice.onSpeechEnd = () => {
-      setIsRecording(false)
-      // Automatically restart recording when speech ends
-      if (hasPermission && visible) {
+    useEffect(() => {
+      return () => {
+        if (recording.current) {
+          recording.current.stopAndUnloadAsync().catch((err) => {
+            log.error(
+              "[VoiceInputModal] Error cleaning up: " +
+                (err instanceof Error ? err.message : String(err)),
+            )
+          })
+        }
+      }
+    }, [])
+
+    useEffect(() => {
+      if (visible) {
+        setupRecording()
+      } else {
+        if (recording.current) {
+          recording.current.stopAndUnloadAsync().catch((err) => {
+            log.error(
+              "[VoiceInputModal] Error cleaning up: " +
+                (err instanceof Error ? err.message : String(err)),
+            )
+          })
+          recording.current = null
+        }
+      }
+    }, [visible])
+
+    const setupRecording = async () => {
+      try {
+        const { granted } = await Audio.requestPermissionsAsync()
+        if (!granted) {
+          setError("Microphone permission is required")
+          return
+        }
+
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+        })
         startRecording()
+      } catch (err) {
+        setError("Failed to get recording permissions")
+        log.error(
+          "[VoiceInputModal] Error setting up recording: " +
+            (err instanceof Error ? err.message : String(err)),
+        )
       }
     }
-    Voice.onSpeechResults = (e: SpeechResultsEvent) => {
-      if (e.value && e.value[0]) {
-        setTranscribedText(e.value[0])
+
+    const startRecording = async () => {
+      try {
+        setError("")
+        const { recording: newRecording } = await Audio.Recording.createAsync(
+          Audio.RecordingOptionsPresets.HIGH_QUALITY,
+        )
+        recording.current = newRecording
+        setIsRecording(true)
+      } catch (err) {
+        setError("Failed to start recording")
+        log.error(
+          "[VoiceInputModal] Error starting recording: " +
+            (err instanceof Error ? err.message : String(err)),
+        )
       }
     }
-    Voice.onSpeechError = (e: any) => {
-      setError(e.error?.message || "Error occurred")
-      setIsRecording(false)
+
+    const handleCancel = () => {
+      onClose()
     }
 
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners)
-    }
-  }, [hasPermission, visible])
+    const handleSend = async () => {
+      if (!recording.current) return
 
-  // Start recording when modal becomes visible and we have permission
-  useEffect(() => {
-    if (visible) {
-      if (hasPermission) {
-        startRecording()
-      } else if (!isChecking) {
-        handleRequestPermission()
+      const currentRecording = recording.current
+      recording.current = null
+
+      // Close modal first
+      onClose()
+
+      try {
+        // Then stop recording and process
+        await currentRecording.stopAndUnloadAsync()
+        const uri = currentRecording.getURI()
+
+        // Start transcription and chat process
+        if (uri) {
+          chatStore.setIsGenerating(true)
+          const result = await groqChatApi.transcribeAudio(uri, {
+            model: "whisper-large-v3",
+            language: "en",
+          })
+
+          if (result.kind === "ok") {
+            await chatStore.sendMessage(result.response.text)
+          } else {
+            log.error("[VoiceInputModal] Transcription error: " + JSON.stringify(result))
+          }
+        }
+      } catch (err) {
+        log.error(
+          "[VoiceInputModal] Error in send process: " +
+            (err instanceof Error ? err.message : String(err)),
+        )
+      } finally {
+        chatStore.setIsGenerating(false)
       }
-    } else {
-      cleanup()
     }
-  }, [visible, hasPermission, isChecking])
 
-  const handleRequestPermission = async () => {
-    const granted = await requestPermissions()
-    if (granted) {
-      startRecording()
-    } else {
-      setError("Microphone permission is required for voice input")
-    }
-  }
+    const isDisabled = chatStore.isGenerating
 
-  const cleanup = async () => {
-    try {
-      await Voice.stop()
-      await Voice.destroy()
-      setTranscribedText("")
-      setError("")
-      setIsRecording(false)
-    } catch (e) {
-      console.error("Error cleaning up voice:", e)
-    }
-  }
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={visible}
+        onRequestClose={handleCancel}
+      >
+        <View style={baseStyles.modalContainer}>
+          <View style={baseStyles.modalHeader}>
+            <Pressable onPress={handleCancel}>
+              <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
+            </Pressable>
 
-  const startRecording = async () => {
-    try {
-      setError("")
-      await Voice.start("en-US")
-    } catch (e: any) {
-      setError(e.message || "Error starting recording")
-    }
-  }
+            <Pressable onPress={handleSend} disabled={isDisabled}>
+              <Text
+                style={[
+                  baseStyles.buttonText,
+                  isDisabled ? baseStyles.disabledText : baseStyles.sendText,
+                ]}
+              >
+                Send
+              </Text>
+            </Pressable>
+          </View>
 
-  const handleCancel = async () => {
-    await cleanup()
-    onClose()
-  }
-
-  const handleSend = async () => {
-    if (!transcribedText.trim()) return
-
-    try {
-      // Ensure context is initialized before proceeding
-      if (!llmStore.context || !llmStore.isInitialized) {
-        await llmStore.initContext()
-      }
-
-      const textToSend = transcribedText // Capture current text
-      await cleanup() // Clean up voice recording
-      onClose() // Close modal immediately
-
-      // Send message after modal is closed
-      await llmStore.chatCompletion(textToSend)
-    } catch (error) {
-      log({
-        name: "[VoiceInputModal]",
-        preview: "Error sending message",
-        value: error instanceof Error ? error.message : "Unknown error",
-        important: true
-      })
-    }
-  }
-
-  return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={visible}
-      onRequestClose={handleCancel}
-    >
-      <View style={baseStyles.modalContainer}>
-        <View style={baseStyles.modalHeader}>
-          <Pressable onPress={handleCancel}>
-            <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Cancel</Text>
-          </Pressable>
-
-          <Pressable onPress={handleSend} disabled={!transcribedText.trim()}>
-            <Text style={[
-              baseStyles.buttonText,
-              !transcribedText.trim() ? baseStyles.disabledText : baseStyles.sendText
-            ]}>
-              Send
-            </Text>
-          </Pressable>
+          <View style={voiceStyles.voiceContainer}>
+            {error ? (
+              <Text style={voiceStyles.errorText}>{error}</Text>
+            ) : (
+              <View style={voiceStyles.transcriptionContainer}>
+                <View style={voiceStyles.listeningContainer}>
+                  <Text style={voiceStyles.listeningText}>Listening</Text>
+                  <ActivityIndicator size="small" color="#fff" />
+                </View>
+                <Text style={voiceStyles.placeholderText}>Speak, then press send</Text>
+              </View>
+            )}
+          </View>
         </View>
-
-        <View style={voiceStyles.voiceContainer}>
-          {isChecking ? (
-            <ActivityIndicator size="large" color="#fff" />
-          ) : error ? (
-            <Text style={voiceStyles.errorText}>{error}</Text>
-          ) : (
-            <View style={voiceStyles.transcriptionContainer}>
-              <Text style={voiceStyles.listeningText}>{isRecording ? "Listening" : "Paused"}</Text>
-              {transcribedText ? (
-                <Text style={voiceStyles.transcriptionText}>{transcribedText}</Text>
-              ) : (
-                <Text style={voiceStyles.placeholderText}>Start speaking...</Text>
-              )}
-            </View>
-          )}
-        </View>
-      </View>
-    </Modal>
-  )
-})
+      </Modal>
+    )
+  },
+)

@@ -1,17 +1,16 @@
-import React, { useState, useEffect, useRef } from "react"
-import { View, ScrollView, Text } from "react-native"
 import { observer } from "mobx-react-lite"
+import React, { useEffect, useRef, useState } from "react"
+import { ScrollView, Text, View } from "react-native"
 import { useStores } from "@/models"
-import { ConfigureModal } from "./ConfigureModal"
-import { TextInputModal } from "./TextInputModal"
-import { VoiceInputModal } from "./VoiceInputModal"
 import { BottomButtons } from "./BottomButtons"
 import { styles as baseStyles } from "./styles"
+import { TextInputModal } from "./TextInputModal"
+import { VoiceInputModal } from "./VoiceInputModal"
 
 const ChatOverlay = observer(() => {
   const { chatStore } = useStores()
   const scrollViewRef = useRef<ScrollView>(null)
-  
+
   useEffect(() => {
     // Scroll to bottom whenever messages change
     scrollViewRef.current?.scrollToEnd({ animated: true })
@@ -19,15 +18,16 @@ const ChatOverlay = observer(() => {
 
   return (
     <View style={baseStyles.chatOverlay}>
-      <ScrollView 
+      <ScrollView
         ref={scrollViewRef}
         style={baseStyles.messageList}
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
       >
         {chatStore.currentMessages.map((message) => (
           <View key={message.id} style={baseStyles.message}>
             <Text style={baseStyles.messageText}>
-              {message.role === "user" ? "> " : ""}{message.content}
+              {message.role === "user" ? "> " : ""}
+              {message.content}
             </Text>
           </View>
         ))}
@@ -62,11 +62,8 @@ export const OnyxLayout = observer(() => {
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
       <ChatOverlay />
-      
-      <TextInputModal
-        visible={showTextInput}
-        onClose={() => setShowTextInput(false)}
-      />
+
+      <TextInputModal visible={showTextInput} onClose={() => setShowTextInput(false)} />
 
       <VoiceInputModal
         visible={showVoiceInput}
@@ -74,10 +71,10 @@ export const OnyxLayout = observer(() => {
         transcript={transcript}
       />
 
-      <ConfigureModal
+      {/* <ConfigureModal
         visible={showConfigure}
         onClose={() => setShowConfigure(false)}
-      />
+      /> */}
 
       <BottomButtons
         onTextPress={() => setShowTextInput(true)}

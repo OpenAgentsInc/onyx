@@ -1,5 +1,5 @@
 import {
-  Instance, IStateTreeNode, SnapshotIn, SnapshotOut, types
+  Instance, IStateTreeNode, SnapshotIn, SnapshotOut, types, IAnyModelType
 } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
@@ -25,13 +25,14 @@ export const MessageModel = types
 export interface IMessage extends Instance<typeof MessageModel> { }
 
 // Store Model
-export const ChatStoreModel = types
+const ChatStoreModel = types
   .model("ChatStore")
   .props({
     isInitialized: types.optional(types.boolean, false),
     error: types.maybeNull(types.string),
     messages: types.array(MessageModel),
     currentConversationId: types.optional(types.string, "default"),
+    isGenerating: types.optional(types.boolean, false),
   })
   .actions(withSetPropAction)
   .actions((self) => ({
@@ -67,6 +68,14 @@ export const ChatStoreModel = types
 
     setCurrentConversationId(id: string) {
       self.currentConversationId = id
+    },
+
+    setIsGenerating(value: boolean) {
+      self.isGenerating = value
+    },
+
+    setError(error: string | null) {
+      self.error = error
     }
   }))
   .views((self) => ({
@@ -81,22 +90,22 @@ export interface ChatStore extends Instance<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotIn extends SnapshotIn<typeof ChatStoreModel> { }
 
+// Add Groq actions after ChatStore is defined to avoid circular dependency
+import { withGroqActions } from "./ChatActions"
+
+// Create a new model that includes the Groq actions
+export const ChatStoreWithActions = types.compose(
+  "ChatStoreWithActions",
+  ChatStoreModel,
+  types.model({})
+    .actions(withGroqActions)
+)
+
 export const createChatStoreDefaultModel = () =>
-  ChatStoreModel.create({
+  ChatStoreWithActions.create({
     isInitialized: false,
     error: null,
     messages: [],
-    currentConversationId: "default"
+    currentConversationId: "default",
+    isGenerating: false,
   })
-
-// Types
-export interface IChatStore extends IStateTreeNode {
-  isInitialized: boolean
-  error: string | null
-  messages: IMessage[]
-  currentConversationId: string
-  addMessage: (message: { role: "system" | "user" | "assistant", content: string, metadata?: any }) => IMessage
-  updateMessage: (messageId: string, updates: { content?: string, metadata?: any }) => void
-  clearMessages: () => void
-  setCurrentConversationId: (id: string) => void
-}

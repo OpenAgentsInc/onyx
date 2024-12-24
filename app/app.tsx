@@ -2,18 +2,19 @@ if (__DEV__) {
   require("./devtools/ReactotronConfig.ts")
 }
 
+import "@/utils/ignore-warnings"
 import "@/utils/crypto-polyfill"
 import "text-encoding-polyfill"
 import { useFonts } from "expo-font"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
-import { ActivityIndicator, AppRegistry, View, ViewStyle } from "react-native"
+import { ActivityIndicator, Alert, AppRegistry, View, ViewStyle } from "react-native"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
-import { RootStoreProvider, useInitialRootStore } from "./models"
+import { useInitialRootStore } from "./models"
 import { OnyxLayout } from "./onyx/OnyxLayout"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 

@@ -28,8 +28,8 @@ export const styles = StyleSheet.create({
     width: 24,
     height: 24,
     position: "absolute",
-    right: 20,
-    bottom: 20,
+    right: 35,
+    bottom: 86,
     zIndex: 10,
   },
 })
