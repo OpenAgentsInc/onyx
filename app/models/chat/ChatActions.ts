@@ -10,20 +10,10 @@ type ChatActions = {
   sendMessage: (content: string) => Promise<void>
 }
 
-interface IWithChatActions extends IAnyStateTreeNode {
-  addMessage: (message: { role: "system" | "user" | "assistant"; content: string; metadata?: any }) => any
-  updateMessage: (id: string, updates: { content?: string; metadata?: any }) => void
-  setIsGenerating: (value: boolean) => void
-  setError: (error: string | null) => void
-  currentConversationId: string
-  activeModel: "groq" | "gemini"
-  currentMessages: any[]
-}
-
 /**
  * Chat actions that integrate with the Groq and Gemini APIs
  */
-export const withGroqActions = (self: IWithChatActions): ChatActions => ({
+export const withGroqActions = (self: ChatStore): ChatActions => ({
   /**
    * Sends a message to the selected model and handles the response
    */
