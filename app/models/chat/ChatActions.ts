@@ -77,8 +77,8 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
         let functionCall = null
         try {
           const parsed = JSON.parse(content)
-          if (parsed && parsed.name && parsed.args) {
-            functionCall = parsed
+          if (parsed && parsed.functionCall && parsed.functionCall.name && parsed.functionCall.args) {
+            functionCall = parsed.functionCall
           }
         } catch (err) {
           // Not a function call JSON
