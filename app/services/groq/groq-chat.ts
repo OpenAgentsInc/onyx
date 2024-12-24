@@ -105,14 +105,26 @@ export class GroqChatApi {
    * Transcribes audio using the Groq API
    */
   async transcribeAudio(
-    audioFile: Blob,
+    audioUri: string,
     config: Partial<TranscriptionConfig> = {}
   ): Promise<{ kind: "ok"; response: TranscriptionResponse } | GeneralApiProblem> {
     try {
+      // Create form data
       const formData = new FormData()
-      formData.append("file", audioFile)
+
+      // Get the file extension from the URI
+      const extension = audioUri.split('.').pop()?.toLowerCase() || 'm4a'
+      const mimeType = `audio/${extension === 'm4a' ? 'mp4' : extension}`
+
+      // Create file object from URI
+      formData.append('file', {
+        uri: audioUri,
+        type: mimeType,
+        name: `audio.${extension}`,
+      } as any)
+
+      // Add other configuration
       formData.append("model", config.model || "whisper-large-v3")
-      
       if (config.language) formData.append("language", config.language)
       if (config.prompt) formData.append("prompt", config.prompt)
       if (config.response_format) formData.append("response_format", config.response_format)
@@ -123,6 +135,17 @@ export class GroqChatApi {
         })
       }
 
+      log({
+        name: "[GroqChatApi] transcribeAudio",
+        preview: "Sending transcription request",
+        value: {
+          uri: audioUri,
+          mimeType,
+          formData: Object.fromEntries(formData as any),
+        },
+        important: true,
+      })
+
       // Create a new instance with multipart/form-data
       const formDataApi = create({
         baseURL: this.config.baseURL,
@@ -130,6 +153,7 @@ export class GroqChatApi {
         headers: {
           Authorization: `Bearer ${this.config.apiKey}`,
           "Content-Type": "multipart/form-data",
+          Accept: "application/json",
         },
       })
 
@@ -141,7 +165,12 @@ export class GroqChatApi {
       log({
         name: "[GroqChatApi] transcribeAudio",
         preview: "Transcription response",
-        value: response.data,
+        value: {
+          status: response.status,
+          data: response.data,
+          problem: response.problem,
+          originalError: response.originalError,
+        },
         important: true,
       })
 
