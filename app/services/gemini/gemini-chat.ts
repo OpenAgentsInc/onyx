@@ -19,6 +19,7 @@ const DEFAULT_CONFIG: GeminiConfig = {
   location: Config.GOOGLE_CLOUD_REGION ?? "us-central1",
   model: "gemini-2.0-flash-exp",
   timeout: 30000,
+  apiKey: Config.GEMINI_API_KEY ?? "",
 }
 
 /**
@@ -36,16 +37,13 @@ export class GeminiChatApi {
   private async initializeClient() {
     try {
       const { GoogleGenerativeAI } = await import("@google/generative-ai")
-      this.client = new GoogleGenerativeAI(this.config.project, {
-        location: this.config.location,
-      })
+      this.client = new GoogleGenerativeAI(this.config.apiKey)
 
       log({
         name: "GeminiChatApi initialized",
         preview: "Client created successfully",
         value: {
-          project: this.config.project,
-          location: this.config.location,
+          model: this.config.model,
         },
       })
     } catch (error) {
@@ -116,42 +114,75 @@ export class GeminiChatApi {
     try {
       const geminiMessages = this.convertToGeminiMessages(messages)
 
-      // Create chat session
-      const chat = this.client.chat({
+      // Get the model
+      const model = this.client.getGenerativeModel({
         model: this.config.model,
-        temperature: config.temperature,
-        maxOutputTokens: config.maxOutputTokens,
-        topP: config.topP,
-        topK: config.topK,
-        stopSequences: config.stopSequences,
-        candidateCount: config.candidateCount,
+        generationConfig: {
+          temperature: config.temperature,
+          maxOutputTokens: config.maxOutputTokens,
+          topP: config.topP,
+          topK: config.topK,
+          stopSequences: config.stopSequences,
+          candidateCount: config.candidateCount,
+        },
         tools: config.tools,
       })
 
+      // Start chat
+      const chat = model.startChat()
+
       // Send messages
-      const response = await chat.sendMessages(geminiMessages)
+      const response = await chat.sendMessage(geminiMessages[geminiMessages.length - 1].content)
+      const result = await response.response
 
       // Handle tool calls if present
-      if (response.candidates[0].toolCalls && config.tools) {
+      if (result.candidates[0].toolCalls && config.tools) {
         const toolResponses = await this.handleToolCalls(
-          response.candidates[0].toolCalls,
+          result.candidates[0].toolCalls,
           config.tools
         )
 
         // Send tool responses back to continue the conversation
-        const finalResponse = await chat.sendMessages([
-          ...geminiMessages,
-          {
-            role: "assistant",
-            content: response.candidates[0].message.content,
-            tools: toolResponses,
-          },
-        ])
+        const finalResponse = await chat.sendMessage(
+          JSON.stringify(toolResponses)
+        )
 
-        return { kind: "ok", response: finalResponse }
+        return { 
+          kind: "ok", 
+          response: {
+            candidates: [{
+              message: {
+                role: "assistant",
+                content: await finalResponse.response.text(),
+              },
+              finishReason: "STOP",
+            }],
+            usage: {
+              promptTokens: 0,
+              completionTokens: 0,
+              totalTokens: 0,
+            }
+          }
+        }
       }
 
-      return { kind: "ok", response }
+      return { 
+        kind: "ok", 
+        response: {
+          candidates: [{
+            message: {
+              role: "assistant",
+              content: await result.text(),
+            },
+            finishReason: "STOP",
+          }],
+          usage: {
+            promptTokens: 0,
+            completionTokens: 0,
+            totalTokens: 0,
+          }
+        }
+      }
     } catch (error) {
       log.error("[GeminiChatApi]", error instanceof Error ? error.message : "Unknown error")
       return { kind: "bad-data" }
