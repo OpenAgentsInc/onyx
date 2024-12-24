@@ -1,6 +1,7 @@
 import React from "react"
 import { Image, TouchableOpacity, View } from "react-native"
 import { useStores } from "@/models"
+import { colors } from "@/theme"
 import { Ionicons } from "@expo/vector-icons"
 import { styles } from "./BottomButtons.styles"
 
@@ -38,7 +39,7 @@ export const BottomButtons = ({
 
       {/* Trash Button */}
       <TouchableOpacity activeOpacity={0.8} onPress={handleClearChat} style={styles.trashButton}>
-        <Ionicons name="trash-outline" size={24} color="white" />
+        <Ionicons name="trash-outline" size={24} color={colors.textDim} />
       </TouchableOpacity>
 
       {/* Bottom Buttons */}
