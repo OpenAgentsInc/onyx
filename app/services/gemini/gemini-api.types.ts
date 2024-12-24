@@ -13,12 +13,6 @@ export interface GenerateContentConfig {
   topP?: number
   topK?: number
   tools?: ITool[]
-  tool_config?: {
-    function_calling_config: {
-      mode: "AUTO" | "ANY" | "NONE"
-      allowed_function_names?: string[]
-    }
-  }
 }
 
 export interface FunctionDeclaration {
@@ -29,10 +23,8 @@ export interface FunctionDeclaration {
     properties: Record<string, {
       type: string
       description: string
-      enum?: string[]
-      required?: boolean
     }>
-    required?: string[]
+    required: string[]
   }
 }
 
