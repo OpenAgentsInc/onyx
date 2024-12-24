@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Pressable } from "react-native"
 import { useStores } from "../models/_helpers/useStores"
 import { colors } from "../theme"
+import { typography } from "../theme"
 import { styles as baseStyles } from "./styles"
 
 import type { ToolResult } from "../services/gemini/tools/types"
@@ -94,36 +95,36 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
       <View style={[baseStyles.modalContainer, styles.container]}>
         <View style={baseStyles.modalHeader}>
           <Pressable onPress={onClose}>
-            <Text style={[baseStyles.buttonText, baseStyles.cancelText]}>Close</Text>
+            <Text style={[baseStyles.buttonText, baseStyles.cancelText, styles.text]}>Close</Text>
           </Pressable>
         </View>
 
-        <Text style={styles.title}>Tool Testing</Text>
+        <Text style={[styles.title, styles.text]}>Tool Testing</Text>
 
         <View style={styles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, styles.text]}
             placeholder="Owner"
             value={owner}
             onChangeText={setOwner}
             placeholderTextColor={colors.textDim}
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, styles.text]}
             placeholder="Repo"
             value={repo}
             onChangeText={setRepo}
             placeholderTextColor={colors.textDim}
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, styles.text]}
             placeholder="Branch"
             value={branch}
             onChangeText={setBranch}
             placeholderTextColor={colors.textDim}
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, styles.text]}
             placeholder="Path"
             value={path}
             onChangeText={setPath}
@@ -137,7 +138,7 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
             onPress={handleViewFile}
             disabled={loading}
           >
-            <Text style={styles.buttonText}>View File</Text>
+            <Text style={[styles.buttonText, styles.text]}>View File</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -145,16 +146,16 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
             onPress={handleViewHierarchy}
             disabled={loading}
           >
-            <Text style={styles.buttonText}>View Hierarchy</Text>
+            <Text style={[styles.buttonText, styles.text]}>View Hierarchy</Text>
           </TouchableOpacity>
         </View>
 
-        {loading && <Text style={styles.loading}>Loading...</Text>}
+        {loading && <Text style={[styles.loading, styles.text]}>Loading...</Text>}
         {error ? (
-          <Text style={styles.error}>{error}</Text>
+          <Text style={[styles.error, styles.text]}>{error}</Text>
         ) : (
           <ScrollView style={styles.resultContainer}>
-            <Text style={styles.result}>{result}</Text>
+            <Text style={[styles.result, styles.text]}>{result}</Text>
           </ScrollView>
         )}
       </View>
@@ -172,6 +173,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     color: colors.text,
+  },
+  text: {
+    fontFamily: typography.primary.normal,
   },
   inputContainer: {
     marginBottom: 20,
@@ -213,7 +217,6 @@ const styles = StyleSheet.create({
   },
   result: {
     color: colors.text,
-    fontFamily: "monospace",
   },
   error: {
     color: colors.error,
