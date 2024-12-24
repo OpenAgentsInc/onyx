@@ -1,4 +1,5 @@
 import { Tool } from "../gemini-api.types"
+import { viewFile, viewHierarchy } from "./github-impl"
 
 export const githubTools: Record<string, Tool> = {
   viewFile: {
@@ -22,14 +23,7 @@ export const githubTools: Record<string, Tool> = {
         description: "The branch to view the file from",
       },
     },
-    execute: async (params: Record<string, unknown>) => {
-      try {
-        // Implementation will be injected by the tool store
-        return null
-      } catch (error) {
-        throw new Error(`Failed to view file: ${error instanceof Error ? error.message : String(error)}`)
-      }
-    },
+    execute: viewFile,
   },
 
   viewHierarchy: {
@@ -53,13 +47,6 @@ export const githubTools: Record<string, Tool> = {
         description: "The branch to view the hierarchy from",
       },
     },
-    execute: async (params: Record<string, unknown>) => {
-      try {
-        // Implementation will be injected by the tool store
-        return null
-      } catch (error) {
-        throw new Error(`Failed to view hierarchy: ${error instanceof Error ? error.message : String(error)}`)
-      }
-    },
+    execute: viewHierarchy,
   },
 }
