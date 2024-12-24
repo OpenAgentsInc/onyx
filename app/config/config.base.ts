@@ -6,11 +6,11 @@ export interface ConfigBaseProps {
   exitRoutes: string[]
   API_URL?: string
   GROQ_API_KEY?: string | null
+  GOOGLE_CLOUD_PROJECT: string | null
+  GOOGLE_CLOUD_REGION: string | null
 }
 
 export type PersistNavigationConfig = ConfigBaseProps["persistNavigation"]
-
-console.log(Constants.expoConfig)
 
 const BaseConfig: ConfigBaseProps = {
   // This feature is particularly useful in development mode, but
