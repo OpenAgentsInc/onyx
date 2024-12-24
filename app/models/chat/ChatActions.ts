@@ -72,28 +72,42 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
         const message = response.choices[0].message
         const content = message.content
 
-        // Try to parse content as a function call
+        let functionCall = null
         try {
-          const functionCall = JSON.parse(content)
-          if (functionCall && functionCall.name && functionCall.args) {
-            log({
-              name: "[ChatActions] Function Call",
-              preview: "Executing function",
-              value: { functionCall },
-              important: true,
-            })
+          const parsed = JSON.parse(content)
+          if (parsed && parsed.name && parsed.args) {
+            functionCall = parsed
+          }
+        } catch (err) {
+          // Not a function call JSON
+          log({
+            name: "[ChatActions] Not a function call JSON",
+            preview: "Parse error",
+            value: { content, error: err },
+            important: true,
+          })
+        }
 
-            // Update message to show function call
-            self.updateMessage(assistantMessage.id, {
-              content: JSON.stringify(functionCall, null, 2),
-              metadata: {
-                ...assistantMessage.metadata,
-                isGenerating: true,
-                tokens: response.usage?.completion_tokens,
-                model: self.activeModel,
-              },
-            })
+        if (functionCall) {
+          log({
+            name: "[ChatActions] Function Call",
+            preview: "Executing function",
+            value: { functionCall },
+            important: true,
+          })
 
+          // Update message to show function call
+          self.updateMessage(assistantMessage.id, {
+            content: JSON.stringify(functionCall, null, 2),
+            metadata: {
+              ...assistantMessage.metadata,
+              isGenerating: true,
+              tokens: response.usage?.completion_tokens,
+              model: self.activeModel,
+            },
+          })
+
+          try {
             // Get the tool implementation
             const rootStore = getRoot<RootStore>(self)
             const toolId = `github_${functionCall.name}`
@@ -199,15 +213,22 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
               },
             })
             return
+          } catch (toolError) {
+            // Log tool execution error
+            log.error("[ChatActions] Tool execution error:", toolError)
+            
+            // Update message with error
+            self.updateMessage(assistantMessage.id, {
+              content: `Error executing tool: ${toolError.message}`,
+              metadata: {
+                ...assistantMessage.metadata,
+                isGenerating: false,
+                error: toolError.message,
+                model: self.activeModel,
+              },
+            })
+            return
           }
-        } catch (err) {
-          // Not a function call, continue with normal message handling
-          log({
-            name: "[ChatActions] Not a function call",
-            preview: "Regular message",
-            value: { content, error: err },
-            important: true,
-          })
         }
 
         // Regular message response
