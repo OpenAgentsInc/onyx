@@ -34,7 +34,7 @@
     "eas-build-on-complete": "echo 'Build completed!'",
     "eas-build-on-cancel": "echo 'Build was canceled!'",
     "update:prod": "eas update --channel production --environment production --message",
-    "update:android": "eas update --channel production --environment production --platform android --message",
+    "update:android": "eas update --channel production-apk --environment production --platform android --message",
     "hierarchy": "node scripts/generate-hierarchy.js"
   },
   "jest": {
