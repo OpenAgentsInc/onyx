@@ -6,7 +6,7 @@ import { BottomButtons } from "./BottomButtons"
 import { styles as baseStyles } from "./styles"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
-import { ToolTestScreen } from "../screens/ToolTestScreen"
+import { ToolTestModal } from "./ToolTestModal"
 
 const ChatOverlay = observer(() => {
   const { chatStore } = useStores()
@@ -58,32 +58,31 @@ export const OnyxLayout = observer(() => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-      {showTools ? (
-        <ToolTestScreen />
-      ) : (
-        <>
-          <ChatOverlay />
+      <ChatOverlay />
 
-          <TextInputModal visible={showTextInput} onClose={() => setShowTextInput(false)} />
+      <TextInputModal visible={showTextInput} onClose={() => setShowTextInput(false)} />
 
-          <VoiceInputModal
-            visible={showVoiceInput}
-            onClose={handleStopVoiceInput}
-            transcript={transcript}
-          />
+      <VoiceInputModal
+        visible={showVoiceInput}
+        onClose={handleStopVoiceInput}
+        transcript={transcript}
+      />
 
-          {/* <ConfigureModal
-            visible={showConfigure}
-            onClose={() => setShowConfigure(false)}
-          /> */}
-        </>
-      )}
+      <ToolTestModal
+        visible={showTools}
+        onClose={() => setShowTools(false)}
+      />
+
+      {/* <ConfigureModal
+        visible={showConfigure}
+        onClose={() => setShowConfigure(false)}
+      /> */}
 
       <BottomButtons
         onTextPress={() => setShowTextInput(true)}
         onVoicePress={handleStartVoiceInput}
         onConfigurePress={() => setShowConfigure(true)}
-        onToolsPress={() => setShowTools(!showTools)}
+        onToolsPress={() => setShowTools(true)}
       />
     </View>
   )
