@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { StyleSheet, View, TextInput, ScrollView, TouchableOpacity } from "react-native"
 import { Text } from "react-native"
@@ -10,11 +10,17 @@ export const ToolTestScreen: FC = observer(function ToolTestScreen() {
   const { toolStore } = useStores()
   const [owner, setOwner] = useState("OpenAgentsInc")
   const [repo, setRepo] = useState("onyx")
-  const [branch, setBranch] = useState("main")
+  const [branch, setBranch] = useState("tools")
   const [path, setPath] = useState("README.md")
   const [result, setResult] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!toolStore.isInitialized) {
+      toolStore.initializeDefaultTools()
+    }
+  }, [toolStore])
 
   const handleViewFile = async () => {
     setLoading(true)
@@ -82,30 +88,34 @@ export const ToolTestScreen: FC = observer(function ToolTestScreen() {
           placeholder="Owner"
           value={owner}
           onChangeText={setOwner}
+          placeholderTextColor={colors.textDim}
         />
         <TextInput
           style={styles.input}
           placeholder="Repo"
           value={repo}
           onChangeText={setRepo}
+          placeholderTextColor={colors.textDim}
         />
         <TextInput
           style={styles.input}
           placeholder="Branch"
           value={branch}
           onChangeText={setBranch}
+          placeholderTextColor={colors.textDim}
         />
         <TextInput
           style={styles.input}
           placeholder="Path"
           value={path}
           onChangeText={setPath}
+          placeholderTextColor={colors.textDim}
         />
       </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleViewFile}
           disabled={loading}
         >
@@ -113,7 +123,7 @@ export const ToolTestScreen: FC = observer(function ToolTestScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleViewHierarchy}
           disabled={loading}
         >
@@ -168,6 +178,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     minWidth: 120,
     alignItems: "center",
+  },
+  buttonDisabled: {
+    opacity: 0.5,
   },
   buttonText: {
     color: colors.palette.neutral100,
