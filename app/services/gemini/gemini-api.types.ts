@@ -1,47 +1,9 @@
+import type { ChatMessage, ChatCompletionResponse } from "../groq/groq-api.types"
+
 export interface GeminiConfig {
-  project: string
-  location?: string
-  model?: string
-  timeout?: number
   apiKey: string
-}
-
-export interface ChatMessage {
-  role: "system" | "user" | "assistant"
-  content: string
-  tools?: Tool[]
-}
-
-export interface Tool {
-  name: string
-  description: string
-  parameters: Record<string, unknown>
-  execute: (params: Record<string, unknown>) => Promise<unknown>
-}
-
-export interface ToolCall {
-  id: string
-  name: string
-  parameters: Record<string, unknown>
-}
-
-export interface ToolResponse {
-  toolCallId: string
-  result: unknown
-}
-
-export interface ChatCompletionChoice {
-  message: ChatMessage
-  finishReason: string
-}
-
-export interface ChatCompletionResponse {
-  candidates: ChatCompletionChoice[]
-  usage: {
-    promptTokens: number
-    completionTokens: number
-    totalTokens: number
-  }
+  baseURL?: string
+  timeout?: number
 }
 
 export interface GenerateContentConfig {
@@ -49,7 +11,7 @@ export interface GenerateContentConfig {
   maxOutputTokens?: number
   topP?: number
   topK?: number
-  stopSequences?: string[]
-  candidateCount?: number
-  tools?: Tool[]
 }
+
+// Using same response format as Groq for consistency
+export type { ChatMessage, ChatCompletionResponse }
