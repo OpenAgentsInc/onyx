@@ -118,7 +118,10 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
               preview: "Getting tool",
               value: { 
                 toolId, 
-                tools: rootStore.toolStore.tools.map(t => ({ id: t.id, enabled: t.enabled })),
+                tools: rootStore.toolStore.tools.map(t => ({
+                  id: t.id,
+                  hasImplementation: !!t.implementation
+                })),
                 isInitialized: rootStore.toolStore.isInitialized
               },
               important: true,
@@ -146,13 +149,12 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
                 toolId: tool.id,
                 name: tool.name,
                 enabled: tool.enabled,
-                hasImplementation: !!tool.metadata?.implementation
+                hasImplementation: !!tool.implementation
               },
               important: true,
             })
 
-            const implementation = tool.metadata?.implementation
-            if (!implementation) {
+            if (!tool.implementation) {
               throw new Error(`Tool ${functionCall.name} implementation not found`)
             }
 
@@ -164,7 +166,7 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
               important: true,
             })
             
-            const toolResult = yield implementation(functionCall.args)
+            const toolResult = yield tool.implementation(functionCall.args)
             
             log({
               name: "[ChatActions] Tool result",
