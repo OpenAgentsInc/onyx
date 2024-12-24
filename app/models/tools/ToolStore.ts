@@ -113,7 +113,12 @@ export const ToolStoreModel = types
             id: "github_view_file",
             name: "view_file",
             description: githubTools.viewFile.description,
-            parameters: githubTools.viewFile.parameters.properties,
+            parameters: {
+              path: { type: "string", description: "The path of the file to view" },
+              owner: { type: "string", description: "The owner of the repository" },
+              repo: { type: "string", description: "The name of the repository" },
+              branch: { type: "string", description: "The branch to view the file from" }
+            },
             metadata: {
               category: "github",
               implementation: viewFile,
@@ -124,7 +129,12 @@ export const ToolStoreModel = types
             id: "github_view_hierarchy",
             name: "view_hierarchy",
             description: githubTools.viewHierarchy.description,
-            parameters: githubTools.viewHierarchy.parameters.properties,
+            parameters: {
+              path: { type: "string", description: "The path to view the hierarchy" },
+              owner: { type: "string", description: "The owner of the repository" },
+              repo: { type: "string", description: "The name of the repository" },
+              branch: { type: "string", description: "The branch to view the hierarchy from" }
+            },
             metadata: {
               category: "github",
               implementation: viewHierarchy,
