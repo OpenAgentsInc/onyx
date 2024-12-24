@@ -13,7 +13,7 @@ import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
-import { RootStoreProvider, useInitialRootStore } from "./models"
+import { useInitialRootStore } from "./models"
 import { OnyxLayout } from "./onyx/OnyxLayout"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 
@@ -29,10 +29,6 @@ function AppContents(props: AppProps) {
     // This runs after the root store has been initialized and rehydrated.
     setTimeout(hideSplashScreen, 500)
   })
-
-  React.useEffect(() => {
-    Alert.alert("Live update test successful")
-  }, [])
 
   if (!loaded || !rehydrated) {
     return (
