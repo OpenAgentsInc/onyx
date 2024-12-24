@@ -4,6 +4,7 @@ import { useStores } from "@/models"
 import { colors } from "@/theme"
 import { Ionicons } from "@expo/vector-icons"
 import { styles } from "./BottomButtons.styles"
+import Clipboard from '@react-native-clipboard/clipboard'
 
 interface BottomButtonsProps {
   onTextPress: () => void
@@ -24,6 +25,11 @@ export const BottomButtons = ({
     chatStore.clearMessages()
   }
 
+  const handleCopyConversation = () => {
+    const text = chatStore.conversationText
+    Clipboard.setString(text)
+  }
+
   return (
     <>
       {/* Tools Button */}
@@ -42,6 +48,11 @@ export const BottomButtons = ({
           style={{ width: "100%", height: "100%" }}
           resizeMode="contain"
         />
+      </TouchableOpacity>
+
+      {/* Copy Button */}
+      <TouchableOpacity activeOpacity={0.8} onPress={handleCopyConversation} style={styles.copyButton}>
+        <Ionicons name="copy-outline" size={24} color={colors.textDim} />
       </TouchableOpacity>
 
       {/* Trash Button */}
