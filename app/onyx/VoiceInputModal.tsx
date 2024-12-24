@@ -38,12 +38,16 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
 
   const setupRecording = async () => {
     try {
-      await Audio.requestPermissionsAsync()
+      const { granted } = await Audio.requestPermissionsAsync()
+      if (!granted) {
+        setError("Microphone permission is required")
+        return
+      }
+
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
       })
-      startRecording()
     } catch (err) {
       setError("Failed to get recording permissions")
       log.error("[VoiceInputModal]", "Error setting up recording:", err)
@@ -87,12 +91,8 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
       setIsTranscribing(true)
       setError("")
 
-      // Fetch the audio file and convert it to a blob
-      const response = await fetch(uri)
-      const blob = await response.blob()
-
       // Send to Groq for transcription
-      const result = await groqChatApi.transcribeAudio(blob, {
+      const result = await groqChatApi.transcribeAudio(uri, {
         model: "whisper-large-v3",
         language: "en",
       })
