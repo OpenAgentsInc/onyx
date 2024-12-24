@@ -32,7 +32,7 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
         try {
           await toolStore.initializeDefaultTools()
         } catch (err) {
-          log.error("[ToolTestModal]", "Failed to initialize tools:", err)
+          log.error("[ToolTestModal] Failed to initialize tools")
           setError("Failed to initialize tools")
         } finally {
           setInitializing(false)
@@ -70,7 +70,12 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
         important: true,
       })
 
-      const response = (await tool.metadata.implementation({
+      const implementation = tool.metadata?.implementation
+      if (!implementation) {
+        throw new Error("Tool implementation not found")
+      }
+
+      const response = (await implementation({
         owner,
         repo,
         branch,
@@ -118,7 +123,12 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
         important: true,
       })
 
-      const response = (await tool.metadata.implementation({
+      const implementation = tool.metadata?.implementation
+      if (!implementation) {
+        throw new Error("Tool implementation not found")
+      }
+
+      const response = (await implementation({
         owner,
         repo,
         branch,
