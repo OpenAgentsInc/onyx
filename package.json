@@ -12,6 +12,7 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "build": "yarn build:ios:prod",
+    "build:android": "yarn build:android:apk",
     "build:ios:dev": "eas build --profile development:device --platform ios --local",
     "build:ios:prod": "eas build --profile production --platform ios",
     "build:android:prod": "npx expo prebuild --platform android && eas build --profile production --platform android",
