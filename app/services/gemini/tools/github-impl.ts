@@ -51,7 +51,7 @@ export async function viewFile(params: {
       },
     }
   } catch (error) {
-    log.error("[GitHub Tools]", "viewFile error:", error)
+    log.error("[GitHub Tools]", error instanceof Error ? error.message : "Unknown error")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error viewing file",
@@ -111,7 +111,7 @@ export async function viewHierarchy(params: {
       data: hierarchy,
     }
   } catch (error) {
-    log.error("[GitHub Tools]", "viewHierarchy error:", error)
+    log.error("[GitHub Tools]", error instanceof Error ? error.message : "Unknown error")
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error viewing hierarchy",
