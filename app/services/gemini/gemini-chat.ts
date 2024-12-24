@@ -11,7 +11,7 @@ import type { IMessage } from "../../models/chat/ChatStore"
 
 const DEFAULT_CONFIG: GeminiConfig = {
   apiKey: Config.GEMINI_API_KEY ?? "",
-  baseURL: "https://generativelanguage.googleapis.com/v1",
+  baseURL: "https://generativelanguage.googleapis.com/v1beta",
   timeout: 30000,
 }
 
@@ -102,26 +102,41 @@ export class GeminiChatApi {
         this.convertToolToFunctionDeclaration(tool)
       )
 
+      const model = options.model || "models/gemini-1.5-pro-latest"
+
       const payload = {
-        contents: [{
-          parts: geminiMessages.map(msg => ({
-            text: msg.content
-          }))
-        }],
+        contents: geminiMessages.map(msg => ({
+          role: msg.role,
+          parts: [{ text: msg.content }]
+        })),
         generationConfig: {
           temperature: options.temperature ?? 0.7,
           maxOutputTokens: options.maxOutputTokens ?? 1024,
           topP: options.topP ?? 0.8,
           topK: options.topK ?? 10,
         },
-        tools: functionDeclarations ? {
-          function_declarations: functionDeclarations
-        } : undefined,
-        tool_config: options.tool_config
+        safetySettings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_NONE"
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH",
+            threshold: "BLOCK_NONE"
+          },
+          {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_NONE"
+          },
+          {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_NONE"
+          }
+        ]
       }
 
       const response: ApiResponse<any> = await this.apisauce.post(
-        `/models/gemini-1.5-flash:generateContent?key=${this.config.apiKey}`,
+        `/${model}:generateContent?key=${this.config.apiKey}`,
         payload
       )
 
@@ -140,7 +155,7 @@ export class GeminiChatApi {
       if (!response.data) throw new Error("No data received from Gemini API")
 
       // Handle function calls in response
-      const functionCall = response.data.candidates[0].content.parts[0].function_call
+      const functionCall = response.data.candidates?.[0]?.content?.parts?.[0]?.functionCall
       const content = functionCall 
         ? JSON.stringify(functionCall)
         : response.data.candidates[0].content.parts[0].text
@@ -150,7 +165,7 @@ export class GeminiChatApi {
         id: "gemini-" + Date.now(),
         object: "chat.completion",
         created: Date.now(),
-        model: "gemini-1.5-flash",
+        model: model,
         choices: [{
           index: 0,
           message: {
