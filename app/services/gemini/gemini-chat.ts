@@ -16,7 +16,7 @@ const DEFAULT_CONFIG: GeminiConfig = {
 }
 
 interface ExtendedChatMessage extends ChatMessage {
-  name?: string;
+  parts: Array<{ text: string }>;
 }
 
 /**
@@ -93,8 +93,7 @@ export class GeminiChatApi {
       .filter(msg => msg.content && msg.content.trim() !== "")
       .map(msg => ({
         role: msg.role === "assistant" ? "model" : msg.role === "function" ? "model" : "user",
-        content: msg.content.trim(),
-        ...(msg.metadata?.name ? { name: msg.metadata.name } : {}),
+        parts: [{ text: msg.content.trim() }]
       }))
   }
 
@@ -119,11 +118,7 @@ export class GeminiChatApi {
       )
 
       const payload = {
-        contents: geminiMessages.map(msg => ({
-          role: msg.role,
-          parts: [{ text: msg.content }],
-          ...(msg.name && { name: msg.name }), // Include function name if present
-        })),
+        contents: geminiMessages,
         generationConfig: {
           temperature: options.temperature ?? 0.7,
           maxOutputTokens: options.maxOutputTokens ?? 1024,
