@@ -1,6 +1,6 @@
 import { flow, Instance } from "mobx-state-tree"
-import { groqChatApi } from "../../services/groq/groq-chat"
 import { log } from "@/utils/log"
+import { groqChatApi } from "../../services/groq/groq-chat"
 
 /**
  * Chat actions that integrate with the Groq API
@@ -55,7 +55,7 @@ export const withGroqActions = (self: Instance<any>) => ({
       } else {
         // Handle error
         self.updateMessage(assistantMessage.id, {
-          content: "Sorry, I encountered an error while processing your message.",
+          content: "Sorry, I encountered an error while processing your message: " + JSON.stringify(result),
           metadata: {
             ...assistantMessage.metadata,
             isGenerating: false,

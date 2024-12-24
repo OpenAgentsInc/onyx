@@ -7,7 +7,7 @@ import "text-encoding-polyfill"
 import { useFonts } from "expo-font"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
-import { ActivityIndicator, AppRegistry, View, ViewStyle } from "react-native"
+import { ActivityIndicator, Alert, AppRegistry, View, ViewStyle } from "react-native"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
@@ -29,6 +29,10 @@ function AppContents(props: AppProps) {
     // This runs after the root store has been initialized and rehydrated.
     setTimeout(hideSplashScreen, 500)
   })
+
+  React.useEffect(() => {
+    Alert.alert("Live update test successful")
+  }, [])
 
   if (!loaded || !rehydrated) {
     return (
