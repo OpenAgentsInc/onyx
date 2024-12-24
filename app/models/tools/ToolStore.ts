@@ -96,6 +96,13 @@ export const ToolStoreModel = types
     const flowActions = {
       initializeDefaultTools: flow(function* () {
         try {
+          log({
+            name: "[ToolStore] initializeDefaultTools",
+            preview: "Initializing tools",
+            value: { currentTools: self.tools.map(t => t.id) },
+            important: true,
+          })
+
           // Add GitHub tools
           baseActions.addTool({
             id: "github_view_file",
@@ -130,6 +137,13 @@ export const ToolStoreModel = types
           })
 
           self.isInitialized = true
+
+          log({
+            name: "[ToolStore] initializeDefaultTools",
+            preview: "Tools initialized",
+            value: { tools: self.tools.map(t => t.id) },
+            important: true,
+          })
         } catch (error) {
           log.error("[ToolStore]", error instanceof Error ? error.message : "Unknown error")
           baseActions.setError("Failed to initialize tools")
@@ -155,7 +169,14 @@ export const ToolStoreModel = types
     },
 
     getToolById(id: string) {
-      return self.tools.find(t => t.id === id)
+      const tool = self.tools.find(t => t.id === id)
+      log({
+        name: "[ToolStore] getToolById",
+        preview: `Getting tool ${id}`,
+        value: { id, found: !!tool, tools: self.tools.map(t => t.id) },
+        important: true,
+      })
+      return tool
     }
   }))
 
