@@ -120,7 +120,10 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
               value: { args: functionCall.args },
               important: true,
             })
+            
+            // Execute the implementation directly
             const toolResult = yield implementation(functionCall.args)
+            
             log({
               name: "[ChatActions] Tool result",
               preview: "Got result",
@@ -134,7 +137,9 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
 
             // Update message with tool result
             self.updateMessage(assistantMessage.id, {
-              content: JSON.stringify(toolResult.data, null, 2),
+              content: typeof toolResult.data === 'string' 
+                ? toolResult.data 
+                : JSON.stringify(toolResult.data, null, 2),
               metadata: {
                 ...assistantMessage.metadata,
                 isGenerating: false,
