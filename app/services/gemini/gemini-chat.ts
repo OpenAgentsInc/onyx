@@ -15,7 +15,8 @@ const DEFAULT_CONFIG: GeminiConfig = {
   timeout: 30000,
 }
 
-interface ExtendedChatMessage extends ChatMessage {
+interface GeminiMessage {
+  role: "user" | "model";
   parts: Array<{ text: string }>;
 }
 
@@ -67,7 +68,7 @@ export class GeminiChatApi {
   /**
    * Converts ChatStore messages to Gemini API format
    */
-  private convertToGeminiMessages(messages: IMessage[]): ExtendedChatMessage[] {
+  private convertToGeminiMessages(messages: IMessage[]): GeminiMessage[] {
     // For Gemini, convert system message to user message and prepend it
     const systemMessage = messages.find(msg => msg.role === "system")
     const nonSystemMessages = messages.filter(msg => msg.role !== "system")
