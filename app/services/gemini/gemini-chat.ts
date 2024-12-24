@@ -110,8 +110,6 @@ export class GeminiChatApi {
         this.convertToolToFunctionDeclaration(tool)
       )
 
-      const model = options.model || "models/gemini-1.5-pro-latest"
-
       const payload = {
         contents: geminiMessages.map(msg => ({
           role: msg.role,
@@ -144,7 +142,7 @@ export class GeminiChatApi {
       }
 
       const response: ApiResponse<any> = await this.apisauce.post(
-        `/${model}:generateContent?key=${this.config.apiKey}`,
+        `/models/gemini-pro:generateContent?key=${this.config.apiKey}`,
         payload
       )
 
@@ -173,7 +171,7 @@ export class GeminiChatApi {
         id: "gemini-" + Date.now(),
         object: "chat.completion",
         created: Date.now(),
-        model: model,
+        model: "gemini-pro",
         choices: [{
           index: 0,
           message: {
