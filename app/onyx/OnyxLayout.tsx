@@ -7,6 +7,7 @@ import { styles as baseStyles } from "./styles"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
 import { ToolTestModal } from "./ToolTestModal"
+import { ConfigureModal } from "./ConfigureModal"
 
 const ChatOverlay = observer(() => {
   const { chatStore } = useStores()
@@ -73,10 +74,10 @@ export const OnyxLayout = observer(() => {
         onClose={() => setShowTools(false)}
       />
 
-      {/* <ConfigureModal
+      <ConfigureModal
         visible={showConfigure}
         onClose={() => setShowConfigure(false)}
-      /> */}
+      />
 
       <BottomButtons
         onTextPress={() => setShowTextInput(true)}
