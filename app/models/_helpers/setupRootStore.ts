@@ -1,12 +1,12 @@
 import { applySnapshot, IDisposer, onSnapshot } from "mobx-state-tree"
+import { log } from "@/utils/log"
 import * as storage from "../../utils/storage"
 import { RootStore, RootStoreSnapshotIn } from "../RootStore"
-import { log } from "@/utils/log"
 
 /**
  * The key we'll be saving our state as within async storage.
  */
-const ROOT_STATE_STORAGE_KEY = "root-v123456"
+const ROOT_STATE_STORAGE_KEY = "root-v1234567"
 
 /**
  * Setup the root state.
@@ -40,9 +40,9 @@ export async function setupRootStore(rootStore: RootStore) {
     log({
       name: "[setupRootStore] Tools initialized",
       preview: "Tool initialization complete",
-      value: { 
+      value: {
         tools: rootStore.toolStore.tools.map(t => t.id),
-        isInitialized: rootStore.toolStore.isInitialized 
+        isInitialized: rootStore.toolStore.isInitialized
       },
       important: true,
     })
