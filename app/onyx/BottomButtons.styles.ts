@@ -40,4 +40,12 @@ export const styles = StyleSheet.create({
     bottom: 86,
     zIndex: 10,
   },
+  copyButton: {
+    width: 24,
+    height: 24,
+    position: "absolute",
+    right: 70,
+    bottom: 86,
+    zIndex: 10,
+  },
 })
