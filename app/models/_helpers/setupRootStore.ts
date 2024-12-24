@@ -1,7 +1,6 @@
 import { applySnapshot, IDisposer, onSnapshot } from "mobx-state-tree"
 import * as storage from "../../utils/storage"
 import { RootStore, RootStoreSnapshotIn } from "../RootStore"
-import { initializeTools } from "../tools/initTools"
 
 /**
  * The key we'll be saving our state as within async storage.
@@ -25,8 +24,16 @@ export async function setupRootStore(rootStore: RootStore) {
     }
   }
 
-  // Initialize tools
-  await initializeTools(rootStore)
+  try {
+    // Initialize tools if not already initialized
+    if (!rootStore.toolStore.isInitialized) {
+      await rootStore.toolStore.initializeDefaultTools()
+    }
+  } catch (e) {
+    if (__DEV__) {
+      console.error("Failed to initialize tools:", e)
+    }
+  }
 
   // track changes & save to AsyncStorage
   const unsubscribe = onSnapshot(rootStore, (snapshot) => storage.save(ROOT_STATE_STORAGE_KEY, snapshot))
