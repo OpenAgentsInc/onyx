@@ -5,10 +5,31 @@ import Clipboard from "@react-native-clipboard/clipboard"
 import { useStores } from "@/models"
 import { styles as baseStyles } from "./styles"
 import { IMessage } from "@/models/chat/ChatStore"
+import { log } from "@/utils/log"
 
 export const ChatOverlay = observer(() => {
-  const { chatStore } = useStores()
+  const { chatStore, toolStore } = useStores()
   const scrollViewRef = useRef<ScrollView>(null)
+
+  useEffect(() => {
+    // Initialize tools if not already initialized
+    const initTools = async () => {
+      if (!toolStore.isInitialized) {
+        try {
+          await toolStore.initializeDefaultTools()
+          log({
+            name: "[ChatOverlay] Tools initialized",
+            preview: "Tools ready",
+            value: { tools: toolStore.tools.map(t => t.id) },
+            important: true,
+          })
+        } catch (err) {
+          log.error("[ChatOverlay] Failed to initialize tools:", err)
+        }
+      }
+    }
+    initTools()
+  }, [toolStore])
 
   useEffect(() => {
     // Scroll to bottom whenever messages change
