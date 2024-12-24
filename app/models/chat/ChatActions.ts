@@ -60,14 +60,12 @@ export const withGroqActions = (self: ChatStore): ChatActions => ({
         result = yield geminiChatApi.createChatCompletion(
           self.currentMessages,
           {
+            model: "models/gemini-1.5-pro-latest",
             temperature: 0.7,
             maxOutputTokens: 1024,
-            tools: enabledTools,
-            tool_config: {
-              function_calling_config: {
-                mode: "AUTO"
-              }
-            }
+            candidateCount: 1,
+            topP: 0.8,
+            topK: 40,
           },
         )
       }
