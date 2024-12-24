@@ -1,5 +1,6 @@
 import { flow, Instance } from "mobx-state-tree"
 import { log } from "@/utils/log"
+import type { ToolResult } from "../../services/gemini/tools/types"
 
 /**
  * Tool actions for managing tool execution and state
@@ -11,7 +12,7 @@ export const withToolActions = (self: Instance<any>) => ({
   executeTool: flow(function* (
     toolId: string,
     params: Record<string, unknown>
-  ) {
+  ): Generator<any, ToolResult<unknown>, any> {
     try {
       const tool = self.getToolById(toolId)
       if (!tool) {
@@ -26,7 +27,12 @@ export const withToolActions = (self: Instance<any>) => ({
       tool.markUsed()
 
       // Execute tool implementation
-      const result = yield tool.metadata.implementation(params)
+      const implementation = tool.metadata.implementation
+      if (!implementation) {
+        throw new Error(`No implementation found for tool ${toolId}`)
+      }
+
+      const result = yield implementation(params)
 
       // Update tool metadata with result
       tool.updateMetadata({
@@ -34,13 +40,16 @@ export const withToolActions = (self: Instance<any>) => ({
         lastExecuted: Date.now(),
       })
 
-      return result
-    } catch (error) {
-      if (__DEV__) {
-        log.error("[ToolActions]", `Error executing tool ${toolId}: ${error}`)
+      return {
+        success: true,
+        data: result
       }
-      self.setError(`Failed to execute tool ${toolId}`)
-      throw error
+    } catch (error) {
+      log.error("[ToolActions]", error instanceof Error ? error.message : "Unknown error")
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error executing tool"
+      }
     }
   }),
 
@@ -62,9 +71,9 @@ export const withToolActions = (self: Instance<any>) => ({
         },
         metadata: {
           category: "github",
-          implementation: async (params: any) => {
-            // Implementation will be injected
-            return null
+          implementation: async (params: Record<string, unknown>) => {
+            const { viewFile } = await import("../../services/gemini/tools/github-impl")
+            return viewFile(params as any)
           }
         }
       })
@@ -81,18 +90,16 @@ export const withToolActions = (self: Instance<any>) => ({
         },
         metadata: {
           category: "github",
-          implementation: async (params: any) => {
-            // Implementation will be injected
-            return null
+          implementation: async (params: Record<string, unknown>) => {
+            const { viewHierarchy } = await import("../../services/gemini/tools/github-impl")
+            return viewHierarchy(params as any)
           }
         }
       })
 
       self.isInitialized = true
     } catch (error) {
-      if (__DEV__) {
-        log.error("[ToolActions]", `Error initializing tools: ${error}`)
-      }
+      log.error("[ToolActions]", error instanceof Error ? error.message : "Unknown error")
       self.setError("Failed to initialize tools")
     }
   })
