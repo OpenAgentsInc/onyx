@@ -30,8 +30,9 @@ export const markdownStyles = StyleSheet.create({
     fontFamily: typography.primary.normal,
   },
   link: {
-    color: "#0366d6", // GitHub-style link color
+    color: colors.text, // Changed from #0366d6 to use theme text color
     fontFamily: typography.primary.normal,
+    textDecorationLine: "underline", // Added underline to distinguish links
   },
   blockquote: {
     borderLeftWidth: 4,
