@@ -149,11 +149,14 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
             <Text style={voiceStyles.errorText}>{error}</Text>
           ) : (
             <View style={voiceStyles.transcriptionContainer}>
-              <Text style={voiceStyles.listeningText}>
-                {isRecording ? "Listening..." : "Paused"}
-              </Text>
+              <View style={voiceStyles.listeningContainer}>
+                <Text style={voiceStyles.listeningText}>
+                  {isRecording ? "Listening..." : "Paused"}
+                </Text>
+                {isRecording && <ActivityIndicator size="small" color="#fff" />}
+              </View>
               <Text style={voiceStyles.placeholderText}>
-                Start speaking...
+                Speak, then press send
               </Text>
             </View>
           )}
