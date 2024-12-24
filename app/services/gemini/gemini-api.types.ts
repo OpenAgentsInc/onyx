@@ -1,4 +1,5 @@
-import type { ChatMessage, ChatCompletionResponse } from "../groq/groq-api.types"
+import type { ChatMessage as GroqChatMessage, ChatCompletionResponse } from "../groq/groq-api.types"
+import type { ITool } from "../../models/tools/ToolStore"
 
 export interface GeminiConfig {
   apiKey: string
@@ -11,7 +12,38 @@ export interface GenerateContentConfig {
   maxOutputTokens?: number
   topP?: number
   topK?: number
+  tools?: ITool[]
+  tool_config?: {
+    function_calling_config: {
+      mode: "AUTO" | "ANY" | "NONE"
+      allowed_function_names?: string[]
+    }
+  }
+}
+
+export interface FunctionDeclaration {
+  name: string
+  description: string
+  parameters: {
+    type: string
+    properties: Record<string, {
+      type: string
+      description: string
+      enum?: string[]
+      required?: boolean
+    }>
+    required?: string[]
+  }
+}
+
+export interface FunctionCall {
+  name: string
+  args: Record<string, unknown>
+}
+
+export interface ChatMessage extends Omit<GroqChatMessage, "function_call"> {
+  function_call?: FunctionCall
 }
 
 // Using same response format as Groq for consistency
-export type { ChatMessage, ChatCompletionResponse }
+export { ChatCompletionResponse }
