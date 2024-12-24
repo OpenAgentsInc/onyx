@@ -44,7 +44,14 @@ export class GroqChatApi {
   private convertToGroqMessages(messages: IMessage[]): ChatMessage[] {
     // Add system message if not present
     if (!messages.find(msg => msg.role === "system")) {
-      messages = [DEFAULT_SYSTEM_MESSAGE, ...messages]
+      const systemMessage: IMessage = {
+        id: "system",
+        role: "system",
+        content: DEFAULT_SYSTEM_MESSAGE.content,
+        createdAt: Date.now(),
+        metadata: {},
+      }
+      messages = [systemMessage, ...messages]
     }
     return messages.map(msg => ({
       role: msg.role as "system" | "user" | "assistant",
@@ -95,7 +102,7 @@ export class GroqChatApi {
       return { kind: "ok", response: response.data }
     } catch (e) {
       if (__DEV__) {
-        log.error("[GroqChatApi]", e instanceof Error ? e.message : "Unknown error")
+        log.error("[GroqChatApi] " + (e instanceof Error ? e.message : "Unknown error"))
       }
       return { kind: "bad-data" }
     }
@@ -184,7 +191,7 @@ export class GroqChatApi {
       return { kind: "ok", response: response.data }
     } catch (e) {
       if (__DEV__) {
-        log.error("[GroqChatApi]", e instanceof Error ? e.message : "Unknown error")
+        log.error("[GroqChatApi] " + (e instanceof Error ? e.message : "Unknown error"))
       }
       return { kind: "bad-data" }
     }
