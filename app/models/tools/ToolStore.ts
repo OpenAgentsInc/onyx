@@ -20,6 +20,9 @@ export const ToolModel = types
     lastUsed: types.maybe(types.number),
     metadata: types.optional(types.frozen(), {}),
   })
+  .volatile(self => ({
+    implementation: undefined as ((...args: any[]) => Promise<any>) | undefined,
+  }))
   .actions(self => ({
     setEnabled(enabled: boolean) {
       self.enabled = enabled
@@ -29,6 +32,9 @@ export const ToolModel = types
     },
     markUsed() {
       self.lastUsed = Date.now()
+    },
+    setImplementation(implementation: (...args: any[]) => Promise<any>) {
+      self.implementation = implementation
     }
   }))
 
@@ -60,6 +66,9 @@ export const ToolStoreModel = types
       }) {
         const existingTool = self.tools.find(t => t.id === tool.id)
         if (existingTool) {
+          if (tool.implementation) {
+            existingTool.setImplementation(tool.implementation)
+          }
           return existingTool
         }
         
@@ -68,9 +77,13 @@ export const ToolStoreModel = types
           enabled: tool.enabled ?? true,
           metadata: {
             ...tool.metadata,
-            implementation: tool.implementation,
           },
         })
+
+        if (tool.implementation) {
+          newTool.setImplementation(tool.implementation)
+        }
+
         self.tools.push(newTool)
         return newTool
       },
@@ -125,7 +138,7 @@ export const ToolStoreModel = types
             preview: "Added view_file tool",
             value: { 
               id: viewFileTool.id,
-              hasImplementation: !!viewFileTool.metadata?.implementation
+              hasImplementation: !!viewFileTool.implementation
             },
             important: true,
           })
@@ -146,7 +159,7 @@ export const ToolStoreModel = types
             preview: "Added view_hierarchy tool",
             value: { 
               id: viewHierarchyTool.id,
-              hasImplementation: !!viewHierarchyTool.metadata?.implementation
+              hasImplementation: !!viewHierarchyTool.implementation
             },
             important: true,
           })
@@ -160,7 +173,7 @@ export const ToolStoreModel = types
               tools: self.tools.map(t => ({
                 id: t.id,
                 name: t.name,
-                hasImplementation: !!t.metadata?.implementation
+                hasImplementation: !!t.implementation
               }))
             },
             important: true,
@@ -197,10 +210,10 @@ export const ToolStoreModel = types
         value: { 
           id, 
           found: !!tool,
-          hasImplementation: tool ? !!tool.metadata?.implementation : false,
+          hasImplementation: tool ? !!tool.implementation : false,
           tools: self.tools.map(t => ({
             id: t.id,
-            hasImplementation: !!t.metadata?.implementation
+            hasImplementation: !!t.implementation
           }))
         },
         important: true,
