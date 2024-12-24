@@ -48,7 +48,7 @@ export class GeminiChatApi {
       })
       messages = [systemMessage, ...messages]
     }
-    
+
     // Filter out any messages with empty content and ensure content is a string
     return messages
       .filter(msg => msg.content && msg.content.trim() !== "")
@@ -67,7 +67,7 @@ export class GeminiChatApi {
   ): Promise<{ kind: "ok"; response: ChatCompletionResponse } | GeneralApiProblem> {
     try {
       const geminiMessages = this.convertToGeminiMessages(messages)
-      
+
       // Validate that we have at least one message with non-empty content
       if (geminiMessages.length === 0) {
         throw new Error("No valid messages to send to Gemini API")
