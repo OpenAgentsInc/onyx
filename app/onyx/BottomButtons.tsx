@@ -9,12 +9,14 @@ interface BottomButtonsProps {
   onTextPress: () => void
   onVoicePress: () => void
   onConfigurePress: () => void
+  onToolsPress: () => void
 }
 
 export const BottomButtons = ({
   onTextPress,
   onVoicePress,
   onConfigurePress,
+  onToolsPress,
 }: BottomButtonsProps) => {
   const { chatStore } = useStores()
 
@@ -24,6 +26,11 @@ export const BottomButtons = ({
 
   return (
     <>
+      {/* Tools Button */}
+      <TouchableOpacity activeOpacity={0.8} onPress={onToolsPress} style={styles.toolsButton}>
+        <Ionicons name="construct-outline" size={24} color={colors.textDim} />
+      </TouchableOpacity>
+
       {/* Configure Button */}
       {/* <TouchableOpacity
         activeOpacity={0.8}
