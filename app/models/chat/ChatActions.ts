@@ -2,6 +2,7 @@ import { flow, Instance } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { groqChatApi } from "../../services/groq/groq-chat"
 import { geminiChatApi } from "../../services/gemini/gemini-chat"
+import { getRootStore } from "../_helpers/getRootStore"
 
 /**
  * Chat actions that integrate with the Groq and Gemini APIs
@@ -45,12 +46,22 @@ export const withGroqActions = (self: Instance<any>) => ({
           },
         )
       } else {
+        // Get enabled tools from store
+        const rootStore = getRootStore(self)
+        const enabledTools = rootStore.toolStore.enabledTools
+
         // Get chat completion from Gemini
         result = yield geminiChatApi.createChatCompletion(
           self.currentMessages,
           {
             temperature: 0.7,
             maxOutputTokens: 1024,
+            tools: enabledTools,
+            tool_config: {
+              function_calling_config: {
+                mode: "AUTO"
+              }
+            }
           },
         )
       }
