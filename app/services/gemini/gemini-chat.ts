@@ -35,9 +35,8 @@ export class GeminiChatApi {
 
   private async initializeClient() {
     try {
-      const { genai } = await import("@google/generative-ai")
-      this.client = new genai.Client({
-        project: this.config.project,
+      const { GoogleGenerativeAI } = await import("@google/generative-ai")
+      this.client = new GoogleGenerativeAI(this.config.project, {
         location: this.config.location,
       })
 
@@ -50,7 +49,7 @@ export class GeminiChatApi {
         },
       })
     } catch (error) {
-      log.error("[GeminiChatApi]", "Failed to initialize client:", error)
+      log.error("[GeminiChatApi]", error instanceof Error ? error.message : "Unknown error")
       throw error
     }
   }
@@ -96,7 +95,7 @@ export class GeminiChatApi {
           result,
         })
       } catch (error) {
-        log.error("[GeminiChatApi]", `Error executing tool ${call.name}:`, error)
+        log.error("[GeminiChatApi]", error instanceof Error ? error.message : "Unknown error")
         responses.push({
           toolCallId: call.id,
           result: { error: error instanceof Error ? error.message : "Unknown error" },
