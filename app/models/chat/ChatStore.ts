@@ -1,5 +1,5 @@
 import {
-  Instance, IStateTreeNode, SnapshotIn, SnapshotOut, types, IAnyModelType
+  Instance, SnapshotIn, SnapshotOut, types, IAnyModelType
 } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
@@ -99,7 +99,7 @@ export interface ChatStoreSnapshotIn extends SnapshotIn<typeof ChatStoreModel> {
 import { withGroqActions } from "./ChatActions"
 
 // Create a new model that includes the Groq actions
-export const ChatStoreWithActions = types.compose(
+export const ChatStoreWithActions: IAnyModelType = types.compose(
   "ChatStoreWithActions",
   ChatStoreModel,
   types.model({})
