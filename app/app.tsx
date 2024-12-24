@@ -2,6 +2,7 @@ if (__DEV__) {
   require("./devtools/ReactotronConfig.ts")
 }
 
+import "@/utils/ignore-warnings"
 import "@/utils/crypto-polyfill"
 import "text-encoding-polyfill"
 import { useFonts } from "expo-font"
