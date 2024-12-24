@@ -102,9 +102,6 @@
     ├── splash.png
 ├── dist
 ├── docs
-  ├── 146.md
-  ├── 147.md
-  ├── 148.md
   ├── ai-design-language.md
   ├── data-marketplace.md
   ├── groq.md
@@ -117,6 +114,10 @@
   ├── permissions.md
   ├── roadmap-brainstorming.md
   ├── roadmap.md
+  ├── transcripts
+    ├── ep146.md
+    ├── ep147.md
+    ├── ep148.md
   ├── voice.md
 ├── eas.json
 ├── ios
