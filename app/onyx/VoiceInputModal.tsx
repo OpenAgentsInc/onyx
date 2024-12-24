@@ -50,7 +50,7 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
       })
     } catch (err) {
       setError("Failed to get recording permissions")
-      log.error("[VoiceInputModal]", "Error setting up recording:", err)
+      log.error("[VoiceInputModal] Error setting up recording: " + (err instanceof Error ? err.message : String(err)))
     }
   }
 
@@ -64,7 +64,7 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
       setIsRecording(true)
     } catch (err) {
       setError("Failed to start recording")
-      log.error("[VoiceInputModal]", "Error starting recording:", err)
+      log.error("[VoiceInputModal] Error starting recording: " + (err instanceof Error ? err.message : String(err)))
     }
   }
 
@@ -82,7 +82,7 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
       }
     } catch (err) {
       setError("Failed to stop recording")
-      log.error("[VoiceInputModal]", "Error stopping recording:", err)
+      log.error("[VoiceInputModal] Error stopping recording: " + (err instanceof Error ? err.message : String(err)))
     }
   }
 
@@ -101,11 +101,11 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
         setTranscribedText(result.response.text)
       } else {
         setError("Failed to transcribe audio")
-        log.error("[VoiceInputModal]", "Transcription error:", result)
+        log.error("[VoiceInputModal] Transcription error: " + JSON.stringify(result))
       }
     } catch (err) {
       setError("Failed to transcribe audio")
-      log.error("[VoiceInputModal]", "Error transcribing audio:", err)
+      log.error("[VoiceInputModal] Error transcribing audio: " + (err instanceof Error ? err.message : String(err)))
     } finally {
       setIsTranscribing(false)
     }
