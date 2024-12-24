@@ -4,7 +4,7 @@ This document describes the voice transcription integration with Groq's Whisper 
 
 ## Overview
 
-The voice integration combines Expo's AV recording capabilities with Groq's Whisper-based transcription service to provide high-quality speech-to-text functionality. This implementation replaces the previous react-native-voice solution with a more controlled and accurate transcription process.
+The voice integration combines Expo's AV recording capabilities with Groq's Whisper-based transcription service to provide high-quality speech-to-text functionality. The implementation provides a seamless voice input experience with automatic recording and transcription.
 
 ## Architecture
 
@@ -12,8 +12,8 @@ The voice integration combines Expo's AV recording capabilities with Groq's Whis
 
 1. **VoiceInputModal**
    - Handles audio recording UI/UX
-   - Manages recording state and user interactions
-   - Coordinates with Groq API for transcription
+   - Auto-starts recording when opened
+   - Manages recording state and transcription
    - Integrates with ChatStore for message handling
 
 2. **GroqChatApi**
@@ -39,14 +39,13 @@ sequenceDiagram
     User->>VoiceInputModal: Opens modal
     VoiceInputModal->>ExpoAV: Request permissions
     ExpoAV-->>VoiceInputModal: Permissions granted
-    User->>VoiceInputModal: Taps record
-    VoiceInputModal->>ExpoAV: Start recording
-    User->>VoiceInputModal: Taps stop
+    VoiceInputModal->>ExpoAV: Auto-start recording
+    Note over VoiceInputModal: User speaks
+    User->>VoiceInputModal: Taps Send
     VoiceInputModal->>ExpoAV: Stop recording
     ExpoAV-->>VoiceInputModal: Audio file
     VoiceInputModal->>GroqAPI: Send for transcription
     GroqAPI-->>VoiceInputModal: Transcribed text
-    User->>VoiceInputModal: Taps send
     VoiceInputModal->>ChatStore: Send message
 ```
 
@@ -79,11 +78,17 @@ interface TranscriptionResponse {
 ```typescript
 // Initialize audio recording
 const setupRecording = async () => {
-  await Audio.requestPermissionsAsync()
+  const { granted } = await Audio.requestPermissionsAsync()
+  if (!granted) {
+    setError("Microphone permission is required")
+    return
+  }
+
   await Audio.setAudioModeAsync({
     allowsRecordingIOS: true,
     playsInSilentModeIOS: true,
   })
+  startRecording()
 }
 
 // Start recording
@@ -100,18 +105,31 @@ const startRecording = async () => {
 ```typescript
 // In GroqChatApi
 async transcribeAudio(
-  audioFile: Blob,
+  audioUri: string,
   config: Partial<TranscriptionConfig> = {}
 ): Promise<{ kind: "ok"; response: TranscriptionResponse } | GeneralApiProblem> {
   const formData = new FormData()
-  formData.append("file", audioFile)
+  
+  // Create file object from uri
+  const fileInfo = {
+    uri: audioUri,
+    type: "audio/m4a",
+    name: "recording.m4a"
+  }
+  
+  formData.append("file", fileInfo as any)
   formData.append("model", config.model || "whisper-large-v3")
-  
-  // Add optional configuration
   if (config.language) formData.append("language", config.language)
-  if (config.prompt) formData.append("prompt", config.prompt)
   
-  const response = await this.apisauce.post("/audio/transcriptions", formData)
+  const response = await fetch(`${this.config.baseURL}/audio/transcriptions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${this.config.apiKey}`,
+      Accept: "application/json",
+    },
+    body: formData
+  })
+  
   // Handle response...
 }
 ```
@@ -140,13 +158,11 @@ const DEFAULT_CONFIG: GroqConfig = {
 const RECORDING_OPTIONS = {
   ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
   android: {
-    ...Audio.RecordingOptionsPresets.HIGH_QUALITY.android,
     extension: '.m4a',
     outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
     audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
   },
   ios: {
-    ...Audio.RecordingOptionsPresets.HIGH_QUALITY.ios,
     extension: '.m4a',
     outputFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_MPEG4AAC,
     audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MAX,
@@ -163,22 +179,13 @@ const VoiceInput = () => {
   const [isRecording, setIsRecording] = useState(false)
   const recording = useRef<Audio.Recording | null>(null)
 
-  const startRecording = async () => {
-    try {
-      await Audio.requestPermissionsAsync()
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      })
-      const { recording: newRecording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      )
-      recording.current = newRecording
-      setIsRecording(true)
-    } catch (err) {
-      console.error("Failed to start recording", err)
+  useEffect(() => {
+    if (visible) {
+      setupRecording()
+    } else {
+      stopRecording()
     }
-  }
+  }, [visible])
 
   // ... rest of implementation
 }
@@ -200,7 +207,6 @@ The implementation includes comprehensive error handling at multiple levels:
 
 3. **UI Error States**
    - Visual feedback for errors
-   - Retry mechanisms
    - Clear error messages
 
 ## Best Practices
@@ -213,13 +219,12 @@ The implementation includes comprehensive error handling at multiple levels:
 2. **Error Handling**
    - Implement comprehensive error handling
    - Provide clear user feedback
-   - Include retry mechanisms
    - Log errors appropriately
 
 3. **User Experience**
+   - Auto-start recording when modal opens
    - Show clear recording status
    - Provide visual feedback for all states
-   - Implement confirmation for long recordings
    - Allow preview before sending
 
 4. **Performance**
@@ -230,7 +235,7 @@ The implementation includes comprehensive error handling at multiple levels:
 ## Limitations
 
 1. **Audio Format Support**
-   - Supported formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
+   - Supported formats: m4a (recommended)
    - Maximum file size: 25MB
    - Optimal quality vs. size balance needed
 
@@ -253,8 +258,8 @@ The implementation includes comprehensive error handling at multiple levels:
    - Offline support
 
 3. **User Experience**
-   - Waveform visualization
-   - Audio playback preview
+   - Audio level visualization
+   - Pause/resume functionality
    - Enhanced error recovery
 
 ## Resources
