@@ -36,17 +36,6 @@
       ├── ChatStore.ts
       ├── index.ts
     ├── index.ts
-    ├── llm
-      ├── LLMStore.ts
-      ├── actions
-        ├── cancel-model-download.ts
-        ├── chat-completion.ts
-        ├── delete-model.ts
-        ├── init-context.ts
-        ├── initialize.ts
-        ├── select-model.ts
-        ├── start-model-download.ts
-      ├── index.ts
     ├── tools
       ├── ToolActions.ts
       ├── ToolStore.ts
@@ -54,8 +43,6 @@
   ├── onyx
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
-    ├── ConfigureModal.styles.ts
-    ├── ConfigureModal.tsx
     ├── OnyxLayout.tsx
     ├── TextInputModal.tsx
     ├── VoiceInputModal.styles.ts

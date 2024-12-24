@@ -1,9 +1,9 @@
-import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { StyleSheet, View, TextInput, ScrollView, TouchableOpacity } from "react-native"
-import { Text } from "react-native"
+import React, { FC, useEffect, useState } from "react"
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import { useStores } from "../models/_helpers/useStores"
 import { colors } from "../theme"
+
 import type { ToolResult } from "../services/gemini/tools/types"
 
 export const ToolTestScreen: FC = observer(function ToolTestScreen() {
@@ -23,6 +23,7 @@ export const ToolTestScreen: FC = observer(function ToolTestScreen() {
   }, [toolStore])
 
   const handleViewFile = async () => {
+    console.log("you clicked view file")
     setLoading(true)
     setError("")
     try {
@@ -31,12 +32,12 @@ export const ToolTestScreen: FC = observer(function ToolTestScreen() {
         throw new Error("Tool not found")
       }
 
-      const response = await tool.metadata.implementation({
+      const response = (await tool.metadata.implementation({
         owner,
         repo,
         branch,
         path,
-      }) as ToolResult<unknown>
+      })) as ToolResult<unknown>
 
       if (!response.success) {
         throw new Error(response.error)
@@ -59,12 +60,12 @@ export const ToolTestScreen: FC = observer(function ToolTestScreen() {
         throw new Error("Tool not found")
       }
 
-      const response = await tool.metadata.implementation({
+      const response = (await tool.metadata.implementation({
         owner,
         repo,
         branch,
         path,
-      }) as ToolResult<unknown>
+      })) as ToolResult<unknown>
 
       if (!response.success) {
         throw new Error(response.error)
