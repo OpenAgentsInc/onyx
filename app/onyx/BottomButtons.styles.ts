@@ -32,4 +32,12 @@ export const styles = StyleSheet.create({
     bottom: 86,
     zIndex: 10,
   },
+  toolsButton: {
+    width: 24,
+    height: 24,
+    position: "absolute",
+    left: 35,
+    bottom: 86,
+    zIndex: 10,
+  },
 })
