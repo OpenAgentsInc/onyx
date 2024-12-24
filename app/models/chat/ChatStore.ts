@@ -1,5 +1,5 @@
 import {
-  Instance, SnapshotIn, SnapshotOut, types, IAnyModelType
+  Instance, SnapshotIn, SnapshotOut, types, IAnyModelType, cast
 } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
@@ -103,7 +103,7 @@ export const ChatStoreWithActions = types.compose(
   "ChatStoreWithActions",
   ChatStoreModel,
   types.model({})
-).actions(self => withGroqActions(self))
+).actions(self => withGroqActions(self as ChatStore))
 
 export const createChatStoreDefaultModel = () =>
   ChatStoreWithActions.create({
