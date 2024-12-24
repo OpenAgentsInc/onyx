@@ -1,17 +1,23 @@
-import { flow, Instance, getRoot } from "mobx-state-tree"
+import { flow, Instance, getRoot, IStateTreeNode } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { groqChatApi } from "../../services/groq/groq-chat"
 import { geminiChatApi } from "../../services/gemini/gemini-chat"
 import type { RootStore } from "../RootStore"
+import type { ChatStore } from "./ChatStore"
+import type { ITool } from "../tools/ToolStore"
+
+type ChatActions = {
+  sendMessage: (content: string) => Promise<void>
+}
 
 /**
  * Chat actions that integrate with the Groq and Gemini APIs
  */
-export const withGroqActions = (self: Instance<any>) => ({
+export const withGroqActions = (self: Instance<IStateTreeNode>): ChatActions => ({
   /**
    * Sends a message to the selected model and handles the response
    */
-  sendMessage: flow(function* (content: string) {
+  sendMessage: flow(function* (content: string): Generator<any, void, any> {
     try {
       // Add user message
       const userMessage = self.addMessage({
@@ -48,7 +54,7 @@ export const withGroqActions = (self: Instance<any>) => ({
       } else {
         // Get enabled tools from store
         const rootStore = getRoot<RootStore>(self)
-        const enabledTools = rootStore.toolStore.enabledTools
+        const enabledTools: ITool[] = rootStore.toolStore.enabledTools
 
         // Get chat completion from Gemini
         result = yield geminiChatApi.createChatCompletion(
