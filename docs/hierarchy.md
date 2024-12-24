@@ -45,6 +45,7 @@
     ├── BottomButtons.tsx
     ├── OnyxLayout.tsx
     ├── TextInputModal.tsx
+    ├── ToolTestModal.tsx
     ├── VoiceInputModal.styles.ts
     ├── VoiceInputModal.tsx
     ├── styles.ts
@@ -52,7 +53,6 @@
     ├── ErrorScreen
       ├── ErrorBoundary.tsx
       ├── ErrorDetails.tsx
-    ├── ToolTestScreen.tsx
   ├── services
     ├── api
       ├── api.ts
