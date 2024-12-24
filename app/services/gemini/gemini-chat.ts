@@ -156,7 +156,7 @@ export class GeminiChatApi {
       })
 
       const response: ApiResponse<any> = await this.apisauce.post(
-        `/models/gemini-pro:generateContent?key=${this.config.apiKey}`,
+        `/models/gemini-1.5-pro:generateContent?key=${this.config.apiKey}`,
         payload
       )
 
