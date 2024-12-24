@@ -5,6 +5,7 @@ import { useStores } from "../models/_helpers/useStores"
 import { colors } from "../theme"
 import { typography } from "../theme"
 import { styles as baseStyles } from "./styles"
+import { log } from "@/utils/log"
 
 import type { ToolResult } from "../services/gemini/tools/types"
 
@@ -33,10 +34,24 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
     setLoading(true)
     setError("")
     try {
+      log({
+        name: "[ToolTestModal] handleViewFile",
+        preview: "Getting tool",
+        value: { tools: toolStore.tools.map(t => t.id) },
+        important: true,
+      })
+
       const tool = toolStore.getToolById("github_view_file")
       if (!tool) {
         throw new Error("Tool not found")
       }
+
+      log({
+        name: "[ToolTestModal] handleViewFile",
+        preview: "Found tool",
+        value: { tool },
+        important: true,
+      })
 
       const response = (await tool.metadata.implementation({
         owner,
@@ -51,6 +66,7 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
 
       setResult(JSON.stringify(response.data, null, 2))
     } catch (err) {
+      log.error("[ToolTestModal]", err instanceof Error ? err.message : "Unknown error")
       setError(err instanceof Error ? err.message : "Unknown error")
     } finally {
       setLoading(false)
@@ -61,10 +77,24 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
     setLoading(true)
     setError("")
     try {
+      log({
+        name: "[ToolTestModal] handleViewHierarchy",
+        preview: "Getting tool",
+        value: { tools: toolStore.tools.map(t => t.id) },
+        important: true,
+      })
+
       const tool = toolStore.getToolById("github_view_hierarchy")
       if (!tool) {
         throw new Error("Tool not found")
       }
+
+      log({
+        name: "[ToolTestModal] handleViewHierarchy",
+        preview: "Found tool",
+        value: { tool },
+        important: true,
+      })
 
       const response = (await tool.metadata.implementation({
         owner,
@@ -79,6 +109,7 @@ export const ToolTestModal = observer(({ visible, onClose }: ToolTestModalProps)
 
       setResult(JSON.stringify(response.data, null, 2))
     } catch (err) {
+      log.error("[ToolTestModal]", err instanceof Error ? err.message : "Unknown error")
       setError(err instanceof Error ? err.message : "Unknown error")
     } finally {
       setLoading(false)
