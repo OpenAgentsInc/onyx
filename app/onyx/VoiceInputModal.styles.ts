@@ -18,10 +18,12 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
+    marginTop: -120,
+    height: 110
   },
   listeningText: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 22,
     fontFamily: typography.primary.normal,
     marginRight: 10,
   },
