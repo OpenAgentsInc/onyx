@@ -25,7 +25,7 @@ export const githubTools: Record<string, FunctionDeclaration> = {
           description: "The branch to view the file from",
         },
       },
-      required: ["path", "owner", "repo", "branch"],
+      required: ["path", "owner", "repo", "branch"]
     },
   },
 
@@ -52,7 +52,7 @@ export const githubTools: Record<string, FunctionDeclaration> = {
           description: "The branch to view the hierarchy from",
         },
       },
-      required: ["path", "owner", "repo", "branch"],
+      required: ["path", "owner", "repo", "branch"]
     },
   },
 }
