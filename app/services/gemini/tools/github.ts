@@ -23,7 +23,15 @@ export const githubTools: Record<string, Tool> = {
         description: "The branch to view the file from",
       },
     },
-    execute: viewFile,
+    execute: async (params: Record<string, unknown>) => {
+      const typedParams = params as {
+        path: string
+        owner: string
+        repo: string
+        branch: string
+      }
+      return viewFile(typedParams)
+    },
   },
 
   viewHierarchy: {
@@ -47,6 +55,14 @@ export const githubTools: Record<string, Tool> = {
         description: "The branch to view the hierarchy from",
       },
     },
-    execute: viewHierarchy,
+    execute: async (params: Record<string, unknown>) => {
+      const typedParams = params as {
+        path: string
+        owner: string
+        repo: string
+        branch: string
+      }
+      return viewHierarchy(typedParams)
+    },
   },
 }
