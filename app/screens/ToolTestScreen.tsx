@@ -24,7 +24,7 @@ export const ToolTestScreen: FC = observer(function ToolTestScreen() {
         throw new Error("Tool not found")
       }
 
-      const response = await toolStore.executeTool("github_view_file", {
+      const response = yield* toolStore.executeTool("github_view_file", {
         owner,
         repo,
         branch,
@@ -52,7 +52,7 @@ export const ToolTestScreen: FC = observer(function ToolTestScreen() {
         throw new Error("Tool not found")
       }
 
-      const response = await toolStore.executeTool("github_view_hierarchy", {
+      const response = yield* toolStore.executeTool("github_view_hierarchy", {
         owner,
         repo,
         branch,
@@ -162,14 +162,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.palette.accent500,
     padding: 10,
     borderRadius: 5,
     minWidth: 120,
     alignItems: "center",
   },
   buttonText: {
-    color: colors.textInverse,
+    color: colors.palette.neutral100,
     fontWeight: "bold",
   },
   resultContainer: {
