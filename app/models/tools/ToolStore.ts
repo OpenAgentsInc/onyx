@@ -3,9 +3,11 @@ import {
   SnapshotIn,
   SnapshotOut,
   types,
+  flow,
 } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
+import { viewFile, viewHierarchy } from "../../services/gemini/tools/github-impl"
 
 export const ToolModel = types
   .model("Tool", {
@@ -86,6 +88,48 @@ export const ToolStoreModel = types
     setError(error: string | null) {
       self.error = error
     },
+
+    initializeDefaultTools: flow(function* () {
+      try {
+        // Add GitHub tools
+        self.addTool({
+          id: "github_view_file",
+          name: "view_file",
+          description: "View file contents at path",
+          parameters: {
+            path: "string",
+            owner: "string",
+            repo: "string",
+            branch: "string"
+          },
+          metadata: {
+            category: "github",
+            implementation: viewFile
+          }
+        })
+
+        self.addTool({
+          id: "github_view_hierarchy",
+          name: "view_hierarchy",
+          description: "View file/folder hierarchy at path",
+          parameters: {
+            path: "string",
+            owner: "string",
+            repo: "string",
+            branch: "string"
+          },
+          metadata: {
+            category: "github",
+            implementation: viewHierarchy
+          }
+        })
+
+        self.isInitialized = true
+      } catch (error) {
+        log.error("[ToolStore]", error instanceof Error ? error.message : "Unknown error")
+        self.setError("Failed to initialize tools")
+      }
+    }),
   }))
   .views((self) => ({
     get enabledTools() {
@@ -107,18 +151,8 @@ export interface ToolStore extends Instance<typeof ToolStoreModel> { }
 export interface ToolStoreSnapshotOut extends SnapshotOut<typeof ToolStoreModel> { }
 export interface ToolStoreSnapshotIn extends SnapshotIn<typeof ToolStoreModel> { }
 
-// Add tool actions
-import { withToolActions } from "./ToolActions"
-
-export const ToolStoreWithActions = types.compose(
-  "ToolStoreWithActions",
-  ToolStoreModel,
-  types.model({})
-    .actions(withToolActions)
-)
-
 export const createToolStoreDefaultModel = () =>
-  ToolStoreWithActions.create({
+  ToolStoreModel.create({
     tools: [],
     isInitialized: false,
     error: null,
