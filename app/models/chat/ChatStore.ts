@@ -11,7 +11,7 @@ import { withGroqActions } from "./ChatActions"
 export const MessageModel = types
   .model("Message", {
     id: types.string,
-    role: types.enumeration(["system", "user", "assistant"]),
+    role: types.enumeration(["system", "user", "assistant", "function"]),
     content: types.string,
     createdAt: types.number,
     metadata: types.optional(types.frozen(), {}),
@@ -41,7 +41,7 @@ export const ChatStoreModel = types
   .actions(withSetPropAction)
   .actions((self) => ({
     addMessage(message: {
-      role: "system" | "user" | "assistant"
+      role: "system" | "user" | "assistant" | "function"
       content: string
       metadata?: any
     }) {
@@ -123,5 +123,5 @@ export const createChatStoreDefaultModel = () =>
     messages: [],
     currentConversationId: "default",
     isGenerating: false,
-    activeModel: "groq",
+    activeModel: "gemini",
   })
