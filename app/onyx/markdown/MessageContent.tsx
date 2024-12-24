@@ -11,9 +11,12 @@ interface MessageContentProps {
 
 export function MessageContent({ message }: MessageContentProps) {
   const handleLinkPress = (url: string) => {
-    // Handle link clicks - return true to use default behavior (open in browser)
-    // You could add custom handling here for specific link types
-    return Linking.openURL(url)
+    // Handle link clicks
+    Linking.openURL(url).catch(err => 
+      console.error("Failed to open URL:", err)
+    )
+    // Return true to indicate we've handled the link
+    return true
   }
 
   const isUserMessage = message.role === "user"
