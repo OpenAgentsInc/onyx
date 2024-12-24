@@ -170,9 +170,16 @@ export class GeminiChatApi {
 
       // Handle function calls in response
       const functionCall = response.data.candidates?.[0]?.content?.parts?.[0]?.functionCall
-      const content = functionCall 
-        ? JSON.stringify(functionCall)
-        : response.data.candidates[0].content.parts[0].text
+      let content
+      if (functionCall) {
+        // Format function call to match expected structure
+        content = JSON.stringify({
+          name: functionCall.name,
+          args: functionCall.args
+        })
+      } else {
+        content = response.data.candidates[0].content.parts[0].text
+      }
 
       // Convert Gemini response to Groq format for consistency
       const formattedResponse: ChatCompletionResponse = {
@@ -185,7 +192,6 @@ export class GeminiChatApi {
           message: {
             role: "assistant",
             content,
-            // We'll handle function calls in ChatActions instead
           },
           finish_reason: response.data.candidates[0].finishReason,
         }],
