@@ -2,7 +2,7 @@ import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 import { ChatStoreWithActions } from "./chat/ChatStore"
 import { ToolStoreModel } from "./tools"
 
-export const RootStoreModel = types
+const RootStoreModel = types
   .model("RootStore")
   .props({
     chatStore: types.optional(ChatStoreWithActions, {}),
@@ -13,9 +13,12 @@ export const RootStoreModel = types
     })
   })
 
-export interface RootStore extends Instance<typeof RootStoreModel> { }
+export interface IRootStore extends Instance<typeof RootStoreModel> { }
 export interface RootStoreSnapshotOut extends SnapshotOut<typeof RootStoreModel> { }
 export interface RootStoreSnapshotIn extends SnapshotIn<typeof RootStoreModel> { }
+
+export { RootStoreModel }
+export type RootStore = Instance<typeof RootStoreModel>
 
 export const createRootStoreDefaultModel = () =>
   RootStoreModel.create({
