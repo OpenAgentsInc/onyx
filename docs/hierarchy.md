@@ -43,6 +43,7 @@
   ├── onyx
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
+    ├── ConfigureModal.tsx
     ├── OnyxLayout.tsx
     ├── TextInputModal.tsx
     ├── ToolTestModal.tsx
@@ -106,6 +107,7 @@
 ├── docs
   ├── ai-design-language.md
   ├── data-marketplace.md
+  ├── gemini-function-calling.md
   ├── gemini.md
   ├── groq-voice.md
   ├── groq.md
@@ -113,6 +115,7 @@
   ├── keys.md
   ├── llm-store.md
   ├── local-models.md
+  ├── model-switching.md
   ├── onboarding.md
   ├── onyx-layout.md
   ├── permissions.md
