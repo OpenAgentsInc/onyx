@@ -83,8 +83,9 @@ export class GeminiChatApi {
     return nonSystemMessages
       .filter(msg => msg.content && msg.content.trim() !== "")
       .map(msg => ({
-        role: msg.role === "assistant" ? "model" : "user",
+        role: msg.role === "assistant" ? "model" : msg.role === "function" ? "function" : "user",
         content: msg.content.trim(),
+        name: msg.metadata?.name, // Include function name for function messages
       }))
   }
 
@@ -111,7 +112,8 @@ export class GeminiChatApi {
       const payload = {
         contents: geminiMessages.map(msg => ({
           role: msg.role,
-          parts: [{ text: msg.content }]
+          parts: [{ text: msg.content }],
+          ...(msg.name && { name: msg.name }), // Include function name if present
         })),
         generationConfig: {
           temperature: options.temperature ?? 0.7,
