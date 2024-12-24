@@ -1,19 +1,29 @@
-import { flow, Instance, getRoot } from "mobx-state-tree"
+import { flow, Instance, getRoot, IAnyStateTreeNode } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { groqChatApi } from "../../services/groq/groq-chat"
 import { geminiChatApi } from "../../services/gemini/gemini-chat"
 import type { RootStore } from "../RootStore"
-import type { ChatStore, ChatStoreModel } from "./ChatStore"
+import type { ChatStore } from "./ChatStore"
 import type { ITool } from "../tools/ToolStore"
 
 type ChatActions = {
   sendMessage: (content: string) => Promise<void>
 }
 
+interface IWithChatActions extends IAnyStateTreeNode {
+  addMessage: (message: { role: string; content: string; metadata?: any }) => any
+  updateMessage: (id: string, updates: { content?: string; metadata?: any }) => void
+  setIsGenerating: (value: boolean) => void
+  setError: (error: string | null) => void
+  currentConversationId: string
+  activeModel: "groq" | "gemini"
+  currentMessages: any[]
+}
+
 /**
  * Chat actions that integrate with the Groq and Gemini APIs
  */
-export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActions => ({
+export const withGroqActions = (self: IWithChatActions): ChatActions => ({
   /**
    * Sends a message to the selected model and handles the response
    */
