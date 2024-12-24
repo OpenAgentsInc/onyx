@@ -76,13 +76,6 @@
           "resizeMode": "cover",
           "backgroundColor": "#000000"
         }
-      ],
-      [
-        "@react-native-voice/voice",
-        {
-          "microphonePermission": "Allow Onyx to access your microphone for voice commands",
-          "speechRecognitionPermission": "Allow Onyx to securely recognize your speech"
-        }
       ]
     ],
     "experiments": {
