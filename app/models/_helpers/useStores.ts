@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { RootStore, RootStoreModel } from "../RootStore"
+import { RootStore, RootStoreModel, createRootStoreDefaultModel } from "../RootStore"
 import { setupRootStore } from "./setupRootStore"
 
 /**
  * Create the initial (empty) global RootStore instance here.
  */
-const _rootStore = RootStoreModel.create({})
+const _rootStore = createRootStoreDefaultModel()
 
 /**
  * The RootStoreContext provides a way to access
@@ -35,28 +35,34 @@ export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
   useEffect(() => {
     let _unsubscribe: () => void | undefined
     ;(async () => {
-      // set up the RootStore (returns the state restored from AsyncStorage)
-      const { unsubscribe } = await setupRootStore(rootStore)
-      _unsubscribe = unsubscribe
+      try {
+        // set up the RootStore (returns the state restored from AsyncStorage)
+        const { unsubscribe } = await setupRootStore(rootStore)
+        _unsubscribe = unsubscribe
 
-      // reactotron integration with the MST root store (DEV only)
-      if (__DEV__) {
-        // @ts-ignore
-        console.tron.trackMstNode(rootStore)
+        // reactotron integration with the MST root store (DEV only)
+        if (__DEV__) {
+          // @ts-ignore
+          console.tron?.trackMstNode(rootStore)
+        }
+
+        // let the app know we've finished rehydrating
+        setRehydrated(true)
+
+        // invoke the callback, if provided
+        if (callback) await callback()
+      } catch (error) {
+        console.error("Failed to setup root store:", error)
+        // Still set rehydrated to true to prevent infinite loading
+        setRehydrated(true)
       }
-
-      // let the app know we've finished rehydrating
-      setRehydrated(true)
-
-      // invoke the callback, if provided
-      if (callback) await callback()
     })()
 
     return () => {
       // cleanup
       if (_unsubscribe !== undefined) _unsubscribe()
     }
-  }, [])
+  }, [callback])
 
   return { rehydrated }
 }
