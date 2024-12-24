@@ -83,9 +83,8 @@ export class GeminiChatApi {
     return nonSystemMessages
       .filter(msg => msg.content && msg.content.trim() !== "")
       .map(msg => ({
-        role: msg.role === "system" ? "user" : msg.role as "user" | "assistant",
+        role: msg.role === "assistant" ? "model" : "user",
         content: msg.content.trim(),
-        function_call: msg.metadata?.function_call,
       }))
   }
 
@@ -186,10 +185,7 @@ export class GeminiChatApi {
           message: {
             role: "assistant",
             content,
-            function_call: functionCall ? {
-              name: functionCall.name,
-              arguments: JSON.stringify(functionCall.args)
-            } : undefined
+            // We'll handle function calls in ChatActions instead
           },
           finish_reason: response.data.candidates[0].finishReason,
         }],
