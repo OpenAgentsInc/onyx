@@ -32,7 +32,7 @@ export const BottomButtons = ({
       </TouchableOpacity>
 
       {/* Configure Button */}
-      {/* <TouchableOpacity
+      <TouchableOpacity
         activeOpacity={0.8}
         onPress={onConfigurePress}
         style={styles.configureButton}
@@ -42,7 +42,7 @@ export const BottomButtons = ({
           style={{ width: "100%", height: "100%" }}
           resizeMode="contain"
         />
-      </TouchableOpacity> */}
+      </TouchableOpacity>
 
       {/* Trash Button */}
       <TouchableOpacity activeOpacity={0.8} onPress={handleClearChat} style={styles.trashButton}>
