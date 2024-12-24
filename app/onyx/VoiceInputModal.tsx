@@ -48,6 +48,7 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
       })
+      startRecording()
     } catch (err) {
       setError("Failed to get recording permissions")
       log.error("[VoiceInputModal] Error setting up recording: " + (err instanceof Error ? err.message : String(err)))
@@ -136,14 +137,6 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
     }
   }
 
-  const toggleRecording = () => {
-    if (isRecording) {
-      stopRecording()
-    } else {
-      startRecording()
-    }
-  }
-
   const isDisabled = !transcribedText.trim() || chatStore.isGenerating
 
   return (
@@ -174,18 +167,6 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
             <Text style={voiceStyles.errorText}>{error}</Text>
           ) : (
             <View style={voiceStyles.transcriptionContainer}>
-              <Pressable 
-                onPress={toggleRecording}
-                style={[
-                  voiceStyles.recordButton,
-                  isRecording && voiceStyles.recordingButton
-                ]}
-              >
-                <Text style={voiceStyles.recordButtonText}>
-                  {isRecording ? "Stop" : "Record"}
-                </Text>
-              </Pressable>
-
               {isTranscribing ? (
                 <View style={voiceStyles.transcribingContainer}>
                   <ActivityIndicator size="small" color="#fff" />
@@ -194,13 +175,13 @@ export const VoiceInputModal = observer(({ visible, onClose, transcript }: Voice
               ) : (
                 <>
                   <Text style={voiceStyles.listeningText}>
-                    {isRecording ? "Recording..." : "Press Record to start"}
+                    {isRecording ? "Listening..." : "Paused"}
                   </Text>
                   {transcribedText ? (
                     <Text style={voiceStyles.transcriptionText}>{transcribedText}</Text>
                   ) : (
                     <Text style={voiceStyles.placeholderText}>
-                      Transcribed text will appear here...
+                      Start speaking...
                     </Text>
                   )}
                 </>
