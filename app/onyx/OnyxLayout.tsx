@@ -37,15 +37,10 @@ const ChatOverlay = observer(() => {
 })
 
 export const OnyxLayout = observer(() => {
-  const { llmStore } = useStores()
   const [showTextInput, setShowTextInput] = useState(false)
   const [showVoiceInput, setShowVoiceInput] = useState(false)
   const [showConfigure, setShowConfigure] = useState(false)
   const [transcript, setTranscript] = useState("")
-
-  useEffect(() => {
-    llmStore.initialize()
-  }, [llmStore])
 
   const handleStartVoiceInput = () => {
     setTranscript("") // Reset transcript
