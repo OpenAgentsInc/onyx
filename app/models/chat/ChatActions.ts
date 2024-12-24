@@ -1,13 +1,14 @@
 import { flow, Instance } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { groqChatApi } from "../../services/groq/groq-chat"
+import { geminiChatApi } from "../../services/gemini/gemini-chat"
 
 /**
- * Chat actions that integrate with the Groq API
+ * Chat actions that integrate with the Groq and Gemini APIs
  */
 export const withGroqActions = (self: Instance<any>) => ({
   /**
-   * Sends a message to Groq and handles the response
+   * Sends a message to the selected model and handles the response
    */
   sendMessage: flow(function* (content: string) {
     try {
@@ -32,15 +33,27 @@ export const withGroqActions = (self: Instance<any>) => ({
 
       self.setIsGenerating(true)
 
-      // Get chat completion from Groq
-      const result = yield groqChatApi.createChatCompletion(
-        self.currentMessages,
-        "llama-3.1-8b-instant",
-        {
-          temperature: 0.7,
-          max_tokens: 1024,
-        },
-      )
+      let result
+      if (self.activeModel === "groq") {
+        // Get chat completion from Groq
+        result = yield groqChatApi.createChatCompletion(
+          self.currentMessages,
+          "llama-3.1-8b-instant",
+          {
+            temperature: 0.7,
+            max_tokens: 1024,
+          },
+        )
+      } else {
+        // Get chat completion from Gemini
+        result = yield geminiChatApi.createChatCompletion(
+          self.currentMessages,
+          {
+            temperature: 0.7,
+            maxTokens: 1024,
+          },
+        )
+      }
 
       if (result.kind === "ok") {
         // Update assistant message with response
@@ -49,7 +62,8 @@ export const withGroqActions = (self: Instance<any>) => ({
           metadata: {
             ...assistantMessage.metadata,
             isGenerating: false,
-            tokens: result.response.usage.completion_tokens,
+            tokens: result.response.usage?.completion_tokens,
+            model: self.activeModel,
           },
         })
       } else {
@@ -60,6 +74,7 @@ export const withGroqActions = (self: Instance<any>) => ({
             ...assistantMessage.metadata,
             isGenerating: false,
             error: result.kind,
+            model: self.activeModel,
           },
         })
         if (__DEV__) {
