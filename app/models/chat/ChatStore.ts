@@ -103,9 +103,7 @@ export const ChatStoreWithActions = types.compose(
   "ChatStoreWithActions",
   ChatStoreModel,
   types.model({})
-).actions(self => ({
-  ...withGroqActions(self)
-}))
+).actions(self => withGroqActions(self))
 
 export const createChatStoreDefaultModel = () =>
   ChatStoreWithActions.create({
