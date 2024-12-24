@@ -43,10 +43,15 @@ export class GeminiChatApi {
       description: tool.description,
       parameters: {
         type: "object",
-        properties: tool.parameters,
-        required: Object.entries(tool.parameters)
-          .filter(([_, param]) => param.required)
-          .map(([name]) => name)
+        properties: Object.entries(tool.parameters).reduce((acc, [key, value]) => ({
+          ...acc,
+          [key]: {
+            type: value as string,
+            description: `Parameter ${key} for ${tool.name}`,
+            required: true
+          }
+        }), {}),
+        required: Object.keys(tool.parameters)
       }
     }
   }
@@ -72,7 +77,7 @@ export class GeminiChatApi {
       .filter(msg => msg.content && msg.content.trim() !== "")
       .map(msg => ({
         role: msg.role as "system" | "user" | "assistant",
-        parts: [{ text: msg.content.trim() }],
+        content: msg.content.trim(),
         function_call: msg.metadata?.function_call,
       }))
   }
@@ -100,7 +105,7 @@ export class GeminiChatApi {
       const payload = {
         contents: [{
           parts: geminiMessages.map(msg => ({
-            text: msg.parts[0].text
+            text: msg.content
           }))
         }],
         generationConfig: {
@@ -151,7 +156,6 @@ export class GeminiChatApi {
           message: {
             role: "assistant",
             content,
-            function_call: functionCall,
           },
           finish_reason: response.data.candidates[0].finishReason,
         }],
