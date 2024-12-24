@@ -1,5 +1,5 @@
 import {
-  Instance, SnapshotIn, SnapshotOut, types, IAnyModelType, cast
+  Instance, SnapshotIn, SnapshotOut, types, IAnyModelType, cast, IStateTreeNode
 } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
@@ -83,18 +83,24 @@ export const ChatStoreModel = types
       self.activeModel = model
     }
   }))
-  .views((self) => ({
-    get currentMessages(): IMessage[] {
+  .views((self) => {
+    const filteredMessages = () => {
       return self.messages
         .filter(msg => !msg.metadata?.conversationId || msg.metadata.conversationId === self.currentConversationId)
         .slice()
-    },
-    get conversationText(): string {
-      return self.currentMessages
-        .map((msg: IMessage) => msg.content)
-        .join('\n\n')
     }
-  }))
+
+    return {
+      get currentMessages() {
+        return filteredMessages()
+      },
+      get conversationText() {
+        return filteredMessages()
+          .map((msg: IMessage) => msg.content)
+          .join('\n\n')
+      }
+    }
+  })
 
 export interface ChatStore extends Instance<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> { }
