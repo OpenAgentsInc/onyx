@@ -116,83 +116,70 @@ export class GroqChatApi {
     config: Partial<TranscriptionConfig> = {}
   ): Promise<{ kind: "ok"; response: TranscriptionResponse } | GeneralApiProblem> {
     try {
+      log({
+        name: "[GroqChatApi] transcribeAudio",
+        preview: "Audio file path",
+        value: audioUri,
+        important: true,
+      })
+
       // Create form data
       const formData = new FormData()
 
-      // Get the file extension from the URI
-      const extension = audioUri.split('.').pop()?.toLowerCase() || 'm4a'
-      const mimeType = `audio/${extension === 'm4a' ? 'mp4' : extension}`
-
-      // Create file object from URI
-      formData.append('file', {
+      // Create file object from uri
+      const fileInfo = {
         uri: audioUri,
-        type: mimeType,
-        name: `audio.${extension}`,
-      } as any)
-
-      // Add other configuration
-      formData.append("model", config.model || "whisper-large-v3")
-      if (config.language) formData.append("language", config.language)
-      if (config.prompt) formData.append("prompt", config.prompt)
-      if (config.response_format) formData.append("response_format", config.response_format)
-      if (config.temperature !== undefined) formData.append("temperature", config.temperature.toString())
-      if (config.timestamp_granularities) {
-        config.timestamp_granularities.forEach(granularity => {
-          formData.append("timestamp_granularities[]", granularity)
-        })
+        type: "audio/m4a",
+        name: "recording.m4a"
       }
 
+      // Add file to form data
+      formData.append("file", fileInfo as any)
+      formData.append("model", config.model || "whisper-large-v3")
+      if (config.language) formData.append("language", config.language)
+
+      // Log the form data
       log({
         name: "[GroqChatApi] transcribeAudio",
-        preview: "Sending transcription request",
+        preview: "Form data",
         value: {
-          uri: audioUri,
-          mimeType,
-          formData: Object.fromEntries(formData as any),
+          file: fileInfo,
+          model: config.model || "whisper-large-v3",
+          language: config.language,
         },
         important: true,
       })
 
-      // Create a new instance with multipart/form-data
-      const formDataApi = create({
-        baseURL: this.config.baseURL,
-        timeout: this.config.timeout,
+      // Make the request using fetch
+      const response = await fetch(`${this.config.baseURL}/audio/transcriptions`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${this.config.apiKey}`,
-          "Content-Type": "multipart/form-data",
           Accept: "application/json",
         },
-      })
-
-      const response: ApiResponse<TranscriptionResponse> = await formDataApi.post(
-        "/audio/transcriptions",
-        formData
-      )
-
-      log({
-        name: "[GroqChatApi] transcribeAudio",
-        preview: "Transcription response",
-        value: {
-          status: response.status,
-          data: response.data,
-          problem: response.problem,
-          originalError: response.originalError,
-        },
-        important: true,
+        body: formData
       })
 
       if (!response.ok) {
-        const problem = getGeneralApiProblem(response)
-        if (problem) return problem
+        const errorText = await response.text()
+        log({
+          name: "[GroqChatApi] transcribeAudio",
+          preview: "Server error response",
+          value: errorText,
+          important: true,
+        })
+        return { kind: "bad-data" }
       }
 
-      if (!response.data) throw new Error("No data received from Groq API")
-
-      return { kind: "ok", response: response.data }
+      const data = await response.json()
+      return { kind: "ok", response: data }
     } catch (e) {
-      if (__DEV__) {
-        log.error("[GroqChatApi] " + (e instanceof Error ? e.message : "Unknown error"))
-      }
+      log({
+        name: "[GroqChatApi] transcribeAudio error",
+        preview: "Error",
+        value: e instanceof Error ? e.message : String(e),
+        important: true,
+      })
       return { kind: "bad-data" }
     }
   }
