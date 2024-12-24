@@ -25,7 +25,7 @@ export const MessageModel = types
 export interface IMessage extends Instance<typeof MessageModel> { }
 
 // Store Model
-const ChatStoreModel = types
+export const ChatStoreModel = types
   .model("ChatStore")
   .props({
     isInitialized: types.optional(types.boolean, false),
