@@ -35,7 +35,7 @@ export const withGroqActions = (self: Instance<any>) => ({
       // Get chat completion from Groq
       const result = yield groqChatApi.createChatCompletion(
         self.currentMessages,
-        "llama3-70b-8192",
+        "llama-3.1-8b-instant",
         {
           temperature: 0.7,
           max_tokens: 1024,

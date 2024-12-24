@@ -1,13 +1,12 @@
 import { ApiResponse, ApisauceInstance, create } from "apisauce"
 import { log } from "@/utils/log"
 import Config from "../../config"
+import { MessageModel } from "../../models/chat/ChatStore"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
 import { DEFAULT_SYSTEM_MESSAGE } from "../local-models/constants"
 
 import type { GroqConfig, ChatMessage, ChatCompletionResponse, TranscriptionResponse, TranscriptionConfig } from "./groq-api.types"
 import type { IMessage } from "../../models/chat/ChatStore"
-import { MessageModel } from "../../models/chat/ChatStore"
-
 const DEFAULT_CONFIG: GroqConfig = {
   apiKey: Config.GROQ_API_KEY ?? "",
   baseURL: "https://api.groq.com/openai/v1",
@@ -65,7 +64,7 @@ export class GroqChatApi {
    */
   async createChatCompletion(
     messages: IMessage[],
-    model: string = "llama3-70b-8192",
+    model: string = "llama-3.1-8b-instant",
     options: {
       temperature?: number
       max_tokens?: number

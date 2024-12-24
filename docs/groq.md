@@ -40,11 +40,13 @@ app/services/groq/
 ### Core Components
 
 1. **Type Definitions** (`groq-api.types.ts`):
+
    - `GroqConfig` - API configuration interface
    - `ChatMessage` - Message format for chat completions
    - `ChatCompletionResponse` - Response format from chat endpoints
 
 2. **API Implementation** (`groq-chat.ts`):
+
    - `GroqChatApi` class handling API interactions
    - Error handling and response processing
    - Message format conversion
@@ -57,12 +59,14 @@ app/services/groq/
 ### Usage in Components
 
 #### Text Input
+
 ```typescript
 const { chatStore } = useStores()
 await chatStore.sendMessage(messageText)
 ```
 
 #### Voice Input
+
 ```typescript
 const { chatStore } = useStores()
 await chatStore.sendMessage(transcribedText)
@@ -73,9 +77,10 @@ await chatStore.sendMessage(transcribedText)
 ### Currently Implemented
 
 #### Chat Completions
+
 - Endpoint: `/chat/completions`
-- Models: 
-  - `llama3-70b-8192` (default)
+- Models:
+  - `lllama-3.1-8b-instant` (default)
   - Other Groq models as they become available
 - Parameters:
   ```typescript
@@ -91,6 +96,7 @@ await chatStore.sendMessage(transcribedText)
 ### Future Expansion Opportunities
 
 #### Speech-to-Text
+
 Groq's speech-to-text API could be integrated to replace or supplement the current local voice transcription:
 
 ```typescript
@@ -110,6 +116,7 @@ class GroqSpeechApi {
 ```
 
 #### Text-to-Speech
+
 If Groq adds text-to-speech capabilities:
 
 ```typescript
@@ -133,12 +140,14 @@ class GroqSpeechApi {
 The integration includes comprehensive error handling:
 
 1. **API Level**:
+
    - Network errors
    - Authentication errors
    - Rate limiting
    - Invalid responses
 
 2. **Store Level**:
+
    - Message state management
    - Error state propagation
    - Loading states
@@ -151,11 +160,13 @@ The integration includes comprehensive error handling:
 ## Best Practices
 
 1. **API Calls**:
+
    - Always use the store actions rather than calling the API directly
    - Handle errors at the appropriate level
    - Use proper typing for all API interactions
 
 2. **Configuration**:
+
    - Keep API keys secure
    - Use environment variables for configuration
    - Set appropriate timeouts
@@ -175,6 +186,7 @@ To add support for new Groq endpoints:
 4. Update documentation
 
 Example:
+
 ```typescript
 // 1. Add types
 interface NewEndpointConfig {
@@ -190,7 +202,7 @@ class GroqNewFeatureApi {
 const withNewFeatureActions = (self: Instance<any>) => ({
   newFeatureAction: flow(function* () {
     // ...
-  })
+  }),
 })
 ```
 
