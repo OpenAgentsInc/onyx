@@ -2,9 +2,9 @@ import { ApiResponse, ApisauceInstance, create } from "apisauce"
 import { log } from "@/utils/log"
 import Config from "../../config"
 import { MessageModel } from "../../models/chat/ChatStore"
+import { ITool } from "../../models/tools/ToolStore"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
 import { DEFAULT_SYSTEM_MESSAGE } from "../local-models/constants"
-import { ITool } from "../../models/tools/ToolStore"
 
 import type { GeminiConfig, ChatMessage, ChatCompletionResponse, GenerateContentConfig, FunctionDeclaration } from "./gemini-api.types"
 import type { IMessage } from "../../models/chat/ChatStore"
@@ -71,7 +71,7 @@ export class GeminiChatApi {
     // For Gemini, convert system message to user message and prepend it
     const systemMessage = messages.find(msg => msg.role === "system")
     const nonSystemMessages = messages.filter(msg => msg.role !== "system")
-    
+
     if (systemMessage) {
       nonSystemMessages.unshift({
         ...systemMessage,
@@ -113,7 +113,7 @@ export class GeminiChatApi {
       }
 
       // Convert tools to function declarations if provided
-      const functionDeclarations = options.tools?.map(tool => 
+      const functionDeclarations = options.tools?.map(tool =>
         this.convertToolToFunctionDeclaration(tool)
       )
 
@@ -194,7 +194,7 @@ export class GeminiChatApi {
         id: "gemini-" + Date.now(),
         object: "chat.completion",
         created: Date.now(),
-        model: "gemini-pro",
+        model: "gemini-1.5-pro",
         choices: [{
           index: 0,
           message: {
