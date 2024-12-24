@@ -4,7 +4,10 @@
     "strict": true,
     "paths": {
       "@/*": ["./app/*"]
-    }
+    },
+    "module": "esnext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
   },
   "include": ["**/*.ts", "**/*.tsx"]
 }
