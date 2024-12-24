@@ -3,6 +3,7 @@ export interface GeminiConfig {
   location?: string
   model?: string
   timeout?: number
+  apiKey: string
 }
 
 export interface ChatMessage {
@@ -30,18 +31,16 @@ export interface ToolResponse {
 }
 
 export interface ChatCompletionChoice {
-  index: number
   message: ChatMessage
-  toolCalls?: ToolCall[]
-  finish_reason: string
+  finishReason: string
 }
 
 export interface ChatCompletionResponse {
   candidates: ChatCompletionChoice[]
   usage: {
-    prompt_tokens: number
-    completion_tokens: number
-    total_tokens: number
+    promptTokens: number
+    completionTokens: number
+    totalTokens: number
   }
 }
 
