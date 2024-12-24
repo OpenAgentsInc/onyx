@@ -50,7 +50,7 @@ export const withGroqActions = (self: Instance<any>) => ({
           self.currentMessages,
           {
             temperature: 0.7,
-            maxTokens: 1024,
+            maxOutputTokens: 1024,
           },
         )
       }
