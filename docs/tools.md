@@ -39,17 +39,13 @@ Tools are defined with standardized interfaces in `app/services/gemini/tools/`:
 
 ```typescript
 interface ToolDefinition {
+  id: string
   name: string
   description: string
-  parameters: Record<string, ToolParameter>
-  execute: (params: Record<string, unknown>) => Promise<unknown>
-}
-
-interface ToolParameter {
-  type: string
-  description: string
-  enum?: string[]
-  required?: boolean
+  parameters: Record<string, unknown>
+  enabled?: boolean
+  metadata?: any
+  implementation?: (...args: any[]) => Promise<any>
 }
 ```
 
@@ -65,7 +61,7 @@ Tools are integrated with LLMs (like Gemini) through:
 
 ### GitHub Tools
 
-#### 1. View File (`view_file`)
+#### 1. View File (`github_view_file`)
 Views contents of a file in a GitHub repository.
 
 Parameters:
@@ -76,7 +72,17 @@ Parameters:
 
 Example:
 ```typescript
-const result = await toolStore.executeTool("github_view_file", {
+const tool = toolStore.getToolById("github_view_file")
+if (!tool) {
+  throw new Error("Tool not found")
+}
+
+const implementation = tool.metadata?.implementation
+if (!implementation) {
+  throw new Error("Tool implementation not found")
+}
+
+const response = await implementation({
   path: "README.md",
   owner: "OpenAgentsInc",
   repo: "onyx",
@@ -95,7 +101,7 @@ interface FileToolResult {
 }
 ```
 
-#### 2. View Hierarchy (`view_hierarchy`)
+#### 2. View Hierarchy (`github_view_hierarchy`)
 Views the file/folder structure at a path.
 
 Parameters:
@@ -106,7 +112,17 @@ Parameters:
 
 Example:
 ```typescript
-const result = await toolStore.executeTool("github_view_hierarchy", {
+const tool = toolStore.getToolById("github_view_hierarchy")
+if (!tool) {
+  throw new Error("Tool not found")
+}
+
+const implementation = tool.metadata?.implementation
+if (!implementation) {
+  throw new Error("Tool implementation not found")
+}
+
+const response = await implementation({
   path: "src",
   owner: "OpenAgentsInc",
   repo: "onyx",
@@ -120,7 +136,6 @@ interface HierarchyToolResult {
   path: string
   type: "file" | "dir"
   name: string
-  children?: HierarchyToolResult[]
 }
 ```
 
@@ -147,21 +162,32 @@ interface NewToolResult {
 Create tool implementation:
 
 ```typescript
-const newTool: Tool = {
+const newTool: ToolDefinition = {
+  id: "new_tool",
   name: "new_tool",
   description: "Does something useful",
   parameters: {
-    param1: {
-      type: "string",
-      description: "First parameter"
-    },
-    param2: {
-      type: "number",
-      description: "Second parameter"
-    }
+    param1: "string",
+    param2: "number"
   },
-  execute: async (params) => {
-    // Implementation
+  metadata: {
+    category: "my_category",
+  },
+  implementation: async (params: NewToolParams): Promise<ToolResult<NewToolResult>> => {
+    try {
+      // Implementation
+      return {
+        success: true,
+        data: {
+          // Result data
+        }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error"
+      }
+    }
   }
 }
 ```
@@ -175,12 +201,15 @@ toolStore.addTool({
   id: "new_tool",
   name: "new_tool",
   description: "Does something useful",
-  parameters: {...},
+  parameters: {
+    param1: "string",
+    param2: "number"
+  },
   metadata: {
     category: "my_category",
-    implementation: async (params) => {
-      // Implementation
-    }
+  },
+  implementation: async (params) => {
+    // Implementation
   }
 })
 ```
@@ -192,11 +221,18 @@ Create tests in `__tests__/tools/`:
 ```typescript
 describe("new_tool", () => {
   it("executes successfully", async () => {
-    const result = await toolStore.executeTool("new_tool", {
+    const tool = toolStore.getToolById("new_tool")
+    expect(tool).toBeDefined()
+
+    const implementation = tool?.metadata?.implementation
+    expect(implementation).toBeDefined()
+
+    const response = await implementation({
       param1: "test",
       param2: 123
     })
-    expect(result).toBeDefined()
+    expect(response.success).toBe(true)
+    expect(response.data).toBeDefined()
   })
 })
 ```
@@ -246,15 +282,15 @@ Tools should return standardized errors:
 
 ```typescript
 interface ToolError {
-  code: string
-  message: string
+  success: false
+  error: string
   details?: unknown
 }
 
 // Example
-throw {
-  code: "INVALID_PARAMS",
-  message: "Invalid parameters provided",
+return {
+  success: false,
+  error: "Invalid parameters provided",
   details: { param: "path", error: "Path cannot be empty" }
 }
 ```
