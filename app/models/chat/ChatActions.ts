@@ -11,7 +11,7 @@ type ChatActions = {
 }
 
 interface IWithChatActions extends IAnyStateTreeNode {
-  addMessage: (message: { role: string; content: string; metadata?: any }) => any
+  addMessage: (message: { role: "system" | "user" | "assistant"; content: string; metadata?: any }) => any
   updateMessage: (id: string, updates: { content?: string; metadata?: any }) => void
   setIsGenerating: (value: boolean) => void
   setError: (error: string | null) => void
