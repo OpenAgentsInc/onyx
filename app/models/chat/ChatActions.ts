@@ -1,8 +1,8 @@
-import { flow, Instance } from "mobx-state-tree"
+import { flow, Instance, getRoot } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { groqChatApi } from "../../services/groq/groq-chat"
 import { geminiChatApi } from "../../services/gemini/gemini-chat"
-import { getRootStore } from "../_helpers/getRootStore"
+import type { RootStore } from "../RootStore"
 
 /**
  * Chat actions that integrate with the Groq and Gemini APIs
@@ -47,7 +47,7 @@ export const withGroqActions = (self: Instance<any>) => ({
         )
       } else {
         // Get enabled tools from store
-        const rootStore = getRootStore(self)
+        const rootStore = getRoot<RootStore>(self)
         const enabledTools = rootStore.toolStore.enabledTools
 
         // Get chat completion from Gemini
