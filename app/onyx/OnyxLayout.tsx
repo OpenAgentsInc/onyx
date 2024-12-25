@@ -1,14 +1,14 @@
+import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
 import React, { useState } from "react"
 import { View } from "react-native"
-import { Message, useChat } from "@ai-sdk/react"
-import { fetch as expoFetch } from "expo/fetch"
-import { ChatOverlay } from "./ChatOverlay"
+import { useChat } from "@ai-sdk/react"
 import { BottomButtons } from "./BottomButtons"
-import { TextInputModal } from "./TextInputModal"
-import { VoiceInputModal } from "./VoiceInputModal"
-import { ToolTestModal } from "./ToolTestModal"
+import { ChatOverlay } from "./ChatOverlay"
 import { ConfigureModal } from "./ConfigureModal"
+import { TextInputModal } from "./TextInputModal"
+import { ToolTestModal } from "./ToolTestModal"
+import { VoiceInputModal } from "./VoiceInputModal"
 
 export const OnyxLayout = observer(() => {
   const [showTextInput, setShowTextInput] = useState(false)
@@ -50,9 +50,9 @@ export const OnyxLayout = observer(() => {
     <View style={{ flex: 1, backgroundColor: "black" }}>
       <ChatOverlay messages={messages} />
 
-      <TextInputModal 
-        visible={showTextInput} 
-        onClose={() => setShowTextInput(false)} 
+      <TextInputModal
+        visible={showTextInput}
+        onClose={() => setShowTextInput(false)}
         onSendMessage={handleSendMessage}
       />
 
@@ -63,15 +63,9 @@ export const OnyxLayout = observer(() => {
         onSendMessage={handleSendMessage}
       />
 
-      <ToolTestModal
-        visible={showTools}
-        onClose={() => setShowTools(false)}
-      />
+      <ToolTestModal visible={showTools} onClose={() => setShowTools(false)} />
 
-      <ConfigureModal
-        visible={showConfigure}
-        onClose={() => setShowConfigure(false)}
-      />
+      <ConfigureModal visible={showConfigure} onClose={() => setShowConfigure(false)} />
 
       <BottomButtons
         onTextPress={() => setShowTextInput(true)}
