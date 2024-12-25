@@ -49,10 +49,10 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
             source={require("../../assets/images/Thinking-Animation.gif")}
             style={{
               position: "absolute",
-              top: -35,
-              right: -45,
-              width: 128,
-              height: 128,
+              top: 10,
+              right: 5,
+              width: 40,
+              height: 40,
             }}
           />
         )}
