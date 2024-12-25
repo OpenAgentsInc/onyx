@@ -44,6 +44,7 @@
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
     ├── ChatOverlay.tsx
+    ├── ChatOverlayPrev.tsx
     ├── ConfigureModal.tsx
     ├── OnyxLayout.tsx
     ├── TextInputModal.tsx
@@ -52,6 +53,7 @@
     ├── VoiceInputModal.tsx
     ├── markdown
       ├── MessageContent.tsx
+      ├── MessageContentPrev.tsx
       ├── index.ts
       ├── styles.ts
     ├── styles.ts
@@ -106,6 +108,8 @@
     ├── text.png
     ├── voice.png
   ├── images
+    ├── Thinking-Animation-Orig.gif
+    ├── Thinking-Animation.gif
     ├── app-icon-all.png
     ├── splash.png
 ├── dist
@@ -114,6 +118,7 @@
   ├── data-marketplace.md
   ├── gemini-function-calling.md
   ├── gemini.md
+  ├── github-tools.md
   ├── groq-voice.md
   ├── groq.md
   ├── init.md
