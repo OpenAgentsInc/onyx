@@ -3,8 +3,8 @@ import { Image, TouchableOpacity, View } from "react-native"
 import { useStores } from "@/models"
 import { colors } from "@/theme"
 import { Ionicons } from "@expo/vector-icons"
+import Clipboard from "@react-native-clipboard/clipboard"
 import { styles } from "./BottomButtons.styles"
-import Clipboard from '@react-native-clipboard/clipboard'
 
 interface BottomButtonsProps {
   onTextPress: () => void
@@ -38,7 +38,7 @@ export const BottomButtons = ({
       </TouchableOpacity>
 
       {/* Configure Button */}
-      <TouchableOpacity
+      {/* <TouchableOpacity
         activeOpacity={0.8}
         onPress={onConfigurePress}
         style={styles.configureButton}
@@ -48,10 +48,14 @@ export const BottomButtons = ({
           style={{ width: "100%", height: "100%" }}
           resizeMode="contain"
         />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* Copy Button */}
-      <TouchableOpacity activeOpacity={0.8} onPress={handleCopyConversation} style={styles.copyButton}>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={handleCopyConversation}
+        style={styles.copyButton}
+      >
         <Ionicons name="copy-outline" size={24} color={colors.textDim} />
       </TouchableOpacity>
 
