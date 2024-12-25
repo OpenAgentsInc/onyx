@@ -38,17 +38,13 @@ export const BottomButtons = ({
       </TouchableOpacity>
 
       {/* Configure Button */}
-      {/* <TouchableOpacity
+      <TouchableOpacity
         activeOpacity={0.8}
         onPress={onConfigurePress}
         style={styles.configureButton}
       >
-        <Image
-          source={require("../../assets/icons/configure.png")}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode="contain"
-        />
-      </TouchableOpacity> */}
+        <Ionicons name="settings-outline" size={24} color={colors.textDim} />
+      </TouchableOpacity>
 
       {/* Copy Button */}
       <TouchableOpacity
