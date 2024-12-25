@@ -11,6 +11,7 @@ interface BottomButtonsProps {
   onVoicePress: () => void
   onConfigurePress: () => void
   onToolsPress: () => void
+  setMessages: (messages: any) => void
 }
 
 export const BottomButtons = ({
@@ -18,11 +19,13 @@ export const BottomButtons = ({
   onVoicePress,
   onConfigurePress,
   onToolsPress,
+  setMessages,
 }: BottomButtonsProps) => {
   const { chatStore } = useStores()
 
   const handleClearChat = () => {
     chatStore.clearMessages()
+    setMessages([])
   }
 
   const handleCopyConversation = () => {

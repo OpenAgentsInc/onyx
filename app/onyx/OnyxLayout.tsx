@@ -3,13 +3,13 @@ import { observer } from "mobx-react-lite"
 import React, { useState } from "react"
 import { View } from "react-native"
 import { useChat } from "@ai-sdk/react"
+import Config from "../config"
 import { BottomButtons } from "./BottomButtons"
 import { ChatOverlay } from "./ChatOverlay"
 import { ConfigureModal } from "./ConfigureModal"
 import { TextInputModal } from "./TextInputModal"
 import { ToolTestModal } from "./ToolTestModal"
 import { VoiceInputModal } from "./VoiceInputModal"
-import Config from "../config"
 
 export const OnyxLayout = observer(() => {
   const [showTextInput, setShowTextInput] = useState(false)
@@ -34,7 +34,7 @@ export const OnyxLayout = observer(() => {
         content: json.result.text,
         role: "assistant" as const,
         createdAt: new Date(json.result.response.timestamp),
-        toolInvocations: json.result.toolCalls || []
+        toolInvocations: json.result.toolCalls || [],
       }
 
       // Append the new message to existing messages
@@ -86,6 +86,7 @@ export const OnyxLayout = observer(() => {
         onVoicePress={handleStartVoiceInput}
         onConfigurePress={() => setShowConfigure(true)}
         onToolsPress={() => setShowTools(true)}
+        setMessages={setMessages}
       />
     </View>
   )
