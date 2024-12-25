@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native"
 export const styles = StyleSheet.create({
   bottomButtons: {
     position: "absolute",
-    bottom: 40, // Moved down 30px (from 70 to 40)
+    bottom: 40,
     left: 0,
     right: 0,
     flexDirection: "row",
@@ -17,11 +17,11 @@ export const styles = StyleSheet.create({
     height: 56,
   },
   configureButton: {
-    width: 40,
-    height: 40,
+    width: 24,
+    height: 24,
     position: "absolute",
-    right: 20,
-    top: 70,
+    left: 85,
+    bottom: 56,
     zIndex: 10,
   },
   trashButton: {
@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
     height: 24,
     position: "absolute",
     right: 20,
-    bottom: 56, // Moved down 30px (from 86 to 56)
+    bottom: 56,
     zIndex: 10,
   },
   toolsButton: {
@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
     height: 24,
     position: "absolute",
     left: 35,
-    bottom: 56, // Moved down 30px (from 86 to 56)
+    bottom: 56,
     zIndex: 10,
   },
   copyButton: {
@@ -45,7 +45,7 @@ export const styles = StyleSheet.create({
     height: 24,
     position: "absolute",
     right: 70,
-    bottom: 56, // Moved down 30px (from 86 to 56)
+    bottom: 56,
     zIndex: 10,
   },
 })
