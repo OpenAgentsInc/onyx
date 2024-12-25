@@ -1,6 +1,8 @@
 import { observer } from "mobx-react-lite"
 import React, { useState } from "react"
 import { View } from "react-native"
+import { Message, useChat } from "@ai-sdk/react"
+import { fetch as expoFetch } from "expo/fetch"
 import { ChatOverlay } from "./ChatOverlay"
 import { BottomButtons } from "./BottomButtons"
 import { TextInputModal } from "./TextInputModal"
@@ -15,6 +17,12 @@ export const OnyxLayout = observer(() => {
   const [showTools, setShowTools] = useState(false)
   const [transcript, setTranscript] = useState("")
 
+  const { messages, error, handleInputChange, input, handleSubmit } = useChat({
+    fetch: expoFetch as unknown as typeof globalThis.fetch,
+    api: "https://nexus.openagents.com/chat",
+    onError: (error) => console.error(error, "ERROR"),
+  })
+
   const handleStartVoiceInput = () => {
     setTranscript("") // Reset transcript
     setShowVoiceInput(true)
@@ -27,16 +35,26 @@ export const OnyxLayout = observer(() => {
     setTranscript("")
   }
 
+  const handleSendMessage = async (message: string) => {
+    handleInputChange(message)
+    await handleSubmit(message)
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-      <ChatOverlay />
+      <ChatOverlay messages={messages} />
 
-      <TextInputModal visible={showTextInput} onClose={() => setShowTextInput(false)} />
+      <TextInputModal 
+        visible={showTextInput} 
+        onClose={() => setShowTextInput(false)} 
+        onSendMessage={handleSendMessage}
+      />
 
       <VoiceInputModal
         visible={showVoiceInput}
         onClose={handleStopVoiceInput}
         transcript={transcript}
+        onSendMessage={handleSendMessage}
       />
 
       <ToolTestModal
