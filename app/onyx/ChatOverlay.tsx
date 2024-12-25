@@ -49,8 +49,8 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
             source={require("../../assets/images/Thinking-Animation.gif")}
             style={{
               position: "absolute",
-              right: -35,
-              left: -45,
+              top: -35,
+              right: -45,
               width: 128,
               height: 128,
             }}
