@@ -36,8 +36,14 @@ export const OnyxLayout = observer(() => {
   }
 
   const handleSendMessage = async (message: string) => {
-    handleInputChange(message)
-    await handleSubmit(message)
+    // Create a synthetic event object
+    const syntheticEvent = {
+      target: { value: message },
+      preventDefault: () => {},
+    } as any
+
+    handleInputChange(syntheticEvent)
+    await handleSubmit(syntheticEvent)
   }
 
   return (
