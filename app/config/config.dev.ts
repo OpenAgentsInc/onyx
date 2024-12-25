@@ -7,4 +7,5 @@
  */
 export default {
   API_URL: "https://api.rss2json.com/v1/",
+  NEXUS_URL: "http://localhost:3000/chat",
 }
