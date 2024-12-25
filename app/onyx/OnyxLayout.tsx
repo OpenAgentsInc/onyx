@@ -9,6 +9,7 @@ import { ConfigureModal } from "./ConfigureModal"
 import { TextInputModal } from "./TextInputModal"
 import { ToolTestModal } from "./ToolTestModal"
 import { VoiceInputModal } from "./VoiceInputModal"
+import Config from "../config"
 
 export const OnyxLayout = observer(() => {
   const [showTextInput, setShowTextInput] = useState(false)
@@ -19,7 +20,7 @@ export const OnyxLayout = observer(() => {
 
   const { messages, error, handleInputChange, input, handleSubmit, append, setMessages } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
-    api: "https://nexus.openagents.com/chat",
+    api: Config.NEXUS_URL,
     onError: (error) => console.error(error, "ERROR"),
     onResponse: async (response) => {
       console.log(response, "RESPONSE")
