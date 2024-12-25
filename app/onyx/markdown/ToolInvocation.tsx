@@ -6,6 +6,14 @@ interface JSONValue {
   [key: string]: any
 }
 
+interface ModalContentProps {
+  title: string
+  description: string
+  content: any
+  visible: boolean
+  onClose: () => void
+}
+
 export interface ToolInvocation {
   id?: string
   toolCallId?: string
@@ -16,7 +24,7 @@ export interface ToolInvocation {
   output?: JSONValue
   result?: JSONValue
   status?: 'pending' | 'completed' | 'failed'
-  state?: 'call' | 'result'
+  state?: 'call' | 'result' | 'partial-call'
 }
 
 const ensureObject = (value: JSONValue): Record<string, any> => {
@@ -32,6 +40,28 @@ const ensureObject = (value: JSONValue): Record<string, any> => {
   }
   return {}
 }
+
+const ModalContent = ({ title, description, content, visible, onClose }: ModalContentProps) => (
+  <Modal
+    animationType="slide"
+    transparent={true}
+    visible={visible}
+    onRequestClose={onClose}
+  >
+    <View style={styles.modalContainer}>
+      <View style={styles.modalContent}>
+        <Text style={styles.modalTitle}>{title}</Text>
+        <Text style={styles.modalDescription}>{description}</Text>
+        <ScrollView style={styles.modalScrollView}>
+          <Text style={styles.preText}>{JSON.stringify(content, null, 2)}</Text>
+        </ScrollView>
+        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+          <Text style={styles.closeButtonText}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
+)
 
 export function ToolInvocation({ toolInvocation }: { toolInvocation: ToolInvocation }) {
   const [isFileContentModalVisible, setIsFileContentModalVisible] = useState(false)
@@ -84,28 +114,6 @@ export function ToolInvocation({ toolInvocation }: { toolInvocation: ToolInvocat
   const summary = outputObject?.summary || outputObject?.value?.result?.summary || outputObject?.value?.result?.details || "---"
 
   const fileContent = outputObject?.content
-
-  const ModalContent = ({ title, description, content, visible, onClose }) => (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>{title}</Text>
-          <Text style={styles.modalDescription}>{description}</Text>
-          <ScrollView style={styles.modalScrollView}>
-            <Text style={styles.preText}>{JSON.stringify(content, null, 2)}</Text>
-          </ScrollView>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  )
 
   return (
     <View style={styles.card}>
@@ -208,7 +216,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   button: {
-    backgroundColor: colors.backgroundDark,
+    backgroundColor: colors.background,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 4,
@@ -257,7 +265,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     alignItems: 'center',
     padding: 8,
-    backgroundColor: colors.backgroundDark,
+    backgroundColor: colors.background,
     borderRadius: 4,
   },
   closeButtonText: {
@@ -273,7 +281,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   completedText: {
-    color: colors.success,
+    color: colors.text,
     fontSize: 18,
   },
   failedText: {
