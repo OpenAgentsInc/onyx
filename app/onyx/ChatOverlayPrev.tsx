@@ -1,12 +1,12 @@
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
-import { ScrollView, View, TouchableOpacity } from "react-native"
-import Clipboard from "@react-native-clipboard/clipboard"
+import { ScrollView, TouchableOpacity, View } from "react-native"
 import { useStores } from "@/models"
-import { styles as baseStyles } from "./styles"
 import { IMessage } from "@/models/chat/ChatStore"
 import { log } from "@/utils/log"
+import Clipboard from "@react-native-clipboard/clipboard"
 import { MessageContent } from "./markdown/MessageContent"
+import { styles as baseStyles } from "./styles"
 
 export const ChatOverlay = observer(() => {
   const { chatStore, toolStore } = useStores()
@@ -21,7 +21,7 @@ export const ChatOverlay = observer(() => {
           log({
             name: "[ChatOverlay] Tools initialized",
             preview: "Tools ready",
-            value: { tools: toolStore.tools.map(t => t.id) },
+            value: { tools: toolStore.tools.map((t) => t.id) },
             important: true,
           })
         } catch (err) {
@@ -55,6 +55,7 @@ export const ChatOverlay = observer(() => {
             activeOpacity={0.7}
           >
             <View style={baseStyles.message}>
+              {/* @ts-ignore */}
               <MessageContent message={message} />
             </View>
           </TouchableOpacity>
