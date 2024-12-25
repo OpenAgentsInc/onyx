@@ -28,7 +28,7 @@ export const styles = StyleSheet.create({
     width: 24,
     height: 24,
     position: "absolute",
-    right: 35,
+    right: 20,
     bottom: 56, // Moved down 30px (from 86 to 56)
     zIndex: 10,
   },
