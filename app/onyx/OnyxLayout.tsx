@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import { View } from "react-native"
 import { useChat } from "@ai-sdk/react"
 import Config from "../config"
+import { useStores } from "../models/_helpers/useStores"
 import { BottomButtons } from "./BottomButtons"
 import { ChatOverlay } from "./ChatOverlay"
 import { ConfigureModal } from "./ConfigureModal"
@@ -15,27 +16,30 @@ import { VoiceInputModal } from "./VoiceInputModal"
 const availableTools = ["view_file", "view_folder"]
 
 export const OnyxLayout = observer(() => {
+  const { chatStore } = useStores()
   const [showTextInput, setShowTextInput] = useState(false)
   const [showVoiceInput, setShowVoiceInput] = useState(false)
   const [showConfigure, setShowConfigure] = useState(false)
   const [showTools, setShowTools] = useState(false)
   const [transcript, setTranscript] = useState("")
-  const [toolsEnabled, setToolsEnabled] = useState(true)
-
-  // TODO: Replace with actual GitHub token management
-  const githubToken = "github_pat_placeholder"
 
   const { isLoading, messages, error, append, setMessages } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: Config.NEXUS_URL,
     body: {
       // Include GitHub token and tools in request body when tools are enabled
-      ...(toolsEnabled && {
-        githubToken,
+      ...(chatStore.toolsEnabled && chatStore.hasGithubToken && {
+        githubToken: chatStore.githubToken,
         tools: availableTools
       })
     },
-    onError: (error) => console.error(error, "ERROR"),
+    onError: (error) => {
+      console.error(error, "ERROR")
+      // If there's a GitHub token error, show configure modal
+      if (error.message?.includes("GitHub token")) {
+        setShowConfigure(true)
+      }
+    },
     onResponse: async (response) => {
       console.log(response, "RESPONSE")
 
@@ -70,13 +74,13 @@ export const OnyxLayout = observer(() => {
   }
 
   const handleSendMessage = async (message: string) => {
+    // If tools are enabled but no GitHub token, show configure modal
+    if (chatStore.toolsEnabled && !chatStore.hasGithubToken) {
+      setShowConfigure(true)
+      return
+    }
     // Create a synthetic event object
     append({ content: message, role: "user" })
-  }
-
-  const toggleTools = () => {
-    setToolsEnabled(!toolsEnabled)
-    setShowTools(true)
   }
 
   return (
@@ -99,8 +103,8 @@ export const OnyxLayout = observer(() => {
       <ToolTestModal 
         visible={showTools} 
         onClose={() => setShowTools(false)}
-        enabled={toolsEnabled}
-        onToggle={toggleTools}
+        enabled={chatStore.toolsEnabled}
+        onToggle={() => chatStore.setToolsEnabled(!chatStore.toolsEnabled)}
       />
 
       <ConfigureModal visible={showConfigure} onClose={() => setShowConfigure(false)} />
