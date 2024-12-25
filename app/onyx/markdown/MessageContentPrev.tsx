@@ -1,12 +1,12 @@
 import React from "react"
 import { Linking, StyleSheet, View } from "react-native"
 import Markdown from "react-native-markdown-display"
+import { IMessage } from "@/models/chat/ChatStore"
 import { colors } from "@/theme"
-import { Message } from "@ai-sdk/react"
 import { markdownStyles } from "./styles"
 
 interface MessageContentProps {
-  message: Message
+  message: IMessage
 }
 
 export function MessageContent({ message }: MessageContentProps) {

@@ -32,6 +32,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@ai-sdk/react": "1.0.7",
     "@breeztech/react-native-breez-sdk-liquid": "^0.5.1",
     "@expo-google-fonts/jetbrains-mono": "^0.2.3",
     "@expo/config-plugins": "~9.0.0",
@@ -94,6 +95,7 @@
     "reactotron-react-native-mmkv": "^0.2.6",
     "text-encoding-polyfill": "^0.6.7",
     "three": "^0.171.0",
+    "zod": "3.24.1",
     "zustand": "^5.0.2"
   },
   "devDependencies": {

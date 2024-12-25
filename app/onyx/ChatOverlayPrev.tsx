@@ -1,25 +1,41 @@
-import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
-import { ScrollView, TouchableOpacity, View } from "react-native"
-import { Message, useChat } from "@ai-sdk/react"
+import { ScrollView, View, TouchableOpacity } from "react-native"
 import Clipboard from "@react-native-clipboard/clipboard"
-import { MessageContent } from "./markdown/MessageContent"
+import { useStores } from "@/models"
 import { styles as baseStyles } from "./styles"
+import { IMessage } from "@/models/chat/ChatStore"
+import { log } from "@/utils/log"
+import { MessageContent } from "./markdown/MessageContent"
 
 export const ChatOverlay = observer(() => {
-  const { messages } = useChat({
-    fetch: expoFetch as unknown as typeof globalThis.fetch,
-    api: "https://nexus.openagents.com/chat",
-    onError: (error) => console.error(error, "ERROR"),
-  })
-
+  const { chatStore, toolStore } = useStores()
   const scrollViewRef = useRef<ScrollView>(null)
+
+  useEffect(() => {
+    // Initialize tools if not already initialized
+    const initTools = async () => {
+      if (!toolStore.isInitialized) {
+        try {
+          await toolStore.initializeDefaultTools()
+          log({
+            name: "[ChatOverlay] Tools initialized",
+            preview: "Tools ready",
+            value: { tools: toolStore.tools.map(t => t.id) },
+            important: true,
+          })
+        } catch (err) {
+          log.error("[ChatOverlay] Failed to initialize tools:", err)
+        }
+      }
+    }
+    initTools()
+  }, [toolStore])
 
   useEffect(() => {
     // Scroll to bottom whenever messages change
     scrollViewRef.current?.scrollToEnd({ animated: true })
-  }, [messages])
+  }, [chatStore.currentMessages])
 
   const copyToClipboard = (content: string) => {
     Clipboard.setString(content)
@@ -32,7 +48,7 @@ export const ChatOverlay = observer(() => {
         style={baseStyles.messageList}
         contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
       >
-        {messages.map((message: Message) => (
+        {chatStore.currentMessages.map((message: IMessage) => (
           <TouchableOpacity
             key={message.id}
             onPress={() => copyToClipboard(message.content)}
