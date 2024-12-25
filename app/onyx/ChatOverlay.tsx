@@ -8,7 +8,7 @@ import { MessageContent } from "./markdown/MessageContent"
 import { styles as baseStyles } from "./styles"
 
 export const ChatOverlay = observer(() => {
-  const { messages } = useChat({
+  const { messages, error, handleInputChange, input, handleSubmit } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: "https://nexus.openagents.com/chat",
     onError: (error) => console.error(error, "ERROR"),
