@@ -44,16 +44,18 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
           </TouchableOpacity>
         ))}
 
-        <Image
-          source={require("../../assets/images/Thinking-Animation.gif")}
-          style={{
-            position: "absolute",
-            bottom: -35,
-            left: -45,
-            width: 128,
-            height: 128,
-          }}
-        />
+        {isLoading && (
+          <Image
+            source={require("../../assets/images/Thinking-Animation.gif")}
+            style={{
+              position: "absolute",
+              right: -35,
+              left: -45,
+              width: 128,
+              height: 128,
+            }}
+          />
+        )}
       </ScrollView>
     </View>
   )
