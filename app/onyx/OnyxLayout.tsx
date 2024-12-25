@@ -28,10 +28,11 @@ export const OnyxLayout = observer(() => {
     api: Config.NEXUS_URL,
     body: {
       // Include GitHub token and tools in request body when tools are enabled
-      ...(chatStore.toolsEnabled && chatStore.hasGithubToken && {
-        githubToken: chatStore.githubToken,
-        tools: availableTools
-      })
+      ...(chatStore.toolsEnabled &&
+        chatStore.hasGithubToken && {
+          githubToken: chatStore.githubToken,
+          tools: availableTools,
+        }),
     },
     onError: (error) => {
       console.error(error, "ERROR")
@@ -40,23 +41,30 @@ export const OnyxLayout = observer(() => {
         setShowConfigure(true)
       }
     },
+    onToolCall: async (toolCall) => {
+      console.log("TOOL CALL", toolCall)
+      // if (toolCall.toolId === "view_file") {
+      //   // Show the tool test modal
+      //   setShowTools(true)
+      //
+    },
     onResponse: async (response) => {
       console.log(response, "RESPONSE")
 
-      const json = await response.json()
-      console.log("JSON", json)
+      // const json = await response.json()
+      // console.log("JSON", json)
 
-      // Create a new message from the response
-      const newMessage = {
-        id: json.result.response.id,
-        content: json.result.text,
-        role: "assistant" as const,
-        createdAt: new Date(json.result.response.timestamp),
-        toolInvocations: json.result.toolCalls || [],
-      }
+      // // Create a new message from the response
+      // const newMessage = {
+      //   id: json.result.response.id,
+      //   content: json.result.text,
+      //   role: "assistant" as const,
+      //   createdAt: new Date(json.result.response.timestamp),
+      //   toolInvocations: json.result.toolCalls || [],
+      // }
 
-      // Append the new message to existing messages
-      setMessages((prev) => [...prev, newMessage])
+      // // Append the new message to existing messages
+      // setMessages((prev) => [...prev, newMessage])
     },
     onFinish: () => console.log("FINISH"),
   })
@@ -100,8 +108,8 @@ export const OnyxLayout = observer(() => {
         onSendMessage={handleSendMessage}
       />
 
-      <ToolTestModal 
-        visible={showTools} 
+      <ToolTestModal
+        visible={showTools}
         onClose={() => setShowTools(false)}
         enabled={chatStore.toolsEnabled}
         onToggle={() => chatStore.setToolsEnabled(!chatStore.toolsEnabled)}
