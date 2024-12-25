@@ -17,10 +17,20 @@ export const OnyxLayout = observer(() => {
   const [showTools, setShowTools] = useState(false)
   const [transcript, setTranscript] = useState("")
 
-  const { messages, error, handleInputChange, input, handleSubmit } = useChat({
+  const { messages, error, handleInputChange, input, handleSubmit, append, setMessages } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: "https://nexus.openagents.com/chat",
     onError: (error) => console.error(error, "ERROR"),
+    onResponse: async (response) => {
+      console.log(response, "RESPONSE")
+
+      const json = await response.json()
+      console.log("JSON", json)
+
+      // Append the response messages to the chat
+      // setMessages((prev) => [...prev, ...response.])
+    },
+    onFinish: () => console.log("FINISH"),
   })
 
   const handleStartVoiceInput = () => {
@@ -37,13 +47,30 @@ export const OnyxLayout = observer(() => {
 
   const handleSendMessage = async (message: string) => {
     // Create a synthetic event object
-    const syntheticEvent = {
-      target: { value: message },
-      preventDefault: () => {},
-    } as any
+    append({ content: message, role: "user" })
 
-    handleInputChange(syntheticEvent)
-    await handleSubmit(syntheticEvent)
+    // expoFetch("https://nexus.openagents.com/chat", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({ messages: [{ content: message, role: "user" }] }),
+    // })
+    //   .then((response) => {
+    //     return response.json()
+    //   })
+    //   .then((data) => {
+    //     console.log(data)
+    //   })
+
+    // console.log("message", message)
+    // const syntheticEvent = {
+    //   target: { value: message },
+    //   preventDefault: () => {},
+    // } as any
+
+    // handleInputChange(syntheticEvent)
+    // await handleSubmit(syntheticEvent)
   }
 
   return (
