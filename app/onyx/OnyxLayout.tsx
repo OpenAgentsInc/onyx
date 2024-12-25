@@ -18,7 +18,7 @@ export const OnyxLayout = observer(() => {
   const [showTools, setShowTools] = useState(false)
   const [transcript, setTranscript] = useState("")
 
-  const { messages, error, handleInputChange, input, handleSubmit, append, setMessages } = useChat({
+  const { isLoading, messages, error, append, setMessages } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: Config.NEXUS_URL,
     onError: (error) => console.error(error, "ERROR"),
@@ -62,7 +62,7 @@ export const OnyxLayout = observer(() => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-      <ChatOverlay messages={messages} />
+      <ChatOverlay messages={messages} isLoading={isLoading} error={error} />
 
       <TextInputModal
         visible={showTextInput}

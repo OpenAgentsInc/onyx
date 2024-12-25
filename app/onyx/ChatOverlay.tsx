@@ -1,6 +1,7 @@
+import { isLoading } from "expo-font"
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
-import { ScrollView, TouchableOpacity, View } from "react-native"
+import { ActivityIndicator, ScrollView, TouchableOpacity, View } from "react-native"
 import { Message } from "@ai-sdk/react"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { MessageContent } from "./markdown/MessageContent"
@@ -8,9 +9,11 @@ import { styles as baseStyles } from "./styles"
 
 interface ChatOverlayProps {
   messages: Message[]
+  isLoading: boolean
+  error: string
 }
 
-export const ChatOverlay = observer(({ messages }: ChatOverlayProps) => {
+export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlayProps) => {
   const scrollViewRef = useRef<ScrollView>(null)
 
   useEffect(() => {
@@ -33,13 +36,14 @@ export const ChatOverlay = observer(({ messages }: ChatOverlayProps) => {
           <TouchableOpacity
             key={message.id}
             onPress={() => copyToClipboard(message.content)}
-            activeOpacity={0.7}
+            activeOpacity={1}
           >
             <View style={baseStyles.message}>
               <MessageContent message={message} />
             </View>
           </TouchableOpacity>
         ))}
+        {isLoading && <ActivityIndicator style={{ position: "absolute", bottom: 20, right: 20 }} />}
       </ScrollView>
     </View>
   )
