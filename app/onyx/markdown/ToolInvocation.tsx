@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native'
-import { colors } from '@/theme'
+import React, { useState } from "react"
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { colors, typography } from "@/theme"
 
 interface JSONValue {
   [key: string]: any
@@ -23,15 +23,15 @@ export interface ToolInvocation {
   args?: JSONValue
   output?: JSONValue
   result?: JSONValue
-  status?: 'pending' | 'completed' | 'failed'
-  state?: 'call' | 'result' | 'partial-call'
+  status?: "pending" | "completed" | "failed"
+  state?: "call" | "result" | "partial-call"
 }
 
 const ensureObject = (value: JSONValue): Record<string, any> => {
-  if (typeof value === 'object' && value !== null) {
+  if (typeof value === "object" && value !== null) {
     return value as Record<string, any>
   }
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     try {
       return JSON.parse(value)
     } catch (error) {
@@ -42,12 +42,7 @@ const ensureObject = (value: JSONValue): Record<string, any> => {
 }
 
 const ModalContent = ({ title, description, content, visible, onClose }: ModalContentProps) => (
-  <Modal
-    animationType="slide"
-    transparent={true}
-    visible={visible}
-    onRequestClose={onClose}
-  >
+  <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
     <View style={styles.modalContainer}>
       <View style={styles.modalContent}>
         <Text style={styles.modalTitle}>{title}</Text>
@@ -67,51 +62,43 @@ export function ToolInvocation({ toolInvocation }: { toolInvocation: ToolInvocat
   const [isFileContentModalVisible, setIsFileContentModalVisible] = useState(false)
   const [isInputParamsModalVisible, setIsInputParamsModalVisible] = useState(false)
 
-  if (!toolInvocation || typeof toolInvocation !== 'object') {
+  if (!toolInvocation || typeof toolInvocation !== "object") {
     console.error("Invalid toolInvocation prop:", toolInvocation)
     return <Text style={styles.errorText}>Error: Invalid tool invocation data</Text>
   }
 
-  const {
-    id,
-    toolCallId,
-    tool_name,
-    toolName,
-    input,
-    args,
-    output,
-    result,
-    status,
-    state
-  } = toolInvocation
+  const { id, toolCallId, tool_name, toolName, input, args, output, result, status, state } =
+    toolInvocation
 
   const displayId = id || toolCallId
   const displayName = tool_name || toolName
-  const displayInput = input || args as JSONValue
+  const displayInput = input || (args as JSONValue)
   const displayOutput = output || result
-  const displayStatus = status || (state === 'result' ? 'completed' : 'pending')
+  const displayStatus = status || (state === "result" ? "completed" : "pending")
 
   const inputObject = ensureObject(displayInput)
   const outputObject = displayOutput ? ensureObject(displayOutput) : null
 
   const { owner, repo, branch } = inputObject
 
-  const repoInfo = owner && repo && branch
-    ? `${owner}/${repo} (${branch})`
-    : null
+  const repoInfo = owner && repo && branch ? `${owner}/${repo} (${branch})` : null
 
   const renderStateIcon = () => {
-    if (displayStatus === 'pending') {
+    if (displayStatus === "pending") {
       return <Text style={styles.pendingText}>⟳</Text>
-    } else if (displayStatus === 'completed') {
+    } else if (displayStatus === "completed") {
       return <Text style={styles.completedText}>✓</Text>
-    } else if (displayStatus === 'failed') {
+    } else if (displayStatus === "failed") {
       return <Text style={styles.failedText}>✗</Text>
     }
     return null
   }
 
-  const summary = outputObject?.summary || outputObject?.value?.result?.summary || outputObject?.value?.result?.details || "---"
+  const summary =
+    outputObject?.summary ||
+    outputObject?.value?.result?.summary ||
+    outputObject?.value?.result?.details ||
+    "---"
 
   const fileContent = outputObject?.content
 
@@ -120,13 +107,9 @@ export function ToolInvocation({ toolInvocation }: { toolInvocation: ToolInvocat
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <Text style={styles.title}>{displayName}</Text>
-          {repoInfo && (
-            <Text style={styles.repoInfo}>{repoInfo}</Text>
-          )}
+          {repoInfo && <Text style={styles.repoInfo}>{repoInfo}</Text>}
         </View>
-        <View style={styles.statusContainer}>
-          {renderStateIcon()}
-        </View>
+        <View style={styles.statusContainer}>{renderStateIcon()}</View>
       </View>
 
       <View style={styles.content}>
@@ -179,25 +162,27 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
   headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   title: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    fontFamily: typography.primary.bold,
     color: colors.text,
     marginRight: 8,
   },
   repoInfo: {
     fontSize: 12,
+    fontFamily: typography.primary.normal,
     color: colors.textDim,
   },
   statusContainer: {
@@ -208,11 +193,12 @@ const styles = StyleSheet.create({
   },
   summary: {
     fontSize: 12,
+    fontFamily: typography.primary.normal,
     color: colors.text,
     marginBottom: 8,
   },
   buttonContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   button: {
@@ -225,31 +211,34 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 12,
+    fontFamily: typography.primary.normal,
     color: colors.text,
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     backgroundColor: colors.background,
     borderRadius: 8,
     padding: 20,
-    width: '90%',
-    maxHeight: '80%',
+    width: "90%",
+    maxHeight: "80%",
     borderWidth: 1,
     borderColor: colors.border,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    fontFamily: typography.primary.normal,
     color: colors.text,
     marginBottom: 4,
   },
   modalDescription: {
     fontSize: 14,
+    fontFamily: typography.primary.normal,
     color: colors.textDim,
     marginBottom: 12,
   },
@@ -257,35 +246,40 @@ const styles = StyleSheet.create({
     maxHeight: 400,
   },
   preText: {
-    fontFamily: 'monospace',
+    fontFamily: typography.primary.normal,
     fontSize: 12,
     color: colors.text,
   },
   closeButton: {
     marginTop: 16,
-    alignItems: 'center',
+    alignItems: "center",
     padding: 8,
     backgroundColor: colors.background,
     borderRadius: 4,
   },
   closeButtonText: {
     color: colors.text,
+    fontFamily: typography.primary.normal,
     fontSize: 14,
   },
   errorText: {
     color: colors.error,
+    fontFamily: typography.primary.normal,
     fontSize: 12,
   },
   pendingText: {
     color: colors.textDim,
+    fontFamily: typography.primary.normal,
     fontSize: 18,
   },
   completedText: {
     color: colors.text,
+    fontFamily: typography.primary.normal,
     fontSize: 18,
   },
   failedText: {
     color: colors.error,
+    fontFamily: typography.primary.normal,
     fontSize: 18,
   },
 })
