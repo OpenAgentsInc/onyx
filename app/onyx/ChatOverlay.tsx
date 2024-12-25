@@ -1,7 +1,7 @@
 import { isLoading } from "expo-font"
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
-import { ActivityIndicator, ScrollView, TouchableOpacity, View } from "react-native"
+import { ScrollView, TouchableOpacity, View, Image } from "react-native"
 import { Message } from "@ai-sdk/react"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { MessageContent } from "./markdown/MessageContent"
@@ -43,7 +43,18 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
             </View>
           </TouchableOpacity>
         ))}
-        {isLoading && <ActivityIndicator style={{ position: "absolute", bottom: 20, right: 20 }} />}
+        {isLoading && (
+          <Image 
+            source={require("../../assets/images/Thinking-Animation.gif")}
+            style={{ 
+              position: "absolute", 
+              bottom: 20, 
+              right: 20,
+              width: 24,
+              height: 24
+            }} 
+          />
+        )}
       </ScrollView>
     </View>
   )
