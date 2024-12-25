@@ -36,24 +36,18 @@
       ├── ChatStore.ts
       ├── index.ts
     ├── index.ts
-    ├── llm
-      ├── LLMStore.ts
-      ├── actions
-        ├── cancel-model-download.ts
-        ├── chat-completion.ts
-        ├── delete-model.ts
-        ├── init-context.ts
-        ├── initialize.ts
-        ├── select-model.ts
-        ├── start-model-download.ts
+    ├── tools
+      ├── ToolActions.ts
+      ├── ToolStore.ts
       ├── index.ts
   ├── onyx
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
-    ├── ConfigureModal.styles.ts
+    ├── ChatOverlay.tsx
     ├── ConfigureModal.tsx
     ├── OnyxLayout.tsx
     ├── TextInputModal.tsx
+    ├── ToolTestModal.tsx
     ├── VoiceInputModal.styles.ts
     ├── VoiceInputModal.tsx
     ├── styles.ts
@@ -68,6 +62,15 @@
       ├── apiProblem.test.ts
       ├── apiProblem.ts
       ├── index.ts
+    ├── gemini
+      ├── gemini-api.types.ts
+      ├── gemini-chat.ts
+      ├── index.ts
+      ├── tools
+        ├── github-impl.ts
+        ├── github.ts
+        ├── index.ts
+        ├── types.ts
     ├── groq
       ├── groq-api.types.ts
       ├── groq-chat.ts
@@ -105,17 +108,21 @@
 ├── docs
   ├── ai-design-language.md
   ├── data-marketplace.md
+  ├── gemini-function-calling.md
+  ├── gemini.md
   ├── groq-voice.md
   ├── groq.md
   ├── init.md
   ├── keys.md
   ├── llm-store.md
   ├── local-models.md
+  ├── model-switching.md
   ├── onboarding.md
   ├── onyx-layout.md
   ├── permissions.md
   ├── roadmap-brainstorming.md
   ├── roadmap.md
+  ├── tools.md
   ├── transcripts
     ├── ep146.md
     ├── ep147.md

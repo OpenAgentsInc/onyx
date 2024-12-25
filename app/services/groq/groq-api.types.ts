@@ -7,6 +7,10 @@ export interface GroqConfig {
 export interface ChatMessage {
   role: "system" | "user" | "assistant"
   content: string
+  function_call?: {
+    name: string
+    arguments: string
+  }
 }
 
 export interface ChatCompletionChoice {

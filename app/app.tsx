@@ -5,6 +5,7 @@ if (__DEV__) {
 import "@/utils/ignore-warnings"
 import "@/utils/crypto-polyfill"
 import "text-encoding-polyfill"
+import { Buffer } from "buffer"
 import { useFonts } from "expo-font"
 import { StatusBar } from "expo-status-bar"
 import * as React from "react"
@@ -17,6 +18,8 @@ import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
 import { OnyxLayout } from "./onyx/OnyxLayout"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
+
+global.Buffer = Buffer
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>

@@ -42,9 +42,11 @@ export const styles = StyleSheet.create({
     top: 40,
     left: 0,
     right: 0,
-    bottom: 120,
+    bottom: 110,
     padding: 20,
     zIndex: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.1)",
   },
   messageList: {
     flex: 1,

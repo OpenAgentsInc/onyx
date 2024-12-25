@@ -1,14 +1,17 @@
 import {
-  Instance, IStateTreeNode, SnapshotIn, SnapshotOut, types, IAnyModelType
+  cast, IAnyModelType, Instance, IStateTreeNode, SnapshotIn, SnapshotOut,
+  types
 } from "mobx-state-tree"
-import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { log } from "@/utils/log"
+import { withSetPropAction } from "../_helpers/withSetPropAction"
+// Add Groq actions after ChatStore is defined to avoid circular dependency
+import { withGroqActions } from "./ChatActions"
 
 // Message Types
 export const MessageModel = types
   .model("Message", {
     id: types.string,
-    role: types.enumeration(["system", "user", "assistant"]),
+    role: types.enumeration(["system", "user", "assistant", "function"]),
     content: types.string,
     createdAt: types.number,
     metadata: types.optional(types.frozen(), {}),
@@ -25,7 +28,7 @@ export const MessageModel = types
 export interface IMessage extends Instance<typeof MessageModel> { }
 
 // Store Model
-const ChatStoreModel = types
+export const ChatStoreModel = types
   .model("ChatStore")
   .props({
     isInitialized: types.optional(types.boolean, false),
@@ -33,11 +36,12 @@ const ChatStoreModel = types
     messages: types.array(MessageModel),
     currentConversationId: types.optional(types.string, "default"),
     isGenerating: types.optional(types.boolean, false),
+    activeModel: types.optional(types.enumeration(["groq", "gemini"]), "gemini"),
   })
   .actions(withSetPropAction)
   .actions((self) => ({
     addMessage(message: {
-      role: "system" | "user" | "assistant"
+      role: "system" | "user" | "assistant" | "function"
       content: string
       metadata?: any
     }) {
@@ -76,30 +80,41 @@ const ChatStoreModel = types
 
     setError(error: string | null) {
       self.error = error
+    },
+
+    setActiveModel(model: "groq" | "gemini") {
+      self.activeModel = model
     }
   }))
-  .views((self) => ({
-    get currentMessages() {
+  .views((self) => {
+    const filteredMessages = () => {
       return self.messages
         .filter(msg => !msg.metadata?.conversationId || msg.metadata.conversationId === self.currentConversationId)
         .slice()
     }
-  }))
+
+    return {
+      get currentMessages() {
+        return filteredMessages()
+      },
+      get conversationText() {
+        return filteredMessages()
+          .map((msg: IMessage) => msg.content)
+          .join('\n\n')
+      }
+    }
+  })
 
 export interface ChatStore extends Instance<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotIn extends SnapshotIn<typeof ChatStoreModel> { }
-
-// Add Groq actions after ChatStore is defined to avoid circular dependency
-import { withGroqActions } from "./ChatActions"
 
 // Create a new model that includes the Groq actions
 export const ChatStoreWithActions = types.compose(
   "ChatStoreWithActions",
   ChatStoreModel,
   types.model({})
-    .actions(withGroqActions)
-)
+).actions(self => withGroqActions(self as ChatStore))
 
 export const createChatStoreDefaultModel = () =>
   ChatStoreWithActions.create({
@@ -108,4 +123,5 @@ export const createChatStoreDefaultModel = () =>
     messages: [],
     currentConversationId: "default",
     isGenerating: false,
+    activeModel: "gemini",
   })

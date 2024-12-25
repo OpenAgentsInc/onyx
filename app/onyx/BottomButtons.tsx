@@ -3,18 +3,21 @@ import { Image, TouchableOpacity, View } from "react-native"
 import { useStores } from "@/models"
 import { colors } from "@/theme"
 import { Ionicons } from "@expo/vector-icons"
+import Clipboard from "@react-native-clipboard/clipboard"
 import { styles } from "./BottomButtons.styles"
 
 interface BottomButtonsProps {
   onTextPress: () => void
   onVoicePress: () => void
   onConfigurePress: () => void
+  onToolsPress: () => void
 }
 
 export const BottomButtons = ({
   onTextPress,
   onVoicePress,
   onConfigurePress,
+  onToolsPress,
 }: BottomButtonsProps) => {
   const { chatStore } = useStores()
 
@@ -22,20 +25,35 @@ export const BottomButtons = ({
     chatStore.clearMessages()
   }
 
+  const handleCopyConversation = () => {
+    const text = chatStore.conversationText
+    Clipboard.setString(text)
+  }
+
   return (
     <>
+      {/* Tools Button */}
+      <TouchableOpacity activeOpacity={0.8} onPress={onToolsPress} style={styles.toolsButton}>
+        <Ionicons name="construct-outline" size={24} color={colors.textDim} />
+      </TouchableOpacity>
+
       {/* Configure Button */}
-      {/* <TouchableOpacity
+      <TouchableOpacity
         activeOpacity={0.8}
         onPress={onConfigurePress}
         style={styles.configureButton}
       >
-        <Image
-          source={require("../../assets/icons/configure.png")}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode="contain"
-        />
-      </TouchableOpacity> */}
+        <Ionicons name="settings-outline" size={24} color={colors.textDim} />
+      </TouchableOpacity>
+
+      {/* Copy Button */}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={handleCopyConversation}
+        style={styles.copyButton}
+      >
+        <Ionicons name="copy-outline" size={24} color={colors.textDim} />
+      </TouchableOpacity>
 
       {/* Trash Button */}
       <TouchableOpacity activeOpacity={0.8} onPress={handleClearChat} style={styles.trashButton}>

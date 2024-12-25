@@ -23,11 +23,6 @@ export class GroqChatApi {
   constructor(config: GroqConfig = DEFAULT_CONFIG) {
     this.config = config
 
-    log({
-      name: 'we have groq api key',
-      preview: config.apiKey
-    })
-
     this.apisauce = create({
       baseURL: this.config.baseURL,
       timeout: this.config.timeout,

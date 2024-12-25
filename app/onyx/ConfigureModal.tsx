@@ -1,16 +1,10 @@
-import React from "react"
-import { Modal, ScrollView, Text, TouchableOpacity, View, Alert, ActivityIndicator } from "react-native"
-import { styles as configureStyles } from "./ConfigureModal.styles"
-import { styles as baseStyles } from "./styles"
 import { observer } from "mobx-react-lite"
-import { useStores } from "@/models"
-import { AVAILABLE_MODELS } from "@/services/local-models/constants"
-
-// Model sizes with proper type definition
-const MODEL_SIZES: Record<string, string> = {
-  "1B": "770 MB",
-  "3B": "2.1 GB"
-}
+import React from "react"
+import { Modal, StyleSheet, Text, TouchableOpacity, View, Pressable } from "react-native"
+import { useStores } from "../models/_helpers/useStores"
+import { colors } from "../theme"
+import { typography } from "../theme"
+import { styles as baseStyles } from "./styles"
 
 interface ConfigureModalProps {
   visible: boolean
@@ -18,158 +12,99 @@ interface ConfigureModalProps {
 }
 
 export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProps) => {
-  const { llmStore } = useStores()
+  const { chatStore } = useStores()
 
-  const handleDeleteModel = async (modelKey: string) => {
-    const model = AVAILABLE_MODELS[modelKey]
-    Alert.alert(
-      "Delete Model?",
-      `Delete ${model.displayName}? You'll need to download it again to use it.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await llmStore.deleteModel(modelKey)
-            } catch (error) {
-              Alert.alert("Error", "Failed to delete model file")
-            }
-          },
-        },
-      ],
-    )
-  }
-
-  const handleSelectModel = (modelKey: string) => {
-    llmStore.selectModel(modelKey)
+  const handleModelChange = (model: "groq" | "gemini") => {
+    chatStore.setActiveModel(model)
     onClose()
-  }
-
-  const handleDownloadPress = (modelKey: string) => {
-    llmStore.startModelDownload(modelKey)
-  }
-
-  const handleCancelDownload = (modelKey: string) => {
-    llmStore.cancelModelDownload(modelKey)
-  }
-
-  const isModelDownloaded = (modelKey: string) => {
-    const model = llmStore.models.find((m) => m.key === modelKey)
-    return model?.status === "ready"
-  }
-
-  const getModelSize = (modelKey: string): string => {
-    return MODEL_SIZES[modelKey] || "Unknown"
-  }
-
-  const getModelStatus = (modelKey: string) => {
-    const model = llmStore.models.find((m) => m.key === modelKey)
-    return model?.status || "idle"
-  }
-
-  const getModelProgress = (modelKey: string) => {
-    const model = llmStore.models.find((m) => m.key === modelKey)
-    return model?.progress || 0
-  }
-
-  const getModelError = (modelKey: string) => {
-    const model = llmStore.models.find((m) => m.key === modelKey)
-    return model?.error
   }
 
   return (
     <Modal
-      visible={visible}
       animationType="fade"
-      transparent={false}
+      transparent={true}
+      visible={visible}
       onRequestClose={onClose}
     >
-      <View style={configureStyles.modalContent}>
-        <View style={configureStyles.modalHeader}>
-          <Text style={configureStyles.headerTitle}>Configure Onyx</Text>
-          <TouchableOpacity onPress={onClose} style={configureStyles.closeButton}>
-            <Text style={configureStyles.closeButtonText}>Done</Text>
-          </TouchableOpacity>
+      <View style={[baseStyles.modalContainer, styles.container]}>
+        <View style={baseStyles.modalHeader}>
+          <Pressable onPress={onClose}>
+            <Text style={[baseStyles.buttonText, baseStyles.cancelText, styles.text]}>Close</Text>
+          </Pressable>
         </View>
 
-        <ScrollView>
-          {llmStore.error && (
-            <View style={baseStyles.errorContainer}>
-              <Text style={baseStyles.errorText}>{llmStore.error}</Text>
-            </View>
-          )}
+        <Text style={[styles.title, styles.text]}>Configure</Text>
 
-          <View style={configureStyles.section}>
-            <Text style={configureStyles.sectionTitle}>Model Selection</Text>
-            {Object.entries(AVAILABLE_MODELS).map(([key, model]) => {
-              const status = getModelStatus(key)
-              const progress = getModelProgress(key)
-              const modelError = getModelError(key)
-              const downloaded = isModelDownloaded(key)
-              const isActive = key === llmStore.selectedModelKey
-              const isDownloading = status === "downloading"
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, styles.text]}>Active Model</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                chatStore.activeModel === "groq" && styles.buttonActive
+              ]}
+              onPress={() => handleModelChange("groq")}
+            >
+              <Text style={[styles.buttonText, styles.text]}>Groq</Text>
+            </TouchableOpacity>
 
-              return (
-                <View key={key} style={configureStyles.modelItem}>
-                  <TouchableOpacity
-                    style={configureStyles.modelInfo}
-                    onPress={() => downloaded && handleSelectModel(key)}
-                    disabled={!downloaded || isDownloading}
-                  >
-                    <View style={configureStyles.modelNameContainer}>
-                      <Text style={configureStyles.modelName}>
-                        {model.displayName}
-                        {isActive && <Text style={configureStyles.activeIndicator}> ✓</Text>}
-                      </Text>
-                      {modelError && <Text style={configureStyles.modelError}>{modelError}</Text>}
-                    </View>
-                    <Text style={configureStyles.modelSize}>
-                      {isDownloading ? `${progress.toFixed(1)}%` : getModelSize(key)}
-                    </Text>
-                  </TouchableOpacity>
-
-                  {downloaded ? (
-                    <View style={configureStyles.downloadContainer}>
-                      <TouchableOpacity
-                        onPress={() => handleDeleteModel(key)}
-                        style={configureStyles.deleteButton}
-                        disabled={isDownloading}
-                      >
-                        <Text style={configureStyles.deleteButtonText}>Delete</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <View style={configureStyles.downloadContainer}>
-                      {isDownloading ? (
-                        <>
-                          <ActivityIndicator size="small" color="#FFFFFF" />
-                          <TouchableOpacity
-                            onPress={() => handleCancelDownload(key)}
-                            style={configureStyles.cancelButton}
-                          >
-                            <Text style={configureStyles.cancelButtonText}>Cancel</Text>
-                          </TouchableOpacity>
-                        </>
-                      ) : (
-                        <View style={configureStyles.downloadContainer}>
-                          <TouchableOpacity
-                            onPress={() => handleDownloadPress(key)}
-                            style={configureStyles.downloadButton}
-                          >
-                            <Text style={configureStyles.downloadButtonText}>Download</Text>
-                          </TouchableOpacity>
-                        </View>
-                      )}
-                    </View>
-                  )}
-                </View>
-              )
-            })}
+            <TouchableOpacity
+              style={[
+                styles.button,
+                chatStore.activeModel === "gemini" && styles.buttonActive
+              ]}
+              onPress={() => handleModelChange("gemini")}
+            >
+              <Text style={[styles.buttonText, styles.text]}>Gemini</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       </View>
     </Modal>
   )
+})
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    backgroundColor: colors.background,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: colors.text,
+  },
+  text: {
+    fontFamily: typography.primary.normal,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: colors.text,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: colors.palette.accent500,
+    padding: 10,
+    borderRadius: 5,
+    minWidth: 120,
+    alignItems: "center",
+    opacity: 0.7,
+  },
+  buttonActive: {
+    opacity: 1,
+  },
+  buttonText: {
+    color: colors.palette.neutral100,
+    fontWeight: "bold",
+  },
 })
