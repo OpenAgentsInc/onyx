@@ -27,8 +27,17 @@ export const OnyxLayout = observer(() => {
       const json = await response.json()
       console.log("JSON", json)
 
-      // Append the response messages to the chat
-      // setMessages((prev) => [...prev, ...response.])
+      // Create a new message from the response
+      const newMessage = {
+        id: json.result.response.id,
+        content: json.result.text,
+        role: "assistant" as const,
+        createdAt: new Date(json.result.response.timestamp),
+        toolInvocations: json.result.toolCalls || []
+      }
+
+      // Append the new message to existing messages
+      setMessages((prev) => [...prev, newMessage])
     },
     onFinish: () => console.log("FINISH"),
   })
@@ -48,29 +57,6 @@ export const OnyxLayout = observer(() => {
   const handleSendMessage = async (message: string) => {
     // Create a synthetic event object
     append({ content: message, role: "user" })
-
-    // expoFetch("https://nexus.openagents.com/chat", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({ messages: [{ content: message, role: "user" }] }),
-    // })
-    //   .then((response) => {
-    //     return response.json()
-    //   })
-    //   .then((data) => {
-    //     console.log(data)
-    //   })
-
-    // console.log("message", message)
-    // const syntheticEvent = {
-    //   target: { value: message },
-    //   preventDefault: () => {},
-    // } as any
-
-    // handleInputChange(syntheticEvent)
-    // await handleSubmit(syntheticEvent)
   }
 
   return (
