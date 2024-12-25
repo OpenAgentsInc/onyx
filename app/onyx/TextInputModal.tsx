@@ -2,17 +2,17 @@ import React, { useState } from "react"
 import { Modal, TextInput, View, Text, Pressable } from "react-native"
 import { styles as baseStyles } from "./styles"
 import { observer } from "mobx-react-lite"
-import { useStores } from "@/models"
 import { log } from "@/utils/log"
 
 interface TextInputModalProps {
   visible: boolean
   onClose: () => void
+  onSendMessage: (message: string) => Promise<void>
 }
 
-export const TextInputModal = observer(({ visible, onClose }: TextInputModalProps) => {
-  const { chatStore } = useStores()
+export const TextInputModal = observer(({ visible, onClose, onSendMessage }: TextInputModalProps) => {
   const [text, setText] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
 
   const handleSend = async () => {
     if (!text.trim()) return
@@ -21,9 +21,10 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
       const messageToSend = text // Capture current text
       setText("") // Clear input
       onClose() // Close modal immediately
+      setIsGenerating(true)
 
       // Send message after modal is closed
-      await chatStore.sendMessage(messageToSend)
+      await onSendMessage(messageToSend)
     } catch (error) {
       log({
         name: "[TextInputModal]",
@@ -31,10 +32,12 @@ export const TextInputModal = observer(({ visible, onClose }: TextInputModalProp
         value: error instanceof Error ? error.message : "Unknown error",
         important: true
       })
+    } finally {
+      setIsGenerating(false)
     }
   }
 
-  const isDisabled = !text.trim() || chatStore.isGenerating
+  const isDisabled = !text.trim() || isGenerating
 
   return (
     <Modal

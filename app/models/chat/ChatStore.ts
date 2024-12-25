@@ -37,6 +37,8 @@ export const ChatStoreModel = types
     currentConversationId: types.optional(types.string, "default"),
     isGenerating: types.optional(types.boolean, false),
     activeModel: types.optional(types.enumeration(["groq", "gemini"]), "gemini"),
+    githubToken: types.optional(types.string, ""),
+    toolsEnabled: types.optional(types.boolean, true),
   })
   .actions(withSetPropAction)
   .actions((self) => ({
@@ -84,6 +86,14 @@ export const ChatStoreModel = types
 
     setActiveModel(model: "groq" | "gemini") {
       self.activeModel = model
+    },
+
+    setGithubToken(token: string) {
+      self.githubToken = token
+    },
+
+    setToolsEnabled(enabled: boolean) {
+      self.toolsEnabled = enabled
     }
   }))
   .views((self) => {
@@ -101,6 +111,9 @@ export const ChatStoreModel = types
         return filteredMessages()
           .map((msg: IMessage) => msg.content)
           .join('\n\n')
+      },
+      get hasGithubToken() {
+        return !!self.githubToken
       }
     }
   })
@@ -124,4 +137,6 @@ export const createChatStoreDefaultModel = () =>
     currentConversationId: "default",
     isGenerating: false,
     activeModel: "gemini",
+    githubToken: "",
+    toolsEnabled: true,
   })

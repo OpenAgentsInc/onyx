@@ -9,6 +9,7 @@ export interface ConfigBaseProps {
   GOOGLE_CLOUD_PROJECT: string | null
   GOOGLE_CLOUD_REGION: string | null
   GEMINI_API_KEY: string | null
+  NEXUS_URL: string
 }
 
 export type PersistNavigationConfig = ConfigBaseProps["persistNavigation"]
@@ -53,6 +54,11 @@ const BaseConfig: ConfigBaseProps = {
    * Gemini API key
    */
   GEMINI_API_KEY: Constants.expoConfig?.extra?.GEMINI_API_KEY ?? null,
+
+  /**
+   * Nexus API URL
+   */
+  NEXUS_URL: "http://localhost:3000",
 }
 
 export default BaseConfig

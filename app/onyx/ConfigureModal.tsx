@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
-import React from "react"
-import { Modal, StyleSheet, Text, TouchableOpacity, View, Pressable } from "react-native"
+import React, { useState } from "react"
+import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, Pressable } from "react-native"
 import { useStores } from "../models/_helpers/useStores"
 import { colors } from "../theme"
 import { typography } from "../theme"
@@ -13,10 +13,19 @@ interface ConfigureModalProps {
 
 export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProps) => {
   const { chatStore } = useStores()
+  const [githubToken, setGithubToken] = useState(chatStore.githubToken)
 
   const handleModelChange = (model: "groq" | "gemini") => {
     chatStore.setActiveModel(model)
+  }
+
+  const handleSave = () => {
+    chatStore.setGithubToken(githubToken)
     onClose()
+  }
+
+  const handleToolsToggle = () => {
+    chatStore.setToolsEnabled(!chatStore.toolsEnabled)
   }
 
   return (
@@ -29,7 +38,10 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
       <View style={[baseStyles.modalContainer, styles.container]}>
         <View style={baseStyles.modalHeader}>
           <Pressable onPress={onClose}>
-            <Text style={[baseStyles.buttonText, baseStyles.cancelText, styles.text]}>Close</Text>
+            <Text style={[baseStyles.buttonText, baseStyles.cancelText, styles.text]}>Cancel</Text>
+          </Pressable>
+          <Pressable onPress={handleSave}>
+            <Text style={[baseStyles.buttonText, styles.text]}>Save</Text>
           </Pressable>
         </View>
 
@@ -58,6 +70,30 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
               <Text style={[styles.buttonText, styles.text]}>Gemini</Text>
             </TouchableOpacity>
           </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, styles.text]}>GitHub Token</Text>
+          <TextInput
+            style={[styles.input, styles.text]}
+            value={githubToken}
+            onChangeText={setGithubToken}
+            placeholder="Enter GitHub token"
+            placeholderTextColor={colors.palette.neutral400}
+            secureTextEntry={true}
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, styles.text]}>Tools</Text>
+          <TouchableOpacity
+            style={[styles.button, chatStore.toolsEnabled && styles.buttonActive]}
+            onPress={handleToolsToggle}
+          >
+            <Text style={[styles.buttonText, styles.text]}>
+              {chatStore.toolsEnabled ? "Enabled" : "Disabled"}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -106,5 +142,13 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.palette.neutral100,
     fontWeight: "bold",
+  },
+  input: {
+    backgroundColor: colors.palette.neutral800,
+    color: colors.text,
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: colors.palette.neutral700,
   },
 })
