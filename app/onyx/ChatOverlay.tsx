@@ -1,4 +1,3 @@
-import { isLoading } from "expo-font"
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
 import { Image, ScrollView, TouchableOpacity, View } from "react-native"
@@ -50,7 +49,7 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
             style={{
               position: "absolute",
               top: 10,
-              right: 5,
+              right: -5,
               width: 40,
               height: 40,
             }}
