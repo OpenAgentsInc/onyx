@@ -7,7 +7,9 @@ import { markdownStyles } from "./styles"
 import { ToolInvocation } from "./ToolInvocation"
 
 interface MessageContentProps {
-  message: Message
+  message: Message & {
+    toolInvocations?: Array<any>
+  }
 }
 
 export function MessageContent({ message }: MessageContentProps) {
@@ -31,7 +33,7 @@ export function MessageContent({ message }: MessageContentProps) {
       )}
 
       {hasToolInvocations && (
-        <View style={styles.toolInvocations}>
+        <View style={[styles.toolInvocations, hasContent && styles.toolInvocationsWithContent]}>
           {message.toolInvocations.map((invocation, index) => (
             <ToolInvocation
               key={`${invocation.id || invocation.toolCallId}-${index}`}
@@ -55,6 +57,9 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   toolInvocations: {
-    marginTop: hasContent ? 8 : 0,
+    marginTop: 0,
+  },
+  toolInvocationsWithContent: {
+    marginTop: 8,
   },
 })
