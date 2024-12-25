@@ -7,4 +7,5 @@
  */
 export default {
   API_URL: "CHANGEME",
+  NEXUS_URL: "https://nexus.openagents.com/chat",
 }
