@@ -50,6 +50,10 @@
     ├── ToolTestModal.tsx
     ├── VoiceInputModal.styles.ts
     ├── VoiceInputModal.tsx
+    ├── markdown
+      ├── MessageContent.tsx
+      ├── index.ts
+      ├── styles.ts
     ├── styles.ts
   ├── screens
     ├── ErrorScreen
@@ -116,6 +120,7 @@
   ├── keys.md
   ├── llm-store.md
   ├── local-models.md
+  ├── markdown.md
   ├── model-switching.md
   ├── onboarding.md
   ├── onyx-layout.md
