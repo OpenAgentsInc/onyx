@@ -37,7 +37,12 @@ export const ChatStoreModel = types
     currentConversationId: types.optional(types.string, "default"),
     isGenerating: types.optional(types.boolean, false),
     activeModel: types.optional(types.enumeration(["groq", "gemini"]), "gemini"),
-    toolsEnabled: types.optional(types.boolean, true),
+    enabledTools: types.optional(types.array(types.string), [
+      "view_file",
+      "view_folder",
+      "create_file",
+      "rewrite_file"
+    ]),
   })
   .actions(withSetPropAction)
   .actions((self) => ({
@@ -87,8 +92,17 @@ export const ChatStoreModel = types
       self.activeModel = model
     },
 
-    setToolsEnabled(enabled: boolean) {
-      self.toolsEnabled = enabled
+    toggleTool(toolName: string) {
+      const index = self.enabledTools.indexOf(toolName)
+      if (index === -1) {
+        self.enabledTools.push(toolName)
+      } else {
+        self.enabledTools.splice(index, 1)
+      }
+    },
+
+    setEnabledTools(tools: string[]) {
+      self.enabledTools.replace(tools)
     },
   }))
   .views((self) => {
@@ -106,6 +120,9 @@ export const ChatStoreModel = types
         return filteredMessages()
           .map((msg: IMessage) => msg.content)
           .join('\n\n')
+      },
+      isToolEnabled(toolName: string) {
+        return self.enabledTools.includes(toolName)
       }
     }
   })
@@ -129,5 +146,5 @@ export const createChatStoreDefaultModel = () =>
     currentConversationId: "default",
     isGenerating: false,
     activeModel: "gemini",
-    toolsEnabled: true,
+    enabledTools: ["view_file", "view_folder", "create_file", "rewrite_file"],
   })

@@ -10,7 +10,7 @@ import { ChatOverlay } from "./ChatOverlay"
 import { ConfigureModal } from "./ConfigureModal"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
-import { RepoSection } from "./RepoSection"
+import { RepoSection } from "./repo/RepoSection"
 
 // Available tools for the AI
 const availableTools = ["view_file", "view_folder"]
@@ -27,24 +27,19 @@ export const OnyxLayout = observer(() => {
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: Config.NEXUS_URL,
     body: {
-      // Include GitHub token and tools in request body when tools are enabled
-      ...(chatStore.toolsEnabled &&
-        coderStore.hasGithubToken && {
-          githubToken: coderStore.githubToken,
-          tools: availableTools,
-          repos: coderStore.repos.map(repo => ({
-            owner: repo.owner,
-            name: repo.name,
-            branch: repo.branch
-          }))
-        }),
+      // Only include GitHub token and tools if we have a token and at least one tool enabled
+      ...(coderStore.githubToken && chatStore.enabledTools.length > 0 && {
+        githubToken: coderStore.githubToken,
+        tools: chatStore.enabledTools,
+        repos: coderStore.repos.map(repo => ({
+          owner: repo.owner,
+          name: repo.name,
+          branch: repo.branch
+        }))
+      }),
     },
     onError: (error) => {
       console.error(error, "ERROR")
-      // If there's a GitHub token error, show configure modal
-      if (error.message?.includes("GitHub token")) {
-        setShowConfigure(true)
-      }
     },
     onToolCall: async (toolCall) => {
       console.log("TOOL CALL", toolCall)
@@ -68,12 +63,6 @@ export const OnyxLayout = observer(() => {
   }
 
   const handleSendMessage = async (message: string) => {
-    // If tools are enabled but no GitHub token, show configure modal
-    if (chatStore.toolsEnabled && !coderStore.hasGithubToken) {
-      setShowConfigure(true)
-      return
-    }
-    // Create a synthetic event object
     append({ content: message, role: "user" })
   }
 
