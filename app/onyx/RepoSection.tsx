@@ -86,6 +86,9 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
             onChangeText={(value) => handleRepoInputChange("owner", value)}
             placeholder="Owner"
             placeholderTextColor={colors.palette.neutral400}
+            autoCapitalize="none"
+            autoCorrect={false}
+            spellCheck={false}
           />
           <TextInput
             style={[styles.input, styles.text]}
@@ -93,6 +96,9 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
             onChangeText={(value) => handleRepoInputChange("name", value)}
             placeholder="Repository name"
             placeholderTextColor={colors.palette.neutral400}
+            autoCapitalize="none"
+            autoCorrect={false}
+            spellCheck={false}
           />
           <TextInput
             style={[styles.input, styles.text]}
@@ -100,6 +106,9 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
             onChangeText={(value) => handleRepoInputChange("branch", value)}
             placeholder="Branch"
             placeholderTextColor={colors.palette.neutral400}
+            autoCapitalize="none"
+            autoCorrect={false}
+            spellCheck={false}
           />
           {editingRepo && (
             <TouchableOpacity
