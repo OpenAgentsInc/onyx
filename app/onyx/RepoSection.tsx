@@ -13,7 +13,7 @@ interface RepoSectionProps {
 }
 
 export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => {
-  const { coderStore } = useStores()
+  const { coderStore, chatStore } = useStores()
   const [editingRepo, setEditingRepo] = useState<null | Repo>(null)
   const [githubToken, setGithubToken] = useState(coderStore.githubToken)
   const [repoInput, setRepoInput] = useState({
@@ -64,6 +64,10 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
     coderStore.removeRepo(repo)
   }
 
+  const handleToolsToggle = () => {
+    chatStore.setToolsEnabled(!chatStore.toolsEnabled)
+  }
+
   return (
     <Modal
       animationType="fade"
@@ -93,6 +97,18 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
             placeholderTextColor={colors.palette.neutral400}
             secureTextEntry={true}
           />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, styles.text]}>Tools</Text>
+          <TouchableOpacity
+            style={[styles.button, chatStore.toolsEnabled && styles.buttonActive]}
+            onPress={handleToolsToggle}
+          >
+            <Text style={[styles.buttonText, styles.text]}>
+              {chatStore.toolsEnabled ? "Enabled" : "Disabled"}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
