@@ -27,10 +27,10 @@ export const OnyxLayout = observer(() => {
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: Config.NEXUS_URL,
     body: {
-      // Only include GitHub token and tools if both tools are enabled AND we have a token
-      ...(chatStore.toolsEnabled && coderStore.githubToken && {
+      // Only include GitHub token and tools if we have a token and at least one tool enabled
+      ...(coderStore.githubToken && chatStore.enabledTools.length > 0 && {
         githubToken: coderStore.githubToken,
-        tools: availableTools,
+        tools: chatStore.enabledTools,
         repos: coderStore.repos.map(repo => ({
           owner: repo.owner,
           name: repo.name,
