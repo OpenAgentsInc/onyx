@@ -37,7 +37,7 @@ export const BottomButtons = ({
     <>
       {/* Repos Button */}
       <TouchableOpacity activeOpacity={0.8} onPress={onReposPress} style={styles.toolsButton}>
-        <Ionicons name="git-branch-outline" size={24} color={colors.textDim} />
+        <Ionicons name="code" size={24} color={colors.textDim} />
       </TouchableOpacity>
 
       {/* Configure Button */}
