@@ -6,6 +6,18 @@ export const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: colors.palette.neutral50, // Darkest background
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginBottom: 0,
+  },
+  headerSpacer: {
+    flex: 1,
+  },
+  closeButton: {
+    padding: 8,
+  },
   scrollView: {
     flex: 1,
   },
