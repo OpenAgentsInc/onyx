@@ -2,7 +2,7 @@ import { Instance, SnapshotIn, SnapshotOut, cast, types } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { Repo } from "../types/repo"
 
-// Repo Model (moved from ChatStore)
+// Repo Model
 export const RepoModel = types.model("Repo", {
   owner: types.string,
   name: types.string,
@@ -33,7 +33,8 @@ export const CoderStoreModel = types
       const newRepo = RepoModel.create(repo)
       self.repos.push(newRepo)
       if (!self.activeRepo) {
-        self.activeRepo = newRepo
+        // Create a new instance for activeRepo
+        self.activeRepo = RepoModel.create(repo)
       }
     },
 
