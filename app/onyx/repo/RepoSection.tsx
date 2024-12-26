@@ -72,16 +72,13 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
       onRequestClose={onClose}
     >
       <View style={[baseStyles.modalContainer, styles.container]}>
-        <View style={[baseStyles.modalHeader, styles.header]}>
-          <View style={styles.headerSpacer} />
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={onClose}
-            style={styles.closeButton}
-          >
-            <Ionicons name="close" size={24} color={colors.palette.neutral800} />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={onClose}
+          style={styles.closeButton}
+        >
+          <Ionicons name="close" size={24} color={colors.palette.neutral800} />
+        </TouchableOpacity>
 
         <ScrollView style={styles.scrollView}>
           <Text style={[styles.title, styles.text]}>Configure AutoCoder</Text>
