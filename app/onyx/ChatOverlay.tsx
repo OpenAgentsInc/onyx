@@ -9,7 +9,7 @@ import { styles as baseStyles } from "./styles"
 interface ChatOverlayProps {
   messages: Message[]
   isLoading: boolean
-  error: string
+  error?: string
 }
 
 export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlayProps) => {

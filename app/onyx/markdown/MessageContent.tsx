@@ -4,9 +4,12 @@ import Markdown from "react-native-markdown-display"
 import { colors } from "@/theme"
 import { Message } from "@ai-sdk/react"
 import { markdownStyles } from "./styles"
+import { ToolInvocation } from "./ToolInvocation"
 
 interface MessageContentProps {
-  message: Message
+  message: Message & {
+    toolInvocations?: Array<any>
+  }
 }
 
 export function MessageContent({ message }: MessageContentProps) {
@@ -18,12 +21,27 @@ export function MessageContent({ message }: MessageContentProps) {
   }
 
   const isUserMessage = message.role === "user"
+  const hasToolInvocations = !isUserMessage && message.toolInvocations && message.toolInvocations.length > 0
+  const hasContent = message.content && message.content.trim() !== ""
 
   return (
     <View style={[styles.container, isUserMessage && styles.userMessage]}>
-      <Markdown style={markdownStyles} onLinkPress={handleLinkPress}>
-        {message.content}
-      </Markdown>
+      {hasContent && (
+        <Markdown style={markdownStyles} onLinkPress={handleLinkPress}>
+          {message.content}
+        </Markdown>
+      )}
+
+      {hasToolInvocations && (
+        <View style={[styles.toolInvocations, hasContent && styles.toolInvocationsWithContent]}>
+          {message.toolInvocations.map((invocation, index) => (
+            <ToolInvocation
+              key={`${invocation.id || invocation.toolCallId}-${index}`}
+              toolInvocation={invocation}
+            />
+          ))}
+        </View>
+      )}
     </View>
   )
 }
@@ -37,5 +55,11 @@ const styles = StyleSheet.create({
     borderLeftWidth: 2,
     borderLeftColor: colors.text,
     opacity: 0.8,
+  },
+  toolInvocations: {
+    marginTop: 0,
+  },
+  toolInvocationsWithContent: {
+    marginTop: 8,
   },
 })
