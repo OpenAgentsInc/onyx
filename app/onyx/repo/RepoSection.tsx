@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Modal, Text, TextInput, TouchableOpacity, View, Pressable, ScrollView } from "react-native"
+import { Modal, Text, TextInput, TouchableOpacity, View, Pressable, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
 import { observer } from "mobx-react-lite"
 import { Ionicons } from "@expo/vector-icons"
 import { useStores } from "../../models/_helpers/useStores"
@@ -86,14 +86,20 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={[baseStyles.modalContainer, styles.container]}>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={onClose}
-          style={styles.closeButton}
-        >
-          <Ionicons name="close" size={24} color={colors.palette.neutral800} />
-        </TouchableOpacity>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={[baseStyles.modalContainer, styles.container]}
+      >
+        {/* This view is needed to make sure the close button doesn't get covered by the keyboard */}
+        <View>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onClose}
+            style={styles.closeButton}
+          >
+            <Ionicons name="close" size={24} color={colors.palette.neutral800} />
+          </TouchableOpacity>
+        </View>
 
         <ScrollView style={styles.scrollView}>
           <Text style={[styles.title, styles.text]}>Configure AutoCoder</Text>
@@ -250,7 +256,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
             ))}
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   )
 })
