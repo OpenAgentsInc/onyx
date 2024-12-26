@@ -27,24 +27,14 @@ export const OnyxLayout = observer(() => {
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: Config.NEXUS_URL,
     body: {
-      // Include GitHub token and tools in request body when tools are enabled
-      ...(chatStore.toolsEnabled &&
-        coderStore.hasGithubToken && {
-          githubToken: coderStore.githubToken,
-          tools: availableTools,
-          repos: coderStore.repos.map(repo => ({
-            owner: repo.owner,
-            name: repo.name,
-            branch: repo.branch
-          }))
-        }),
+      // Only include GitHub token and tools if both tools are enabled AND we have a token
+      ...(chatStore.toolsEnabled && coderStore.githubToken && {
+        githubToken: coderStore.githubToken,
+        tools: availableTools,
+      }),
     },
     onError: (error) => {
       console.error(error, "ERROR")
-      // If there's a GitHub token error, show configure modal
-      if (error.message?.includes("GitHub token")) {
-        setShowConfigure(true)
-      }
     },
     onToolCall: async (toolCall) => {
       console.log("TOOL CALL", toolCall)
@@ -68,12 +58,6 @@ export const OnyxLayout = observer(() => {
   }
 
   const handleSendMessage = async (message: string) => {
-    // If tools are enabled but no GitHub token, show configure modal
-    if (chatStore.toolsEnabled && !coderStore.hasGithubToken) {
-      setShowConfigure(true)
-      return
-    }
-    // Create a synthetic event object
     append({ content: message, role: "user" })
   }
 
