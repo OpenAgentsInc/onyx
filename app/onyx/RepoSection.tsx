@@ -12,6 +12,13 @@ interface RepoSectionProps {
   onClose: () => void
 }
 
+const AVAILABLE_TOOLS = [
+  { id: "view_file", name: "View File", description: "View file contents at path" },
+  { id: "view_folder", name: "View Folder", description: "View file/folder hierarchy at path" },
+  { id: "create_file", name: "Create File", description: "Create a new file at path with content" },
+  { id: "rewrite_file", name: "Rewrite File", description: "Rewrite file at path with new content" },
+]
+
 export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => {
   const { coderStore, chatStore } = useStores()
   const [editingRepo, setEditingRepo] = useState<null | Repo>(null)
@@ -64,8 +71,8 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
     coderStore.removeRepo(repo)
   }
 
-  const handleToolsToggle = () => {
-    chatStore.setToolsEnabled(!chatStore.toolsEnabled)
+  const handleToolToggle = (toolId: string) => {
+    chatStore.toggleTool(toolId)
   }
 
   return (
@@ -100,15 +107,32 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.text]}>Tools</Text>
-          <TouchableOpacity
-            style={[styles.button, chatStore.toolsEnabled && styles.buttonActive]}
-            onPress={handleToolsToggle}
-          >
-            <Text style={[styles.buttonText, styles.text]}>
-              {chatStore.toolsEnabled ? "Enabled" : "Disabled"}
-            </Text>
-          </TouchableOpacity>
+          <Text style={[styles.sectionTitle, styles.text]}>Available Tools</Text>
+          {AVAILABLE_TOOLS.map((tool) => (
+            <TouchableOpacity
+              key={tool.id}
+              style={[
+                styles.toolButton,
+                chatStore.isToolEnabled(tool.id) && styles.buttonActive
+              ]}
+              onPress={() => handleToolToggle(tool.id)}
+            >
+              <View style={styles.toolButtonContent}>
+                <View>
+                  <Text style={[styles.toolName, styles.text]}>{tool.name}</Text>
+                  <Text style={[styles.toolDescription, styles.text]}>{tool.description}</Text>
+                </View>
+                <View style={[
+                  styles.checkbox,
+                  chatStore.isToolEnabled(tool.id) && styles.checkboxActive
+                ]}>
+                  {chatStore.isToolEnabled(tool.id) && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <View style={styles.section}>
@@ -271,5 +295,44 @@ const styles = StyleSheet.create({
   cancelEditButton: {
     backgroundColor: colors.palette.neutral700,
     marginTop: 5,
+  },
+  toolButton: {
+    backgroundColor: colors.palette.neutral800,
+    padding: 12,
+    borderRadius: 5,
+    marginBottom: 8,
+  },
+  toolButtonContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  toolName: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  toolDescription: {
+    color: colors.palette.neutral400,
+    fontSize: 12,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: colors.palette.neutral400,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checkboxActive: {
+    backgroundColor: colors.palette.accent500,
+    borderColor: colors.palette.accent500,
+  },
+  checkmark: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: "bold",
   },
 })
