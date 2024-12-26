@@ -1,58 +1,75 @@
 # Tools System Documentation
 
-This document describes the tools system in Onyx, including the architecture, available tools, and how to add new tools.
+This document describes the tools system in Onyx, including the architecture, available tools, and how tools are managed between client and server.
 
 ## Architecture
 
 The tools system consists of three main components:
 
-1. Tool Store (State Management)
-2. Tool Definitions (Implementation)
-3. LLM Integration (Execution)
+1. Server-side Tool Definitions (Nexus)
+2. Client-side Tool Management (Onyx)
+3. LLM Integration (Gemini)
 
-### Tool Store
+### Server-side Tool Definitions
 
-Located in `app/models/tools/`, the tool store manages tool state and execution:
+Located in `nexus/src/tools/`, the server manages tool implementations:
 
 ```typescript
-interface Tool {
-  id: string
-  name: string
-  description: string
-  parameters: Record<string, unknown>
-  enabled: boolean
-  lastUsed?: number
-  metadata: any
+// Example from src/tools.ts
+export const allTools = {
+  view_file: { tool: viewFileTool, description: "View file contents at path" },
+  view_folder: { tool: viewFolderTool, description: "View folder contents at path" },
+  create_file: { tool: createFileTool, description: "Create a new file at path with content" },
+  rewrite_file: { tool: rewriteFileTool, description: "Rewrite file at path with new content" },
 }
 ```
 
 Key features:
-- Enable/disable tools
-- Track tool usage
-- Store tool metadata
-- Handle errors
-- Cache results
+- Centralized tool definitions
+- Standardized implementations
+- Consistent error handling
+- Server-side execution
 
-### Tool Definitions
+### Client-side Tool Management
 
-Tools are defined with standardized interfaces in `app/services/gemini/tools/`:
+The client manages tool enablement through the ChatStore:
 
 ```typescript
-interface ToolDefinition {
-  id: string
-  name: string
-  description: string
-  parameters: Record<string, unknown>
-  enabled?: boolean
-  metadata?: any
-  implementation?: (...args: any[]) => Promise<any>
-}
+// From app/models/chat/ChatStore.ts
+export const ChatStoreModel = types
+  .model("ChatStore")
+  .props({
+    enabledTools: types.optional(types.array(types.string), [
+      "view_file",
+      "view_folder",
+      "create_file",
+      "rewrite_file"
+    ]),
+  })
+  .actions(self => ({
+    toggleTool(toolName: string) {
+      const index = self.enabledTools.indexOf(toolName)
+      if (index === -1) {
+        self.enabledTools.push(toolName)
+      } else {
+        self.enabledTools.splice(index, 1)
+      }
+    },
+    setEnabledTools(tools: string[]) {
+      self.enabledTools.replace(tools)
+    }
+  }))
+  .views(self => ({
+    isToolEnabled(toolName: string) {
+      return self.enabledTools.includes(toolName)
+    }
+  }))
 ```
 
 ### LLM Integration
 
-Tools are integrated with LLMs (like Gemini) through:
-- Tool registration
+Tools are integrated with Gemini through the Nexus server:
+- Tool availability based on client selection
 - Parameter validation
 - Result processing
 - Error handling
@@ -61,7 +78,7 @@ Tools are integrated with LLMs (like Gemini) through:
 
 ### GitHub Tools
 
-#### 1. View File (`github_view_file`)
+#### 1. View File (`view_file`)
 Views contents of a file in a GitHub repository.
 
 Parameters:
@@ -70,38 +87,7 @@ Parameters:
 - `repo` (string): Repository name
 - `branch` (string): Branch name
 
-Example:
-```typescript
-const tool = toolStore.getToolById("github_view_file")
-if (!tool) {
-  throw new Error("Tool not found")
-}
-
-const implementation = tool.metadata?.implementation
-if (!implementation) {
-  throw new Error("Tool implementation not found")
-}
-
-const response = await implementation({
-  path: "README.md",
-  owner: "OpenAgentsInc",
-  repo: "onyx",
-  branch: "main"
-})
-```
-
-Response:
-```typescript
-interface FileToolResult {
-  content: string
-  path: string
-  sha?: string
-  size?: number
-  encoding?: string
-}
-```
-
-#### 2. View Hierarchy (`github_view_hierarchy`)
+#### 2. View Folder (`view_folder`)
 Views the file/folder structure at a path.
 
 Parameters:
@@ -110,151 +96,66 @@ Parameters:
 - `repo` (string): Repository name
 - `branch` (string): Branch name
 
-Example:
-```typescript
-const tool = toolStore.getToolById("github_view_hierarchy")
-if (!tool) {
-  throw new Error("Tool not found")
-}
+#### 3. Create File (`create_file`)
+Creates a new file with specified content.
 
-const implementation = tool.metadata?.implementation
-if (!implementation) {
-  throw new Error("Tool implementation not found")
-}
+Parameters:
+- `path` (string): File path
+- `content` (string): File content
+- `owner` (string): Repository owner
+- `repo` (string): Repository name
+- `branch` (string): Branch name
 
-const response = await implementation({
-  path: "src",
-  owner: "OpenAgentsInc",
-  repo: "onyx",
-  branch: "main"
-})
-```
+#### 4. Rewrite File (`rewrite_file`)
+Rewrites an existing file with new content.
 
-Response:
-```typescript
-interface HierarchyToolResult {
-  path: string
-  type: "file" | "dir"
-  name: string
-}
-```
+Parameters:
+- `path` (string): File path
+- `content` (string): New file content
+- `owner` (string): Repository owner
+- `repo` (string): Repository name
+- `branch` (string): Branch name
 
-## Adding New Tools
+## Tool Management UI
 
-### 1. Define Tool Types
-
-Create types in `app/services/gemini/tools/types.ts`:
+Tools are managed through the RepoSection component:
 
 ```typescript
-interface NewToolParams {
-  param1: string
-  param2: number
-}
-
-interface NewToolResult {
-  data: any
-  metadata?: Record<string, unknown>
-}
+// From app/onyx/RepoSection.tsx
+const AVAILABLE_TOOLS = [
+  { id: "view_file", name: "View File", description: "View file contents at path" },
+  { id: "view_folder", name: "View Folder", description: "View file/folder hierarchy at path" },
+  { id: "create_file", name: "Create File", description: "Create a new file at path with content" },
+  { id: "rewrite_file", name: "Rewrite File", description: "Rewrite file at path with new content" },
+]
 ```
 
-### 2. Implement Tool
+Features:
+- Individual tool enablement
+- Tool descriptions
+- Persistent tool state
+- Visual feedback
+- Mobile-friendly interface
 
-Create tool implementation:
+## Request Flow
 
-```typescript
-const newTool: ToolDefinition = {
-  id: "new_tool",
-  name: "new_tool",
-  description: "Does something useful",
-  parameters: {
-    param1: "string",
-    param2: "number"
-  },
-  metadata: {
-    category: "my_category",
-  },
-  implementation: async (params: NewToolParams): Promise<ToolResult<NewToolResult>> => {
-    try {
-      // Implementation
-      return {
-        success: true,
-        data: {
-          // Result data
-        }
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error"
-      }
-    }
-  }
-}
-```
+1. Client sends request with:
+   - Message content
+   - GitHub token
+   - Enabled tools list
+   - Active repositories
 
-### 3. Register Tool
+2. Server processes request:
+   - Validates GitHub token
+   - Filters available tools based on enabled list
+   - Provides tools to Gemini
+   - Executes tool calls
+   - Returns results
 
-Add to tool store initialization:
-
-```typescript
-toolStore.addTool({
-  id: "new_tool",
-  name: "new_tool",
-  description: "Does something useful",
-  parameters: {
-    param1: "string",
-    param2: "number"
-  },
-  metadata: {
-    category: "my_category",
-  },
-  implementation: async (params) => {
-    // Implementation
-  }
-})
-```
-
-### 4. Add Tests
-
-Create tests in `__tests__/tools/`:
-
-```typescript
-describe("new_tool", () => {
-  it("executes successfully", async () => {
-    const tool = toolStore.getToolById("new_tool")
-    expect(tool).toBeDefined()
-
-    const implementation = tool?.metadata?.implementation
-    expect(implementation).toBeDefined()
-
-    const response = await implementation({
-      param1: "test",
-      param2: 123
-    })
-    expect(response.success).toBe(true)
-    expect(response.data).toBeDefined()
-  })
-})
-```
-
-## Tool Categories
-
-Tools are organized into categories:
-
-1. GitHub
-- Repository operations
-- File operations
-- Code analysis
-
-2. Development (Planned)
-- Code generation
-- Testing
-- Documentation
-
-3. External Services (Planned)
-- API integration
-- Data fetching
-- Authentication
+3. Client displays results:
+   - Tool invocation status
+   - Execution results
+   - Error messages if any
 
 ## Best Practices
 
@@ -271,14 +172,13 @@ Tools are organized into categories:
 - Audit logging
 
 3. Performance
+- Efficient tool execution
 - Result caching
-- Batch operations
-- Async processing
 - Resource cleanup
 
 ## Error Handling
 
-Tools should return standardized errors:
+Tools return standardized errors:
 
 ```typescript
 interface ToolError {
@@ -302,28 +202,11 @@ Common error codes:
 - `RATE_LIMITED`: Rate limit exceeded
 - `INTERNAL_ERROR`: Internal tool error
 
-## Testing Tools
-
-1. Unit Tests
-- Parameter validation
-- Error handling
-- Result formatting
-
-2. Integration Tests
-- Tool execution
-- Store integration
-- LLM integration
-
-3. End-to-end Tests
-- Complete workflows
-- UI integration
-- Error recovery
-
-## Future Enhancements
+## Future Improvements
 
 1. Tool Discovery
 - Dynamic tool loading
-- Tool marketplace
+- Tool categories
 - Version management
 
 2. Advanced Features
@@ -331,9 +214,9 @@ Common error codes:
 - Workflow automation
 - Custom tool creation
 
-3. UI Integration
-- Tool configuration UI
-- Usage analytics
+3. UI Enhancements
+- Tool usage analytics
+- Performance metrics
 - Debug console
 
 ## Resources
