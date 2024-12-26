@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { Modal, Text, TextInput, TouchableOpacity, View, Pressable, ScrollView } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../models/_helpers/useStores"
+import { colors, typography } from "../../theme"
 import { styles as baseStyles } from "../styles"
 import { Repo } from "../../models/types/repo"
 import { RepoSectionProps, AVAILABLE_TOOLS } from "./types"
@@ -76,7 +77,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
             <Text style={[baseStyles.buttonText, baseStyles.cancelText, styles.text]}>Cancel</Text>
           </Pressable>
           <Pressable onPress={handleRepoSubmit}>
-            <Text style={[baseStyles.buttonText, styles.text, { color: "white" }]}>Save</Text>
+            <Text style={[baseStyles.buttonText, styles.text, { color: colors.palette.neutral800 }]}>Save</Text>
           </Pressable>
         </View>
 
