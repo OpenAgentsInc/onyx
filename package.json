@@ -1,7 +1,7 @@
 {
   "name": "onyx",
   "main": "app/app.tsx",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "AGPL-3.0-only",
   "scripts": {
     "start": "expo start",
@@ -23,9 +23,9 @@
     "doctor": "npx expo-doctor",
     "copyrepo": "cd ~/code && node md.js ./onyx && cat combined.md | pbcopy",
     "copy2": "cd ~/code && node md2.js ./onyx && cat model-system-docs.md | pbcopy",
-    "update:both": "eas update --channel v0.0.4 --environment production --message",
-    "update:ios": "eas update --channel v0.0.4 --environment production --platform ios --message",
-    "update:android": "eas update --channel v0.0.4 -environment production --platform android --message",
+    "update:both": "eas update --channel v0.0.5 --environment production --message",
+    "update:ios": "eas update --channel v0.0.5 --environment production --platform ios --message",
+    "update:android": "eas update --channel v0.0.5 -environment production --platform android --message",
     "hierarchy": "node scripts/generate-hierarchy.js"
   },
   "jest": {
