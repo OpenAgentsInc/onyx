@@ -1,6 +1,6 @@
 import React, { useState } from "react"
-import { Modal, Text, TextInput, TouchableOpacity, View, Pressable, ScrollView } from "react-native"
-import { observer } from "mobx-react-lite"
+import { Modal, Text, TextInput, TouchableOpacity, View, Pressable, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
+import { observer } from "mobx-react-lite";
 import { Ionicons } from "@expo/vector-icons"
 import { useStores } from "../../models/_helpers/useStores"
 import { colors, typography } from "../../theme"
@@ -86,7 +86,13 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={[baseStyles.modalContainer, styles.container]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={[baseStyles.modalContainer, styles.container]}
+      >
+        <ScrollView style={styles.scrollView}>
+
+
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={onClose}
@@ -94,8 +100,6 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
         >
           <Ionicons name="close" size={24} color={colors.palette.neutral800} />
         </TouchableOpacity>
-
-        <ScrollView style={styles.scrollView}>
           <Text style={[styles.title, styles.text]}>Configure AutoCoder</Text>
           <Text style={[styles.subtitle, styles.text]}>
             Onyx can analyze or edit codebases. Add a GitHub token and connect repos.
@@ -250,7 +254,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
             ))}
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   )
 })
