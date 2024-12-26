@@ -40,6 +40,14 @@ export const styles = StyleSheet.create({
     bottom: 56,
     zIndex: 10,
   },
+  reposButton: {
+    width: 24,
+    height: 24,
+    position: "absolute",
+    left: 130,
+    bottom: 56,
+    zIndex: 10,
+  },
   copyButton: {
     width: 24,
     height: 24,

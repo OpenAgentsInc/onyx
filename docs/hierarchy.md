@@ -40,6 +40,8 @@
       ├── ToolActions.ts
       ├── ToolStore.ts
       ├── index.ts
+    ├── types
+      ├── repo.ts
   ├── onyx
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
@@ -47,6 +49,7 @@
     ├── ChatOverlayPrev.tsx
     ├── ConfigureModal.tsx
     ├── OnyxLayout.tsx
+    ├── RepoSection.tsx
     ├── TextInputModal.tsx
     ├── ToolTestModal.tsx
     ├── VoiceInputModal.styles.ts
@@ -54,6 +57,7 @@
     ├── markdown
       ├── MessageContent.tsx
       ├── MessageContentPrev.tsx
+      ├── ToolInvocation.tsx
       ├── index.ts
       ├── styles.ts
     ├── styles.ts
@@ -132,6 +136,7 @@
   ├── permissions.md
   ├── roadmap-brainstorming.md
   ├── roadmap.md
+  ├── tool-component.md
   ├── tools.md
   ├── transcripts
     ├── ep146.md

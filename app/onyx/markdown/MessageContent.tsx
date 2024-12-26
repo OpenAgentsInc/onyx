@@ -6,9 +6,16 @@ import { Message } from "@ai-sdk/react"
 import { markdownStyles } from "./styles"
 import { ToolInvocation } from "./ToolInvocation"
 
+interface ToolInvocationType {
+  toolCallId: string
+  toolName?: string
+  state?: string
+  [key: string]: any
+}
+
 interface MessageContentProps {
   message: Message & {
-    toolInvocations?: Array<any>
+    toolInvocations?: ToolInvocationType[]
   }
 }
 
@@ -21,7 +28,7 @@ export function MessageContent({ message }: MessageContentProps) {
   }
 
   const isUserMessage = message.role === "user"
-  const hasToolInvocations = !isUserMessage && message.toolInvocations && message.toolInvocations.length > 0
+  const hasToolInvocations = !isUserMessage && Array.isArray(message.toolInvocations) && message.toolInvocations.length > 0
   const hasContent = message.content && message.content.trim() !== ""
 
   return (
@@ -32,11 +39,11 @@ export function MessageContent({ message }: MessageContentProps) {
         </Markdown>
       )}
 
-      {hasToolInvocations && (
+      {hasToolInvocations && message.toolInvocations && (
         <View style={[styles.toolInvocations, hasContent && styles.toolInvocationsWithContent]}>
           {message.toolInvocations.map((invocation, index) => (
             <ToolInvocation
-              key={`${invocation.id || invocation.toolCallId}-${index}`}
+              key={`${invocation.toolCallId || invocation.toolName || index}`}
               toolInvocation={invocation}
             />
           ))}

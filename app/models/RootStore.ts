@@ -1,6 +1,7 @@
 import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 import { ChatStoreWithActions } from "./chat/ChatStore"
 import { ToolStoreModel } from "./tools"
+import { CoderStoreModel } from "./coder/CoderStore"
 
 const RootStoreModel = types
   .model("RootStore")
@@ -10,6 +11,13 @@ const RootStoreModel = types
       tools: [],
       isInitialized: false,
       error: null,
+    }),
+    coderStore: types.optional(CoderStoreModel, {
+      isInitialized: false,
+      error: null,
+      githubToken: "",
+      repos: [],
+      activeRepo: null,
     })
   })
 
@@ -27,5 +35,12 @@ export const createRootStoreDefaultModel = () =>
       tools: [],
       isInitialized: false,
       error: null,
+    },
+    coderStore: {
+      isInitialized: false,
+      error: null,
+      githubToken: "",
+      repos: [],
+      activeRepo: null,
     }
   })

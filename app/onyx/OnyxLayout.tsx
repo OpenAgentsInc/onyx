@@ -9,18 +9,18 @@ import { BottomButtons } from "./BottomButtons"
 import { ChatOverlay } from "./ChatOverlay"
 import { ConfigureModal } from "./ConfigureModal"
 import { TextInputModal } from "./TextInputModal"
-import { ToolTestModal } from "./ToolTestModal"
 import { VoiceInputModal } from "./VoiceInputModal"
+import { RepoSection } from "./RepoSection"
 
 // Available tools for the AI
 const availableTools = ["view_file", "view_folder"]
 
 export const OnyxLayout = observer(() => {
-  const { chatStore } = useStores()
+  const { chatStore, coderStore } = useStores()
   const [showTextInput, setShowTextInput] = useState(false)
   const [showVoiceInput, setShowVoiceInput] = useState(false)
   const [showConfigure, setShowConfigure] = useState(false)
-  const [showTools, setShowTools] = useState(false)
+  const [showRepos, setShowRepos] = useState(false)
   const [transcript, setTranscript] = useState("")
 
   const { isLoading, messages, error, append, setMessages } = useChat({
@@ -29,9 +29,14 @@ export const OnyxLayout = observer(() => {
     body: {
       // Include GitHub token and tools in request body when tools are enabled
       ...(chatStore.toolsEnabled &&
-        chatStore.hasGithubToken && {
-          githubToken: chatStore.githubToken,
+        coderStore.hasGithubToken && {
+          githubToken: coderStore.githubToken,
           tools: availableTools,
+          repos: coderStore.repos.map(repo => ({
+            owner: repo.owner,
+            name: repo.name,
+            branch: repo.branch
+          }))
         }),
     },
     onError: (error) => {
@@ -43,28 +48,9 @@ export const OnyxLayout = observer(() => {
     },
     onToolCall: async (toolCall) => {
       console.log("TOOL CALL", toolCall)
-      // if (toolCall.toolId === "view_file") {
-      //   // Show the tool test modal
-      //   setShowTools(true)
-      //
     },
     onResponse: async (response) => {
       console.log(response, "RESPONSE")
-
-      // const json = await response.json()
-      // console.log("JSON", json)
-
-      // // Create a new message from the response
-      // const newMessage = {
-      //   id: json.result.response.id,
-      //   content: json.result.text,
-      //   role: "assistant" as const,
-      //   createdAt: new Date(json.result.response.timestamp),
-      //   toolInvocations: json.result.toolCalls || [],
-      // }
-
-      // // Append the new message to existing messages
-      // setMessages((prev) => [...prev, newMessage])
     },
     onFinish: () => console.log("FINISH"),
   })
@@ -83,7 +69,7 @@ export const OnyxLayout = observer(() => {
 
   const handleSendMessage = async (message: string) => {
     // If tools are enabled but no GitHub token, show configure modal
-    if (chatStore.toolsEnabled && !chatStore.hasGithubToken) {
+    if (chatStore.toolsEnabled && !coderStore.hasGithubToken) {
       setShowConfigure(true)
       return
     }
@@ -93,7 +79,7 @@ export const OnyxLayout = observer(() => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-      <ChatOverlay messages={messages} isLoading={isLoading} error={error} />
+      <ChatOverlay messages={messages} isLoading={isLoading} error={error?.toString()} />
 
       <TextInputModal
         visible={showTextInput}
@@ -108,20 +94,15 @@ export const OnyxLayout = observer(() => {
         onSendMessage={handleSendMessage}
       />
 
-      <ToolTestModal
-        visible={showTools}
-        onClose={() => setShowTools(false)}
-        enabled={chatStore.toolsEnabled}
-        onToggle={() => chatStore.setToolsEnabled(!chatStore.toolsEnabled)}
-      />
-
       <ConfigureModal visible={showConfigure} onClose={() => setShowConfigure(false)} />
+
+      <RepoSection visible={showRepos} onClose={() => setShowRepos(false)} />
 
       <BottomButtons
         onTextPress={() => setShowTextInput(true)}
         onVoicePress={handleStartVoiceInput}
         onConfigurePress={() => setShowConfigure(true)}
-        onToolsPress={() => setShowTools(true)}
+        onReposPress={() => setShowRepos(true)}
         setMessages={setMessages}
       />
     </View>
