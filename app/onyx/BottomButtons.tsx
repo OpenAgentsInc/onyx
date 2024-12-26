@@ -41,13 +41,13 @@ export const BottomButtons = ({
       </TouchableOpacity>
 
       {/* Configure Button */}
-      <TouchableOpacity
+      {/* <TouchableOpacity
         activeOpacity={0.8}
         onPress={onConfigurePress}
         style={styles.configureButton}
       >
         <Ionicons name="settings-outline" size={24} color={colors.textDim} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* Copy Button */}
       <TouchableOpacity
