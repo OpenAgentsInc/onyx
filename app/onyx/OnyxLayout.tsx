@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react"
+import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
-import { StyleSheet, View } from "react-native"
-import { useStores } from "@/models/_helpers/useStores"
-import { colors } from "@/theme"
+import React, { useState } from "react"
+import { View } from "react-native"
+import { useChat } from "@ai-sdk/react"
+import Config from "../config"
+import { useStores } from "../models/_helpers/useStores"
 import { BottomButtons } from "./BottomButtons"
 import { ChatOverlay } from "./ChatOverlay"
 import { ConfigureModal } from "./ConfigureModal"
@@ -11,94 +13,120 @@ import { ToolTestModal } from "./ToolTestModal"
 import { VoiceInputModal } from "./VoiceInputModal"
 import { RepoSection } from "./RepoSection"
 
+// Available tools for the AI
+const availableTools = ["view_file", "view_folder"]
+
 export const OnyxLayout = observer(() => {
   const { chatStore, coderStore } = useStores()
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string>()
-  const [showConfigureModal, setShowConfigureModal] = useState(false)
-  const [showTextInputModal, setShowTextInputModal] = useState(false)
-  const [showVoiceInputModal, setShowVoiceInputModal] = useState(false)
-  const [showToolTestModal, setShowToolTestModal] = useState(false)
+  const [showTextInput, setShowTextInput] = useState(false)
+  const [showVoiceInput, setShowVoiceInput] = useState(false)
+  const [showConfigure, setShowConfigure] = useState(false)
+  const [showTools, setShowTools] = useState(false)
+  const [showRepos, setShowRepos] = useState(false)
+  const [transcript, setTranscript] = useState("")
 
-  const handleSendMessage = useCallback(async (message: string) => {
-    setError(undefined)
-    setIsLoading(true)
-
-    try {
-      const options = {
-        ...(chatStore.toolsEnabled && coderStore.hasGithubToken && {
+  const { isLoading, messages, error, append, setMessages } = useChat({
+    fetch: expoFetch as unknown as typeof globalThis.fetch,
+    api: Config.NEXUS_URL,
+    body: {
+      // Include GitHub token and tools in request body when tools are enabled
+      ...(chatStore.toolsEnabled &&
+        coderStore.hasGithubToken && {
           githubToken: coderStore.githubToken,
+          tools: availableTools,
         }),
+    },
+    onError: (error) => {
+      console.error(error, "ERROR")
+      // If there's a GitHub token error, show configure modal
+      if (error.message?.includes("GitHub token")) {
+        setShowConfigure(true)
       }
+    },
+    onToolCall: async (toolCall) => {
+      console.log("TOOL CALL", toolCall)
+      // if (toolCall.toolId === "view_file") {
+      //   // Show the tool test modal
+      //   setShowTools(true)
+      //
+    },
+    onResponse: async (response) => {
+      console.log(response, "RESPONSE")
 
-      if (chatStore.activeModel === "groq") {
-        await chatStore.sendMessageToGroq(message, options)
-      } else {
-        await chatStore.sendMessageToGemini(message, options)
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
-    } finally {
-      setIsLoading(false)
-    }
-  }, [chatStore, coderStore])
+      // const json = await response.json()
+      // console.log("JSON", json)
 
-  useEffect(() => {
-    if (chatStore.error) {
-      setError(chatStore.error)
-      chatStore.setError(null)
-    }
-  }, [chatStore.error])
+      // // Create a new message from the response
+      // const newMessage = {
+      //   id: json.result.response.id,
+      //   content: json.result.text,
+      //   role: "assistant" as const,
+      //   createdAt: new Date(json.result.response.timestamp),
+      //   toolInvocations: json.result.toolCalls || [],
+      // }
 
-  useEffect(() => {
+      // // Append the new message to existing messages
+      // setMessages((prev) => [...prev, newMessage])
+    },
+    onFinish: () => console.log("FINISH"),
+  })
+
+  const handleStartVoiceInput = () => {
+    setTranscript("") // Reset transcript
+    setShowVoiceInput(true)
+    // TODO: Start voice recording here
+  }
+
+  const handleStopVoiceInput = () => {
+    // TODO: Stop voice recording here
+    setShowVoiceInput(false)
+    setTranscript("")
+  }
+
+  const handleSendMessage = async (message: string) => {
+    // If tools are enabled but no GitHub token, show configure modal
     if (chatStore.toolsEnabled && !coderStore.hasGithubToken) {
-      setShowConfigureModal(true)
+      setShowConfigure(true)
+      return
     }
-  }, [chatStore.toolsEnabled, coderStore.hasGithubToken])
-
-  const messages = chatStore.currentMessages
+    // Create a synthetic event object
+    append({ content: message, role: "user" })
+  }
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: "black" }}>
       <ChatOverlay messages={messages} isLoading={isLoading} error={error?.toString()} />
 
-      <RepoSection />
-
-      <BottomButtons
-        onConfigurePress={() => setShowConfigureModal(true)}
-        onTextPress={() => setShowTextInputModal(true)}
-        onVoicePress={() => setShowVoiceInputModal(true)}
-        onToolTestPress={() => setShowToolTestModal(true)}
-      />
-
-      <ConfigureModal
-        visible={showConfigureModal}
-        onClose={() => setShowConfigureModal(false)}
-      />
-
       <TextInputModal
-        visible={showTextInputModal}
-        onClose={() => setShowTextInputModal(false)}
-        onSend={handleSendMessage}
+        visible={showTextInput}
+        onClose={() => setShowTextInput(false)}
+        onSendMessage={handleSendMessage}
       />
 
       <VoiceInputModal
-        visible={showVoiceInputModal}
-        onClose={() => setShowVoiceInputModal(false)}
-        onSend={handleSendMessage}
+        visible={showVoiceInput}
+        onClose={handleStopVoiceInput}
+        transcript={transcript}
+        onSendMessage={handleSendMessage}
       />
 
       <ToolTestModal
-        visible={showToolTestModal}
-        onClose={() => setShowToolTestModal(false)}
+        visible={showTools}
+        onClose={() => setShowTools(false)}
+      />
+
+      <ConfigureModal visible={showConfigure} onClose={() => setShowConfigure(false)} />
+
+      <RepoSection visible={showRepos} onClose={() => setShowRepos(false)} />
+
+      <BottomButtons
+        onTextPress={() => setShowTextInput(true)}
+        onVoicePress={handleStartVoiceInput}
+        onConfigurePress={() => setShowConfigure(true)}
+        onToolsPress={() => setShowTools(true)}
+        onReposPress={() => setShowRepos(true)}
+        setMessages={setMessages}
       />
     </View>
   )
-})
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
 })
