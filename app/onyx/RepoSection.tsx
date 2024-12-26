@@ -15,6 +15,7 @@ interface RepoSectionProps {
 export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => {
   const { coderStore } = useStores()
   const [editingRepo, setEditingRepo] = useState<null | Repo>(null)
+  const [githubToken, setGithubToken] = useState(coderStore.githubToken)
   const [repoInput, setRepoInput] = useState({
     owner: "",
     name: "",
@@ -32,6 +33,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
     } else {
       coderStore.addRepo(repoInput)
     }
+    coderStore.setGithubToken(githubToken)
     setRepoInput({ owner: "", name: "", branch: "" })
     onClose()
   }
@@ -80,6 +82,18 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
         </View>
 
         <Text style={[styles.title, styles.text]}>Manage Repositories</Text>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, styles.text]}>GitHub Token</Text>
+          <TextInput
+            style={[styles.input, styles.text]}
+            value={githubToken}
+            onChangeText={setGithubToken}
+            placeholder="Enter GitHub token"
+            placeholderTextColor={colors.palette.neutral400}
+            secureTextEntry={true}
+          />
+        </View>
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, styles.text]}>
