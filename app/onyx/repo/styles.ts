@@ -85,6 +85,17 @@ export const styles = StyleSheet.create({
     opacity: 0.5,
     alignItems: "center",
   },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+    marginTop: 10,
+  },
+  submitButton: {
+    flex: 1,
+    backgroundColor: colors.palette.neutral200,
+    opacity: 1,
+  },
   repoButton: {
     flex: 1,
   },
@@ -111,7 +122,7 @@ export const styles = StyleSheet.create({
   },
   cancelEditButton: {
     backgroundColor: colors.palette.neutral300,
-    marginTop: 5,
+    flex: 1,
   },
   toolButton: {
     backgroundColor: colors.palette.neutral200, // Dark tool button background
