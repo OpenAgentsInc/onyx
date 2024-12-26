@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, Pressable } from "react-native"
+import { observer } from "mobx-react-lite"
 import { useStores } from "../models/_helpers/useStores"
 import { colors } from "../theme"
 import { typography } from "../theme"
@@ -11,7 +12,7 @@ interface RepoSectionProps {
   onClose: () => void
 }
 
-export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
+export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => {
   const { coderStore } = useStores()
   const [editingRepo, setEditingRepo] = useState<null | Repo>(null)
   const [repoInput, setRepoInput] = useState({
@@ -42,11 +43,14 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
 
   const handleEditRepo = (repo: Repo) => {
     setEditingRepo(repo)
-    setRepoInput(repo)
+    setRepoInput({
+      owner: repo.owner,
+      name: repo.name,
+      branch: repo.branch
+    })
   }
 
   const handleRemoveRepo = (repo: Repo) => {
-    coderStore.removeRepo(repo)
     if (editingRepo && 
       editingRepo.owner === repo.owner && 
       editingRepo.name === repo.name && 
@@ -55,6 +59,7 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
       setEditingRepo(null)
       setRepoInput({ owner: "", name: "", branch: "" })
     }
+    coderStore.removeRepo(repo)
   }
 
   return (
@@ -162,7 +167,7 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
       </View>
     </Modal>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {
