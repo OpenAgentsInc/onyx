@@ -50,13 +50,16 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
   }
 
   const handleEditRepo = (repo: Repo) => {
-    setEditingRepo(repo)
-    setRepoInput({
+    // Create a plain object copy of the repo data
+    const repoData = {
       owner: repo.owner,
       name: repo.name,
       branch: repo.branch
-    })
+    }
+    setEditingRepo(repoData)
+    setRepoInput(repoData)
     setShowRepoForm(true)
+    coderStore.setActiveRepo(repo)
   }
 
   const handleRemoveRepo = (repo: Repo) => {
@@ -227,10 +230,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
                     editingRepo.branch === repo.branch && 
                     styles.buttonEditing
                   ]}
-                  onPress={() => {
-                    handleEditRepo(repo)
-                    coderStore.setActiveRepo(repo)
-                  }}
+                  onPress={() => handleEditRepo(repo)}
                 >
                   <Text style={[styles.buttonText, styles.text]}>
                     {repo.owner}/{repo.name}
