@@ -16,7 +16,7 @@ export const CoderStoreModel = types
     error: types.maybeNull(types.string),
     githubToken: types.optional(types.string, ""),
     repos: types.array(RepoModel),
-    activeRepo: types.maybeNull(RepoModel),
+    activeRepoIndex: types.maybeNull(types.number),
   })
   .actions(withSetPropAction)
   .actions((self) => ({
@@ -32,49 +32,73 @@ export const CoderStoreModel = types
     addRepo(repo: Repo) {
       const newRepo = RepoModel.create(repo)
       self.repos.push(newRepo)
-      if (!self.activeRepo) {
-        // Create a new instance for activeRepo
-        self.activeRepo = RepoModel.create(repo)
+      if (self.activeRepoIndex === null) {
+        self.activeRepoIndex = self.repos.length - 1
       }
     },
 
     removeRepo(repoToRemove: Repo) {
-      self.repos = cast(self.repos.filter(repo =>
-        !(repo.owner === repoToRemove.owner &&
-          repo.name === repoToRemove.name &&
-          repo.branch === repoToRemove.branch)
-      ))
-      if (self.activeRepo &&
-        self.activeRepo.owner === repoToRemove.owner &&
-        self.activeRepo.name === repoToRemove.name &&
-        self.activeRepo.branch === repoToRemove.branch) {
-        self.activeRepo = null
+      const index = self.repos.findIndex(repo =>
+        repo.owner === repoToRemove.owner &&
+        repo.name === repoToRemove.name &&
+        repo.branch === repoToRemove.branch
+      )
+      
+      if (index !== -1) {
+        self.repos = cast(self.repos.filter((_, i) => i !== index))
+        if (self.activeRepoIndex === index) {
+          self.activeRepoIndex = self.repos.length > 0 ? 0 : null
+        } else if (self.activeRepoIndex !== null && self.activeRepoIndex > index) {
+          self.activeRepoIndex--
+        }
       }
     },
 
     updateRepo(oldRepo: Repo, newRepo: Repo) {
-      self.repos = cast(self.repos.map(repo =>
+      const index = self.repos.findIndex(repo =>
         repo.owner === oldRepo.owner &&
         repo.name === oldRepo.name &&
         repo.branch === oldRepo.branch
-          ? RepoModel.create(newRepo)
-          : repo
-      ))
-      if (self.activeRepo &&
-        self.activeRepo.owner === oldRepo.owner &&
-        self.activeRepo.name === oldRepo.name &&
-        self.activeRepo.branch === oldRepo.branch) {
-        self.activeRepo = RepoModel.create(newRepo)
+      )
+      
+      if (index !== -1) {
+        self.repos = cast(self.repos.map((repo, i) =>
+          i === index ? RepoModel.create(newRepo) : repo
+        ))
       }
     },
 
+    setActiveRepoByIndex(index: number | null) {
+      if (index !== null && (index < 0 || index >= self.repos.length)) {
+        return
+      }
+      self.activeRepoIndex = index
+    },
+
     setActiveRepo(repo: Repo | null) {
-      self.activeRepo = repo ? RepoModel.create(repo) : null
+      if (!repo) {
+        self.activeRepoIndex = null
+        return
+      }
+      
+      const index = self.repos.findIndex(r =>
+        r.owner === repo.owner &&
+        r.name === repo.name &&
+        r.branch === repo.branch
+      )
+      
+      if (index !== -1) {
+        self.activeRepoIndex = index
+      }
     }
   }))
   .views((self) => ({
     get hasGithubToken() {
       return !!self.githubToken
+    },
+    
+    get activeRepo() {
+      return self.activeRepoIndex !== null ? self.repos[self.activeRepoIndex] : null
     }
   }))
 
@@ -88,5 +112,5 @@ export const createCoderStoreDefaultModel = () =>
     error: null,
     githubToken: "",
     repos: [],
-    activeRepo: null,
+    activeRepoIndex: null,
   })
