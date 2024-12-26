@@ -51,7 +51,6 @@
     ├── ChatOverlayPrev.tsx
     ├── ConfigureModal.tsx
     ├── OnyxLayout.tsx
-    ├── RepoSection.tsx
     ├── TextInputModal.tsx
     ├── VoiceInputModal.styles.ts
     ├── VoiceInputModal.tsx
@@ -61,6 +60,10 @@
       ├── ToolInvocation.tsx
       ├── index.ts
       ├── styles.ts
+    ├── repo
+      ├── RepoSection.tsx
+      ├── styles.ts
+      ├── types.ts
     ├── styles.ts
   ├── screens
     ├── ErrorScreen
