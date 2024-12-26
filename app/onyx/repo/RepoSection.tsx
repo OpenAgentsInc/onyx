@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { Modal, Text, TextInput, TouchableOpacity, View, Pressable, ScrollView } from "react-native"
 import { observer } from "mobx-react-lite"
+import { Ionicons } from "@expo/vector-icons"
 import { useStores } from "../../models/_helpers/useStores"
 import { colors, typography } from "../../theme"
 import { styles as baseStyles } from "../styles"
@@ -31,7 +32,6 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
     }
     coderStore.setGithubToken(githubToken)
     setRepoInput({ owner: "", name: "", branch: "" })
-    onClose()
   }
 
   const handleAddRepoClick = () => {
@@ -72,13 +72,15 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
       onRequestClose={onClose}
     >
       <View style={[baseStyles.modalContainer, styles.container]}>
-        <View style={baseStyles.modalHeader}>
-          <Pressable onPress={onClose}>
-            <Text style={[baseStyles.buttonText, baseStyles.cancelText, styles.text]}>Cancel</Text>
-          </Pressable>
-          <Pressable onPress={handleRepoSubmit}>
-            <Text style={[baseStyles.buttonText, styles.text, { color: colors.palette.neutral800 }]}>Save</Text>
-          </Pressable>
+        <View style={[baseStyles.modalHeader, styles.header]}>
+          <View style={styles.headerSpacer} />
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onClose}
+            style={styles.closeButton}
+          >
+            <Ionicons name="close" size={24} color={colors.palette.neutral800} />
+          </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.scrollView}>
@@ -96,6 +98,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
               placeholder="Enter GitHub token"
               placeholderTextColor={colors.palette.neutral400}
               secureTextEntry={true}
+              onBlur={handleRepoSubmit}
             />
           </View>
 
@@ -162,6 +165,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
               autoCapitalize="none"
               autoCorrect={false}
               spellCheck={false}
+              onBlur={handleRepoSubmit}
             />
             {editingRepo && (
               <TouchableOpacity
