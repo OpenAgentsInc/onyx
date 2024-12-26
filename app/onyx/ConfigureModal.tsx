@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
-import React, { useState } from "react"
-import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import React from "react"
+import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { useStores } from "../models/_helpers/useStores"
 import { colors, typography } from "../theme"
 import { styles as baseStyles } from "./styles"
@@ -11,15 +11,13 @@ interface ConfigureModalProps {
 }
 
 export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProps) => {
-  const { chatStore, coderStore } = useStores()
-  const [githubToken, setGithubToken] = useState(coderStore.githubToken)
+  const { chatStore } = useStores()
 
   const handleModelChange = (model: "groq" | "gemini") => {
     chatStore.setActiveModel(model)
   }
 
   const handleSave = () => {
-    coderStore.setGithubToken(githubToken)
     onClose()
   }
 
@@ -58,18 +56,6 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
               <Text style={[styles.buttonText, styles.text]}>Gemini</Text>
             </TouchableOpacity>
           </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.text]}>GitHub Token</Text>
-          <TextInput
-            style={[styles.input, styles.text]}
-            value={githubToken}
-            onChangeText={setGithubToken}
-            placeholder="Enter GitHub token"
-            placeholderTextColor={colors.palette.neutral400}
-            secureTextEntry={true}
-          />
         </View>
 
         <View style={styles.section}>
@@ -130,13 +116,5 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.palette.neutral100,
     fontWeight: "bold",
-  },
-  input: {
-    backgroundColor: colors.palette.neutral50,
-    color: colors.text,
-    padding: 10,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: colors.palette.neutral700,
   },
 })
