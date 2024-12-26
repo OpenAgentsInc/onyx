@@ -31,7 +31,15 @@ interface ToolInvocation {
   output?: JSONValue
   result?: JSONValue
   status?: 'pending' | 'completed' | 'failed'
-  state?: 'call' | 'result'
+  state?: 'call' | 'result' | 'partial-call'
+}
+
+interface ModalContentProps {
+  title: string
+  description: string
+  content: any
+  visible: boolean
+  onClose: () => void
 }
 ```
 
@@ -55,7 +63,14 @@ interface ToolInvocation {
 The ToolInvocation component is integrated into the MessageContent component to display tool calls within chat messages:
 
 ```typescript
-<View style={styles.container}>
+interface MessageContentProps {
+  message: Message & {
+    toolInvocations?: Array<any>
+  }
+}
+
+// Usage in render
+<View style={[styles.container, isUserMessage && styles.userMessage]}>
   {hasContent && (
     <Markdown style={markdownStyles}>
       {message.content}
@@ -63,10 +78,10 @@ The ToolInvocation component is integrated into the MessageContent component to 
   )}
 
   {hasToolInvocations && (
-    <View style={styles.toolInvocations}>
+    <View style={[styles.toolInvocations, hasContent && styles.toolInvocationsWithContent]}>
       {message.toolInvocations.map((invocation, index) => (
         <ToolInvocation
-          key={`${invocation.id}-${index}`}
+          key={`${invocation.id || invocation.toolCallId}-${index}`}
           toolInvocation={invocation}
         />
       ))}
@@ -98,6 +113,7 @@ Key style features:
 - Responsive touch targets
 - Modal overlay for detailed information
 - Status-specific colors for indicators
+- Proper spacing when combined with message content
 
 ## Modal System
 
@@ -107,18 +123,20 @@ The component uses React Native's Modal component for displaying detailed inform
    - Shows all input parameters in a scrollable view
    - JSON formatting for readability
    - Close button for dismissal
+   - Semi-transparent overlay background
 
 2. **File Content Modal**
    - Displays file contents when available
    - Scrollable for long content
    - Monospace font for code readability
+   - Maximum height constraint with scrolling
 
 ## Status Indicators
 
 Status is displayed using text characters for simplicity and reliability:
-- ⟳ Pending (spinning animation)
-- ✓ Completed (success)
-- ✗ Failed (error)
+- ⟳ Pending (gray color)
+- ✓ Completed (text color)
+- ✗ Failed (error color)
 
 ## Integration with Message System
 
@@ -127,17 +145,19 @@ The component integrates with the AI message system by:
 2. Rendering tool cards below message content
 3. Maintaining message flow and readability
 4. Preserving message hierarchy
+5. Supporting partial call states during execution
 
 ## Best Practices
 
 When using the ToolInvocation component:
 
 1. Always provide complete tool invocation data
-2. Handle both success and error states
+2. Handle all possible states (pending/completed/failed/partial-call)
 3. Ensure modals have appropriate content
 4. Test touch interactions for usability
 5. Verify status indicator visibility
 6. Check modal scrolling with large content
+7. Consider content spacing when tools appear with message text
 
 ## Error Handling
 
@@ -146,6 +166,7 @@ The component includes error handling for:
 - JSON parsing errors
 - Missing or malformed content
 - Modal interaction edge cases
+- Missing optional fields
 
 ## Future Improvements
 
@@ -156,3 +177,6 @@ Potential areas for enhancement:
 4. Enhanced error messaging
 5. Accessibility improvements
 6. Performance optimizations for large datasets
+7. Custom styling per tool type
+8. Interactive tool results
+9. Retry functionality for failed invocations
