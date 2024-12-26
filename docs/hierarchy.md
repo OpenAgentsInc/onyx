@@ -35,6 +35,8 @@
       ├── ChatActions.ts
       ├── ChatStore.ts
       ├── index.ts
+    ├── coder
+      ├── CoderStore.ts
     ├── index.ts
     ├── tools
       ├── ToolActions.ts
@@ -51,7 +53,6 @@
     ├── OnyxLayout.tsx
     ├── RepoSection.tsx
     ├── TextInputModal.tsx
-    ├── ToolTestModal.tsx
     ├── VoiceInputModal.styles.ts
     ├── VoiceInputModal.tsx
     ├── markdown
