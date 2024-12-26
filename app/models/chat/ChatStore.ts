@@ -1,12 +1,11 @@
 import {
-  cast, IAnyModelType, Instance, IStateTreeNode, SnapshotIn, SnapshotOut,
+  Instance, SnapshotIn, SnapshotOut,
   types
 } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 // Add Groq actions after ChatStore is defined to avoid circular dependency
 import { withGroqActions } from "./ChatActions"
-import { Repo } from "../types/repo"
 
 // Message Types
 export const MessageModel = types
@@ -28,13 +27,6 @@ export const MessageModel = types
 
 export interface IMessage extends Instance<typeof MessageModel> { }
 
-// Repo Model
-export const RepoModel = types.model("Repo", {
-  owner: types.string,
-  name: types.string,
-  branch: types.string,
-})
-
 // Store Model
 export const ChatStoreModel = types
   .model("ChatStore")
@@ -45,10 +37,7 @@ export const ChatStoreModel = types
     currentConversationId: types.optional(types.string, "default"),
     isGenerating: types.optional(types.boolean, false),
     activeModel: types.optional(types.enumeration(["groq", "gemini"]), "gemini"),
-    githubToken: types.optional(types.string, ""),
     toolsEnabled: types.optional(types.boolean, true),
-    repos: types.array(RepoModel),
-    activeRepo: types.maybeNull(RepoModel),
   })
   .actions(withSetPropAction)
   .actions((self) => ({
@@ -98,56 +87,9 @@ export const ChatStoreModel = types
       self.activeModel = model
     },
 
-    setGithubToken(token: string) {
-      self.githubToken = token
-    },
-
     setToolsEnabled(enabled: boolean) {
       self.toolsEnabled = enabled
     },
-
-    // Repo actions
-    addRepo(repo: Repo) {
-      const newRepo = RepoModel.create(repo)
-      self.repos.push(newRepo)
-      if (!self.activeRepo) {
-        self.activeRepo = newRepo
-      }
-    },
-
-    removeRepo(repoToRemove: Repo) {
-      self.repos = cast(self.repos.filter(repo =>
-        !(repo.owner === repoToRemove.owner &&
-          repo.name === repoToRemove.name &&
-          repo.branch === repoToRemove.branch)
-      ))
-      if (self.activeRepo &&
-        self.activeRepo.owner === repoToRemove.owner &&
-        self.activeRepo.name === repoToRemove.name &&
-        self.activeRepo.branch === repoToRemove.branch) {
-        self.activeRepo = null
-      }
-    },
-
-    updateRepo(oldRepo: Repo, newRepo: Repo) {
-      self.repos = cast(self.repos.map(repo =>
-        repo.owner === oldRepo.owner &&
-        repo.name === oldRepo.name &&
-        repo.branch === oldRepo.branch
-          ? RepoModel.create(newRepo)
-          : repo
-      ))
-      if (self.activeRepo &&
-        self.activeRepo.owner === oldRepo.owner &&
-        self.activeRepo.name === oldRepo.name &&
-        self.activeRepo.branch === oldRepo.branch) {
-        self.activeRepo = RepoModel.create(newRepo)
-      }
-    },
-
-    setActiveRepo(repo: Repo | null) {
-      self.activeRepo = repo ? RepoModel.create(repo) : null
-    }
   }))
   .views((self) => {
     const filteredMessages = () => {
@@ -164,9 +106,6 @@ export const ChatStoreModel = types
         return filteredMessages()
           .map((msg: IMessage) => msg.content)
           .join('\n\n')
-      },
-      get hasGithubToken() {
-        return !!self.githubToken
       }
     }
   })
@@ -190,8 +129,5 @@ export const createChatStoreDefaultModel = () =>
     currentConversationId: "default",
     isGenerating: false,
     activeModel: "gemini",
-    githubToken: "",
     toolsEnabled: true,
-    repos: [],
-    activeRepo: null,
   })
