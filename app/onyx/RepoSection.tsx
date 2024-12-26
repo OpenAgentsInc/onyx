@@ -58,7 +58,7 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
             <Text style={[baseStyles.buttonText, baseStyles.cancelText, styles.text]}>Cancel</Text>
           </Pressable>
           <Pressable onPress={handleRepoSubmit}>
-            <Text style={[baseStyles.buttonText, styles.text]}>Save</Text>
+            <Text style={[baseStyles.buttonText, styles.text, { color: "white" }]}>Save</Text>
           </Pressable>
         </View>
 
@@ -97,7 +97,7 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
             <View key={`${repo.owner}/${repo.name}/${repo.branch}`} style={styles.repoItem}>
               <TouchableOpacity
                 style={[
-                  styles.repoButton,
+                  styles.button,
                   coderStore.activeRepo === repo && styles.buttonActive
                 ]}
                 onPress={() => {
@@ -113,10 +113,10 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.deleteButton}
+                style={[styles.deleteButton, styles.button]}
                 onPress={() => coderStore.removeRepo(repo)}
               >
-                <Text style={[styles.deleteButtonText, styles.text]}>Remove</Text>
+                <Text style={[styles.buttonText, styles.text]}>Remove</Text>
               </TouchableOpacity>
             </View>
           ))}
@@ -129,7 +129,7 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: colors.background,
+    backgroundColor: "black",
   },
   title: {
     fontSize: 24,
@@ -144,13 +144,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     marginBottom: 10,
     color: colors.text,
   },
   input: {
-    backgroundColor: colors.palette.neutral800,
+    backgroundColor: colors.palette.neutral50,
     color: colors.text,
     padding: 10,
     borderRadius: 5,
@@ -162,13 +162,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
+    gap: 10,
   },
-  repoButton: {
-    flex: 1,
+  button: {
     backgroundColor: colors.palette.accent500,
     padding: 10,
     borderRadius: 5,
-    opacity: 0.7,
+    opacity: 0.5,
+    alignItems: "center",
   },
   buttonActive: {
     opacity: 1,
@@ -183,13 +184,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   deleteButton: {
-    marginLeft: 10,
-    padding: 10,
     backgroundColor: colors.palette.angry500,
-    borderRadius: 5,
-  },
-  deleteButtonText: {
-    color: colors.palette.neutral100,
-    fontWeight: "bold",
+    minWidth: 80,
   },
 })
