@@ -25,15 +25,22 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
   }
 
   const handleRepoSubmit = () => {
+    if (!repoInput.owner || !repoInput.name || !repoInput.branch) {
+      return // Don't submit if fields are empty
+    }
+    
     if (editingRepo) {
       coderStore.updateRepo(editingRepo, repoInput)
       setEditingRepo(null)
-    } else if (repoInput.owner && repoInput.name && repoInput.branch) {
+    } else {
       coderStore.addRepo(repoInput)
     }
-    coderStore.setGithubToken(githubToken)
     setRepoInput({ owner: "", name: "", branch: "" })
     setShowRepoForm(false)
+  }
+
+  const handleGithubTokenSubmit = () => {
+    coderStore.setGithubToken(githubToken)
   }
 
   const handleAddRepoClick = () => {
@@ -100,7 +107,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
               placeholder="Enter GitHub token"
               placeholderTextColor={colors.palette.neutral400}
               secureTextEntry={true}
-              onBlur={handleRepoSubmit}
+              onBlur={handleGithubTokenSubmit}
             />
           </View>
 
@@ -180,19 +187,29 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
                   autoCapitalize="none"
                   autoCorrect={false}
                   spellCheck={false}
-                  onBlur={handleRepoSubmit}
                 />
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={[styles.button, styles.cancelEditButton]}
-                  onPress={() => {
-                    setEditingRepo(null)
-                    setRepoInput({ owner: "", name: "", branch: "" })
-                    setShowRepoForm(false)
-                  }}
-                >
-                  <Text style={[styles.buttonText, styles.text]}>Cancel</Text>
-                </TouchableOpacity>
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={[styles.button, styles.submitButton]}
+                    onPress={handleRepoSubmit}
+                  >
+                    <Text style={[styles.buttonText, styles.text]}>
+                      {editingRepo ? "Update Repository" : "Add Repository"}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={[styles.button, styles.cancelEditButton]}
+                    onPress={() => {
+                      setEditingRepo(null)
+                      setRepoInput({ owner: "", name: "", branch: "" })
+                      setShowRepoForm(false)
+                    }}
+                  >
+                    <Text style={[styles.buttonText, styles.text]}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
 
