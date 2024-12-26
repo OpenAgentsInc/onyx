@@ -18,6 +18,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
     name: "",
     branch: ""
   })
+  const [showRepoForm, setShowRepoForm] = useState(false)
 
   const handleRepoInputChange = (field: keyof Repo, value: string) => {
     setRepoInput(prev => ({ ...prev, [field]: value }))
@@ -27,16 +28,18 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
     if (editingRepo) {
       coderStore.updateRepo(editingRepo, repoInput)
       setEditingRepo(null)
-    } else {
+    } else if (repoInput.owner && repoInput.name && repoInput.branch) {
       coderStore.addRepo(repoInput)
     }
     coderStore.setGithubToken(githubToken)
     setRepoInput({ owner: "", name: "", branch: "" })
+    setShowRepoForm(false)
   }
 
   const handleAddRepoClick = () => {
     setEditingRepo(null)
     setRepoInput({ owner: "", name: "", branch: "" })
+    setShowRepoForm(true)
   }
 
   const handleEditRepo = (repo: Repo) => {
@@ -46,6 +49,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
       name: repo.name,
       branch: repo.branch
     })
+    setShowRepoForm(true)
   }
 
   const handleRemoveRepo = (repo: Repo) => {
@@ -56,6 +60,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
     ) {
       setEditingRepo(null)
       setRepoInput({ owner: "", name: "", branch: "" })
+      setShowRepoForm(false)
     }
     coderStore.removeRepo(repo)
   }
@@ -130,56 +135,67 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, styles.text]}>
-              {editingRepo ? "Edit Repository" : "Add Repository"}
-            </Text>
-            <TextInput
-              style={[styles.input, styles.text]}
-              value={repoInput.owner}
-              onChangeText={(value) => handleRepoInputChange("owner", value)}
-              placeholder="Owner"
-              placeholderTextColor={colors.palette.neutral400}
-              autoCapitalize="none"
-              autoCorrect={false}
-              spellCheck={false}
-            />
-            <TextInput
-              style={[styles.input, styles.text]}
-              value={repoInput.name}
-              onChangeText={(value) => handleRepoInputChange("name", value)}
-              placeholder="Repository name"
-              placeholderTextColor={colors.palette.neutral400}
-              autoCapitalize="none"
-              autoCorrect={false}
-              spellCheck={false}
-            />
-            <TextInput
-              style={[styles.input, styles.text]}
-              value={repoInput.branch}
-              onChangeText={(value) => handleRepoInputChange("branch", value)}
-              placeholder="Branch"
-              placeholderTextColor={colors.palette.neutral400}
-              autoCapitalize="none"
-              autoCorrect={false}
-              spellCheck={false}
-              onBlur={handleRepoSubmit}
-            />
-            {editingRepo && (
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, styles.text]}>Connected Repositories</Text>
               <TouchableOpacity
                 activeOpacity={0.8}
-                style={[styles.button, styles.cancelEditButton]}
-                onPress={() => {
-                  setEditingRepo(null)
-                  setRepoInput({ owner: "", name: "", branch: "" })
-                }}
+                style={styles.addButton}
+                onPress={handleAddRepoClick}
               >
-                <Text style={[styles.buttonText, styles.text]}>Cancel Edit</Text>
+                <Text style={[styles.addButtonText, styles.text]}>Add Repo</Text>
               </TouchableOpacity>
-            )}
-          </View>
+            </View>
 
-          <View style={[styles.section, styles.lastSection]}>
-            <Text style={[styles.sectionTitle, styles.text]}>Connected Repositories</Text>
+            {showRepoForm && (
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, styles.text]}>
+                  {editingRepo ? "Edit Repository" : "Add Repository"}
+                </Text>
+                <TextInput
+                  style={[styles.input, styles.text]}
+                  value={repoInput.owner}
+                  onChangeText={(value) => handleRepoInputChange("owner", value)}
+                  placeholder="Owner"
+                  placeholderTextColor={colors.palette.neutral400}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  spellCheck={false}
+                />
+                <TextInput
+                  style={[styles.input, styles.text]}
+                  value={repoInput.name}
+                  onChangeText={(value) => handleRepoInputChange("name", value)}
+                  placeholder="Repository name"
+                  placeholderTextColor={colors.palette.neutral400}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  spellCheck={false}
+                />
+                <TextInput
+                  style={[styles.input, styles.text]}
+                  value={repoInput.branch}
+                  onChangeText={(value) => handleRepoInputChange("branch", value)}
+                  placeholder="Branch"
+                  placeholderTextColor={colors.palette.neutral400}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  spellCheck={false}
+                  onBlur={handleRepoSubmit}
+                />
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={[styles.button, styles.cancelEditButton]}
+                  onPress={() => {
+                    setEditingRepo(null)
+                    setRepoInput({ owner: "", name: "", branch: "" })
+                    setShowRepoForm(false)
+                  }}
+                >
+                  <Text style={[styles.buttonText, styles.text]}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             {coderStore.repos.map((repo) => (
               <View key={`${repo.owner}/${repo.name}/${repo.branch}`} style={styles.repoItem}>
                 <TouchableOpacity
