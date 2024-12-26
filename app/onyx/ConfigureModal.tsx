@@ -21,10 +21,6 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
     onClose()
   }
 
-  const handleToolsToggle = () => {
-    chatStore.setToolsEnabled(!chatStore.toolsEnabled)
-  }
-
   return (
     <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={[baseStyles.modalContainer, styles.container]}>
@@ -56,18 +52,6 @@ export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProp
               <Text style={[styles.buttonText, styles.text]}>Gemini</Text>
             </TouchableOpacity>
           </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.text]}>Tools</Text>
-          <TouchableOpacity
-            style={[styles.button, chatStore.toolsEnabled && styles.buttonActive]}
-            onPress={handleToolsToggle}
-          >
-            <Text style={[styles.buttonText, styles.text]}>
-              {chatStore.toolsEnabled ? "Enabled" : "Disabled"}
-            </Text>
-          </TouchableOpacity>
         </View>
       </View>
     </Modal>
