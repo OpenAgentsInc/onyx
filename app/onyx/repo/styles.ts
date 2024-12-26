@@ -4,11 +4,12 @@ import { colors, typography } from "../../theme"
 export const styles = StyleSheet.create({
   container: {
     padding: 20,
+    paddingTop: 60, // Added extra padding for status bar
     backgroundColor: colors.palette.neutral50, // Darkest background
   },
   closeButton: {
     position: "absolute",
-    top: 20,
+    top: 60, // Adjusted for status bar
     right: 20,
     zIndex: 1,
     padding: 8,
@@ -43,6 +44,24 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
     color: colors.palette.neutral800, // Light text
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  addButton: {
+    backgroundColor: colors.palette.neutral200,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 5,
+    opacity: 0.8,
+  },
+  addButtonText: {
+    color: colors.palette.neutral800,
+    fontSize: 14,
+    fontWeight: "bold",
   },
   input: {
     backgroundColor: colors.palette.neutral200, // Dark input background
