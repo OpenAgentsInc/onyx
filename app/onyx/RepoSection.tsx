@@ -88,7 +88,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
             <Text style={[baseStyles.buttonText, baseStyles.cancelText, styles.text]}>Cancel</Text>
           </Pressable>
           <Pressable onPress={handleRepoSubmit}>
-            <Text style={[baseStyles.buttonText, styles.text, { color: "white" }]}>Save</Text>
+            <Text style={[baseStyles.buttonText, styles.text, { color: colors.palette.neutral800 }]}>Save</Text>
           </Pressable>
         </View>
 
@@ -118,9 +118,9 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
               onPress={() => handleToolToggle(tool.id)}
             >
               <View style={styles.toolButtonContent}>
-                <View>
+                <View style={styles.toolTextContainer}>
                   <Text style={[styles.toolName, styles.text]}>{tool.name}</Text>
-                  <Text style={[styles.toolDescription, styles.text]}>{tool.description}</Text>
+                  <Text style={[styles.toolDescription]}>{tool.description}</Text>
                 </View>
                 <View style={[
                   styles.checkbox,
@@ -205,7 +205,7 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
                 <Text style={[styles.buttonText, styles.text]}>
                   {repo.owner}/{repo.name}
                 </Text>
-                <Text style={[styles.branchText, styles.text]}>
+                <Text style={[styles.branchText]}>
                   Branch: {repo.branch}
                 </Text>
               </TouchableOpacity>
@@ -226,16 +226,17 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: "black",
+    backgroundColor: colors.palette.neutral50, // Darkest background
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: colors.text,
+    color: colors.palette.neutral800, // Light text
   },
   text: {
     fontFamily: typography.primary.normal,
+    color: colors.palette.neutral800, // Light text
   },
   section: {
     marginBottom: 20,
@@ -244,15 +245,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 10,
-    color: colors.text,
+    color: colors.palette.neutral800, // Light text
   },
   input: {
-    backgroundColor: colors.palette.neutral50,
-    color: colors.text,
+    backgroundColor: colors.palette.neutral200, // Dark input background
+    color: colors.palette.neutral800, // Light text
     padding: 10,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: colors.palette.neutral700,
+    borderColor: colors.palette.neutral300,
     marginBottom: 10,
   },
   repoItem: {
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   button: {
-    backgroundColor: colors.palette.accent500,
+    backgroundColor: colors.palette.neutral200, // Dark button background
     padding: 10,
     borderRadius: 5,
     opacity: 0.5,
@@ -275,16 +276,16 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
   buttonEditing: {
-    borderColor: colors.palette.accent500,
+    borderColor: colors.palette.neutral400,
     borderWidth: 2,
     opacity: 1,
   },
   buttonText: {
-    color: colors.palette.neutral100,
+    color: colors.palette.neutral800, // Light text
     fontWeight: "bold",
   },
   branchText: {
-    color: colors.palette.neutral100,
+    color: colors.palette.neutral600, // Dimmer text
     fontSize: 12,
     opacity: 0.8,
   },
@@ -293,11 +294,11 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
   cancelEditButton: {
-    backgroundColor: colors.palette.neutral700,
+    backgroundColor: colors.palette.neutral300,
     marginTop: 5,
   },
   toolButton: {
-    backgroundColor: colors.palette.neutral800,
+    backgroundColor: colors.palette.neutral200, // Dark tool button background
     padding: 12,
     borderRadius: 5,
     marginBottom: 8,
@@ -307,14 +308,18 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  toolTextContainer: {
+    flex: 1,
+    marginRight: 12,
+  },
   toolName: {
-    color: colors.text,
+    color: colors.palette.neutral800, // Light text
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 4,
   },
   toolDescription: {
-    color: colors.palette.neutral400,
+    color: colors.palette.neutral600, // Dimmer text
     fontSize: 12,
   },
   checkbox: {
@@ -325,13 +330,14 @@ const styles = StyleSheet.create({
     borderColor: colors.palette.neutral400,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: colors.palette.neutral200, // Dark checkbox background
   },
   checkboxActive: {
-    backgroundColor: colors.palette.accent500,
-    borderColor: colors.palette.accent500,
+    backgroundColor: colors.palette.neutral300,
+    borderColor: colors.palette.neutral400,
   },
   checkmark: {
-    color: colors.text,
+    color: colors.palette.neutral800, // Light text
     fontSize: 16,
     fontWeight: "bold",
   },
