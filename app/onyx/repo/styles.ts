@@ -4,7 +4,7 @@ import { colors, typography } from "../../theme"
 export const styles = StyleSheet.create({
   container: {
     padding: 20,
-    paddingTop: 60, // Added extra padding for status bar
+    paddingTop: 80, // Added extra padding for status bar
     backgroundColor: colors.palette.neutral50, // Darkest background
   },
   closeButton: {
