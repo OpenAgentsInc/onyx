@@ -1,184 +1,195 @@
 import React, { useState } from "react"
-import { observer } from "mobx-react-lite"
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
-import { useStores } from "@/models/_helpers/useStores"
-import { colors } from "@/theme"
-import { Repo } from "@/models/types/repo"
+import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, Pressable } from "react-native"
+import { useStores } from "../models/_helpers/useStores"
+import { colors } from "../theme"
+import { typography } from "../theme"
+import { styles as baseStyles } from "./styles"
+import { Repo } from "../models/types/repo"
 
-export const RepoSection = observer(() => {
+interface RepoSectionProps {
+  visible: boolean
+  onClose: () => void
+}
+
+export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
   const { coderStore } = useStores()
-  const [showAddRepo, setShowAddRepo] = useState(false)
-  const [repoInput, setRepoInput] = useState<Repo>({
+  const [editingRepo, setEditingRepo] = useState<null | Repo>(null)
+  const [repoInput, setRepoInput] = useState({
     owner: "",
     name: "",
-    branch: "",
+    branch: ""
   })
-  const [editingRepo, setEditingRepo] = useState<Repo | null>(null)
 
-  const handleSaveRepo = () => {
+  const handleRepoInputChange = (field: keyof Repo, value: string) => {
+    setRepoInput(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleRepoSubmit = () => {
     if (editingRepo) {
       coderStore.updateRepo(editingRepo, repoInput)
       setEditingRepo(null)
     } else {
       coderStore.addRepo(repoInput)
     }
-    setShowAddRepo(false)
+    setRepoInput({ owner: "", name: "", branch: "" })
+    onClose()
+  }
+
+  const handleAddRepoClick = () => {
+    setEditingRepo(null)
     setRepoInput({ owner: "", name: "", branch: "" })
   }
 
+  const handleEditRepo = (repo: Repo) => {
+    setEditingRepo(repo)
+    setRepoInput(repo)
+  }
+
   return (
-    <View style={styles.container}>
-      {showAddRepo ? (
-        <View style={styles.addRepoContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Owner"
-            placeholderTextColor={colors.text}
-            value={repoInput.owner}
-            onChangeText={(text) => setRepoInput({ ...repoInput, owner: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            placeholderTextColor={colors.text}
-            value={repoInput.name}
-            onChangeText={(text) => setRepoInput({ ...repoInput, name: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Branch"
-            placeholderTextColor={colors.text}
-            value={repoInput.branch}
-            onChangeText={(text) => setRepoInput({ ...repoInput, branch: text })}
-          />
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[styles.button, styles.saveButton]}
-              onPress={handleSaveRepo}
-            >
-              <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={() => {
-                setShowAddRepo(false)
-                setEditingRepo(null)
-                setRepoInput({ owner: "", name: "", branch: "" })
-              }}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View style={[baseStyles.modalContainer, styles.container]}>
+        <View style={baseStyles.modalHeader}>
+          <Pressable onPress={onClose}>
+            <Text style={[baseStyles.buttonText, baseStyles.cancelText, styles.text]}>Cancel</Text>
+          </Pressable>
+          <Pressable onPress={handleRepoSubmit}>
+            <Text style={[baseStyles.buttonText, styles.text]}>Save</Text>
+          </Pressable>
         </View>
-      ) : (
-        <View>
+
+        <Text style={[styles.title, styles.text]}>Manage Repositories</Text>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, styles.text]}>
+            {editingRepo ? "Edit Repository" : "Add Repository"}
+          </Text>
+          <TextInput
+            style={[styles.input, styles.text]}
+            value={repoInput.owner}
+            onChangeText={(value) => handleRepoInputChange("owner", value)}
+            placeholder="Owner"
+            placeholderTextColor={colors.palette.neutral400}
+          />
+          <TextInput
+            style={[styles.input, styles.text]}
+            value={repoInput.name}
+            onChangeText={(value) => handleRepoInputChange("name", value)}
+            placeholder="Repository name"
+            placeholderTextColor={colors.palette.neutral400}
+          />
+          <TextInput
+            style={[styles.input, styles.text]}
+            value={repoInput.branch}
+            onChangeText={(value) => handleRepoInputChange("branch", value)}
+            placeholder="Branch"
+            placeholderTextColor={colors.palette.neutral400}
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, styles.text]}>Connected Repositories</Text>
           {coderStore.repos.map((repo) => (
-            <View key={`${repo.owner}/${repo.name}/${repo.branch}`} style={styles.repoRow}>
+            <View key={`${repo.owner}/${repo.name}/${repo.branch}`} style={styles.repoItem}>
               <TouchableOpacity
                 style={[
                   styles.repoButton,
-                  coderStore.activeRepo === repo && styles.buttonActive,
+                  coderStore.activeRepo === repo && styles.buttonActive
                 ]}
                 onPress={() => {
+                  handleEditRepo(repo)
                   coderStore.setActiveRepo(repo)
                 }}
               >
-                <Text style={styles.repoText}>
-                  {repo.owner}/{repo.name} ({repo.branch})
+                <Text style={[styles.buttonText, styles.text]}>
+                  {repo.owner}/{repo.name}
+                </Text>
+                <Text style={[styles.branchText, styles.text]}>
+                  Branch: {repo.branch}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.button, styles.editButton]}
-                onPress={() => {
-                  setEditingRepo(repo)
-                  setRepoInput(repo)
-                  setShowAddRepo(true)
-                }}
-              >
-                <Text style={styles.buttonText}>Edit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.deleteButton]}
+                style={styles.deleteButton}
                 onPress={() => coderStore.removeRepo(repo)}
               >
-                <Text style={styles.buttonText}>Delete</Text>
+                <Text style={[styles.deleteButtonText, styles.text]}>Remove</Text>
               </TouchableOpacity>
             </View>
           ))}
-          <TouchableOpacity
-            style={[styles.button, styles.addButton]}
-            onPress={() => setShowAddRepo(true)}
-          >
-            <Text style={styles.buttonText}>Add Repository</Text>
-          </TouchableOpacity>
         </View>
-      )}
-    </View>
+      </View>
+    </Modal>
   )
-})
+}
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: 20,
     backgroundColor: colors.background,
   },
-  addRepoContainer: {
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: colors.text,
+  },
+  text: {
+    fontFamily: typography.primary.normal,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
     marginBottom: 10,
+    color: colors.text,
   },
   input: {
     backgroundColor: colors.palette.neutral800,
     color: colors.text,
-    padding: 8,
-    marginBottom: 8,
-    borderRadius: 4,
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: colors.palette.neutral700,
+    marginBottom: 10,
   },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  button: {
-    padding: 8,
-    borderRadius: 4,
-    alignItems: "center",
-    marginHorizontal: 4,
-  },
-  saveButton: {
-    backgroundColor: colors.palette.accent500,
-    flex: 1,
-  },
-  cancelButton: {
-    backgroundColor: colors.palette.neutral600,
-    flex: 1,
-  },
-  editButton: {
-    backgroundColor: colors.palette.accent500,
-  },
-  deleteButton: {
-    backgroundColor: colors.palette.angry500,
-  },
-  addButton: {
-    backgroundColor: colors.palette.accent500,
-    marginTop: 8,
-  },
-  buttonText: {
-    color: colors.palette.neutral100,
-  },
-  repoRow: {
+  repoItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 10,
   },
   repoButton: {
     flex: 1,
-    padding: 8,
-    backgroundColor: colors.palette.neutral800,
-    borderRadius: 4,
-    marginRight: 8,
+    backgroundColor: colors.palette.accent500,
+    padding: 10,
+    borderRadius: 5,
+    opacity: 0.7,
   },
   buttonActive: {
-    backgroundColor: colors.palette.accent500,
+    opacity: 1,
   },
-  repoText: {
-    color: colors.text,
+  buttonText: {
+    color: colors.palette.neutral100,
+    fontWeight: "bold",
+  },
+  branchText: {
+    color: colors.palette.neutral100,
+    fontSize: 12,
+    opacity: 0.8,
+  },
+  deleteButton: {
+    marginLeft: 10,
+    padding: 10,
+    backgroundColor: colors.palette.angry500,
+    borderRadius: 5,
+  },
+  deleteButtonText: {
+    color: colors.palette.neutral100,
+    fontWeight: "bold",
   },
 })
