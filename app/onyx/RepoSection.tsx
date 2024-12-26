@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, Pressable } from "react-native"
+import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View, Pressable, ScrollView } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../models/_helpers/useStores"
 import { colors } from "../theme"
@@ -92,132 +92,134 @@ export const RepoSection = observer(({ visible, onClose }: RepoSectionProps) => 
           </Pressable>
         </View>
 
-        <Text style={[styles.title, styles.text]}>Manage Repositories</Text>
+        <ScrollView style={styles.scrollView}>
+          <Text style={[styles.title, styles.text]}>Configure AutoCoder</Text>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.text]}>GitHub Token</Text>
-          <TextInput
-            style={[styles.input, styles.text]}
-            value={githubToken}
-            onChangeText={setGithubToken}
-            placeholder="Enter GitHub token"
-            placeholderTextColor={colors.palette.neutral400}
-            secureTextEntry={true}
-          />
-        </View>
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, styles.text]}>GitHub Token</Text>
+            <TextInput
+              style={[styles.input, styles.text]}
+              value={githubToken}
+              onChangeText={setGithubToken}
+              placeholder="Enter GitHub token"
+              placeholderTextColor={colors.palette.neutral400}
+              secureTextEntry={true}
+            />
+          </View>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.text]}>Available Tools</Text>
-          {AVAILABLE_TOOLS.map((tool) => (
-            <TouchableOpacity
-              key={tool.id}
-              style={[
-                styles.toolButton,
-                chatStore.isToolEnabled(tool.id) && styles.buttonActive
-              ]}
-              onPress={() => handleToolToggle(tool.id)}
-            >
-              <View style={styles.toolButtonContent}>
-                <View style={styles.toolTextContainer}>
-                  <Text style={[styles.toolName, styles.text]}>{tool.name}</Text>
-                  <Text style={[styles.toolDescription]}>{tool.description}</Text>
-                </View>
-                <View style={[
-                  styles.checkbox,
-                  chatStore.isToolEnabled(tool.id) && styles.checkboxActive
-                ]}>
-                  {chatStore.isToolEnabled(tool.id) && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.text]}>
-            {editingRepo ? "Edit Repository" : "Add Repository"}
-          </Text>
-          <TextInput
-            style={[styles.input, styles.text]}
-            value={repoInput.owner}
-            onChangeText={(value) => handleRepoInputChange("owner", value)}
-            placeholder="Owner"
-            placeholderTextColor={colors.palette.neutral400}
-            autoCapitalize="none"
-            autoCorrect={false}
-            spellCheck={false}
-          />
-          <TextInput
-            style={[styles.input, styles.text]}
-            value={repoInput.name}
-            onChangeText={(value) => handleRepoInputChange("name", value)}
-            placeholder="Repository name"
-            placeholderTextColor={colors.palette.neutral400}
-            autoCapitalize="none"
-            autoCorrect={false}
-            spellCheck={false}
-          />
-          <TextInput
-            style={[styles.input, styles.text]}
-            value={repoInput.branch}
-            onChangeText={(value) => handleRepoInputChange("branch", value)}
-            placeholder="Branch"
-            placeholderTextColor={colors.palette.neutral400}
-            autoCapitalize="none"
-            autoCorrect={false}
-            spellCheck={false}
-          />
-          {editingRepo && (
-            <TouchableOpacity
-              style={[styles.button, styles.cancelEditButton]}
-              onPress={() => {
-                setEditingRepo(null)
-                setRepoInput({ owner: "", name: "", branch: "" })
-              }}
-            >
-              <Text style={[styles.buttonText, styles.text]}>Cancel Edit</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.text]}>Connected Repositories</Text>
-          {coderStore.repos.map((repo) => (
-            <View key={`${repo.owner}/${repo.name}/${repo.branch}`} style={styles.repoItem}>
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, styles.text]}>Available Tools</Text>
+            {AVAILABLE_TOOLS.map((tool) => (
               <TouchableOpacity
+                key={tool.id}
                 style={[
-                  styles.button,
-                  styles.repoButton,
-                  coderStore.activeRepo === repo && styles.buttonActive,
-                  editingRepo && 
-                  editingRepo.owner === repo.owner && 
-                  editingRepo.name === repo.name && 
-                  editingRepo.branch === repo.branch && 
-                  styles.buttonEditing
+                  styles.toolButton,
+                  chatStore.isToolEnabled(tool.id) && styles.buttonActive
                 ]}
+                onPress={() => handleToolToggle(tool.id)}
+              >
+                <View style={styles.toolButtonContent}>
+                  <View style={styles.toolTextContainer}>
+                    <Text style={[styles.toolName, styles.text]}>{tool.name}</Text>
+                    <Text style={[styles.toolDescription, styles.text]}>{tool.description}</Text>
+                  </View>
+                  <View style={[
+                    styles.checkbox,
+                    chatStore.isToolEnabled(tool.id) && styles.checkboxActive
+                  ]}>
+                    {chatStore.isToolEnabled(tool.id) && (
+                      <Text style={[styles.checkmark, styles.text]}>✓</Text>
+                    )}
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, styles.text]}>
+              {editingRepo ? "Edit Repository" : "Add Repository"}
+            </Text>
+            <TextInput
+              style={[styles.input, styles.text]}
+              value={repoInput.owner}
+              onChangeText={(value) => handleRepoInputChange("owner", value)}
+              placeholder="Owner"
+              placeholderTextColor={colors.palette.neutral400}
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
+            />
+            <TextInput
+              style={[styles.input, styles.text]}
+              value={repoInput.name}
+              onChangeText={(value) => handleRepoInputChange("name", value)}
+              placeholder="Repository name"
+              placeholderTextColor={colors.palette.neutral400}
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
+            />
+            <TextInput
+              style={[styles.input, styles.text]}
+              value={repoInput.branch}
+              onChangeText={(value) => handleRepoInputChange("branch", value)}
+              placeholder="Branch"
+              placeholderTextColor={colors.palette.neutral400}
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
+            />
+            {editingRepo && (
+              <TouchableOpacity
+                style={[styles.button, styles.cancelEditButton]}
                 onPress={() => {
-                  handleEditRepo(repo)
-                  coderStore.setActiveRepo(repo)
+                  setEditingRepo(null)
+                  setRepoInput({ owner: "", name: "", branch: "" })
                 }}
               >
-                <Text style={[styles.buttonText, styles.text]}>
-                  {repo.owner}/{repo.name}
-                </Text>
-                <Text style={[styles.branchText]}>
-                  Branch: {repo.branch}
-                </Text>
+                <Text style={[styles.buttonText, styles.text]}>Cancel Edit</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.deleteButton, styles.button]}
-                onPress={() => handleRemoveRepo(repo)}
-              >
-                <Text style={[styles.buttonText, styles.text]}>Remove</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
+            )}
+          </View>
+
+          <View style={[styles.section, styles.lastSection]}>
+            <Text style={[styles.sectionTitle, styles.text]}>Connected Repositories</Text>
+            {coderStore.repos.map((repo) => (
+              <View key={`${repo.owner}/${repo.name}/${repo.branch}`} style={styles.repoItem}>
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    styles.repoButton,
+                    coderStore.activeRepo === repo && styles.buttonActive,
+                    editingRepo && 
+                    editingRepo.owner === repo.owner && 
+                    editingRepo.name === repo.name && 
+                    editingRepo.branch === repo.branch && 
+                    styles.buttonEditing
+                  ]}
+                  onPress={() => {
+                    handleEditRepo(repo)
+                    coderStore.setActiveRepo(repo)
+                  }}
+                >
+                  <Text style={[styles.buttonText, styles.text]}>
+                    {repo.owner}/{repo.name}
+                  </Text>
+                  <Text style={[styles.branchText, styles.text]}>
+                    Branch: {repo.branch}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.deleteButton, styles.button]}
+                  onPress={() => handleRemoveRepo(repo)}
+                >
+                  <Text style={[styles.buttonText, styles.text]}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
       </View>
     </Modal>
   )
@@ -227,6 +229,9 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     backgroundColor: colors.palette.neutral50, // Darkest background
+  },
+  scrollView: {
+    flex: 1,
   },
   title: {
     fontSize: 24,
@@ -240,6 +245,9 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 20,
+  },
+  lastSection: {
+    marginBottom: 40, // Extra padding at the bottom for scrolling
   },
   sectionTitle: {
     fontSize: 16,
@@ -321,6 +329,7 @@ const styles = StyleSheet.create({
   toolDescription: {
     color: colors.palette.neutral600, // Dimmer text
     fontSize: 12,
+    fontFamily: typography.primary.normal,
   },
   checkbox: {
     width: 24,
