@@ -8,7 +8,11 @@ import { ToolInvocation } from "./ToolInvocation"
 
 interface MessageContentProps {
   message: Message & {
-    toolInvocations?: Array<any>
+    toolInvocations?: Array<{
+      toolCallId: string
+      id?: string
+      [key: string]: any
+    }>
   }
 }
 
@@ -21,7 +25,7 @@ export function MessageContent({ message }: MessageContentProps) {
   }
 
   const isUserMessage = message.role === "user"
-  const hasToolInvocations = !isUserMessage && message.toolInvocations && message.toolInvocations.length > 0
+  const hasToolInvocations = !isUserMessage && message.toolInvocations?.length > 0
   const hasContent = message.content && message.content.trim() !== ""
 
   return (
@@ -34,9 +38,9 @@ export function MessageContent({ message }: MessageContentProps) {
 
       {hasToolInvocations && (
         <View style={[styles.toolInvocations, hasContent && styles.toolInvocationsWithContent]}>
-          {message.toolInvocations.map((invocation, index) => (
+          {message.toolInvocations?.map((invocation, index) => (
             <ToolInvocation
-              key={`${invocation.id || invocation.toolCallId}-${index}`}
+              key={`${invocation.toolCallId || invocation.id || index}`}
               toolInvocation={invocation}
             />
           ))}
