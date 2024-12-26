@@ -1,142 +1,146 @@
-import { observer } from "mobx-react-lite"
 import React, { useState } from "react"
-import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
-import { useStores } from "../models/_helpers/useStores"
-import { colors, typography } from "../theme"
-import { styles as baseStyles } from "./styles"
+import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { useStores } from "@/models/_helpers/useStores"
+import { colors } from "@/theme"
 
 interface ConfigureModalProps {
   visible: boolean
   onClose: () => void
 }
 
-export const ConfigureModal = observer(({ visible, onClose }: ConfigureModalProps) => {
-  const { chatStore } = useStores()
-  const [githubToken, setGithubToken] = useState(chatStore.githubToken)
-
-  const handleModelChange = (model: "groq" | "gemini") => {
-    chatStore.setActiveModel(model)
-  }
+export function ConfigureModal({ visible, onClose }: ConfigureModalProps) {
+  const { coderStore, chatStore } = useStores()
+  const [githubToken, setGithubToken] = useState(coderStore.githubToken)
+  const [toolsEnabled, setToolsEnabled] = useState(chatStore.toolsEnabled)
 
   const handleSave = () => {
-    chatStore.setGithubToken(githubToken)
+    coderStore.setGithubToken(githubToken)
+    chatStore.setToolsEnabled(toolsEnabled)
     onClose()
   }
 
-  const handleToolsToggle = () => {
-    chatStore.setToolsEnabled(!chatStore.toolsEnabled)
-  }
-
   return (
-    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
-      <View style={[baseStyles.modalContainer, styles.container]}>
-        <View style={baseStyles.modalHeader}>
-          <Pressable onPress={onClose}>
-            <Text style={[baseStyles.buttonText, baseStyles.cancelText, styles.text]}>Cancel</Text>
-          </Pressable>
-          <Pressable onPress={handleSave}>
-            <Text style={[baseStyles.buttonText, styles.text, { color: "white" }]}>Save</Text>
-          </Pressable>
-        </View>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <Text style={styles.modalText}>Configure Settings</Text>
 
-        <Text style={[styles.title, styles.text]}>Configure</Text>
+          <Text style={styles.label}>GitHub Token:</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={setGithubToken}
+            value={githubToken}
+            placeholder="Enter GitHub token"
+            placeholderTextColor={colors.text}
+          />
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.text]}>Active Model</Text>
+          <View style={styles.checkboxContainer}>
+            <TouchableOpacity
+              style={[styles.checkbox, toolsEnabled && styles.checkboxChecked]}
+              onPress={() => setToolsEnabled(!toolsEnabled)}
+            />
+            <Text style={styles.checkboxLabel}>Enable Tools</Text>
+          </View>
+
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, chatStore.activeModel === "groq" && styles.buttonActive]}
-              onPress={() => handleModelChange("groq")}
-            >
-              <Text style={[styles.buttonText, styles.text]}>Groq</Text>
+            <TouchableOpacity style={styles.button} onPress={handleSave}>
+              <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.button, chatStore.activeModel === "gemini" && styles.buttonActive]}
-              onPress={() => handleModelChange("gemini")}
-            >
-              <Text style={[styles.buttonText, styles.text]}>Gemini</Text>
+            <TouchableOpacity style={styles.button} onPress={onClose}>
+              <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.text]}>GitHub Token</Text>
-          <TextInput
-            style={[styles.input, styles.text]}
-            value={githubToken}
-            onChangeText={setGithubToken}
-            placeholder="Enter GitHub token"
-            placeholderTextColor={colors.palette.neutral400}
-            secureTextEntry={true}
-          />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.text]}>Tools</Text>
-          <TouchableOpacity
-            style={[styles.button, chatStore.toolsEnabled && styles.buttonActive]}
-            onPress={handleToolsToggle}
-          >
-            <Text style={[styles.buttonText, styles.text]}>
-              {chatStore.toolsEnabled ? "Enabled" : "Disabled"}
-            </Text>
-          </TouchableOpacity>
         </View>
       </View>
     </Modal>
   )
-})
+}
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: "black",
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
+  modalView: {
+    margin: 20,
+    backgroundColor: colors.background,
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: "80%",
+    maxWidth: 500,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    fontSize: 20,
     color: colors.text,
   },
-  text: {
-    fontFamily: typography.primary.normal,
+  input: {
+    height: 40,
+    width: "100%",
+    marginVertical: 12,
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 5,
+    borderColor: colors.border,
+    color: colors.text,
   },
-  section: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 10,
+  label: {
+    alignSelf: "flex-start",
+    marginTop: 10,
     color: colors.text,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 20,
+    width: "100%",
+    marginTop: 20,
   },
   button: {
-    backgroundColor: colors.palette.accent500,
+    borderRadius: 20,
     padding: 10,
-    borderRadius: 5,
-    minWidth: 120,
-    alignItems: "center",
-    opacity: 0.5,
-  },
-  buttonActive: {
-    opacity: 1,
+    elevation: 2,
+    backgroundColor: colors.primary,
+    minWidth: 100,
   },
   buttonText: {
-    color: colors.palette.neutral100,
+    color: "white",
     fontWeight: "bold",
+    textAlign: "center",
   },
-  input: {
-    backgroundColor: colors.palette.neutral50,
-    color: colors.text,
-    padding: 10,
-    borderRadius: 5,
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 15,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
     borderWidth: 1,
-    borderColor: colors.palette.neutral700,
+    borderColor: colors.border,
+    marginRight: 10,
+    borderRadius: 3,
+  },
+  checkboxChecked: {
+    backgroundColor: colors.primary,
+  },
+  checkboxLabel: {
+    color: colors.text,
   },
 })
