@@ -45,6 +45,18 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
     setRepoInput(repo)
   }
 
+  const handleRemoveRepo = (repo: Repo) => {
+    coderStore.removeRepo(repo)
+    if (editingRepo && 
+      editingRepo.owner === repo.owner && 
+      editingRepo.name === repo.name && 
+      editingRepo.branch === repo.branch
+    ) {
+      setEditingRepo(null)
+      setRepoInput({ owner: "", name: "", branch: "" })
+    }
+  }
+
   return (
     <Modal
       animationType="fade"
@@ -89,6 +101,17 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
             placeholder="Branch"
             placeholderTextColor={colors.palette.neutral400}
           />
+          {editingRepo && (
+            <TouchableOpacity
+              style={[styles.button, styles.cancelEditButton]}
+              onPress={() => {
+                setEditingRepo(null)
+                setRepoInput({ owner: "", name: "", branch: "" })
+              }}
+            >
+              <Text style={[styles.buttonText, styles.text]}>Cancel Edit</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -98,7 +121,13 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
               <TouchableOpacity
                 style={[
                   styles.button,
-                  coderStore.activeRepo === repo && styles.buttonActive
+                  styles.repoButton,
+                  coderStore.activeRepo === repo && styles.buttonActive,
+                  editingRepo && 
+                  editingRepo.owner === repo.owner && 
+                  editingRepo.name === repo.name && 
+                  editingRepo.branch === repo.branch && 
+                  styles.buttonEditing
                 ]}
                 onPress={() => {
                   handleEditRepo(repo)
@@ -114,7 +143,7 @@ export const RepoSection = ({ visible, onClose }: RepoSectionProps) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.deleteButton, styles.button]}
-                onPress={() => coderStore.removeRepo(repo)}
+                onPress={() => handleRemoveRepo(repo)}
               >
                 <Text style={[styles.buttonText, styles.text]}>Remove</Text>
               </TouchableOpacity>
@@ -171,7 +200,15 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     alignItems: "center",
   },
+  repoButton: {
+    flex: 1,
+  },
   buttonActive: {
+    opacity: 1,
+  },
+  buttonEditing: {
+    borderColor: colors.palette.accent500,
+    borderWidth: 2,
     opacity: 1,
   },
   buttonText: {
@@ -186,5 +223,9 @@ const styles = StyleSheet.create({
   deleteButton: {
     backgroundColor: colors.palette.angry500,
     minWidth: 80,
+  },
+  cancelEditButton: {
+    backgroundColor: colors.palette.neutral700,
+    marginTop: 5,
   },
 })
