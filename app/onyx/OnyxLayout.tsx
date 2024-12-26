@@ -31,6 +31,11 @@ export const OnyxLayout = observer(() => {
       ...(chatStore.toolsEnabled && coderStore.githubToken && {
         githubToken: coderStore.githubToken,
         tools: availableTools,
+        repos: coderStore.repos.map(repo => ({
+          owner: repo.owner,
+          name: repo.name,
+          branch: repo.branch
+        }))
       }),
     },
     onError: (error) => {
