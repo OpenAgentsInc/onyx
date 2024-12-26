@@ -11,6 +11,7 @@ interface BottomButtonsProps {
   onVoicePress: () => void
   onConfigurePress: () => void
   onToolsPress: () => void
+  onReposPress: () => void
   setMessages: (messages: any) => void
 }
 
@@ -19,6 +20,7 @@ export const BottomButtons = ({
   onVoicePress,
   onConfigurePress,
   onToolsPress,
+  onReposPress,
   setMessages,
 }: BottomButtonsProps) => {
   const { chatStore } = useStores()
@@ -38,6 +40,11 @@ export const BottomButtons = ({
       {/* Tools Button */}
       <TouchableOpacity activeOpacity={0.8} onPress={onToolsPress} style={styles.toolsButton}>
         <Ionicons name="construct-outline" size={24} color={colors.textDim} />
+      </TouchableOpacity>
+
+      {/* Repos Button */}
+      <TouchableOpacity activeOpacity={0.8} onPress={onReposPress} style={styles.reposButton}>
+        <Ionicons name="git-branch-outline" size={24} color={colors.textDim} />
       </TouchableOpacity>
 
       {/* Configure Button */}
