@@ -9,7 +9,6 @@ import { BottomButtons } from "./BottomButtons"
 import { ChatOverlay } from "./ChatOverlay"
 import { ConfigureModal } from "./ConfigureModal"
 import { TextInputModal } from "./TextInputModal"
-import { ToolTestModal } from "./ToolTestModal"
 import { VoiceInputModal } from "./VoiceInputModal"
 import { RepoSection } from "./RepoSection"
 
@@ -21,7 +20,6 @@ export const OnyxLayout = observer(() => {
   const [showTextInput, setShowTextInput] = useState(false)
   const [showVoiceInput, setShowVoiceInput] = useState(false)
   const [showConfigure, setShowConfigure] = useState(false)
-  const [showTools, setShowTools] = useState(false)
   const [showRepos, setShowRepos] = useState(false)
   const [transcript, setTranscript] = useState("")
 
@@ -45,28 +43,9 @@ export const OnyxLayout = observer(() => {
     },
     onToolCall: async (toolCall) => {
       console.log("TOOL CALL", toolCall)
-      // if (toolCall.toolId === "view_file") {
-      //   // Show the tool test modal
-      //   setShowTools(true)
-      //
     },
     onResponse: async (response) => {
       console.log(response, "RESPONSE")
-
-      // const json = await response.json()
-      // console.log("JSON", json)
-
-      // // Create a new message from the response
-      // const newMessage = {
-      //   id: json.result.response.id,
-      //   content: json.result.text,
-      //   role: "assistant" as const,
-      //   createdAt: new Date(json.result.response.timestamp),
-      //   toolInvocations: json.result.toolCalls || [],
-      // }
-
-      // // Append the new message to existing messages
-      // setMessages((prev) => [...prev, newMessage])
     },
     onFinish: () => console.log("FINISH"),
   })
@@ -110,11 +89,6 @@ export const OnyxLayout = observer(() => {
         onSendMessage={handleSendMessage}
       />
 
-      <ToolTestModal
-        visible={showTools}
-        onClose={() => setShowTools(false)}
-      />
-
       <ConfigureModal visible={showConfigure} onClose={() => setShowConfigure(false)} />
 
       <RepoSection visible={showRepos} onClose={() => setShowRepos(false)} />
@@ -123,7 +97,6 @@ export const OnyxLayout = observer(() => {
         onTextPress={() => setShowTextInput(true)}
         onVoicePress={handleStartVoiceInput}
         onConfigurePress={() => setShowConfigure(true)}
-        onToolsPress={() => setShowTools(true)}
         onReposPress={() => setShowRepos(true)}
         setMessages={setMessages}
       />
