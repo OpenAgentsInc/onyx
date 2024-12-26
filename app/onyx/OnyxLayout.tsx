@@ -10,7 +10,7 @@ import { ChatOverlay } from "./ChatOverlay"
 import { ConfigureModal } from "./ConfigureModal"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
-import { RepoSection } from "./RepoSection"
+import { RepoSection } from "./repo/RepoSection"
 
 // Available tools for the AI
 const availableTools = ["view_file", "view_folder"]
