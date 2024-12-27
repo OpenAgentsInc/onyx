@@ -3622,6 +3622,11 @@ expo-splash-screen@~0.29.18:
   dependencies:
     "@expo/prebuild-config" "^8.0.23"
 
+expo-sqlite@~15.0.4:
+  version "15.0.4"
+  resolved "https://registry.yarnpkg.com/expo-sqlite/-/expo-sqlite-15.0.4.tgz#ebf9f788c8ed08969b7177d4012bfce0ddbb7c0f"
+  integrity sha512-RIzkFmVtK71EKdeBEiKts+sVneCrb0X83fpIRsSmuPGbGnHc8tWVibx5jh9erz+m7ZJalmaQfP1jeghiXkLi7g==
+
 expo-status-bar@~2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/expo-status-bar/-/expo-status-bar-2.0.0.tgz#dd99adc2ace12a24c92718cd0f97b93347103393"

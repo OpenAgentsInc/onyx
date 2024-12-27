@@ -65,6 +65,7 @@
     "expo-secure-store": "~14.0.0",
     "expo-speech": "~13.0.0",
     "expo-splash-screen": "~0.29.18",
+    "expo-sqlite": "~15.0.4",
     "expo-status-bar": "~2.0.0",
     "expo-symbols": "~0.2.0",
     "expo-system-ui": "~4.0.6",
