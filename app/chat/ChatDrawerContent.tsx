@@ -10,6 +10,13 @@ type Props = {
 export const ChatDrawerContent = ({ drawerInsets }: Props) => {
   const { chatStore } = useStores()
 
+  const handleNewChat = () => {
+    // Generate a new conversation ID
+    const newId = `chat_${Date.now()}`
+    chatStore.setCurrentConversationId(newId)
+    chatStore.clearMessages()
+  }
+
   return (
     <View
       style={{
@@ -28,7 +35,7 @@ export const ChatDrawerContent = ({ drawerInsets }: Props) => {
           alignItems: "center",
         }}
       >
-        <TouchableOpacity onPress={() => chatStore.clearMessages()}>
+        <TouchableOpacity onPress={handleNewChat}>
           <MaterialCommunityIcons name="chat-plus-outline" size={24} color="white" />
           <Text style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}>
             New chat
