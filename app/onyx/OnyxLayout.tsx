@@ -15,12 +15,6 @@ import { VoiceInputModal } from "./VoiceInputModal"
 // Available tools for the AI
 const availableTools = ["view_file", "view_folder"]
 
-interface AIResponse {
-  role: "assistant" | "user" | "system"
-  content: string
-  id?: string
-}
-
 export const OnyxLayout = observer(() => {
   const { chatStore, coderStore } = useStores()
   const [showTextInput, setShowTextInput] = useState(false)
@@ -52,17 +46,22 @@ export const OnyxLayout = observer(() => {
     onToolCall: async (toolCall) => {
       console.log("TOOL CALL", toolCall)
     },
-    onResponse: async (response: AIResponse) => {
+    onResponse: async (response: Response) => {
       console.log(response, "RESPONSE")
-      // Add assistant message to store
-      if (response.role === "assistant") {
-        chatStore.addMessage({
-          role: "assistant",
-          content: response.content,
-          metadata: {
-            conversationId: chatStore.currentConversationId,
-          }
-        })
+      try {
+        const data = await response.json()
+        // Add assistant message to store
+        if (data.role === "assistant") {
+          chatStore.addMessage({
+            role: "assistant",
+            content: data.content,
+            metadata: {
+              conversationId: chatStore.currentConversationId,
+            }
+          })
+        }
+      } catch (e) {
+        console.error("Error parsing response:", e)
       }
     },
     onFinish: () => {
