@@ -49,19 +49,19 @@ export const OnyxLayout = observer(() => {
     onResponse: async (response: Response) => {
       console.log(response, "RESPONSE")
       try {
-        const data = await response.json()
+        const text = await response.text()
+        console.log("Response text:", text)
+        
         // Add assistant message to store
-        if (data.role === "assistant") {
-          chatStore.addMessage({
-            role: "assistant",
-            content: data.content,
-            metadata: {
-              conversationId: chatStore.currentConversationId,
-            }
-          })
-        }
+        chatStore.addMessage({
+          role: "assistant",
+          content: text,
+          metadata: {
+            conversationId: chatStore.currentConversationId,
+          }
+        })
       } catch (e) {
-        console.error("Error parsing response:", e)
+        console.error("Error handling response:", e)
       }
     },
     onFinish: () => {
