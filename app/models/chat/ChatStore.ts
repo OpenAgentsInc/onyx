@@ -1,13 +1,11 @@
 import {
-  Instance, SnapshotIn, SnapshotOut,
-  types,
-  onSnapshot, applySnapshot,
+  applySnapshot, Instance, onSnapshot, SnapshotIn, SnapshotOut, types
 } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 // Add Groq actions after ChatStore is defined to avoid circular dependency
 import { withGroqActions } from "./ChatActions"
-import { loadChat, saveChat } from './ChatStorage';
+import { loadChat, saveChat } from "./ChatStorage"
 
 // Message Types
 export const MessageModel = types
@@ -121,9 +119,7 @@ export const ChatStoreModel = types
       get conversationText() {
         return filteredMessages()
           .map((msg: IMessage) => msg.content)
-          .join('
-
-')
+          .join('\n\n')
       },
       isToolEnabled(toolName: string) {
         return self.enabledTools.includes(toolName)
