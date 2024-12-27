@@ -1,5 +1,5 @@
 import {
-  applySnapshot, Instance, onSnapshot, SnapshotIn, SnapshotOut, types
+  applySnapshot, Instance, onSnapshot, SnapshotIn, SnapshotOut, types, flow
 } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
@@ -83,23 +83,28 @@ export const ChatStoreModel = types
       self.messages.clear()
     },
 
-    setCurrentConversationId(id: string) {
-      self.currentConversationId = id
-      // Load messages for this conversation
-      loadChat(id).then(savedMessages => {
-        try {
-          const parsedMessages = JSON.parse(savedMessages)
-          self.messages.clear()
-          applySnapshot(self.messages, parsedMessages)
-        } catch (e) {
-          log.error("Error parsing saved messages:", e)
-          self.messages.clear() // Clear messages if there's an error
-        }
-      }).catch(e => {
-        log.error("Error loading chat:", e)
-        self.messages.clear() // Clear messages if there's an error
+    replaceMessages(messages: any[]) {
+      self.messages.clear()
+      messages.forEach(msg => {
+        self.messages.push(MessageModel.create(msg))
       })
     },
+
+    loadMessagesFromStorage: flow(function* () {
+      try {
+        const savedMessages = yield loadChat(self.currentConversationId)
+        const parsedMessages = JSON.parse(savedMessages)
+        self.replaceMessages(parsedMessages)
+      } catch (e) {
+        log.error("Error loading chat:", e)
+        self.messages.clear()
+      }
+    }),
+
+    setCurrentConversationId: flow(function* (id: string) {
+      self.currentConversationId = id
+      yield self.loadMessagesFromStorage()
+    }),
 
     setIsGenerating(value: boolean) {
       self.isGenerating = value
@@ -148,21 +153,23 @@ export const ChatStoreModel = types
     }
   })
   .actions(self => ({
-    afterCreate() {
-      // Initialize the database
-      initializeDatabase().catch(e => {
-        log.error("Error initializing database:", e)
-      })
+    afterCreate: flow(function* () {
+      try {
+        // Initialize the database
+        yield initializeDatabase()
+        
+        // Load initial conversation
+        yield self.loadMessagesFromStorage()
 
-      // Load initial conversation
-      self.setCurrentConversationId(self.currentConversationId)
-
-      // Set up persistence listener
-      onSnapshot(self.messages, (snapshot) => {
-        saveChat(self.currentConversationId, JSON.stringify(snapshot))
-          .catch(e => log.error("Error saving chat:", e))
-      })
-    }
+        // Set up persistence listener
+        onSnapshot(self.messages, (snapshot) => {
+          saveChat(self.currentConversationId, JSON.stringify(snapshot))
+            .catch(e => log.error("Error saving chat:", e))
+        })
+      } catch (e) {
+        log.error("Error in afterCreate:", e)
+      }
+    })
   }))
 
 export interface ChatStore extends Instance<typeof ChatStoreModel> { }
