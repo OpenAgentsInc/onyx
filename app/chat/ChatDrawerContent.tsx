@@ -1,12 +1,15 @@
-import { Text, View } from "react-native"
+import { Text, View, TouchableOpacity } from "react-native"
 import { colors, typography } from "@/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
+import { useStores } from "@/models"
 
 type Props = {
   drawerInsets: any // replace any with the correct type
 }
 
 export const ChatDrawerContent = ({ drawerInsets }: Props) => {
+  const { chatStore } = useStores()
+
   return (
     <View
       style={{
@@ -25,10 +28,12 @@ export const ChatDrawerContent = ({ drawerInsets }: Props) => {
           alignItems: "center",
         }}
       >
-        <MaterialCommunityIcons name="chat-plus-outline" size={24} color="white" />
-        <Text style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}>
-          New chat
-        </Text>
+        <TouchableOpacity onPress={() => chatStore.clearMessages()}>
+          <MaterialCommunityIcons name="chat-plus-outline" size={24} color="white" />
+          <Text style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}>
+            New chat
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   )
