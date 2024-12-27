@@ -5,7 +5,7 @@ import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 // Add Groq actions after ChatStore is defined to avoid circular dependency
 import { withGroqActions } from "./ChatActions"
-import { initializeDatabase, loadChat, saveChat } from "./ChatStorage"
+import { initializeDatabase, loadChat, saveChat, getAllChats } from "./ChatStorage"
 
 // Message Types
 export const MessageModel = types
@@ -27,6 +27,13 @@ export const MessageModel = types
 
 export interface IMessage extends Instance<typeof MessageModel> { }
 
+// Chat Types
+export const ChatModel = types
+  .model("Chat", {
+    id: types.string,
+    messages: types.array(MessageModel),
+  })
+
 // Store Model
 export const ChatStoreModel = types
   .model("ChatStore")
@@ -43,6 +50,7 @@ export const ChatStoreModel = types
       "create_file",
       "rewrite_file"
     ]),
+    chats: types.optional(types.array(ChatModel), []),
   })
   .actions(withSetPropAction)
   .actions((self) => {
@@ -134,6 +142,15 @@ export const ChatStoreModel = types
         self.enabledTools.replace(tools)
       },
 
+      loadAllChats: flow(function* () {
+        try {
+          const allChats = yield getAllChats()
+          self.chats.replace(allChats)
+        } catch (e) {
+          log.error("Error loading all chats:", e)
+        }
+      }),
+
       afterCreate: flow(function* () {
         try {
           // Initialize the database
@@ -141,6 +158,9 @@ export const ChatStoreModel = types
 
           // Load initial conversation
           yield loadMessagesFromStorage()
+
+          // Load all chats
+          yield self.loadAllChats()
 
           // Set up persistence listener
           onSnapshot(self.messages, (snapshot) => {
@@ -171,6 +191,9 @@ export const ChatStoreModel = types
       },
       isToolEnabled(toolName: string) {
         return self.enabledTools.includes(toolName)
+      },
+      get allChats() {
+        return self.chats.slice()
       }
     }
   })
@@ -195,4 +218,5 @@ export const createChatStoreDefaultModel = () =>
     isGenerating: false,
     activeModel: "gemini",
     enabledTools: ["view_file", "view_folder", "create_file", "rewrite_file"],
+    chats: [],
   })
