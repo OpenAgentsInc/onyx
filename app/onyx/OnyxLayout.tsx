@@ -1,8 +1,8 @@
 import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect } from "react"
 import { View } from "react-native"
-import { useChat, Message, ToolInvocation } from "@ai-sdk/react"
+import { useChat, Message } from "@ai-sdk/react"
 import Config from "../config"
 import { useStores } from "../models/_helpers/useStores"
 import { BottomButtons } from "./BottomButtons"
@@ -22,7 +22,6 @@ export const OnyxLayout = observer(() => {
   const [showConfigure, setShowConfigure] = useState(false)
   const [showRepos, setShowRepos] = useState(false)
   const [transcript, setTranscript] = useState("")
-  const currentToolInvocations = useRef<ToolInvocation[]>([])
 
   const { isLoading, messages, error, append, setMessages } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
@@ -51,21 +50,8 @@ export const OnyxLayout = observer(() => {
       console.log("FINISH", { message, options })
       chatStore.setIsGenerating(false)
 
-      // Add assistant message to store with the accumulated tool invocations
+      // Add assistant message to store
       if (message.role === "assistant") {
-        // First add the tool invocation message if we have any
-        if (currentToolInvocations.current.length > 0) {
-          chatStore.addMessage({
-            role: "assistant",
-            content: JSON.stringify(currentToolInvocations.current, null, 2),
-            metadata: {
-              conversationId: chatStore.currentConversationId,
-              isToolMessage: true
-            }
-          })
-        }
-
-        // Then add the actual assistant message
         chatStore.addMessage({
           role: "assistant",
           content: message.content,
@@ -75,8 +61,6 @@ export const OnyxLayout = observer(() => {
             finishReason: options.finishReason
           }
         })
-        // Reset tool invocations for next message
-        currentToolInvocations.current = []
       }
     },
   })
@@ -86,7 +70,19 @@ export const OnyxLayout = observer(() => {
     const lastMessage = messages[messages.length - 1]
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations?.length > 0) {
       console.log("Found tool invocations:", lastMessage.toolInvocations)
-      currentToolInvocations.current = lastMessage.toolInvocations
+      // Add tool invocations to the message metadata
+      const assistantMessage = chatStore.currentMessages.find(msg => 
+        msg.role === "assistant" && 
+        msg.metadata?.conversationId === chatStore.currentConversationId
+      )
+      if (assistantMessage) {
+        chatStore.updateMessage(assistantMessage.id, {
+          metadata: {
+            ...assistantMessage.metadata,
+            toolInvocations: lastMessage.toolInvocations
+          }
+        })
+      }
     }
   }, [messages])
 
@@ -100,29 +96,16 @@ export const OnyxLayout = observer(() => {
       const storedMessages = chatStore.currentMessages
       if (storedMessages.length > 0) {
         // Convert store messages to useChat format
-        const chatMessages: Message[] = storedMessages.map(msg => {
-          const baseMessage = {
-            id: msg.id,
-            role: msg.role as "user" | "assistant" | "system",
-            content: msg.content,
-            createdAt: new Date(msg.createdAt)
-          }
-
-          // If this is a tool message, add tool invocations
-          if (msg.metadata?.isToolMessage) {
-            try {
-              const toolInvocations = JSON.parse(msg.content) as ToolInvocation[]
-              return {
-                ...baseMessage,
-                toolInvocations
-              }
-            } catch (e) {
-              console.error("Error parsing tool invocations:", e)
-            }
-          }
-
-          return baseMessage
-        })
+        const chatMessages: Message[] = storedMessages.map(msg => ({
+          id: msg.id,
+          role: msg.role as "user" | "assistant" | "system",
+          content: msg.content,
+          createdAt: new Date(msg.createdAt),
+          // Restore tool invocations if they exist
+          ...(msg.metadata?.toolInvocations ? {
+            toolInvocations: msg.metadata.toolInvocations
+          } : {})
+        }))
         setMessages(chatMessages)
       }
     }
@@ -143,9 +126,6 @@ export const OnyxLayout = observer(() => {
   }
 
   const handleSendMessage = async (message: string) => {
-    // Reset tool invocations for new message
-    currentToolInvocations.current = []
-    
     // Add user message to store first
     chatStore.addMessage({
       role: "user",
