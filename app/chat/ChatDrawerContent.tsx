@@ -47,6 +47,13 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
     return preview.slice(0, 30) + "..."
   }
 
+  // Sort chats by creation time (using first message's timestamp or chat ID timestamp)
+  const sortedChats = [...chatStore.allChats].sort((a, b) => {
+    const aTime = a.messages[0]?.createdAt || parseInt(a.id.split('_')[1]) || 0
+    const bTime = b.messages[0]?.createdAt || parseInt(b.id.split('_')[1]) || 0
+    return bTime - aTime // Reverse chronological order
+  })
+
   return (
     <View
       style={{
@@ -80,7 +87,7 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
       </View>
 
       <ScrollView style={{ flex: 1 }}>
-        {chatStore.allChats.map((chat) => (
+        {sortedChats.map((chat) => (
           <TouchableOpacity
             key={chat.id}
             onPress={() => handleSelectChat(chat.id)}
@@ -109,7 +116,7 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
                 fontSize: 12,
               }}
             >
-              {new Date(chat.messages[0]?.createdAt || Date.now()).toLocaleDateString()}
+              {new Date(chat.messages[0]?.createdAt || parseInt(chat.id.split('_')[1]) || Date.now()).toLocaleDateString()}
             </Text>
           </TouchableOpacity>
         ))}
