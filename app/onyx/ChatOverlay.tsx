@@ -50,7 +50,7 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
           style={{
             position: "absolute",
             top: 18,
-            left: 10,
+            right: 10,
             width: 40,
             height: 40,
             zIndex: 1000,

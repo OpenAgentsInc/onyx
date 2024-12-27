@@ -26,7 +26,7 @@ export const Chat = () => {
           style={{
             position: "absolute",
             top: 55,
-            right: 15,
+            left: 15,
             zIndex: 900,
             backgroundColor: "rgba(32, 32, 32, 0.8)",
             padding: 8,
