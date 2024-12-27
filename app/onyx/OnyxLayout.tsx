@@ -2,7 +2,7 @@ import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
 import React, { useState, useEffect } from "react"
 import { View } from "react-native"
-import { useChat, Message } from "@ai-sdk/react"
+import { useChat, Message, ToolInvocation } from "@ai-sdk/react"
 import Config from "../config"
 import { useStores } from "../models/_helpers/useStores"
 import { BottomButtons } from "./BottomButtons"
@@ -58,7 +58,8 @@ export const OnyxLayout = observer(() => {
           metadata: {
             conversationId: chatStore.currentConversationId,
             usage: options.usage,
-            finishReason: options.finishReason
+            finishReason: options.finishReason,
+            toolInvocations: message.toolInvocations
           }
         })
       }
@@ -79,7 +80,11 @@ export const OnyxLayout = observer(() => {
           id: msg.id,
           role: msg.role as "user" | "assistant" | "system",
           content: msg.content,
-          createdAt: new Date(msg.createdAt)
+          createdAt: new Date(msg.createdAt),
+          // Restore tool invocations if they exist
+          ...(msg.metadata?.toolInvocations ? {
+            toolInvocations: msg.metadata.toolInvocations as ToolInvocation[]
+          } : {})
         }))
         setMessages(chatMessages)
       }
