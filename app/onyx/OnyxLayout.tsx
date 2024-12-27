@@ -1,6 +1,6 @@
 import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { View } from "react-native"
 import { useChat } from "@ai-sdk/react"
 import Config from "../config"
@@ -41,15 +41,52 @@ export const OnyxLayout = observer(() => {
     },
     onError: (error) => {
       console.error(error, "ERROR")
+      chatStore.setError(error.message || "An error occurred")
     },
     onToolCall: async (toolCall) => {
       console.log("TOOL CALL", toolCall)
     },
     onResponse: async (response) => {
       console.log(response, "RESPONSE")
+      // Add assistant message to store
+      if (response.role === "assistant") {
+        chatStore.addMessage({
+          role: "assistant",
+          content: response.content,
+          metadata: {
+            conversationId: chatStore.currentConversationId,
+          }
+        })
+      }
     },
-    onFinish: () => console.log("FINISH"),
+    onFinish: () => {
+      console.log("FINISH")
+      chatStore.setIsGenerating(false)
+    },
   })
+
+  // Load persisted messages when conversation changes
+  useEffect(() => {
+    const loadMessages = async () => {
+      // First clear the useChat messages
+      setMessages([])
+      
+      // Then load the persisted messages from store
+      const storedMessages = chatStore.currentMessages
+      if (storedMessages.length > 0) {
+        // Convert store messages to useChat format
+        const chatMessages = storedMessages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          createdAt: msg.createdAt
+        }))
+        setMessages(chatMessages)
+      }
+    }
+    
+    loadMessages()
+  }, [chatStore.currentConversationId])
 
   const handleStartVoiceInput = () => {
     setTranscript("") // Reset transcript
@@ -64,7 +101,20 @@ export const OnyxLayout = observer(() => {
   }
 
   const handleSendMessage = async (message: string) => {
-    append({ content: message, role: "user" })
+    // Add user message to store first
+    chatStore.addMessage({
+      role: "user",
+      content: message,
+      metadata: {
+        conversationId: chatStore.currentConversationId,
+      }
+    })
+    
+    // Set generating state
+    chatStore.setIsGenerating(true)
+    
+    // Send to AI
+    await append({ content: message, role: "user" })
   }
 
   return (
