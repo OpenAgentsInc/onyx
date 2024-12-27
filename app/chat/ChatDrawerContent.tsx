@@ -35,7 +35,13 @@ export const ChatDrawerContent = ({ drawerInsets }: Props) => {
           alignItems: "center",
         }}
       >
-        <TouchableOpacity onPress={handleNewChat}>
+        <TouchableOpacity 
+          onPress={handleNewChat}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
           <MaterialCommunityIcons name="chat-plus-outline" size={24} color="white" />
           <Text style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}>
             New chat
