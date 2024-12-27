@@ -25,10 +25,10 @@ export const Chat = () => {
           onPress={() => setOpen((prevOpen) => !prevOpen)}
           style={{
             position: "absolute",
-            top: 70,
-            left: 20,
+            top: 55,
+            right: 15,
             zIndex: 900,
-            backgroundColor: "rgba(64, 64, 64, 0.5)",
+            backgroundColor: "rgba(32, 32, 32, 0.8)",
             padding: 8,
             borderRadius: 4,
           }}
