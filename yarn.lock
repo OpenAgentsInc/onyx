@@ -3622,6 +3622,11 @@ expo-splash-screen@~0.29.18:
   dependencies:
     "@expo/prebuild-config" "^8.0.23"
 
+expo-sqlite@~15.0.4:
+  version "15.0.4"
+  resolved "https://registry.yarnpkg.com/expo-sqlite/-/expo-sqlite-15.0.4.tgz#ebf9f788c8ed08969b7177d4012bfce0ddbb7c0f"
+  integrity sha512-RIzkFmVtK71EKdeBEiKts+sVneCrb0X83fpIRsSmuPGbGnHc8tWVibx5jh9erz+m7ZJalmaQfP1jeghiXkLi7g==
+
 expo-status-bar@~2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/expo-status-bar/-/expo-status-bar-2.0.0.tgz#dd99adc2ace12a24c92718cd0f97b93347103393"
@@ -6378,6 +6383,13 @@ react-native-document-picker@^9.3.1:
   integrity sha512-Vcofv9wfB0j67zawFjfq9WQPMMzXxOZL9kBmvWDpjVuEcVK73ndRmlXHlkeFl5ZHVsv4Zb6oZYhqm9u5omJOPA==
   dependencies:
     invariant "^2.2.4"
+
+react-native-drawer-layout@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-drawer-layout/-/react-native-drawer-layout-4.1.1.tgz#7fce1b3d3ddd9fc5d781c73d13b814d022b90114"
+  integrity sha512-ob6O3ph7PZ3A2FpdlsSxHuMpHDXREZPR8A6S3q0dSxV7i6d+8Z6CPCTbegfN2QZyizSow9NLrKyXP93tlqZ3dA==
+  dependencies:
+    use-latest-callback "^0.2.1"
 
 react-native-fit-image@^1.5.5:
   version "1.5.5"

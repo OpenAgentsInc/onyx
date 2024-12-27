@@ -33,20 +33,24 @@ export function MessageContent({ message }: MessageContentProps) {
 
   return (
     <View style={[styles.container, isUserMessage && styles.userMessage]}>
-      {hasContent && (
-        <Markdown style={markdownStyles} onLinkPress={handleLinkPress}>
-          {message.content}
-        </Markdown>
-      )}
-
+      {/* Show tool invocations first */}
       {hasToolInvocations && message.toolInvocations && (
-        <View style={[styles.toolInvocations, hasContent && styles.toolInvocationsWithContent]}>
+        <View style={styles.toolInvocations}>
           {message.toolInvocations.map((invocation, index) => (
             <ToolInvocation
               key={`${invocation.toolCallId || invocation.toolName || index}`}
               toolInvocation={invocation}
             />
           ))}
+        </View>
+      )}
+
+      {/* Then show content */}
+      {hasContent && (
+        <View style={[hasToolInvocations && styles.contentAfterTools]}>
+          <Markdown style={markdownStyles} onLinkPress={handleLinkPress}>
+            {message.content}
+          </Markdown>
         </View>
       )}
     </View>
@@ -64,9 +68,9 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   toolInvocations: {
-    marginTop: 0,
+    marginBottom: 8,
   },
-  toolInvocationsWithContent: {
+  contentAfterTools: {
     marginTop: 8,
   },
 })

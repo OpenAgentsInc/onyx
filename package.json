@@ -1,7 +1,7 @@
 {
   "name": "onyx",
   "main": "app/app.tsx",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "AGPL-3.0-only",
   "scripts": {
     "start": "expo start",
@@ -14,7 +14,7 @@
     "build": "yarn build:ios:prod",
     "build:android": "yarn build:android:apk",
     "build:ios:dev": "eas build --profile development:device --platform ios --local",
-    "build:ios:prod": "EXPO_NO_KEYCHAIN=1 eas build --profile production --platform ios",
+    "build:ios:prod": "eas build --profile production --platform ios",
     "build:android:prod": "npx expo prebuild --platform android && eas build --profile production --platform android",
     "build:android:apk": "npx expo prebuild --platform android && eas build --profile production-apk --platform android",
     "prebuild:clean": "npx expo prebuild --clean --platform ios",
@@ -23,9 +23,9 @@
     "doctor": "npx expo-doctor",
     "copyrepo": "cd ~/code && node md.js ./onyx && cat combined.md | pbcopy",
     "copy2": "cd ~/code && node md2.js ./onyx && cat model-system-docs.md | pbcopy",
-    "update:both": "eas update --channel v0.0.4 --environment production --message",
-    "update:ios": "eas update --channel v0.0.4 --environment production --platform ios --message",
-    "update:android": "eas update --channel v0.0.4 -environment production --platform android --message",
+    "update:both": "eas update --channel v0.0.5 --environment production --message",
+    "update:ios": "eas update --channel v0.0.5 --environment production --platform ios --message",
+    "update:android": "eas update --channel v0.0.5 -environment production --platform android --message",
     "hierarchy": "node scripts/generate-hierarchy.js"
   },
   "jest": {
@@ -65,6 +65,7 @@
     "expo-secure-store": "~14.0.0",
     "expo-speech": "~13.0.0",
     "expo-splash-screen": "~0.29.18",
+    "expo-sqlite": "~15.0.4",
     "expo-status-bar": "~2.0.0",
     "expo-symbols": "~0.2.0",
     "expo-system-ui": "~4.0.6",
@@ -80,6 +81,7 @@
     "react-dom": "18.3.1",
     "react-native": "0.76.5",
     "react-native-document-picker": "^9.3.1",
+    "react-native-drawer-layout": "^4.1.1",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-markdown-display": "^7.0.2",
     "react-native-mmkv": "^3.2.0",

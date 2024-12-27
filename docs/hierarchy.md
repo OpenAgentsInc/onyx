@@ -11,6 +11,9 @@
     ├── Canvas.tsx
     ├── index.ts
     ├── types.ts
+  ├── chat
+    ├── Chat.tsx
+    ├── ChatDrawerContent.tsx
   ├── config
     ├── config.base.ts
     ├── config.dev.ts
@@ -108,6 +111,7 @@
       ├── storage.ts
     ├── useIsFocused.ts
     ├── useIsMounted.ts
+    ├── useSafeAreaInsetsStyle.ts
 ├── app.config.ts
 ├── app.json
 ├── assets
@@ -122,6 +126,7 @@
     ├── splash.png
 ├── dist
 ├── docs
+  ├── DocsNewNavigation.md
   ├── ai-design-language.md
   ├── data-marketplace.md
   ├── gemini-function-calling.md
@@ -142,10 +147,6 @@
   ├── roadmap.md
   ├── tool-component.md
   ├── tools.md
-  ├── transcripts
-    ├── ep146.md
-    ├── ep147.md
-    ├── ep148.md
 ├── eas.json
 ├── ios
 ├── package.json

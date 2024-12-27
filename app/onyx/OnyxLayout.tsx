@@ -1,16 +1,16 @@
 import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { View } from "react-native"
-import { useChat } from "@ai-sdk/react"
+import { Message, ToolInvocation, useChat } from "@ai-sdk/react"
 import Config from "../config"
 import { useStores } from "../models/_helpers/useStores"
 import { BottomButtons } from "./BottomButtons"
 import { ChatOverlay } from "./ChatOverlay"
 import { ConfigureModal } from "./ConfigureModal"
+import { RepoSection } from "./repo/RepoSection"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
-import { RepoSection } from "./repo/RepoSection"
 
 // Available tools for the AI
 const availableTools = ["view_file", "view_folder"]
@@ -22,33 +22,109 @@ export const OnyxLayout = observer(() => {
   const [showConfigure, setShowConfigure] = useState(false)
   const [showRepos, setShowRepos] = useState(false)
   const [transcript, setTranscript] = useState("")
+  const pendingToolInvocations = useRef<ToolInvocation[]>([])
+  const [localMessages, setLocalMessages] = useState<Message[]>([])
 
-  const { isLoading, messages, error, append, setMessages } = useChat({
+  const { isLoading, messages: aiMessages, error, append, setMessages } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: Config.NEXUS_URL,
     body: {
       // Only include GitHub token and tools if we have a token and at least one tool enabled
-      ...(coderStore.githubToken && chatStore.enabledTools.length > 0 && {
-        githubToken: coderStore.githubToken,
-        tools: chatStore.enabledTools,
-        repos: coderStore.repos.map(repo => ({
-          owner: repo.owner,
-          name: repo.name,
-          branch: repo.branch
-        }))
-      }),
+      ...(coderStore.githubToken &&
+        chatStore.enabledTools.length > 0 && {
+          githubToken: coderStore.githubToken,
+          tools: chatStore.enabledTools,
+          repos: coderStore.repos.map((repo) => ({
+            owner: repo.owner,
+            name: repo.name,
+            branch: repo.branch,
+          })),
+        }),
     },
     onError: (error) => {
       console.error(error, "ERROR")
+      chatStore.setError(error.message || "An error occurred")
     },
     onToolCall: async (toolCall) => {
       console.log("TOOL CALL", toolCall)
     },
-    onResponse: async (response) => {
-      console.log(response, "RESPONSE")
+    onFinish: (message, options) => {
+      console.log("FINISH", { message, options })
+      chatStore.setIsGenerating(false)
+
+      // Add assistant message to store
+      if (message.role === "assistant") {
+        chatStore.addMessage({
+          role: "assistant",
+          content: message.content,
+          metadata: {
+            conversationId: chatStore.currentConversationId,
+            usage: options.usage,
+            finishReason: options.finishReason,
+            toolInvocations: pendingToolInvocations.current,
+          },
+        })
+        // Clear pending tool invocations
+        pendingToolInvocations.current = []
+      }
     },
-    onFinish: () => console.log("FINISH"),
   })
+
+  // Watch messages for tool invocations
+  useEffect(() => {
+    const lastMessage = aiMessages[aiMessages.length - 1]
+    if (lastMessage?.role === "assistant" && lastMessage.toolInvocations?.length > 0) {
+      console.log("Found tool invocations:", lastMessage.toolInvocations)
+      pendingToolInvocations.current = lastMessage.toolInvocations
+    }
+  }, [aiMessages])
+
+  // Sync store messages with local state
+  useEffect(() => {
+    const storedMessages = chatStore.currentMessages
+    const chatMessages: Message[] = storedMessages.map((msg) => ({
+      id: msg.id,
+      role: msg.role as "user" | "assistant" | "system",
+      content: msg.content,
+      createdAt: new Date(msg.createdAt),
+      // Restore tool invocations if they exist
+      ...(msg.metadata?.toolInvocations
+        ? {
+            toolInvocations: msg.metadata.toolInvocations,
+          }
+        : {}),
+    }))
+    setLocalMessages(chatMessages)
+  }, [chatStore.currentMessages])
+
+  // Load persisted messages when conversation changes
+  useEffect(() => {
+    const loadMessages = async () => {
+      // First clear the useChat messages
+      setMessages([])
+
+      // Then load the persisted messages from store
+      const storedMessages = chatStore.currentMessages
+      if (storedMessages.length > 0) {
+        // Convert store messages to useChat format
+        const chatMessages: Message[] = storedMessages.map((msg) => ({
+          id: msg.id,
+          role: msg.role as "user" | "assistant" | "system",
+          content: msg.content,
+          createdAt: new Date(msg.createdAt),
+          // Restore tool invocations if they exist
+          ...(msg.metadata?.toolInvocations
+            ? {
+                toolInvocations: msg.metadata.toolInvocations,
+              }
+            : {}),
+        }))
+        setMessages(chatMessages)
+      }
+    }
+
+    loadMessages()
+  }, [chatStore.currentConversationId])
 
   const handleStartVoiceInput = () => {
     setTranscript("") // Reset transcript
@@ -63,12 +139,36 @@ export const OnyxLayout = observer(() => {
   }
 
   const handleSendMessage = async (message: string) => {
-    append({ content: message, role: "user" })
+    // Reset pending tool invocations for new message
+    pendingToolInvocations.current = []
+
+    // Add user message to store first
+    chatStore.addMessage({
+      role: "user",
+      content: message,
+      metadata: {
+        conversationId: chatStore.currentConversationId,
+      },
+    })
+
+    // Set generating state
+    chatStore.setIsGenerating(true)
+
+    // Send to AI
+    await append({
+      content: message,
+      role: "user",
+      createdAt: new Date(),
+    })
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "black" }}>
-      <ChatOverlay messages={messages} isLoading={isLoading} error={error?.toString()} />
+    <View style={{ flex: 1, backgroundColor: "transparent" }}>
+      <ChatOverlay 
+        messages={localMessages} 
+        isLoading={isLoading || chatStore.isGenerating} 
+        error={error?.toString()} 
+      />
 
       <TextInputModal
         visible={showTextInput}

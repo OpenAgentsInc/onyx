@@ -9,8 +9,8 @@ export const styles = StyleSheet.create({
   },
   closeButton: {
     position: "absolute",
-    top: 60, // Adjusted for status bar
-    right: 20,
+    top: -20, // Adjusted for status bar
+    right: 0,
     zIndex: 1,
     padding: 8,
   },

@@ -1,11 +1,11 @@
 import {
-  Instance, SnapshotIn, SnapshotOut,
-  types
+  applySnapshot, flow, Instance, onSnapshot, SnapshotIn, SnapshotOut, types
 } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 // Add Groq actions after ChatStore is defined to avoid circular dependency
 import { withGroqActions } from "./ChatActions"
+import { initializeDatabase, loadChat, saveChat, getAllChats } from "./ChatStorage"
 
 // Message Types
 export const MessageModel = types
@@ -27,6 +27,13 @@ export const MessageModel = types
 
 export interface IMessage extends Instance<typeof MessageModel> { }
 
+// Chat Types
+export const ChatModel = types
+  .model("Chat", {
+    id: types.string,
+    messages: types.array(MessageModel),
+  })
+
 // Store Model
 export const ChatStoreModel = types
   .model("ChatStore")
@@ -43,68 +50,151 @@ export const ChatStoreModel = types
       "create_file",
       "rewrite_file"
     ]),
+    chats: types.optional(types.array(ChatModel), []),
   })
   .actions(withSetPropAction)
-  .actions((self) => ({
-    addMessage(message: {
-      role: "system" | "user" | "assistant" | "function"
-      content: string
-      metadata?: any
-    }) {
-      const msg = MessageModel.create({
-        id: Math.random().toString(36).substring(2, 9),
-        createdAt: Date.now(),
-        ...message
-      })
-      self.messages.push(msg)
-      return msg
-    },
-
-    updateMessage(messageId: string, updates: { content?: string, metadata?: any }) {
-      const message = self.messages.find(msg => msg.id === messageId)
-      if (message) {
-        if (updates.content !== undefined) {
-          message.updateContent(updates.content)
-        }
-        if (updates.metadata !== undefined) {
-          message.updateMetadata(updates.metadata)
-        }
-      }
-    },
-
-    clearMessages() {
+  .actions((self) => {
+    // Helper action to replace messages
+    const replaceMessages = (messages: any[]) => {
       self.messages.clear()
-    },
+      messages.forEach(msg => {
+        self.messages.push(MessageModel.create(msg))
+      })
+    }
 
-    setCurrentConversationId(id: string) {
-      self.currentConversationId = id
-    },
-
-    setIsGenerating(value: boolean) {
-      self.isGenerating = value
-    },
-
-    setError(error: string | null) {
-      self.error = error
-    },
-
-    setActiveModel(model: "groq" | "gemini") {
-      self.activeModel = model
-    },
-
-    toggleTool(toolName: string) {
-      const index = self.enabledTools.indexOf(toolName)
-      if (index === -1) {
-        self.enabledTools.push(toolName)
-      } else {
-        self.enabledTools.splice(index, 1)
+    // Helper action to load messages
+    const loadMessagesFromStorage = flow(function* () {
+      try {
+        const savedMessages = yield loadChat(self.currentConversationId)
+        const parsedMessages = JSON.parse(savedMessages)
+        replaceMessages(parsedMessages)
+      } catch (e) {
+        log.error("Error loading chat:", e)
+        self.messages.clear()
       }
-    },
+    })
 
-    setEnabledTools(tools: string[]) {
-      self.enabledTools.replace(tools)
-    },
-  }))
+    // Helper action to update chats list
+    const updateChatsList = flow(function* () {
+      try {
+        const allChats = yield getAllChats()
+        self.chats.replace(allChats)
+      } catch (e) {
+        log.error("Error updating chats list:", e)
+      }
+    })
+
+    return {
+      addMessage(message: {
+        role: "system" | "user" | "assistant" | "function"
+        content: string
+        metadata?: any
+      }) {
+        const msg = MessageModel.create({
+          id: Math.random().toString(36).substring(2, 9),
+          createdAt: Date.now(),
+          ...message,
+          metadata: {
+            ...message.metadata,
+            conversationId: self.currentConversationId,
+          }
+        })
+        self.messages.push(msg)
+
+        // Update chats list after adding a message
+        updateChatsList()
+        
+        return msg
+      },
+
+      updateMessage(messageId: string, updates: { content?: string, metadata?: any }) {
+        const message = self.messages.find(msg => msg.id === messageId)
+        if (message) {
+          if (updates.content !== undefined) {
+            message.updateContent(updates.content)
+          }
+          if (updates.metadata !== undefined) {
+            message.updateMetadata({
+              ...updates.metadata,
+              conversationId: self.currentConversationId,
+            })
+          }
+        }
+      },
+
+      clearMessages() {
+        self.messages.clear()
+        // Update chats list after clearing messages
+        updateChatsList()
+      },
+
+      setCurrentConversationId: flow(function* (id: string) {
+        self.currentConversationId = id
+        yield loadMessagesFromStorage()
+        
+        // Ensure this chat exists in the chats list
+        const chatExists = self.chats.some(chat => chat.id === id)
+        if (!chatExists) {
+          self.chats.push(ChatModel.create({ id, messages: [] }))
+        }
+      }),
+
+      setIsGenerating(value: boolean) {
+        self.isGenerating = value
+      },
+
+      setError(error: string | null) {
+        self.error = error
+      },
+
+      setActiveModel(model: "groq" | "gemini") {
+        self.activeModel = model
+      },
+
+      toggleTool(toolName: string) {
+        const index = self.enabledTools.indexOf(toolName)
+        if (index === -1) {
+          self.enabledTools.push(toolName)
+        } else {
+          self.enabledTools.splice(index, 1)
+        }
+      },
+
+      setEnabledTools(tools: string[]) {
+        self.enabledTools.replace(tools)
+      },
+
+      loadAllChats: flow(function* () {
+        try {
+          const allChats = yield getAllChats()
+          self.chats.replace(allChats)
+        } catch (e) {
+          log.error("Error loading all chats:", e)
+        }
+      }),
+
+      afterCreate: flow(function* () {
+        try {
+          // Initialize the database
+          yield initializeDatabase()
+
+          // Load initial conversation
+          yield loadMessagesFromStorage()
+
+          // Load all chats
+          yield self.loadAllChats()
+
+          // Set up persistence listener
+          onSnapshot(self.messages, (snapshot) => {
+            saveChat(self.currentConversationId, JSON.stringify(snapshot))
+              .catch(e => log.error("Error saving chat:", e))
+          })
+        } catch (e) {
+          log.error("Error in afterCreate:", e)
+        }
+      })
+    }
+  })
   .views((self) => {
     const filteredMessages = () => {
       return self.messages
@@ -123,6 +213,9 @@ export const ChatStoreModel = types
       },
       isToolEnabled(toolName: string) {
         return self.enabledTools.includes(toolName)
+      },
+      get allChats() {
+        return self.chats.slice()
       }
     }
   })
@@ -147,4 +240,5 @@ export const createChatStoreDefaultModel = () =>
     isGenerating: false,
     activeModel: "gemini",
     enabledTools: ["view_file", "view_folder", "create_file", "rewrite_file"],
+    chats: [],
   })
