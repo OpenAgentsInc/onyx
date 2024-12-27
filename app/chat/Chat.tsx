@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Dimensions, Text, TouchableOpacity, View } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
+import { OnyxLayout } from "@/onyx/OnyxLayout"
 import { colors, typography } from "@/theme"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
@@ -45,10 +46,25 @@ export const Chat = () => {
         )
       }}
     >
-      <View style={[$drawerInsets, { padding: 20 }]}>
-        <TouchableOpacity onPress={() => setOpen((prevOpen) => !prevOpen)}>
+      <View style={$drawerInsets}>
+        <TouchableOpacity
+          onPress={() => setOpen((prevOpen) => !prevOpen)}
+          style={{ position: "absolute", top: 80, left: 20, zIndex: 900 }}
+        >
           <Feather name="menu" size={24} color="white" />
         </TouchableOpacity>
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            left: 0,
+            bottom: 0,
+            height: Dimensions.get("window").height,
+          }}
+        >
+          <OnyxLayout />
+        </View>
       </View>
     </Drawer>
   )
