@@ -1,8 +1,8 @@
 import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
-import React, { useState, useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { View } from "react-native"
-import { useChat, Message, ToolInvocation } from "@ai-sdk/react"
+import { Message, ToolInvocation, useChat } from "@ai-sdk/react"
 import Config from "../config"
 import { useStores } from "../models/_helpers/useStores"
 import { BottomButtons } from "./BottomButtons"
@@ -60,8 +60,8 @@ export const OnyxLayout = observer(() => {
             conversationId: chatStore.currentConversationId,
             usage: options.usage,
             finishReason: options.finishReason,
-            toolInvocations: pendingToolInvocations.current
-          }
+            toolInvocations: pendingToolInvocations.current,
+          },
         })
         // Clear pending tool invocations
         pendingToolInvocations.current = []
@@ -83,25 +83,27 @@ export const OnyxLayout = observer(() => {
     const loadMessages = async () => {
       // First clear the useChat messages
       setMessages([])
-      
+
       // Then load the persisted messages from store
       const storedMessages = chatStore.currentMessages
       if (storedMessages.length > 0) {
         // Convert store messages to useChat format
-        const chatMessages: Message[] = storedMessages.map(msg => ({
+        const chatMessages: Message[] = storedMessages.map((msg) => ({
           id: msg.id,
           role: msg.role as "user" | "assistant" | "system",
           content: msg.content,
           createdAt: new Date(msg.createdAt),
           // Restore tool invocations if they exist
-          ...(msg.metadata?.toolInvocations ? {
-            toolInvocations: msg.metadata.toolInvocations
-          } : {})
+          ...(msg.metadata?.toolInvocations
+            ? {
+                toolInvocations: msg.metadata.toolInvocations,
+              }
+            : {}),
         }))
         setMessages(chatMessages)
       }
     }
-    
+
     loadMessages()
   }, [chatStore.currentConversationId])
 
@@ -120,24 +122,24 @@ export const OnyxLayout = observer(() => {
   const handleSendMessage = async (message: string) => {
     // Reset pending tool invocations for new message
     pendingToolInvocations.current = []
-    
+
     // Add user message to store first
     chatStore.addMessage({
       role: "user",
       content: message,
       metadata: {
         conversationId: chatStore.currentConversationId,
-      }
+      },
     })
-    
+
     // Set generating state
     chatStore.setIsGenerating(true)
-    
+
     // Send to AI
     await append({
       content: message,
       role: "user",
-      createdAt: new Date()
+      createdAt: new Date(),
     })
   }
 
