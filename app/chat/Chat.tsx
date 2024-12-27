@@ -1,10 +1,10 @@
 import { useState } from "react"
-import { Dimensions, Text, TouchableOpacity, View } from "react-native"
+import { Dimensions, TouchableOpacity, View } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
 import { OnyxLayout } from "@/onyx/OnyxLayout"
-import { colors, typography } from "@/theme"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
+import { ChatDrawerContent } from "./ChatDrawerContent"
 
 export const Chat = () => {
   const [open, setOpen] = useState(false)
@@ -16,35 +16,7 @@ export const Chat = () => {
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
       drawerType="slide"
-      renderDrawerContent={() => {
-        return (
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "black",
-              ...$drawerInsets,
-              borderRightWidth: 1,
-              borderRightColor: colors.border,
-            }}
-          >
-            <View
-              style={{
-                paddingHorizontal: 20,
-                paddingVertical: 10,
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <MaterialCommunityIcons name="chat-plus-outline" size={24} color="white" />
-              <Text
-                style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}
-              >
-                New chat
-              </Text>
-            </View>
-          </View>
-        )
-      }}
+      renderDrawerContent={<ChatDrawerContent drawerInsets={$drawerInsets} />}
     >
       <View style={$drawerInsets}>
         <TouchableOpacity
