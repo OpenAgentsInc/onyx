@@ -5,7 +5,7 @@ import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 // Add Groq actions after ChatStore is defined to avoid circular dependency
 import { withGroqActions } from "./ChatActions"
-import { loadChat, saveChat } from "./ChatStorage"
+import { loadChat, saveChat, initializeDatabase } from "./ChatStorage"
 
 // Message Types
 export const MessageModel = types
@@ -54,7 +54,11 @@ export const ChatStoreModel = types
       const msg = MessageModel.create({
         id: Math.random().toString(36).substring(2, 9),
         createdAt: Date.now(),
-        ...message
+        ...message,
+        metadata: {
+          ...message.metadata,
+          conversationId: self.currentConversationId,
+        }
       })
       self.messages.push(msg)
       return msg
@@ -67,7 +71,10 @@ export const ChatStoreModel = types
           message.updateContent(updates.content)
         }
         if (updates.metadata !== undefined) {
-          message.updateMetadata(updates.metadata)
+          message.updateMetadata({
+            ...updates.metadata,
+            conversationId: self.currentConversationId,
+          })
         }
       }
     },
@@ -78,6 +85,20 @@ export const ChatStoreModel = types
 
     setCurrentConversationId(id: string) {
       self.currentConversationId = id
+      // Load messages for this conversation
+      loadChat(id).then(savedMessages => {
+        try {
+          const parsedMessages = JSON.parse(savedMessages)
+          self.messages.clear()
+          applySnapshot(self.messages, parsedMessages)
+        } catch (e) {
+          log.error("Error parsing saved messages:", e)
+          self.messages.clear() // Clear messages if there's an error
+        }
+      }).catch(e => {
+        log.error("Error loading chat:", e)
+        self.messages.clear() // Clear messages if there's an error
+      })
     },
 
     setIsGenerating(value: boolean) {
@@ -128,22 +149,19 @@ export const ChatStoreModel = types
   })
   .actions(self => ({
     afterCreate() {
-      // Load persisted state
-      loadChat(self.currentConversationId).then(savedMessages => {
-        try {
-          const parsedMessages = JSON.parse(savedMessages);
-          applySnapshot(self.messages, parsedMessages);
-        } catch (e) {
-          log.error("Error parsing saved messages:", e);
-        }
-      }).catch(e => {
-        log.error("Error loading chat:", e);
-      });
+      // Initialize the database
+      initializeDatabase().catch(e => {
+        log.error("Error initializing database:", e)
+      })
+
+      // Load initial conversation
+      self.setCurrentConversationId(self.currentConversationId)
 
       // Set up persistence listener
       onSnapshot(self.messages, (snapshot) => {
-        saveChat(self.currentConversationId, JSON.stringify(snapshot));
-      });
+        saveChat(self.currentConversationId, JSON.stringify(snapshot))
+          .catch(e => log.error("Error saving chat:", e))
+      })
     }
   }))
 
