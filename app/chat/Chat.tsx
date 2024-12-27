@@ -16,7 +16,7 @@ export const Chat = () => {
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
       drawerType="slide"
-      renderDrawerContent={() => <ChatDrawerContent drawerInsets={$drawerInsets} />}
+      renderDrawerContent={() => <ChatDrawerContent drawerInsets={$drawerInsets} setOpen={setOpen} />}
     >
       <View style={$drawerInsets}>
         <TouchableOpacity
