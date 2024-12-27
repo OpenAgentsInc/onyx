@@ -79,7 +79,7 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
               borderBottomWidth: 1,
               borderBottomColor: colors.border,
               backgroundColor: chatStore.currentConversationId === chat.id 
-                ? colors.palette.neutral800 
+                ? colors.palette.neutral200 
                 : "transparent",
             }}
           >
