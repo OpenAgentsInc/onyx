@@ -1,7 +1,9 @@
 import { useState } from "react"
-import { Text, TouchableOpacity, View } from "react-native"
+import { Dimensions, Text, TouchableOpacity, View } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
+import { colors, typography } from "@/theme"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
+import { Feather } from "@expo/vector-icons"
 
 export const Chat = () => {
   const [open, setOpen] = useState(false)
@@ -15,15 +17,25 @@ export const Chat = () => {
       drawerType="slide"
       renderDrawerContent={() => {
         return (
-          <View style={{ flex: 1, backgroundColor: "#222", ...$drawerInsets }}>
-            <Text>Drawer content</Text>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "black",
+              ...$drawerInsets,
+              borderRightWidth: 1,
+              borderRightColor: colors.border,
+            }}
+          >
+            <Text style={{ fontFamily: typography.primary.medium, color: "white" }}>
+              Drawer content
+            </Text>
           </View>
         )
       }}
     >
-      <View style={$drawerInsets}>
+      <View style={[$drawerInsets, { padding: 20 }]}>
         <TouchableOpacity onPress={() => setOpen((prevOpen) => !prevOpen)}>
-          <Text style={{ color: "white", margin: 40 }}>Toggle drawer</Text>
+          <Feather name="menu" size={24} color="white" />
         </TouchableOpacity>
       </View>
     </Drawer>

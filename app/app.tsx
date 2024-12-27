@@ -49,13 +49,10 @@ function AppContents(props: AppProps) {
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <View style={$container}>
           <StatusBar style="light" />
-
-          <Chat />
-          {/* <OnyxLayout /> */}
-
-          {/* <View style={$canvasContainer}>
+          <View style={$canvasContainer}>
             <Canvas />
-          </View> */}
+          </View>
+          <Chat />
         </View>
       </ErrorBoundary>
     </SafeAreaProvider>
