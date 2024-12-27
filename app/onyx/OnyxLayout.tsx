@@ -2,7 +2,7 @@ import { fetch as expoFetch } from "expo/fetch"
 import { observer } from "mobx-react-lite"
 import React, { useState, useEffect } from "react"
 import { View } from "react-native"
-import { useChat } from "@ai-sdk/react"
+import { useChat, Message } from "@ai-sdk/react"
 import Config from "../config"
 import { useStores } from "../models/_helpers/useStores"
 import { BottomButtons } from "./BottomButtons"
@@ -14,6 +14,12 @@ import { VoiceInputModal } from "./VoiceInputModal"
 
 // Available tools for the AI
 const availableTools = ["view_file", "view_folder"]
+
+interface AIResponse {
+  role: "assistant" | "user" | "system"
+  content: string
+  id?: string
+}
 
 export const OnyxLayout = observer(() => {
   const { chatStore, coderStore } = useStores()
@@ -46,7 +52,7 @@ export const OnyxLayout = observer(() => {
     onToolCall: async (toolCall) => {
       console.log("TOOL CALL", toolCall)
     },
-    onResponse: async (response) => {
+    onResponse: async (response: AIResponse) => {
       console.log(response, "RESPONSE")
       // Add assistant message to store
       if (response.role === "assistant") {
@@ -75,11 +81,11 @@ export const OnyxLayout = observer(() => {
       const storedMessages = chatStore.currentMessages
       if (storedMessages.length > 0) {
         // Convert store messages to useChat format
-        const chatMessages = storedMessages.map(msg => ({
+        const chatMessages: Message[] = storedMessages.map(msg => ({
           id: msg.id,
-          role: msg.role,
+          role: msg.role as "user" | "assistant" | "system",
           content: msg.content,
-          createdAt: msg.createdAt
+          createdAt: new Date(msg.createdAt)
         }))
         setMessages(chatMessages)
       }
@@ -114,7 +120,11 @@ export const OnyxLayout = observer(() => {
     chatStore.setIsGenerating(true)
     
     // Send to AI
-    await append({ content: message, role: "user" })
+    await append({
+      content: message,
+      role: "user",
+      createdAt: new Date()
+    })
   }
 
   return (
