@@ -46,27 +46,22 @@ export const OnyxLayout = observer(() => {
     onToolCall: async (toolCall) => {
       console.log("TOOL CALL", toolCall)
     },
-    onResponse: async (response: Response) => {
-      console.log(response, "RESPONSE")
-      try {
-        const text = await response.text()
-        console.log("Response text:", text)
-        
-        // Add assistant message to store
+    onFinish: (message, options) => {
+      console.log("FINISH", { message, options })
+      chatStore.setIsGenerating(false)
+
+      // Add assistant message to store
+      if (message.role === "assistant") {
         chatStore.addMessage({
           role: "assistant",
-          content: text,
+          content: message.content,
           metadata: {
             conversationId: chatStore.currentConversationId,
+            usage: options.usage,
+            finishReason: options.finishReason
           }
         })
-      } catch (e) {
-        console.error("Error handling response:", e)
       }
-    },
-    onFinish: () => {
-      console.log("FINISH")
-      chatStore.setIsGenerating(false)
     },
   })
 
