@@ -8,9 +8,9 @@ import { useStores } from "../models/_helpers/useStores"
 import { BottomButtons } from "./BottomButtons"
 import { ChatOverlay } from "./ChatOverlay"
 import { ConfigureModal } from "./ConfigureModal"
+import { RepoSection } from "./repo/RepoSection"
 import { TextInputModal } from "./TextInputModal"
 import { VoiceInputModal } from "./VoiceInputModal"
-import { RepoSection } from "./repo/RepoSection"
 
 // Available tools for the AI
 const availableTools = ["view_file", "view_folder"]
@@ -28,15 +28,16 @@ export const OnyxLayout = observer(() => {
     api: Config.NEXUS_URL,
     body: {
       // Only include GitHub token and tools if we have a token and at least one tool enabled
-      ...(coderStore.githubToken && chatStore.enabledTools.length > 0 && {
-        githubToken: coderStore.githubToken,
-        tools: chatStore.enabledTools,
-        repos: coderStore.repos.map(repo => ({
-          owner: repo.owner,
-          name: repo.name,
-          branch: repo.branch
-        }))
-      }),
+      ...(coderStore.githubToken &&
+        chatStore.enabledTools.length > 0 && {
+          githubToken: coderStore.githubToken,
+          tools: chatStore.enabledTools,
+          repos: coderStore.repos.map((repo) => ({
+            owner: repo.owner,
+            name: repo.name,
+            branch: repo.branch,
+          })),
+        }),
     },
     onError: (error) => {
       console.error(error, "ERROR")
@@ -67,7 +68,7 @@ export const OnyxLayout = observer(() => {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "black" }}>
+    <View style={{ flex: 1, backgroundColor: "transparent" }}>
       <ChatOverlay messages={messages} isLoading={isLoading} error={error?.toString()} />
 
       <TextInputModal
