@@ -22,7 +22,7 @@ export const OnyxLayout = observer(() => {
   const [showConfigure, setShowConfigure] = useState(false)
   const [showRepos, setShowRepos] = useState(false)
   const [transcript, setTranscript] = useState("")
-  const currentToolInvocations = useRef<ToolInvocation[]>([])
+  const pendingToolInvocations = useRef<ToolInvocation[]>([])
 
   const { isLoading, messages, error, append, setMessages } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
@@ -53,11 +53,6 @@ export const OnyxLayout = observer(() => {
 
       // Add assistant message to store
       if (message.role === "assistant") {
-        // Get the tool invocations from the last assistant message in the messages array
-        const lastAssistantMessage = messages.find(msg => 
-          msg.role === "assistant" && msg.toolInvocations?.length > 0
-        )
-
         chatStore.addMessage({
           role: "assistant",
           content: message.content,
@@ -65,12 +60,23 @@ export const OnyxLayout = observer(() => {
             conversationId: chatStore.currentConversationId,
             usage: options.usage,
             finishReason: options.finishReason,
-            toolInvocations: lastAssistantMessage?.toolInvocations || []
+            toolInvocations: pendingToolInvocations.current
           }
         })
+        // Clear pending tool invocations
+        pendingToolInvocations.current = []
       }
     },
   })
+
+  // Watch messages for tool invocations
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1]
+    if (lastMessage?.role === "assistant" && lastMessage.toolInvocations?.length > 0) {
+      console.log("Found tool invocations:", lastMessage.toolInvocations)
+      pendingToolInvocations.current = lastMessage.toolInvocations
+    }
+  }, [messages])
 
   // Load persisted messages when conversation changes
   useEffect(() => {
@@ -112,6 +118,9 @@ export const OnyxLayout = observer(() => {
   }
 
   const handleSendMessage = async (message: string) => {
+    // Reset pending tool invocations for new message
+    pendingToolInvocations.current = []
+    
     // Add user message to store first
     chatStore.addMessage({
       role: "user",
