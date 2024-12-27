@@ -3,7 +3,7 @@ import { Dimensions, Text, TouchableOpacity, View } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
 import { colors, typography } from "@/theme"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
-import { Feather } from "@expo/vector-icons"
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
 
 export const Chat = () => {
   const [open, setOpen] = useState(false)
@@ -26,9 +26,21 @@ export const Chat = () => {
               borderRightColor: colors.border,
             }}
           >
-            <Text style={{ fontFamily: typography.primary.medium, color: "white" }}>
-              Drawer content
-            </Text>
+            <View
+              style={{
+                paddingHorizontal: 20,
+                paddingVertical: 10,
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <MaterialCommunityIcons name="chat-plus-outline" size={24} color="white" />
+              <Text
+                style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}
+              >
+                New chat
+              </Text>
+            </View>
           </View>
         )
       }}
