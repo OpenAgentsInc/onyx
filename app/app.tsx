@@ -2,6 +2,7 @@ if (__DEV__) {
   require("./devtools/ReactotronConfig.ts")
 }
 
+import "react-native-gesture-handler"
 import "@/utils/ignore-warnings"
 import "@/utils/crypto-polyfill"
 import "text-encoding-polyfill"
@@ -13,6 +14,7 @@ import { ActivityIndicator, Alert, AppRegistry, View, ViewStyle } from "react-na
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
+import { Chat } from "./chat/Chat"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
@@ -48,11 +50,12 @@ function AppContents(props: AppProps) {
         <View style={$container}>
           <StatusBar style="light" />
 
-          <OnyxLayout />
+          <Chat />
+          {/* <OnyxLayout /> */}
 
-          <View style={$canvasContainer}>
+          {/* <View style={$canvasContainer}>
             <Canvas />
-          </View>
+          </View> */}
         </View>
       </ErrorBoundary>
     </SafeAreaProvider>
