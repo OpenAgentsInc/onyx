@@ -1,11 +1,11 @@
 import {
-  applySnapshot, Instance, onSnapshot, SnapshotIn, SnapshotOut, types, flow
+  applySnapshot, flow, Instance, onSnapshot, SnapshotIn, SnapshotOut, types
 } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 // Add Groq actions after ChatStore is defined to avoid circular dependency
 import { withGroqActions } from "./ChatActions"
-import { loadChat, saveChat, initializeDatabase } from "./ChatStorage"
+import { initializeDatabase, loadChat, saveChat } from "./ChatStorage"
 
 // Message Types
 export const MessageModel = types
@@ -138,7 +138,7 @@ export const ChatStoreModel = types
         try {
           // Initialize the database
           yield initializeDatabase()
-          
+
           // Load initial conversation
           yield loadMessagesFromStorage()
 
@@ -152,7 +152,7 @@ export const ChatStoreModel = types
         }
       })
     }
-  }))
+  })
   .views((self) => {
     const filteredMessages = () => {
       return self.messages
