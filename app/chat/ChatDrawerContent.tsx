@@ -5,9 +5,10 @@ import { useStores } from "@/models"
 
 type Props = {
   drawerInsets: any // replace any with the correct type
+  setOpen: (open: boolean) => void
 }
 
-export const ChatDrawerContent = ({ drawerInsets }: Props) => {
+export const ChatDrawerContent = ({ drawerInsets, setOpen }: Props) => {
   const { chatStore } = useStores()
 
   const handleNewChat = () => {
@@ -15,6 +16,7 @@ export const ChatDrawerContent = ({ drawerInsets }: Props) => {
     const newId = `chat_${Date.now()}`
     chatStore.setCurrentConversationId(newId)
     chatStore.clearMessages()
+    setOpen(false) // Close the drawer after creating new chat
   }
 
   return (
