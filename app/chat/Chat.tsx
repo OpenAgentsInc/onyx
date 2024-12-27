@@ -16,12 +16,14 @@ export const Chat = () => {
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
       drawerType="slide"
-      renderDrawerContent={() => <ChatDrawerContent drawerInsets={$drawerInsets} setOpen={setOpen} />}
+      renderDrawerContent={() => (
+        <ChatDrawerContent drawerInsets={$drawerInsets} setOpen={setOpen} />
+      )}
     >
       <View style={$drawerInsets}>
         <TouchableOpacity
           onPress={() => setOpen((prevOpen) => !prevOpen)}
-          style={{ position: "absolute", top: 80, left: 20, zIndex: 900 }}
+          style={{ position: "absolute", top: 70, left: 20, zIndex: 900 }}
         >
           <Feather name="menu" size={24} color="white" />
         </TouchableOpacity>
