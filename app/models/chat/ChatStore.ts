@@ -45,91 +45,113 @@ export const ChatStoreModel = types
     ]),
   })
   .actions(withSetPropAction)
-  .actions((self) => ({
-    addMessage(message: {
-      role: "system" | "user" | "assistant" | "function"
-      content: string
-      metadata?: any
-    }) {
-      const msg = MessageModel.create({
-        id: Math.random().toString(36).substring(2, 9),
-        createdAt: Date.now(),
-        ...message,
-        metadata: {
-          ...message.metadata,
-          conversationId: self.currentConversationId,
-        }
-      })
-      self.messages.push(msg)
-      return msg
-    },
-
-    updateMessage(messageId: string, updates: { content?: string, metadata?: any }) {
-      const message = self.messages.find(msg => msg.id === messageId)
-      if (message) {
-        if (updates.content !== undefined) {
-          message.updateContent(updates.content)
-        }
-        if (updates.metadata !== undefined) {
-          message.updateMetadata({
-            ...updates.metadata,
-            conversationId: self.currentConversationId,
-          })
-        }
-      }
-    },
-
-    clearMessages() {
-      self.messages.clear()
-    },
-
-    replaceMessages(messages: any[]) {
+  .actions((self) => {
+    // Helper action to replace messages
+    const replaceMessages = (messages: any[]) => {
       self.messages.clear()
       messages.forEach(msg => {
         self.messages.push(MessageModel.create(msg))
       })
-    },
+    }
 
-    loadMessagesFromStorage: flow(function* () {
+    // Helper action to load messages
+    const loadMessagesFromStorage = flow(function* () {
       try {
         const savedMessages = yield loadChat(self.currentConversationId)
         const parsedMessages = JSON.parse(savedMessages)
-        self.replaceMessages(parsedMessages)
+        replaceMessages(parsedMessages)
       } catch (e) {
         log.error("Error loading chat:", e)
         self.messages.clear()
       }
-    }),
+    })
 
-    setCurrentConversationId: flow(function* (id: string) {
-      self.currentConversationId = id
-      yield self.loadMessagesFromStorage()
-    }),
+    return {
+      addMessage(message: {
+        role: "system" | "user" | "assistant" | "function"
+        content: string
+        metadata?: any
+      }) {
+        const msg = MessageModel.create({
+          id: Math.random().toString(36).substring(2, 9),
+          createdAt: Date.now(),
+          ...message,
+          metadata: {
+            ...message.metadata,
+            conversationId: self.currentConversationId,
+          }
+        })
+        self.messages.push(msg)
+        return msg
+      },
 
-    setIsGenerating(value: boolean) {
-      self.isGenerating = value
-    },
+      updateMessage(messageId: string, updates: { content?: string, metadata?: any }) {
+        const message = self.messages.find(msg => msg.id === messageId)
+        if (message) {
+          if (updates.content !== undefined) {
+            message.updateContent(updates.content)
+          }
+          if (updates.metadata !== undefined) {
+            message.updateMetadata({
+              ...updates.metadata,
+              conversationId: self.currentConversationId,
+            })
+          }
+        }
+      },
 
-    setError(error: string | null) {
-      self.error = error
-    },
+      clearMessages() {
+        self.messages.clear()
+      },
 
-    setActiveModel(model: "groq" | "gemini") {
-      self.activeModel = model
-    },
+      setCurrentConversationId: flow(function* (id: string) {
+        self.currentConversationId = id
+        yield loadMessagesFromStorage()
+      }),
 
-    toggleTool(toolName: string) {
-      const index = self.enabledTools.indexOf(toolName)
-      if (index === -1) {
-        self.enabledTools.push(toolName)
-      } else {
-        self.enabledTools.splice(index, 1)
-      }
-    },
+      setIsGenerating(value: boolean) {
+        self.isGenerating = value
+      },
 
-    setEnabledTools(tools: string[]) {
-      self.enabledTools.replace(tools)
-    },
+      setError(error: string | null) {
+        self.error = error
+      },
+
+      setActiveModel(model: "groq" | "gemini") {
+        self.activeModel = model
+      },
+
+      toggleTool(toolName: string) {
+        const index = self.enabledTools.indexOf(toolName)
+        if (index === -1) {
+          self.enabledTools.push(toolName)
+        } else {
+          self.enabledTools.splice(index, 1)
+        }
+      },
+
+      setEnabledTools(tools: string[]) {
+        self.enabledTools.replace(tools)
+      },
+
+      afterCreate: flow(function* () {
+        try {
+          // Initialize the database
+          yield initializeDatabase()
+          
+          // Load initial conversation
+          yield loadMessagesFromStorage()
+
+          // Set up persistence listener
+          onSnapshot(self.messages, (snapshot) => {
+            saveChat(self.currentConversationId, JSON.stringify(snapshot))
+              .catch(e => log.error("Error saving chat:", e))
+          })
+        } catch (e) {
+          log.error("Error in afterCreate:", e)
+        }
+      })
+    }
   }))
   .views((self) => {
     const filteredMessages = () => {
@@ -152,25 +174,6 @@ export const ChatStoreModel = types
       }
     }
   })
-  .actions(self => ({
-    afterCreate: flow(function* () {
-      try {
-        // Initialize the database
-        yield initializeDatabase()
-        
-        // Load initial conversation
-        yield self.loadMessagesFromStorage()
-
-        // Set up persistence listener
-        onSnapshot(self.messages, (snapshot) => {
-          saveChat(self.currentConversationId, JSON.stringify(snapshot))
-            .catch(e => log.error("Error saving chat:", e))
-        })
-      } catch (e) {
-        log.error("Error in afterCreate:", e)
-      }
-    })
-  }))
 
 export interface ChatStore extends Instance<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> { }
