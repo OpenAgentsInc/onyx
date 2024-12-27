@@ -1,29 +1,30 @@
 # New Navigation Spec
 
-We're converting the BottomButtons component into a Stack Navigator. This document outlines the planned changes.
+We're introducing a Stack Navigator to manage navigation within the Onyx app. This document outlines the planned changes.
 
 **Current Implementation:**
-The BottomButtons component currently uses a tab-based navigation approach.  Each tab corresponds to a different section within the app.
+The BottomButtons component currently renders individual buttons for text input, voice input, accessing repos, copying conversation text, and clearing the chat history.  These buttons trigger specific actions rather than navigating between screens.
 
 **Proposed Changes:**
-Replace the tab-based navigation with a Stack Navigator. This will allow for a more flexible navigation flow and enable features like nested screens and modal presentations.
+Introduce a Stack Navigator to manage the overall navigation flow.  The existing functionalities of the BottomButtons component will be integrated into this new navigation structure.
 
 **Technical Details:**
 
-* **Library:**  React Navigation's Stack Navigator will be used.
-* **Components Affected:** BottomButtons.tsx, and potentially other components that interact with the navigation.
-* **Screens:** Each existing tab will be converted into a separate screen within the stack.
-* **Navigation Logic:** The navigation logic will be updated to use the Stack Navigator's API (push, pop, navigate).
+* **Library:** React Navigation's Stack Navigator will be used.
+* **Components Affected:** BottomButtons.tsx, and potentially other components that handle navigation or related actions.
+* **Screens:** New screens will be created for functionalities currently handled by button actions (e.g., a dedicated Repos screen, a Settings screen).
+* **Navigation Logic:** The navigation logic will be updated to use the Stack Navigator's API (push, pop, navigate).  Button presses in the BottomButtons component will trigger navigation actions rather than direct function calls.
 
 **Benefits:**
 
-* Improved navigation flow.
-* Support for nested screens.
-* Easier implementation of modal screens.
-* More consistent user experience.
+* Improved navigation structure and flow.
+* Clearer separation of concerns between components.
+* Enhanced user experience with consistent navigation patterns.
+* Easier implementation of future features and screens.
 
 **Next Steps:**
 
-1. Implement the Stack Navigator in the BottomButtons component.
-2. Update the navigation logic in related components.
-3. Test the new navigation thoroughly.
+1. Implement the Stack Navigator in the app's main navigation structure.
+2. Create new screens for functionalities currently handled by the BottomButtons component.
+3. Update the BottomButtons component to trigger navigation actions.
+4. Test the new navigation thoroughly.
