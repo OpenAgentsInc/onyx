@@ -3,7 +3,7 @@ import { Dimensions, TouchableOpacity, View } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
 import { OnyxLayout } from "@/onyx/OnyxLayout"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
+import { Feather } from "@expo/vector-icons"
 import { ChatDrawerContent } from "./ChatDrawerContent"
 
 export const Chat = () => {
@@ -16,7 +16,7 @@ export const Chat = () => {
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
       drawerType="slide"
-      renderDrawerContent={<ChatDrawerContent drawerInsets={$drawerInsets} />}
+      renderDrawerContent={() => <ChatDrawerContent drawerInsets={$drawerInsets} />}
     >
       <View style={$drawerInsets}>
         <TouchableOpacity
