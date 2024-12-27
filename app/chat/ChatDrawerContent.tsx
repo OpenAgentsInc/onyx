@@ -31,10 +31,20 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
   }
 
   const getChatPreview = (messages: any[]) => {
+    if (!messages || messages.length === 0) {
+      return "New Chat"
+    }
     const lastUserMessage = messages
       .filter(msg => msg.role === "user")
       .pop()
-    return lastUserMessage?.content?.slice(0, 30) + "..." || "New Chat"
+    if (!lastUserMessage) {
+      return "New Chat"
+    }
+    const preview = lastUserMessage.content.trim()
+    if (preview.length <= 30) {
+      return preview
+    }
+    return preview.slice(0, 30) + "..."
   }
 
   return (
