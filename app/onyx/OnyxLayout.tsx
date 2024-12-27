@@ -23,8 +23,9 @@ export const OnyxLayout = observer(() => {
   const [showRepos, setShowRepos] = useState(false)
   const [transcript, setTranscript] = useState("")
   const pendingToolInvocations = useRef<ToolInvocation[]>([])
+  const [localMessages, setLocalMessages] = useState<Message[]>([])
 
-  const { isLoading, messages, error, append, setMessages } = useChat({
+  const { isLoading, messages: aiMessages, error, append, setMessages } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: Config.NEXUS_URL,
     body: {
@@ -71,12 +72,30 @@ export const OnyxLayout = observer(() => {
 
   // Watch messages for tool invocations
   useEffect(() => {
-    const lastMessage = messages[messages.length - 1]
+    const lastMessage = aiMessages[aiMessages.length - 1]
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations?.length > 0) {
       console.log("Found tool invocations:", lastMessage.toolInvocations)
       pendingToolInvocations.current = lastMessage.toolInvocations
     }
-  }, [messages])
+  }, [aiMessages])
+
+  // Sync store messages with local state
+  useEffect(() => {
+    const storedMessages = chatStore.currentMessages
+    const chatMessages: Message[] = storedMessages.map((msg) => ({
+      id: msg.id,
+      role: msg.role as "user" | "assistant" | "system",
+      content: msg.content,
+      createdAt: new Date(msg.createdAt),
+      // Restore tool invocations if they exist
+      ...(msg.metadata?.toolInvocations
+        ? {
+            toolInvocations: msg.metadata.toolInvocations,
+          }
+        : {}),
+    }))
+    setLocalMessages(chatMessages)
+  }, [chatStore.currentMessages])
 
   // Load persisted messages when conversation changes
   useEffect(() => {
@@ -145,7 +164,11 @@ export const OnyxLayout = observer(() => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "transparent" }}>
-      <ChatOverlay messages={messages} isLoading={isLoading} error={error?.toString()} />
+      <ChatOverlay 
+        messages={localMessages} 
+        isLoading={isLoading || chatStore.isGenerating} 
+        error={error?.toString()} 
+      />
 
       <TextInputModal
         visible={showTextInput}
