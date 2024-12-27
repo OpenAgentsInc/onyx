@@ -74,6 +74,16 @@ export const ChatStoreModel = types
       }
     })
 
+    // Helper action to update chats list
+    const updateChatsList = flow(function* () {
+      try {
+        const allChats = yield getAllChats()
+        self.chats.replace(allChats)
+      } catch (e) {
+        log.error("Error updating chats list:", e)
+      }
+    })
+
     return {
       addMessage(message: {
         role: "system" | "user" | "assistant" | "function"
@@ -90,6 +100,10 @@ export const ChatStoreModel = types
           }
         })
         self.messages.push(msg)
+
+        // Update chats list after adding a message
+        updateChatsList()
+        
         return msg
       },
 
@@ -110,11 +124,19 @@ export const ChatStoreModel = types
 
       clearMessages() {
         self.messages.clear()
+        // Update chats list after clearing messages
+        updateChatsList()
       },
 
       setCurrentConversationId: flow(function* (id: string) {
         self.currentConversationId = id
         yield loadMessagesFromStorage()
+        
+        // Ensure this chat exists in the chats list
+        const chatExists = self.chats.some(chat => chat.id === id)
+        if (!chatExists) {
+          self.chats.push(ChatModel.create({ id, messages: [] }))
+        }
       }),
 
       setIsGenerating(value: boolean) {
