@@ -23,7 +23,15 @@ export const Chat = () => {
       <View style={$drawerInsets}>
         <TouchableOpacity
           onPress={() => setOpen((prevOpen) => !prevOpen)}
-          style={{ position: "absolute", top: 70, left: 20, zIndex: 900 }}
+          style={{
+            position: "absolute",
+            top: 70,
+            left: 20,
+            zIndex: 900,
+            backgroundColor: "rgba(64, 64, 64, 0.5)",
+            padding: 8,
+            borderRadius: 4,
+          }}
         >
           <Feather name="menu" size={24} color="white" />
         </TouchableOpacity>
