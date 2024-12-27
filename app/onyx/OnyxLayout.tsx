@@ -50,6 +50,12 @@ export const OnyxLayout = observer(() => {
       console.log("FINISH", { message, options })
       chatStore.setIsGenerating(false)
 
+      // Find the assistant message with tool invocations
+      const assistantMessage = messages.find(msg => 
+        msg.role === "assistant" && 
+        msg.toolInvocations?.length > 0
+      )
+
       // Add assistant message to store
       if (message.role === "assistant") {
         chatStore.addMessage({
@@ -59,7 +65,7 @@ export const OnyxLayout = observer(() => {
             conversationId: chatStore.currentConversationId,
             usage: options.usage,
             finishReason: options.finishReason,
-            toolInvocations: message.toolInvocations
+            toolInvocations: assistantMessage?.toolInvocations || []
           }
         })
       }
