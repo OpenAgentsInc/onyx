@@ -33,3 +33,14 @@ export const saveChat = async (chatId: string, messages: string) => {
     [chatId, messages]
   );
 };
+
+export const getAllChats = async () => {
+  const database = await initDB();
+  const result = await database.getAllAsync<{ id: string, messages: string }>(
+    'SELECT id, messages FROM chats ORDER BY id DESC;'
+  );
+  return result.map(chat => ({
+    id: chat.id,
+    messages: JSON.parse(chat.messages)
+  }));
+};
