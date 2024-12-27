@@ -1,6 +1,6 @@
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from "expo-sqlite"
 
-const db = SQLite.openDatabase('onyx.db');
+const db = SQLite.openDatabaseAsync('onyx.db');
 
 export const initializeDatabase = async () => {
   return new Promise((resolve, reject) => {
