@@ -53,14 +53,26 @@ export const OnyxLayout = observer(() => {
 
       // Add assistant message to store with the accumulated tool invocations
       if (message.role === "assistant") {
+        // First add the tool invocation message if we have any
+        if (currentToolInvocations.current.length > 0) {
+          chatStore.addMessage({
+            role: "assistant",
+            content: JSON.stringify(currentToolInvocations.current, null, 2),
+            metadata: {
+              conversationId: chatStore.currentConversationId,
+              isToolMessage: true
+            }
+          })
+        }
+
+        // Then add the actual assistant message
         chatStore.addMessage({
           role: "assistant",
           content: message.content,
           metadata: {
             conversationId: chatStore.currentConversationId,
             usage: options.usage,
-            finishReason: options.finishReason,
-            toolInvocations: currentToolInvocations.current
+            finishReason: options.finishReason
           }
         })
         // Reset tool invocations for next message
@@ -88,16 +100,29 @@ export const OnyxLayout = observer(() => {
       const storedMessages = chatStore.currentMessages
       if (storedMessages.length > 0) {
         // Convert store messages to useChat format
-        const chatMessages: Message[] = storedMessages.map(msg => ({
-          id: msg.id,
-          role: msg.role as "user" | "assistant" | "system",
-          content: msg.content,
-          createdAt: new Date(msg.createdAt),
-          // Restore tool invocations if they exist
-          ...(msg.metadata?.toolInvocations ? {
-            toolInvocations: msg.metadata.toolInvocations as ToolInvocation[]
-          } : {})
-        }))
+        const chatMessages: Message[] = storedMessages.map(msg => {
+          const baseMessage = {
+            id: msg.id,
+            role: msg.role as "user" | "assistant" | "system",
+            content: msg.content,
+            createdAt: new Date(msg.createdAt)
+          }
+
+          // If this is a tool message, add tool invocations
+          if (msg.metadata?.isToolMessage) {
+            try {
+              const toolInvocations = JSON.parse(msg.content) as ToolInvocation[]
+              return {
+                ...baseMessage,
+                toolInvocations
+              }
+            } catch (e) {
+              console.error("Error parsing tool invocations:", e)
+            }
+          }
+
+          return baseMessage
+        })
         setMessages(chatMessages)
       }
     }
