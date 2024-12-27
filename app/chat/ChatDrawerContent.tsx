@@ -1,15 +1,21 @@
-import { Text, View, TouchableOpacity } from "react-native"
+import { Text, View, TouchableOpacity, ScrollView } from "react-native"
 import { colors, typography } from "@/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useStores } from "@/models"
+import { observer } from "mobx-react-lite"
+import { useEffect } from "react"
 
 type Props = {
   drawerInsets: any // replace any with the correct type
   setOpen: (open: boolean) => void
 }
 
-export const ChatDrawerContent = ({ drawerInsets, setOpen }: Props) => {
+export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => {
   const { chatStore } = useStores()
+
+  useEffect(() => {
+    chatStore.loadAllChats()
+  }, [])
 
   const handleNewChat = () => {
     // Generate a new conversation ID
@@ -17,6 +23,18 @@ export const ChatDrawerContent = ({ drawerInsets, setOpen }: Props) => {
     chatStore.setCurrentConversationId(newId)
     chatStore.clearMessages()
     setOpen(false) // Close the drawer after creating new chat
+  }
+
+  const handleSelectChat = (chatId: string) => {
+    chatStore.setCurrentConversationId(chatId)
+    setOpen(false)
+  }
+
+  const getChatPreview = (messages: any[]) => {
+    const lastUserMessage = messages
+      .filter(msg => msg.role === "user")
+      .pop()
+    return lastUserMessage?.content?.slice(0, 30) + "..." || "New Chat"
   }
 
   return (
@@ -33,8 +51,8 @@ export const ChatDrawerContent = ({ drawerInsets, setOpen }: Props) => {
         style={{
           paddingHorizontal: 20,
           paddingVertical: 10,
-          flexDirection: "row",
-          alignItems: "center",
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         }}
       >
         <TouchableOpacity 
@@ -50,6 +68,42 @@ export const ChatDrawerContent = ({ drawerInsets, setOpen }: Props) => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      <ScrollView style={{ flex: 1 }}>
+        {chatStore.allChats.map((chat) => (
+          <TouchableOpacity
+            key={chat.id}
+            onPress={() => handleSelectChat(chat.id)}
+            style={{
+              padding: 16,
+              borderBottomWidth: 1,
+              borderBottomColor: colors.border,
+              backgroundColor: chatStore.currentConversationId === chat.id 
+                ? colors.palette.neutral800 
+                : "transparent",
+            }}
+          >
+            <Text 
+              style={{ 
+                color: "white",
+                fontFamily: typography.primary.medium,
+                marginBottom: 4,
+              }}
+              numberOfLines={1}
+            >
+              {getChatPreview(chat.messages)}
+            </Text>
+            <Text 
+              style={{ 
+                color: colors.palette.neutral400,
+                fontSize: 12,
+              }}
+            >
+              {new Date(chat.messages[0]?.createdAt || Date.now()).toLocaleDateString()}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
   )
-}
+})
