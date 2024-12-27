@@ -1,11 +1,10 @@
 import { StyleSheet } from "react-native"
-import { colors } from "@/theme"
-import { typography } from "@/theme"
+import { colors, typography } from "@/theme"
 
 export const markdownStyles = StyleSheet.create({
   body: {
     color: colors.text,
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: typography.primary.normal,
   },
   code_inline: {
