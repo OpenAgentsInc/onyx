@@ -1,11 +1,13 @@
 import {
   Instance, SnapshotIn, SnapshotOut,
-  types
+  types,
+  onSnapshot, applySnapshot,
 } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 // Add Groq actions after ChatStore is defined to avoid circular dependency
 import { withGroqActions } from "./ChatActions"
+import { loadChat, saveChat } from './ChatStorage';
 
 // Message Types
 export const MessageModel = types
@@ -119,13 +121,35 @@ export const ChatStoreModel = types
       get conversationText() {
         return filteredMessages()
           .map((msg: IMessage) => msg.content)
-          .join('\n\n')
+          .join('
+
+')
       },
       isToolEnabled(toolName: string) {
         return self.enabledTools.includes(toolName)
       }
     }
   })
+  .actions(self => ({
+    afterCreate() {
+      // Load persisted state
+      loadChat(self.currentConversationId).then(savedMessages => {
+        try {
+          const parsedMessages = JSON.parse(savedMessages);
+          applySnapshot(self.messages, parsedMessages);
+        } catch (e) {
+          log.error("Error parsing saved messages:", e);
+        }
+      }).catch(e => {
+        log.error("Error loading chat:", e);
+      });
+
+      // Set up persistence listener
+      onSnapshot(self.messages, (snapshot) => {
+        saveChat(self.currentConversationId, JSON.stringify(snapshot));
+      });
+    }
+  }))
 
 export interface ChatStore extends Instance<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> { }
