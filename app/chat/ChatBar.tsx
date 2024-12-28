@@ -42,10 +42,14 @@ export const ChatBar = () => {
   }, [expanded])
 
   const updateSize = (event) => {
-    console.log("updateSize", event.nativeEvent.contentSize.height)
     const newHeight = Math.min(event.nativeEvent.contentSize.height, 240)
+    console.log("updateSize", newHeight, "current height:", height)
     setHeight(newHeight)
   }
+
+  useEffect(() => {
+    console.log("height changed to:", height)
+  }, [height])
 
   const handlePress = () => {
     setExpanded(true)
@@ -61,6 +65,9 @@ export const ChatBar = () => {
     e.stopPropagation()
     console.log("Send pressed")
   }
+
+  const containerHeight = expanded ? Math.max(50, height + 26) : 50
+  console.log("containerHeight:", containerHeight)
 
   return (
     <KeyboardAvoidingView
@@ -81,8 +88,7 @@ export const ChatBar = () => {
           backgroundColor: colors.background,
           padding: 10,
           paddingHorizontal: 14,
-          minHeight: 50,
-          height: expanded ? Math.min(height + 30, 300) : 50,
+          height: containerHeight,
           marginBottom: insets.bottom,
         }}
       >
@@ -115,7 +121,6 @@ export const ChatBar = () => {
                 fontSize: 16,
                 fontFamily: typography.primary.normal,
                 paddingLeft: 24,
-                minHeight: 24,
               }}
               onContentSizeChange={updateSize}
               placeholder="Message"
