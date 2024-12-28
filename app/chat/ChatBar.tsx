@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
 
@@ -48,7 +49,7 @@ export const ChatBar = () => {
         style={{
           borderRadius: 20,
           marginHorizontal: 20,
-          backgroundColor: "#111",
+          backgroundColor: colors.background,
           padding: 10,
           paddingHorizontal: 14,
           height: expanded ? Math.min(height + 54, 300) : 40,
@@ -96,7 +97,7 @@ export const ChatBar = () => {
                 editable={false}
                 style={{
                   flex: 1,
-                  color: "#666",
+                  color: colors.background,
                   fontSize: 16,
                   marginTop: -3,
                   fontFamily: typography.primary.normal,
@@ -106,7 +107,7 @@ export const ChatBar = () => {
               />
             )}
 
-            <Pressable onPress={handleMicPress}>
+            <Pressable onPress={handleMicPress} style={{ marginTop: -2 }}>
               <FontAwesome name="microphone" size={24} color="#666" />
             </Pressable>
           </View>
