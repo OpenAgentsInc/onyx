@@ -5,13 +5,13 @@ import { typography } from "../theme/typography"
 
 export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
-  const [height, setHeight] = useState(0)
+  const [height, setHeight] = useState(24)
   
   useEffect(() => {
     const eventName = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide'
     const keyboardListener = Keyboard.addListener(eventName, () => {
       setExpanded(false)
-      setHeight(0)
+      setHeight(24)
     })
 
     return () => {
@@ -33,23 +33,21 @@ export const ChatBar = () => {
         bottom: 0,
         left: 0,
         right: 0,
+        paddingBottom: expanded ? 0 : 30,
       }}
     >
-      <Pressable onPress={() => setExpanded(true)}>
-        <View
-          style={{
-            minHeight: expanded ? 80 : 40,
-            maxHeight: expanded ? (height + 80) : 40,
-            borderRadius: 20,
-            marginBottom: expanded ? 0 : 30,
-            marginLeft: 20,
-            marginRight: 20,
-            backgroundColor: "#111",
-            padding: 10,
-          }}
-        >
+      <View
+        style={{
+          borderRadius: 20,
+          marginHorizontal: 20,
+          backgroundColor: "#111",
+          padding: 10,
+          height: expanded ? Math.min(height + 44, 300) : 40,
+        }}
+      >
+        <Pressable onPress={() => setExpanded(true)} style={{ flex: 1 }}>
           {expanded ? (
-            <View style={{ flex: 1 }}>
+            <>
               <TextInput
                 autoFocus
                 multiline
@@ -57,7 +55,7 @@ export const ChatBar = () => {
                   color: "white",
                   fontSize: 16,
                   fontFamily: typography.primary.normal,
-                  minHeight: 24,
+                  maxHeight: 240,
                 }}
                 onContentSizeChange={updateSize}
                 placeholder="Type a message..."
@@ -68,16 +66,17 @@ export const ChatBar = () => {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginTop: 10,
+                  height: 34,
+                  paddingTop: 10,
                 }}
               >
                 <AntDesign name="plus" size={24} color="#666" />
                 <FontAwesome name="microphone" size={24} color="#666" />
               </View>
-            </View>
+            </>
           ) : null}
-        </View>
-      </Pressable>
+        </Pressable>
+      </View>
     </KeyboardAvoidingView>
   )
 }
