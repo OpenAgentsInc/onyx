@@ -40,7 +40,7 @@ export const ChatBar = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
+      keyboardVerticalOffset={Platform.OS === "ios" ? -25 : 0}
       style={{
         position: "absolute",
         bottom: 0,
@@ -60,9 +60,9 @@ export const ChatBar = () => {
           marginBottom: insets.bottom,
         }}
       >
-        <Pressable 
+        <Pressable
           onPress={() => setExpanded(true)}
-          style={{ 
+          style={{
             flex: 1,
             flexDirection: "row",
             alignItems: "center",
@@ -71,7 +71,7 @@ export const ChatBar = () => {
           <Pressable onPress={handlePlusPress} style={{ marginRight: 8 }}>
             <AntDesign name="plus" size={24} color="#666" />
           </Pressable>
-          
+
           <View style={{ flex: 1 }}>
             {expanded ? (
               <>
