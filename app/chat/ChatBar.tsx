@@ -100,6 +100,7 @@ export const ChatBar = () => {
               </>
             ) : (
               <TextInput
+                pointerEvents="none"
                 editable={false}
                 style={{
                   color: "#666",
