@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react"
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, TextInput, View } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
 
 export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
   const [height, setHeight] = useState(24)
+
+  const insets = useSafeAreaInsets()
 
   useEffect(() => {
     const eventName = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide"
@@ -42,8 +45,9 @@ export const ChatBar = () => {
           marginHorizontal: 20,
           backgroundColor: "#111",
           padding: 10,
+          paddingHorizontal: 14,
           height: expanded ? Math.min(height + 44, 300) : 40,
-          marginBottom: 20,
+          marginBottom: insets.bottom,
         }}
       >
         <Pressable onPress={() => setExpanded(true)} style={{ flex: 1 }}>
@@ -59,7 +63,7 @@ export const ChatBar = () => {
                   maxHeight: 240,
                 }}
                 onContentSizeChange={updateSize}
-                placeholder="Type a message..."
+                placeholder="Message"
                 placeholderTextColor="#666"
               />
               <View
