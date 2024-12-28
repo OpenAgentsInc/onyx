@@ -46,13 +46,16 @@ export const ChatBar = () => {
               <TextInput
                 autoFocus
                 multiline
+                numberOfLines={1}
                 maxLength={1000}
                 style={{
                   color: "white",
                   fontSize: 16,
                   fontFamily: typography.primary.normal,
-                  maxHeight: 240, // Max 10 lines approximately
+                  minHeight: 24,
+                  maxHeight: 240,
                 }}
+                textAlignVertical="top"
                 placeholder="Type a message..."
                 placeholderTextColor="#666"
               />
