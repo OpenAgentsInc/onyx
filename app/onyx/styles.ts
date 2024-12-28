@@ -38,11 +38,9 @@ export const styles = StyleSheet.create({
 
   // Chat Overlay styles
   chatOverlay: {
-    position: "absolute",
-    top: 40,
-    left: 0,
-    right: 0,
-    bottom: 110,
+    flex: 1,
+    paddingTop: 40,
+    paddingBottom: 90, // Reduced from 110 to account for keyboard avoiding view
     padding: 10,
     zIndex: 5,
     borderBottomWidth: 1,
