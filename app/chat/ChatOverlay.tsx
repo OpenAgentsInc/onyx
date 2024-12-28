@@ -1,6 +1,13 @@
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
-import { Image, ScrollView, TouchableOpacity, View, KeyboardAvoidingView, Platform } from "react-native"
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native"
 import { Message } from "@ai-sdk/react"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { MessageContent } from "./markdown/MessageContent"
@@ -25,7 +32,7 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
   }
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? -20 : 0}
       style={baseStyles.chatOverlay}
