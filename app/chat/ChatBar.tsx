@@ -61,10 +61,6 @@ export const ChatBar = () => {
     console.log("Send pressed")
   }
 
-  const containerHeight = expanded ? 
-    (height > 24 ? Math.min(height + 30, 300) : 50) : 
-    50
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -84,7 +80,7 @@ export const ChatBar = () => {
           backgroundColor: colors.background,
           padding: 10,
           paddingHorizontal: 14,
-          height: containerHeight,
+          height: expanded ? Math.min(height + 30, 300) : 50,
           marginBottom: insets.bottom,
         }}
       >
@@ -118,7 +114,6 @@ export const ChatBar = () => {
                 fontFamily: typography.primary.normal,
                 maxHeight: 240,
                 paddingLeft: 24,
-                height: height,
               }}
               onContentSizeChange={expanded ? updateSize : undefined}
               placeholder="Message"
