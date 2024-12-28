@@ -4,6 +4,7 @@ import { Drawer } from "react-native-drawer-layout"
 import { OnyxLayout } from "@/onyx/OnyxLayout"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import { Feather } from "@expo/vector-icons"
+import { ChatBar } from "./ChatBar"
 import { ChatDrawerContent } from "./ChatDrawerContent"
 
 export const Chat = () => {
@@ -45,7 +46,7 @@ export const Chat = () => {
             height: Dimensions.get("window").height,
           }}
         >
-          <OnyxLayout />
+          <ChatBar />
         </View>
       </View>
     </Drawer>
