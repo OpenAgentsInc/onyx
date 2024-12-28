@@ -1,13 +1,19 @@
 import { useState } from "react"
-import { Pressable, View, TextInput, KeyboardAvoidingView, Platform } from "react-native"
+import { Pressable, View, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 
 export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
   
+  const collapse = () => {
+    setExpanded(false)
+    Keyboard.dismiss()
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
       style={{
         position: "absolute",
         bottom: 0,
@@ -16,6 +22,10 @@ export const ChatBar = () => {
         height: expanded ? 140 : 70,
       }}
     >
+      <TouchableWithoutFeedback onPress={collapse}>
+        <View style={{ flex: 1 }} />
+      </TouchableWithoutFeedback>
+      
       <Pressable onPress={() => setExpanded(true)}>
         <View
           style={{
