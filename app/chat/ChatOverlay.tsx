@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
-import { Image, ScrollView, TouchableOpacity, View, KeyboardAvoidingView, Platform } from "react-native"
+import { Image, ScrollView, TouchableOpacity, View, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native"
 import { Message } from "@ai-sdk/react"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { MessageContent } from "@/onyx/markdown/MessageContent"
@@ -25,44 +25,46 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={baseStyles.chatOverlay}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-      >
-        <ScrollView
-          ref={scrollViewRef}
-          style={baseStyles.messageList}
-          contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={{ flex: 1, zIndex: 1 }}>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={[baseStyles.chatOverlay, { zIndex: 1 }]}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
         >
-          {messages.map((message: Message) => (
-            <TouchableOpacity
-              key={message.id}
-              onPress={() => copyToClipboard(message.content)}
-              activeOpacity={1}
-            >
-              <View style={baseStyles.message}>
-                <MessageContent message={message} />
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+          <ScrollView
+            ref={scrollViewRef}
+            style={baseStyles.messageList}
+            contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
+          >
+            {messages.map((message: Message) => (
+              <TouchableOpacity
+                key={message.id}
+                onPress={() => copyToClipboard(message.content)}
+                activeOpacity={1}
+              >
+                <View style={baseStyles.message}>
+                  <MessageContent message={message} />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-        {isLoading && (
-          <Image
-            source={require("../../assets/images/Thinking-Animation.gif")}
-            style={{
-              position: "absolute",
-              top: 18,
-              right: 10,
-              width: 40,
-              height: 40,
-              zIndex: 1000,
-            }}
-          />
-        )}
-      </KeyboardAvoidingView>
-    </View>
+          {isLoading && (
+            <Image
+              source={require("../../assets/images/Thinking-Animation.gif")}
+              style={{
+                position: "absolute",
+                top: 18,
+                right: 10,
+                width: 40,
+                height: 40,
+                zIndex: 1000,
+              }}
+            />
+          )}
+        </KeyboardAvoidingView>
+      </View>
+    </TouchableWithoutFeedback>
   )
 })
