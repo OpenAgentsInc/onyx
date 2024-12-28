@@ -73,6 +73,7 @@ export const ChatBar = () => {
             {expanded && (
               <TextInput
                 autoFocus
+                spellCheck={false}
                 multiline
                 style={{
                   color: "white",
@@ -119,19 +120,15 @@ export const ChatBar = () => {
               />
             )}
 
-            <Pressable 
+            <Pressable
               onPress={handleSendPress}
-              style={{ 
+              style={{
                 backgroundColor: text.trim() ? "white" : "transparent",
                 borderRadius: 12,
                 padding: 4,
               }}
             >
-              <AntDesign 
-                name="arrowup" 
-                size={20} 
-                color={text.trim() ? "black" : "#666"} 
-              />
+              <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
             </Pressable>
           </View>
         </Pressable>
