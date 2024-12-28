@@ -56,9 +56,9 @@ export const ChatBar = () => {
           borderRadius: 20,
           marginHorizontal: 20,
           backgroundColor: colors.background,
-          padding: 10,
+          paddingBottom: 10,
           paddingHorizontal: 14,
-          height: expanded ? Math.max(50, Math.min(height + 30, 300)) : 50,
+          height: expanded ? Math.max(50, Math.min(height + 16, 300)) : 50,
           marginBottom: insets.bottom,
         }}
       >
@@ -70,7 +70,7 @@ export const ChatBar = () => {
             alignItems: "flex-end",
           }}
         >
-          <Pressable onPress={handleMicPress} style={{ marginRight: 12, paddingBottom: 2 }}>
+          <Pressable onPress={handleMicPress} style={{ marginRight: 16, paddingBottom: 5 }}>
             <FontAwesome name="microphone" size={20} color="#666" />
           </Pressable>
 
@@ -84,8 +84,8 @@ export const ChatBar = () => {
                 color: "white",
                 fontSize: 16,
                 fontFamily: typography.primary.normal,
-                maxHeight: 240,
-                paddingBottom: 4,
+                // maxHeight: 240,
+                paddingBottom: 5,
               }}
               onContentSizeChange={updateSize}
               placeholder="Message"
