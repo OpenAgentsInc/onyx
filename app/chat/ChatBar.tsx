@@ -55,9 +55,9 @@ export const ChatBar = () => {
           marginBottom: insets.bottom,
         }}
       >
-        <Pressable 
+        <Pressable
           onPress={() => setExpanded(true)}
-          style={{ 
+          style={{
             flex: 1,
             flexDirection: "column",
           }}
@@ -80,14 +80,16 @@ export const ChatBar = () => {
             )}
           </View>
 
-          <View style={{ 
-            flexDirection: "row",
-            alignItems: "center",
-            minHeight: 24,
-            justifyContent: "space-between"
-          }}>
-            <View style={{ width: 24 }} />
-            
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              minHeight: 24,
+              justifyContent: "space-between",
+            }}
+          >
+            {/* <View style={{ width: 24 }} /> */}
+
             {!expanded && (
               <TextInput
                 pointerEvents="none"
