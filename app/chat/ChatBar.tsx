@@ -44,10 +44,6 @@ export const ChatBar = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? -20 : 0}
       style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
         paddingBottom: expanded ? 8 : 30,
       }}
     >
@@ -60,7 +56,6 @@ export const ChatBar = () => {
           paddingHorizontal: 14,
           height: expanded ? Math.max(50, Math.min(height + 16, 300)) : 50,
           marginBottom: insets.bottom,
-          zIndex: 700,
         }}
       >
         <Pressable
