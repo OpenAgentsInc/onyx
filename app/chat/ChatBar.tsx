@@ -46,7 +46,7 @@ export const ChatBar = () => {
           backgroundColor: "#111",
           padding: 10,
           paddingHorizontal: 14,
-          height: expanded ? Math.min(height + 44, 300) : 40,
+          height: expanded ? Math.min(height + 54, 300) : 40,
           marginBottom: insets.bottom,
         }}
       >
@@ -73,7 +73,6 @@ export const ChatBar = () => {
                   alignItems: "center",
                   height: 34,
                   paddingTop: 10,
-                  paddingBottom: 10,
                 }}
               >
                 <AntDesign name="plus" size={24} color="#666" />
