@@ -1,29 +1,21 @@
 import { useState, useEffect } from "react"
-import { Pressable, View, TextInput, KeyboardAvoidingView, Platform, Keyboard, EmitterSubscription } from "react-native"
+import { Pressable, View, TextInput, KeyboardAvoidingView, Platform, Keyboard } from "react-native"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
 
 export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
-  const [inputHeight, setInputHeight] = useState(24) // Initial height for one line
   
   useEffect(() => {
     const eventName = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide'
     const keyboardListener = Keyboard.addListener(eventName, () => {
       setExpanded(false)
-      setInputHeight(24) // Reset height when collapsed
     })
 
     return () => {
       keyboardListener.remove()
     }
   }, [])
-
-  const onContentSizeChange = (event) => {
-    const height = event.nativeEvent.contentSize.height
-    // Cap the height at approximately 10 lines (24px per line)
-    setInputHeight(Math.min(height, 240))
-  }
 
   return (
     <KeyboardAvoidingView
@@ -34,14 +26,13 @@ export const ChatBar = () => {
         bottom: 0,
         left: 0,
         right: 0,
-        height: expanded ? 140 : 70,
       }}
     >
       <Pressable onPress={() => setExpanded(true)}>
         <View
           style={{
             minHeight: expanded ? 80 : 40,
-            maxHeight: expanded ? 296 : 40, // 296 = 240 (max text) + padding + icons
+            maxHeight: expanded ? 300 : 40,
             borderRadius: 20,
             marginBottom: expanded ? 0 : 30,
             marginLeft: 20,
@@ -55,22 +46,22 @@ export const ChatBar = () => {
               <TextInput
                 autoFocus
                 multiline
+                maxLength={1000}
                 style={{
                   color: "white",
                   fontSize: 16,
                   fontFamily: typography.primary.normal,
-                  height: inputHeight,
+                  maxHeight: 240, // Max 10 lines approximately
                 }}
                 placeholder="Type a message..."
                 placeholderTextColor="#666"
-                onContentSizeChange={onContentSizeChange}
               />
               <View
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  paddingTop: 10,
+                  marginTop: 10,
                 }}
               >
                 <AntDesign name="plus" size={24} color="#666" />
