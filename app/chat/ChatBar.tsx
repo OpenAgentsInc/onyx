@@ -27,11 +27,13 @@ export const ChatBar = () => {
     setHeight(newHeight)
   }
 
-  const handleMicPress = () => {
+  const handleMicPress = (e) => {
+    e.stopPropagation()
     console.log("Microphone pressed")
   }
 
-  const handlePlusPress = () => {
+  const handlePlusPress = (e) => {
+    e.stopPropagation()
     console.log("Plus button pressed")
   }
 
@@ -47,7 +49,8 @@ export const ChatBar = () => {
         paddingBottom: expanded ? 8 : 30,
       }}
     >
-      <View
+      <Pressable 
+        onPress={() => setExpanded(true)}
         style={{
           borderRadius: 20,
           marginHorizontal: 20,
@@ -63,10 +66,7 @@ export const ChatBar = () => {
             <AntDesign name="plus" size={24} color="#666" />
           </Pressable>
           
-          <Pressable 
-            onPress={() => setExpanded(true)} 
-            style={{ flex: 1, justifyContent: "center" }}
-          >
+          <View style={{ flex: 1, justifyContent: "center" }}>
             {expanded ? (
               <>
                 <TextInput
@@ -104,13 +104,13 @@ export const ChatBar = () => {
                 placeholderTextColor="#666"
               />
             )}
-          </Pressable>
+          </View>
 
           <Pressable onPress={handleMicPress} style={{ marginLeft: 8 }}>
             <FontAwesome name="microphone" size={24} color="#666" />
           </Pressable>
         </View>
-      </View>
+      </Pressable>
     </KeyboardAvoidingView>
   )
 }
