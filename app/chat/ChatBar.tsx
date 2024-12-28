@@ -88,7 +88,7 @@ export const ChatBar = () => {
               justifyContent: "space-between",
             }}
           >
-            {/* <View style={{ width: 24 }} /> */}
+            <View style={{ width: 1 }} />
 
             {!expanded && (
               <TextInput
@@ -98,6 +98,7 @@ export const ChatBar = () => {
                   flex: 1,
                   color: "#666",
                   fontSize: 16,
+                  marginTop: -3,
                   fontFamily: typography.primary.normal,
                 }}
                 placeholder="Message"
