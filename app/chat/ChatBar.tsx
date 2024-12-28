@@ -5,17 +5,24 @@ import { typography } from "../theme/typography"
 
 export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
+  const [height, setHeight] = useState(0)
   
   useEffect(() => {
     const eventName = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide'
     const keyboardListener = Keyboard.addListener(eventName, () => {
       setExpanded(false)
+      setHeight(0)
     })
 
     return () => {
       keyboardListener.remove()
     }
   }, [])
+
+  const updateSize = (event) => {
+    const newHeight = Math.min(event.nativeEvent.contentSize.height, 240)
+    setHeight(newHeight)
+  }
 
   return (
     <KeyboardAvoidingView
@@ -32,7 +39,7 @@ export const ChatBar = () => {
         <View
           style={{
             minHeight: expanded ? 80 : 40,
-            maxHeight: expanded ? 300 : 40,
+            maxHeight: expanded ? (height + 80) : 40,
             borderRadius: 20,
             marginBottom: expanded ? 0 : 30,
             marginLeft: 20,
@@ -46,16 +53,13 @@ export const ChatBar = () => {
               <TextInput
                 autoFocus
                 multiline
-                numberOfLines={1}
-                maxLength={1000}
                 style={{
                   color: "white",
                   fontSize: 16,
                   fontFamily: typography.primary.normal,
                   minHeight: 24,
-                  maxHeight: 240,
                 }}
-                textAlignVertical="top"
+                onContentSizeChange={updateSize}
                 placeholder="Type a message..."
                 placeholderTextColor="#666"
               />
