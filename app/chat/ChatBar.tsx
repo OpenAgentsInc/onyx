@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Keyboard, KeyboardAvoidingView, Platform, Pressable, TextInput, View } from "react-native"
+import { Keyboard, Platform, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
@@ -40,91 +40,77 @@ export const ChatBar = () => {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? -20 : 0}
+    <View
       style={{
-        paddingBottom: expanded ? 8 : 30,
+        borderRadius: 20,
+        marginHorizontal: 20,
+        backgroundColor: colors.background,
+        paddingBottom: 10,
+        paddingHorizontal: 14,
+        height: expanded ? Math.max(50, Math.min(height + 16, 300)) : 50,
+        marginBottom: insets.bottom,
       }}
     >
       <Pressable
-        onPress={(e) => {
-          e.stopPropagation()
-          setExpanded(true)
+        onPress={() => setExpanded(true)}
+        style={{
+          flex: 1,
+          flexDirection: "row",
+          alignItems: "flex-end",
         }}
       >
-        <View
-          style={{
-            borderRadius: 20,
-            marginHorizontal: 20,
-            backgroundColor: colors.background,
-            paddingBottom: 10,
-            paddingHorizontal: 14,
-            height: expanded ? Math.max(50, Math.min(height + 16, 300)) : 50,
-            marginBottom: insets.bottom,
-          }}
-        >
-          <View
+        <Pressable onPress={handleMicPress} style={{ marginRight: 16, paddingBottom: 5 }}>
+          <FontAwesome name="microphone" size={20} color="#666" />
+        </Pressable>
+
+        {expanded ? (
+          <TextInput
+            autoFocus
+            spellCheck={false}
+            multiline
             style={{
               flex: 1,
-              flexDirection: "row",
-              alignItems: "flex-end",
+              color: "white",
+              fontSize: 16,
+              fontFamily: typography.primary.normal,
+              paddingBottom: 5,
             }}
-          >
-            <Pressable onPress={handleMicPress} style={{ marginRight: 16, paddingBottom: 5 }}>
-              <FontAwesome name="microphone" size={20} color="#666" />
-            </Pressable>
+            onContentSizeChange={updateSize}
+            placeholder="Message"
+            placeholderTextColor="#666"
+            onChangeText={setText}
+            value={text}
+          />
+        ) : (
+          <TextInput
+            pointerEvents="none"
+            editable={false}
+            style={{
+              flex: 1,
+              color: "white",
+              fontSize: 16,
+              fontFamily: typography.primary.normal,
+              paddingBottom: 4,
+            }}
+            placeholder="Message"
+            placeholderTextColor="#666"
+            value={text}
+          />
+        )}
 
-            {expanded ? (
-              <TextInput
-                autoFocus
-                spellCheck={false}
-                multiline
-                style={{
-                  flex: 1,
-                  color: "white",
-                  fontSize: 16,
-                  fontFamily: typography.primary.normal,
-                  paddingBottom: 5,
-                }}
-                onContentSizeChange={updateSize}
-                placeholder="Message"
-                placeholderTextColor="#666"
-                onChangeText={setText}
-                value={text}
-              />
-            ) : (
-              <TextInput
-                pointerEvents="none"
-                editable={false}
-                style={{
-                  flex: 1,
-                  color: "white",
-                  fontSize: 16,
-                  fontFamily: typography.primary.normal,
-                  paddingBottom: 4,
-                }}
-                placeholder="Message"
-                placeholderTextColor="#666"
-                value={text}
-              />
-            )}
-
-            <Pressable
-              onPress={handleSendPress}
-              style={{
-                backgroundColor: text.trim() ? "white" : "transparent",
-                borderRadius: 12,
-                padding: 4,
-                marginLeft: 12,
-                marginBottom: 2,
-              }}
-            >
-              <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
-            </Pressable>
-          </View>
-        </View>
+        <Pressable
+          onPress={handleSendPress}
+          style={{
+            backgroundColor: text.trim() ? "white" : "transparent",
+            borderRadius: 12,
+            padding: 4,
+            marginLeft: 12,
+            marginBottom: 2,
+          }}
+        >
+          <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
+        </Pressable>
       </Pressable>
-    </KeyboardAvoidingView>
+    </View>
   )
 }
