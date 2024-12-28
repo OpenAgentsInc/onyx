@@ -66,71 +66,58 @@ export const ChatBar = () => {
           onPress={() => setExpanded(true)}
           style={{
             flex: 1,
-            flexDirection: "column",
+            flexDirection: "row",
+            alignItems: "center",
           }}
         >
-          <View style={{ flex: 1 }}>
-            {expanded && (
-              <TextInput
-                autoFocus
-                spellCheck={false}
-                multiline
-                style={{
-                  color: "white",
-                  fontSize: 16,
-                  fontFamily: typography.primary.normal,
-                  maxHeight: 240,
-                  paddingLeft: 32,
-                }}
-                onContentSizeChange={updateSize}
-                placeholder="Message"
-                placeholderTextColor="#666"
-                onChangeText={setText}
-                value={text}
-              />
-            )}
-          </View>
+          <Pressable onPress={handleMicPress} style={{ marginRight: 12 }}>
+            <FontAwesome name="microphone" size={20} color="#666" />
+          </Pressable>
 
-          <View
+          {expanded ? (
+            <TextInput
+              autoFocus
+              spellCheck={false}
+              multiline
+              style={{
+                flex: 1,
+                color: "white",
+                fontSize: 16,
+                fontFamily: typography.primary.normal,
+                maxHeight: 240,
+              }}
+              onContentSizeChange={updateSize}
+              placeholder="Message"
+              placeholderTextColor="#666"
+              onChangeText={setText}
+              value={text}
+            />
+          ) : (
+            <TextInput
+              pointerEvents="none"
+              editable={false}
+              style={{
+                flex: 1,
+                color: colors.background,
+                fontSize: 16,
+                fontFamily: typography.primary.normal,
+              }}
+              placeholder="Message"
+              placeholderTextColor="#666"
+            />
+          )}
+
+          <Pressable
+            onPress={handleSendPress}
             style={{
-              flexDirection: "row",
-              alignItems: "center",
-              minHeight: 24,
-              justifyContent: "space-between",
+              backgroundColor: text.trim() ? "white" : "transparent",
+              borderRadius: 12,
+              padding: 4,
+              marginLeft: 12,
             }}
           >
-            <Pressable onPress={handleMicPress}>
-              <FontAwesome name="microphone" size={20} color="#666" />
-            </Pressable>
-
-            {!expanded && (
-              <TextInput
-                pointerEvents="none"
-                editable={false}
-                style={{
-                  flex: 1,
-                  color: colors.background,
-                  fontSize: 16,
-                  marginTop: -3,
-                  fontFamily: typography.primary.normal,
-                  paddingLeft: 32,
-                }}
-                placeholder="Message"
-                placeholderTextColor="#666"
-              />
-            )}
-
-            <Pressable
-              onPress={handleSendPress}
-              style={{
-                backgroundColor: text.trim() ? "white" : "transparent",
-                borderRadius: 12,
-                padding: 4,
-              }}
-            >
-              <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
-            </Pressable>
-          </View>
+            <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
+          </Pressable>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
