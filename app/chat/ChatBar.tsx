@@ -84,7 +84,6 @@ export const ChatBar = () => {
                 color: "white",
                 fontSize: 16,
                 fontFamily: typography.primary.normal,
-                // maxHeight: 240,
                 paddingBottom: 5,
               }}
               onContentSizeChange={updateSize}
@@ -99,13 +98,14 @@ export const ChatBar = () => {
               editable={false}
               style={{
                 flex: 1,
-                color: colors.background,
+                color: "white",
                 fontSize: 16,
                 fontFamily: typography.primary.normal,
                 paddingBottom: 4,
               }}
               placeholder="Message"
               placeholderTextColor="#666"
+              value={text}
             />
           )}
 
