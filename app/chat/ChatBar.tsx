@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react"
-import { Pressable, View, TextInput, KeyboardAvoidingView, Platform, Keyboard } from "react-native"
+import { useEffect, useState } from "react"
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, TextInput, View } from "react-native"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
 
 export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
   const [height, setHeight] = useState(24)
-  
+
   useEffect(() => {
-    const eventName = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide'
+    const eventName = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide"
     const keyboardListener = Keyboard.addListener(eventName, () => {
       setExpanded(false)
       setHeight(24)
@@ -43,6 +43,7 @@ export const ChatBar = () => {
           backgroundColor: "#111",
           padding: 10,
           height: expanded ? Math.min(height + 44, 300) : 40,
+          marginBottom: 20,
         }}
       >
         <Pressable onPress={() => setExpanded(true)} style={{ flex: 1 }}>
