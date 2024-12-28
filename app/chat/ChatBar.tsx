@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from "react"
-import { Keyboard, KeyboardAvoidingView, Platform, Pressable, TextInput, View, Animated } from "react-native"
+import { useEffect, useState } from "react"
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
@@ -9,8 +9,6 @@ export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
   const [height, setHeight] = useState(24)
   const [text, setText] = useState("")
-  const translateY = useRef(new Animated.Value(0)).current
-  const inputRef = useRef(null)
 
   const insets = useSafeAreaInsets()
 
@@ -19,11 +17,6 @@ export const ChatBar = () => {
     const keyboardListener = Keyboard.addListener(eventName, () => {
       setExpanded(false)
       setHeight(24)
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start()
     })
 
     return () => {
@@ -31,24 +24,9 @@ export const ChatBar = () => {
     }
   }, [])
 
-  useEffect(() => {
-    if (expanded) {
-      Animated.timing(translateY, {
-        toValue: -10,
-        duration: 200,
-        useNativeDriver: true,
-      }).start()
-    }
-  }, [expanded])
-
   const updateSize = (event) => {
     const newHeight = Math.min(event.nativeEvent.contentSize.height, 240)
     setHeight(newHeight)
-  }
-
-  const handlePress = () => {
-    setExpanded(true)
-    inputRef.current?.focus()
   }
 
   const handleMicPress = (e) => {
@@ -85,52 +63,29 @@ export const ChatBar = () => {
         }}
       >
         <Pressable
-          onPress={handlePress}
+          onPress={() => setExpanded(true)}
           style={{
             flex: 1,
             flexDirection: "column",
           }}
         >
           <View style={{ flex: 1 }}>
-            {expanded ? (
-              <Animated.View
-                style={{
-                  flex: 1,
-                  transform: [{ translateY }],
-                }}
-              >
-                <TextInput
-                  ref={inputRef}
-                  autoFocus
-                  multiline
-                  style={{
-                    flex: 1,
-                    color: "white",
-                    fontSize: 16,
-                    fontFamily: typography.primary.normal,
-                    maxHeight: 240,
-                    paddingLeft: 32,
-                  }}
-                  onContentSizeChange={updateSize}
-                  placeholder="Message"
-                  placeholderTextColor="#666"
-                  onChangeText={setText}
-                  value={text}
-                />
-              </Animated.View>
-            ) : (
+            {expanded && (
               <TextInput
-                pointerEvents="none"
-                editable={false}
+                autoFocus
+                multiline
                 style={{
-                  flex: 1,
-                  color: colors.background,
+                  color: "white",
                   fontSize: 16,
                   fontFamily: typography.primary.normal,
+                  maxHeight: 240,
                   paddingLeft: 32,
                 }}
+                onContentSizeChange={updateSize}
                 placeholder="Message"
                 placeholderTextColor="#666"
+                onChangeText={setText}
+                value={text}
               />
             )}
           </View>
@@ -140,20 +95,32 @@ export const ChatBar = () => {
               flexDirection: "row",
               alignItems: "center",
               minHeight: 24,
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
+              justifyContent: "space-between",
             }}
           >
             <Pressable onPress={handleMicPress}>
               <FontAwesome name="microphone" size={20} color="#666" />
             </Pressable>
 
-            <View style={{ flex: 1 }} />
+            {!expanded && (
+              <TextInput
+                pointerEvents="none"
+                editable={false}
+                style={{
+                  flex: 1,
+                  color: colors.background,
+                  fontSize: 16,
+                  marginTop: -3,
+                  fontFamily: typography.primary.normal,
+                  paddingLeft: 32,
+                }}
+                placeholder="Message"
+                placeholderTextColor="#666"
+              />
+            )}
 
             <Pressable 
-              onPress={handleSendPress} 
+              onPress={handleSendPress}
               style={{ 
                 backgroundColor: text.trim() ? "white" : "transparent",
                 borderRadius: 12,
