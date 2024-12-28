@@ -27,6 +27,14 @@ export const ChatBar = () => {
     setHeight(newHeight)
   }
 
+  const handleMicPress = () => {
+    console.log("Microphone pressed")
+  }
+
+  const handlePlusPress = () => {
+    console.log("Plus button pressed")
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -50,37 +58,58 @@ export const ChatBar = () => {
           marginBottom: insets.bottom,
         }}
       >
-        <Pressable onPress={() => setExpanded(true)} style={{ flex: 1 }}>
-          {expanded ? (
-            <>
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+          <Pressable onPress={handlePlusPress} style={{ marginRight: 8 }}>
+            <AntDesign name="plus" size={24} color="#666" />
+          </Pressable>
+          
+          <Pressable 
+            onPress={() => setExpanded(true)} 
+            style={{ flex: 1, justifyContent: "center" }}
+          >
+            {expanded ? (
+              <>
+                <TextInput
+                  autoFocus
+                  multiline
+                  style={{
+                    color: "white",
+                    fontSize: 16,
+                    fontFamily: typography.primary.normal,
+                    maxHeight: 240,
+                  }}
+                  onContentSizeChange={updateSize}
+                  placeholder="Message"
+                  placeholderTextColor="#666"
+                />
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    height: 34,
+                    paddingTop: 10,
+                  }}
+                />
+              </>
+            ) : (
               <TextInput
-                autoFocus
-                multiline
+                editable={false}
                 style={{
-                  color: "white",
+                  color: "#666",
                   fontSize: 16,
                   fontFamily: typography.primary.normal,
-                  maxHeight: 240,
                 }}
-                onContentSizeChange={updateSize}
                 placeholder="Message"
                 placeholderTextColor="#666"
               />
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  height: 34,
-                  paddingTop: 10,
-                }}
-              >
-                <AntDesign name="plus" size={24} color="#666" />
-                <FontAwesome name="microphone" size={24} color="#666" />
-              </View>
-            </>
-          ) : null}
-        </Pressable>
+            )}
+          </Pressable>
+
+          <Pressable onPress={handleMicPress} style={{ marginLeft: 8 }}>
+            <FontAwesome name="microphone" size={24} color="#666" />
+          </Pressable>
+        </View>
       </View>
     </KeyboardAvoidingView>
   )
