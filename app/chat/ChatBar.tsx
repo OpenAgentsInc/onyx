@@ -1,13 +1,20 @@
-import { useState } from "react"
-import { Pressable, View, TextInput, KeyboardAvoidingView, Platform, Keyboard } from "react-native"
+import { useState, useEffect } from "react"
+import { Pressable, View, TextInput, KeyboardAvoidingView, Platform, Keyboard, EmitterSubscription } from "react-native"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 
 export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
   
-  Keyboard.addListener('keyboardDidHide', () => {
-    setExpanded(false)
-  })
+  useEffect(() => {
+    const eventName = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide'
+    const keyboardListener = Keyboard.addListener(eventName, () => {
+      setExpanded(false)
+    })
+
+    return () => {
+      keyboardListener.remove()
+    }
+  }, [])
 
   return (
     <KeyboardAvoidingView
