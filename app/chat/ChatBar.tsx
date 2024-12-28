@@ -32,11 +32,6 @@ export const ChatBar = () => {
     console.log("Microphone pressed")
   }
 
-  const handlePlusPress = (e) => {
-    e.stopPropagation()
-    console.log("Plus button pressed")
-  }
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -89,10 +84,9 @@ export const ChatBar = () => {
             flexDirection: "row",
             alignItems: "center",
             minHeight: 24,
+            justifyContent: "space-between"
           }}>
-            <Pressable onPress={handlePlusPress} style={{ marginRight: 8 }}>
-              <AntDesign name="plus" size={24} color="#666" />
-            </Pressable>
+            <View style={{ width: 24 }} />
             
             {!expanded && (
               <TextInput
@@ -109,7 +103,7 @@ export const ChatBar = () => {
               />
             )}
 
-            <Pressable onPress={handleMicPress} style={{ marginLeft: 8 }}>
+            <Pressable onPress={handleMicPress}>
               <FontAwesome name="microphone" size={24} color="#666" />
             </Pressable>
           </View>
