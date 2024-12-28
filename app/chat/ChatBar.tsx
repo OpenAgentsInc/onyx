@@ -67,10 +67,10 @@ export const ChatBar = () => {
           style={{
             flex: 1,
             flexDirection: "row",
-            alignItems: "center",
+            alignItems: "flex-end",
           }}
         >
-          <Pressable onPress={handleMicPress} style={{ marginRight: 12 }}>
+          <Pressable onPress={handleMicPress} style={{ marginRight: 12, paddingBottom: 2 }}>
             <FontAwesome name="microphone" size={20} color="#666" />
           </Pressable>
 
@@ -85,6 +85,7 @@ export const ChatBar = () => {
                 fontSize: 16,
                 fontFamily: typography.primary.normal,
                 maxHeight: 240,
+                paddingBottom: 4,
               }}
               onContentSizeChange={updateSize}
               placeholder="Message"
@@ -101,6 +102,7 @@ export const ChatBar = () => {
                 color: colors.background,
                 fontSize: 16,
                 fontFamily: typography.primary.normal,
+                paddingBottom: 4,
               }}
               placeholder="Message"
               placeholderTextColor="#666"
@@ -114,6 +116,7 @@ export const ChatBar = () => {
               borderRadius: 12,
               padding: 4,
               marginLeft: 12,
+              marginBottom: 2,
             }}
           >
             <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
