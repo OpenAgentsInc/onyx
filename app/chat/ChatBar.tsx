@@ -1,12 +1,13 @@
 import { useState } from "react"
-import { Pressable, View, TextInput } from "react-native"
+import { Pressable, View, TextInput, KeyboardAvoidingView, Platform } from "react-native"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 
 export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
   
   return (
-    <View
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{
         position: "absolute",
         bottom: 0,
@@ -46,8 +47,6 @@ export const ChatBar = () => {
                   justifyContent: "space-between",
                   alignItems: "center",
                   paddingTop: 10,
-                  borderTopWidth: 1,
-                  borderTopColor: "#222",
                 }}
               >
                 <AntDesign name="plus" size={24} color="#666" />
@@ -57,6 +56,6 @@ export const ChatBar = () => {
           ) : null}
         </View>
       </Pressable>
-    </View>
+    </KeyboardAvoidingView>
   )
 }
