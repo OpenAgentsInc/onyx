@@ -43,13 +43,8 @@ export const ChatBar = () => {
 
   const updateSize = (event) => {
     const newHeight = Math.min(event.nativeEvent.contentSize.height, 240)
-    console.log("updateSize", newHeight, "current height:", height)
     setHeight(newHeight)
   }
-
-  useEffect(() => {
-    console.log("height changed to:", height)
-  }, [height])
 
   const handlePress = () => {
     setExpanded(true)
@@ -65,9 +60,6 @@ export const ChatBar = () => {
     e.stopPropagation()
     console.log("Send pressed")
   }
-
-  const containerHeight = expanded ? Math.max(50, height + 26) : 50
-  console.log("containerHeight:", containerHeight)
 
   return (
     <KeyboardAvoidingView
@@ -88,7 +80,7 @@ export const ChatBar = () => {
           backgroundColor: colors.background,
           padding: 10,
           paddingHorizontal: 14,
-          height: containerHeight,
+          height: expanded ? Math.min(height + 54, 300) : 50,
           marginBottom: insets.bottom,
         }}
       >
@@ -97,42 +89,72 @@ export const ChatBar = () => {
           style={{
             flex: 1,
             flexDirection: "column",
-            justifyContent: "center",
           }}
         >
-          <Animated.View 
-            style={{ 
-              flex: 1,
+          <View style={{ flex: 1 }}>
+            {expanded ? (
+              <Animated.View
+                style={{
+                  flex: 1,
+                  transform: [{ translateY }],
+                }}
+              >
+                <TextInput
+                  ref={inputRef}
+                  autoFocus
+                  multiline
+                  style={{
+                    flex: 1,
+                    color: "white",
+                    fontSize: 16,
+                    fontFamily: typography.primary.normal,
+                    maxHeight: 240,
+                    paddingLeft: 32,
+                  }}
+                  onContentSizeChange={updateSize}
+                  placeholder="Message"
+                  placeholderTextColor="#666"
+                  onChangeText={setText}
+                  value={text}
+                />
+              </Animated.View>
+            ) : (
+              <TextInput
+                pointerEvents="none"
+                editable={false}
+                style={{
+                  flex: 1,
+                  color: colors.background,
+                  fontSize: 16,
+                  fontFamily: typography.primary.normal,
+                  paddingLeft: 32,
+                }}
+                placeholder="Message"
+                placeholderTextColor="#666"
+              />
+            )}
+          </View>
+
+          <View
+            style={{
               flexDirection: "row",
               alignItems: "center",
-              transform: [{ translateY }],
+              minHeight: 24,
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
             }}
           >
-            <Pressable onPress={handleMicPress} style={{ marginRight: 8 }}>
+            <Pressable onPress={handleMicPress}>
               <FontAwesome name="microphone" size={20} color="#666" />
             </Pressable>
 
-            <TextInput
-              ref={inputRef}
-              multiline
-              style={{
-                flex: 1,
-                color: "white",
-                fontSize: 16,
-                fontFamily: typography.primary.normal,
-                paddingLeft: 24,
-              }}
-              onContentSizeChange={updateSize}
-              placeholder="Message"
-              placeholderTextColor="#666"
-              onChangeText={setText}
-              value={text}
-            />
+            <View style={{ flex: 1 }} />
 
             <Pressable 
               onPress={handleSendPress} 
               style={{ 
-                marginLeft: 8,
                 backgroundColor: text.trim() ? "white" : "transparent",
                 borderRadius: 12,
                 padding: 4,
@@ -144,7 +166,7 @@ export const ChatBar = () => {
                 color={text.trim() ? "black" : "#666"} 
               />
             </Pressable>
-          </Animated.View>
+          </View>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
