@@ -13,7 +13,17 @@
     ├── types.ts
   ├── chat
     ├── Chat.tsx
+    ├── ChatBar.tsx
+    ├── ChatDrawerContainer.tsx
     ├── ChatDrawerContent.tsx
+    ├── ChatOverlay.tsx
+    ├── markdown
+      ├── MessageContent.tsx
+      ├── MessageContentPrev.tsx
+      ├── ToolInvocation.tsx
+      ├── index.ts
+      ├── styles.ts
+    ├── styles.ts
   ├── config
     ├── config.base.ts
     ├── config.dev.ts
@@ -26,6 +36,7 @@
     ├── ReactotronConfig.ts
   ├── hooks
     ├── useAutoUpdate.ts
+    ├── useChat.ts
     ├── useVoicePermissions.ts
   ├── models
     ├── RootStore.ts
@@ -36,6 +47,7 @@
       ├── withSetPropAction.ts
     ├── chat
       ├── ChatActions.ts
+      ├── ChatStorage.ts
       ├── ChatStore.ts
       ├── index.ts
     ├── coder
@@ -50,7 +62,6 @@
   ├── onyx
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
-    ├── ChatOverlay.tsx
     ├── ChatOverlayPrev.tsx
     ├── ConfigureModal.tsx
     ├── OnyxLayout.tsx
@@ -128,6 +139,7 @@
 ├── docs
   ├── DocsNewNavigation.md
   ├── ai-design-language.md
+  ├── chat-persistence.md
   ├── data-marketplace.md
   ├── gemini-function-calling.md
   ├── gemini.md
