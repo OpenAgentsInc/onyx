@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Pressable, View, TextInput, KeyboardAvoidingView, Platform, Keyboard, EmitterSubscription } from "react-native"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
+import { typography } from "../theme/typography"
 
 export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
@@ -49,9 +50,13 @@ export const ChatBar = () => {
                   color: "white",
                   flex: 1,
                   fontSize: 16,
+                  fontFamily: typography.primary.normal,
                 }}
                 placeholder="Type a message..."
                 placeholderTextColor="#666"
+                placeholderStyle={{
+                  fontFamily: typography.primary.normal,
+                }}
               />
               <View
                 style={{
