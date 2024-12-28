@@ -1,7 +1,7 @@
 import { View } from "react-native"
 import { useChat } from "@/hooks/useChat"
-import { ChatOverlay } from "@/onyx/ChatOverlay"
 import { ChatBar } from "./ChatBar"
+import { ChatOverlay } from "./ChatOverlay"
 
 export const Chat = () => {
   const { isLoading, messages } = useChat()

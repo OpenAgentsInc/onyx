@@ -13,7 +13,6 @@ export function useChat() {
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: Config.NEXUS_URL,
     body: {
-      // Only include GitHub token and tools if we have a token and at least one tool enabled
       ...(coderStore.githubToken &&
         chatStore.enabledTools.length > 0 && {
         githubToken: coderStore.githubToken,
@@ -33,10 +32,7 @@ export function useChat() {
       // console.log("TOOL CALL", toolCall)
     },
     onFinish: (message, options) => {
-      // console.log("FINISH", { message, options })
       chatStore.setIsGenerating(false)
-
-      // Add assistant message to store
       if (message.role === "assistant") {
         chatStore.addMessage({
           role: "assistant",
@@ -48,7 +44,6 @@ export function useChat() {
             toolInvocations: pendingToolInvocations.current,
           },
         })
-        // Clear pending tool invocations
         pendingToolInvocations.current = []
       }
     },
@@ -57,69 +52,71 @@ export function useChat() {
   // Watch messages for tool invocations
   useEffect(() => {
     const lastMessage = aiMessages[aiMessages.length - 1]
-    // handle unfined
-    if (!lastMessage || !lastMessage.toolInvocations) {
-      return
-    }
+    if (!lastMessage || !lastMessage.toolInvocations) return
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations?.length > 0) {
       console.log("Found tool invocations:", lastMessage.toolInvocations)
       pendingToolInvocations.current = lastMessage.toolInvocations
     }
   }, [aiMessages])
 
-  // Sync store messages with local state
+  // Sync store messages with local state - with memoization to prevent unnecessary updates
   useEffect(() => {
     const storedMessages = chatStore.currentMessages
-    const chatMessages: Message[] = storedMessages.map((msg) => ({
+    const chatMessages = storedMessages.map((msg) => ({
       id: msg.id,
       role: msg.role as "user" | "assistant" | "system",
       content: msg.content,
       createdAt: new Date(msg.createdAt),
-      // Restore tool invocations if they exist
       ...(msg.metadata?.toolInvocations
         ? {
           toolInvocations: msg.metadata.toolInvocations,
         }
         : {}),
     }))
-    setLocalMessages(chatMessages)
+
+    // Only update if messages have actually changed
+    if (JSON.stringify(chatMessages) !== JSON.stringify(localMessages)) {
+      setLocalMessages(chatMessages)
+    }
   }, [chatStore.currentMessages])
 
-  // Load persisted messages when conversation changes
+  // Load persisted messages when conversation changes - with cleanup
   useEffect(() => {
-    const loadMessages = async () => {
-      // First clear the useChat messages
-      setMessages([])
+    let mounted = true
 
-      // Then load the persisted messages from store
+    const loadMessages = async () => {
+      if (!mounted) return
+
+      setMessages([])
       const storedMessages = chatStore.currentMessages
       if (storedMessages.length > 0) {
-        // Convert store messages to useChat format
-        const chatMessages: Message[] = storedMessages.map((msg) => ({
+        const chatMessages = storedMessages.map((msg) => ({
           id: msg.id,
           role: msg.role as "user" | "assistant" | "system",
           content: msg.content,
           createdAt: new Date(msg.createdAt),
-          // Restore tool invocations if they exist
           ...(msg.metadata?.toolInvocations
             ? {
               toolInvocations: msg.metadata.toolInvocations,
             }
             : {}),
         }))
-        setMessages(chatMessages)
+        if (mounted) {
+          setMessages(chatMessages)
+        }
       }
     }
 
     loadMessages()
+
+    return () => {
+      mounted = false
+    }
   }, [chatStore.currentConversationId])
 
-
   const handleSendMessage = async (message: string) => {
-    // Reset pending tool invocations for new message
     pendingToolInvocations.current = []
 
-    // Add user message to store first
     chatStore.addMessage({
       role: "user",
       content: message,
@@ -128,10 +125,8 @@ export function useChat() {
       },
     })
 
-    // Set generating state
     chatStore.setIsGenerating(true)
 
-    // Send to AI
     await append({
       content: message,
       role: "user",
