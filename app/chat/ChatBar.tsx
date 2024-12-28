@@ -36,7 +36,7 @@ export const ChatBar = () => {
         bottom: 0,
         left: 0,
         right: 0,
-        paddingBottom: expanded ? 0 : 30,
+        paddingBottom: expanded ? 8 : 30,
       }}
     >
       <View
