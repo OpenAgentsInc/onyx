@@ -80,21 +80,20 @@ export const ChatBar = () => {
           backgroundColor: colors.background,
           padding: 10,
           paddingHorizontal: 14,
-          height: expanded ? Math.min(height + 30, 300) : 50,
+          minHeight: 50,
+          height: expanded ? "auto" : 50,
           marginBottom: insets.bottom,
         }}
       >
         <Pressable
           onPress={handlePress}
           style={{
-            flex: 1,
             flexDirection: "column",
-            justifyContent: "center",
+            minHeight: 30,
           }}
         >
           <Animated.View 
             style={{ 
-              flex: 1,
               flexDirection: "row",
               alignItems: "center",
               transform: [{ translateY }],
@@ -112,8 +111,8 @@ export const ChatBar = () => {
                 color: "white",
                 fontSize: 16,
                 fontFamily: typography.primary.normal,
-                maxHeight: 240,
                 paddingLeft: 24,
+                minHeight: 24,
               }}
               onContentSizeChange={expanded ? updateSize : undefined}
               placeholder="Message"
