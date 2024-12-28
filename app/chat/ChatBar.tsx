@@ -58,7 +58,7 @@ export const ChatBar = () => {
           backgroundColor: colors.background,
           padding: 10,
           paddingHorizontal: 14,
-          height: expanded ? Math.min(height + 54, 300) : 50,
+          height: 50,
           marginBottom: insets.bottom,
         }}
       >
@@ -84,7 +84,9 @@ export const ChatBar = () => {
                 color: "white",
                 fontSize: 16,
                 fontFamily: typography.primary.normal,
-                maxHeight: 240,
+                maxHeight: 24,
+                paddingTop: 0,
+                paddingBottom: 0,
               }}
               onContentSizeChange={updateSize}
               placeholder="Message"
