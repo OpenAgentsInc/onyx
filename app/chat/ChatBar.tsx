@@ -42,6 +42,7 @@ export const ChatBar = () => {
   }, [expanded])
 
   const updateSize = (event) => {
+    console.log("updateSize", event.nativeEvent.contentSize.height)
     const newHeight = Math.min(event.nativeEvent.contentSize.height, 240)
     setHeight(newHeight)
   }
@@ -81,19 +82,21 @@ export const ChatBar = () => {
           padding: 10,
           paddingHorizontal: 14,
           minHeight: 50,
-          height: expanded ? "auto" : 50,
+          height: expanded ? Math.min(height + 30, 300) : 50,
           marginBottom: insets.bottom,
         }}
       >
         <Pressable
           onPress={handlePress}
           style={{
+            flex: 1,
             flexDirection: "column",
-            minHeight: 30,
+            justifyContent: "center",
           }}
         >
           <Animated.View 
             style={{ 
+              flex: 1,
               flexDirection: "row",
               alignItems: "center",
               transform: [{ translateY }],
@@ -114,7 +117,7 @@ export const ChatBar = () => {
                 paddingLeft: 24,
                 minHeight: 24,
               }}
-              onContentSizeChange={expanded ? updateSize : undefined}
+              onContentSizeChange={updateSize}
               placeholder="Message"
               placeholderTextColor="#666"
               onChangeText={setText}
