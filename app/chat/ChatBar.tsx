@@ -27,7 +27,7 @@ export const ChatBar = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
       style={{
         position: "absolute",
         bottom: 0,
