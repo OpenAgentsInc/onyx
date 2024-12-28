@@ -5,17 +5,25 @@ import { typography } from "../theme/typography"
 
 export const ChatBar = () => {
   const [expanded, setExpanded] = useState(false)
+  const [inputHeight, setInputHeight] = useState(24) // Initial height for one line
   
   useEffect(() => {
     const eventName = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide'
     const keyboardListener = Keyboard.addListener(eventName, () => {
       setExpanded(false)
+      setInputHeight(24) // Reset height when collapsed
     })
 
     return () => {
       keyboardListener.remove()
     }
   }, [])
+
+  const onContentSizeChange = (event) => {
+    const height = event.nativeEvent.contentSize.height
+    // Cap the height at approximately 10 lines (24px per line)
+    setInputHeight(Math.min(height, 240))
+  }
 
   return (
     <KeyboardAvoidingView
@@ -32,7 +40,8 @@ export const ChatBar = () => {
       <Pressable onPress={() => setExpanded(true)}>
         <View
           style={{
-            height: expanded ? 80 : 40,
+            minHeight: expanded ? 80 : 40,
+            maxHeight: expanded ? 296 : 40, // 296 = 240 (max text) + padding + icons
             borderRadius: 20,
             marginBottom: expanded ? 0 : 30,
             marginLeft: 20,
@@ -48,15 +57,13 @@ export const ChatBar = () => {
                 multiline
                 style={{
                   color: "white",
-                  flex: 1,
                   fontSize: 16,
                   fontFamily: typography.primary.normal,
+                  height: inputHeight,
                 }}
                 placeholder="Type a message..."
                 placeholderTextColor="#666"
-                placeholderStyle={{
-                  fontFamily: typography.primary.normal,
-                }}
+                onContentSizeChange={onContentSizeChange}
               />
               <View
                 style={{
