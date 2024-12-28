@@ -1,7 +1,12 @@
 import { useState } from "react"
-import { Dimensions, TouchableOpacity, View, TouchableWithoutFeedback, Keyboard } from "react-native"
+import {
+  Dimensions,
+  Keyboard,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native"
 import { Drawer } from "react-native-drawer-layout"
-import { OnyxLayout } from "@/onyx/OnyxLayout"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import { Feather } from "@expo/vector-icons"
 import { ChatBar } from "./ChatBar"
@@ -23,10 +28,7 @@ export const Chat = () => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={[$drawerInsets, $container]}>
-          <TouchableOpacity
-            onPress={() => setOpen((prevOpen) => !prevOpen)}
-            style={$menuButton}
-          >
+          <TouchableOpacity onPress={() => setOpen((prevOpen) => !prevOpen)} style={$menuButton}>
             <Feather name="menu" size={24} color="white" />
           </TouchableOpacity>
           <View style={$chatContainer}>
