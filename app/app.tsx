@@ -14,11 +14,10 @@ import { ActivityIndicator, Alert, AppRegistry, View, ViewStyle } from "react-na
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
-import { Chat } from "./chat/Chat"
+import { ChatDrawerContainer } from "./chat/ChatDrawerContainer"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
-import { OnyxLayout } from "./onyx/OnyxLayout"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 
 global.Buffer = Buffer
@@ -52,7 +51,7 @@ function AppContents(props: AppProps) {
           <View style={$canvasContainer}>
             <Canvas />
           </View>
-          <Chat />
+          <ChatDrawerContainer />
         </View>
       </ErrorBoundary>
     </SafeAreaProvider>
