@@ -7,7 +7,8 @@
     },
     "module": "esnext",
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false
   },
   "include": ["**/*.ts", "**/*.tsx"]
 }
