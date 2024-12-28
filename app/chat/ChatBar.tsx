@@ -49,8 +49,7 @@ export const ChatBar = () => {
         paddingBottom: expanded ? 8 : 30,
       }}
     >
-      <Pressable 
-        onPress={() => setExpanded(true)}
+      <View
         style={{
           borderRadius: 20,
           marginHorizontal: 20,
@@ -61,12 +60,19 @@ export const ChatBar = () => {
           marginBottom: insets.bottom,
         }}
       >
-        <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+        <Pressable 
+          onPress={() => setExpanded(true)}
+          style={{ 
+            flex: 1,
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
           <Pressable onPress={handlePlusPress} style={{ marginRight: 8 }}>
             <AntDesign name="plus" size={24} color="#666" />
           </Pressable>
           
-          <View style={{ flex: 1, justifyContent: "center" }}>
+          <View style={{ flex: 1 }}>
             {expanded ? (
               <>
                 <TextInput
@@ -109,8 +115,8 @@ export const ChatBar = () => {
           <Pressable onPress={handleMicPress} style={{ marginLeft: 8 }}>
             <FontAwesome name="microphone" size={24} color="#666" />
           </Pressable>
-        </View>
-      </Pressable>
+        </Pressable>
+      </View>
     </KeyboardAvoidingView>
   )
 }
