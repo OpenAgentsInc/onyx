@@ -30,6 +30,7 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
         ref={scrollViewRef}
         style={[baseStyles.messageList, { flex: 1 }]}
         contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
+        keyboardShouldPersistTaps="never"
       >
         {messages.map((message: Message) => (
           <TouchableOpacity
