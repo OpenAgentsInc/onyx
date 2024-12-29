@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Keyboard, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useKeyboard } from "@/hooks/useKeyboard"
+import { useVoiceRecording } from "@/hooks/useVoiceRecording"
 import { colorsDark as colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
@@ -14,6 +15,12 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const [height, setHeight] = useState(24)
   const [text, setText] = useState("")
   const { isOpened: expanded, show, ref } = useKeyboard()
+  const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording(
+    (transcription) => {
+      setText(transcription)
+      show()
+    }
+  )
 
   const insets = useSafeAreaInsets()
 
@@ -22,9 +29,13 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
     setHeight(newHeight)
   }
 
-  const handleMicPress = (e) => {
+  const handleMicPress = async (e) => {
     e.stopPropagation()
-    console.log("Mic pressed")
+    if (isRecording) {
+      await stopRecording()
+    } else {
+      await startRecording()
+    }
   }
 
   const handleSendPress = (e) => {
@@ -62,8 +73,22 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           alignItems: "flex-end",
         }}
       >
-        <Pressable onPress={handleMicPress} style={{ marginRight: 16, paddingBottom: 5 }}>
-          <FontAwesome name="microphone" size={20} color="#666" />
+        <Pressable 
+          onPress={handleMicPress} 
+          style={{ 
+            marginRight: 16, 
+            paddingBottom: 5,
+            backgroundColor: isRecording ? "white" : "transparent",
+            borderRadius: 20,
+            padding: 8,
+          }}
+          disabled={isProcessing}
+        >
+          <FontAwesome 
+            name="microphone" 
+            size={20} 
+            color={isRecording ? "black" : "#666"} 
+          />
         </Pressable>
 
         <TextInput
@@ -78,9 +103,9 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             paddingBottom: expanded ? 5 : 4,
             opacity: expanded ? 1 : 0.8,
           }}
-          editable={true}
+          editable={!isRecording}
           onContentSizeChange={updateSize}
-          placeholder="Message"
+          placeholder={isRecording ? "Recording..." : "Message"}
           placeholderTextColor="#666"
           onChangeText={setText}
           value={text}
@@ -100,6 +125,34 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
         </Pressable>
       </Pressable>
+
+      {isRecording && (
+        <View 
+          style={{
+            position: "absolute",
+            left: 60,
+            right: 60,
+            top: "50%",
+            height: 2,
+            backgroundColor: "rgba(255,255,255,0.2)",
+            overflow: "hidden",
+          }}
+        >
+          <View
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: "30%",
+              backgroundColor: "white",
+              borderRadius: 2,
+              transform: [{ translateX: -50 }],
+              animation: "recording 2s linear infinite",
+            }}
+          />
+        </View>
+      )}
     </View>
   )
 }
