@@ -1,9 +1,11 @@
 import {
-  applySnapshot, flow, Instance, onSnapshot, SnapshotIn, SnapshotOut, types
+  flow, Instance, onSnapshot, SnapshotIn, SnapshotOut, types
 } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
-import { initializeDatabase, loadChat, saveChat, getAllChats } from "./ChatStorage"
+import {
+  getAllChats, initializeDatabase, loadChat, saveChat
+} from "./ChatStorage"
 
 // Message Types
 export const MessageModel = types
@@ -101,7 +103,7 @@ export const ChatStoreModel = types
 
         // Update chats list after adding a message
         updateChatsList()
-        
+
         return msg
       },
 
@@ -129,7 +131,7 @@ export const ChatStoreModel = types
       setCurrentConversationId: flow(function* (id: string) {
         self.currentConversationId = id
         yield loadMessagesFromStorage()
-        
+
         // Ensure this chat exists in the chats list
         const chatExists = self.chats.some(chat => chat.id === id)
         if (!chatExists) {
