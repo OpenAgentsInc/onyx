@@ -9,11 +9,19 @@ export const RepoModel = types.model("Repo", {
   branch: types.string,
 })
 
+// GitHub Token Model
+export const GithubTokenModel = types.model("GithubToken", {
+  id: types.identifier,
+  name: types.string,
+  token: types.string,
+})
+
 export const CoderStoreModel = types
   .model("CoderStore")
   .props({
     error: types.maybeNull(types.string),
-    githubToken: types.optional(types.string, ""),
+    githubTokens: types.array(GithubTokenModel),
+    activeTokenId: types.maybeNull(types.string),
     repos: types.array(RepoModel),
     activeRepoIndex: types.maybeNull(types.number),
   })
@@ -23,8 +31,39 @@ export const CoderStoreModel = types
       self.error = error
     },
 
-    setGithubToken(token: string) {
-      self.githubToken = token
+    // Token actions
+    addGithubToken(name: string, token: string) {
+      const id = `token_${Date.now()}`
+      const newToken = GithubTokenModel.create({ id, name, token })
+      self.githubTokens.push(newToken)
+      if (!self.activeTokenId) {
+        self.activeTokenId = id
+      }
+    },
+
+    removeGithubToken(id: string) {
+      const index = self.githubTokens.findIndex(t => t.id === id)
+      if (index !== -1) {
+        self.githubTokens = cast(self.githubTokens.filter((_, i) => i !== index))
+        if (self.activeTokenId === id) {
+          self.activeTokenId = self.githubTokens.length > 0 ? self.githubTokens[0].id : null
+        }
+      }
+    },
+
+    updateGithubToken(id: string, name: string, token: string) {
+      const index = self.githubTokens.findIndex(t => t.id === id)
+      if (index !== -1) {
+        self.githubTokens = cast(self.githubTokens.map((t, i) =>
+          i === index ? GithubTokenModel.create({ id, name, token }) : t
+        ))
+      }
+    },
+
+    setActiveTokenId(id: string | null) {
+      if (id === null || self.githubTokens.some(t => t.id === id)) {
+        self.activeTokenId = id
+      }
     },
 
     // Repo actions
@@ -92,8 +131,16 @@ export const CoderStoreModel = types
     }
   }))
   .views((self) => ({
+    get activeToken() {
+      return self.activeTokenId ? self.githubTokens.find(t => t.id === self.activeTokenId) : null
+    },
+
+    get githubToken() {
+      return self.activeToken?.token || ""
+    },
+
     get hasGithubToken() {
-      return !!self.githubToken
+      return self.githubTokens.length > 0
     },
 
     get activeRepo() {
@@ -108,7 +155,8 @@ export interface CoderStoreSnapshotIn extends SnapshotIn<typeof CoderStoreModel>
 export const createCoderStoreDefaultModel = () =>
   CoderStoreModel.create({
     error: null,
-    githubToken: "",
+    githubTokens: [],
+    activeTokenId: null,
     repos: [],
     activeRepoIndex: null,
   })
