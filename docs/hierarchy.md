@@ -65,21 +65,15 @@
   ├── navigators
     ├── navigationUtilities.ts
   ├── old
+    ├── ChatOverlayPrev.tsx
     ├── OnyxLayout.tsx
   ├── onyx
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
-    ├── ChatOverlayPrev.tsx
     ├── ConfigureModal.tsx
     ├── TextInputModal.tsx
     ├── VoiceInputModal.styles.ts
     ├── VoiceInputModal.tsx
-    ├── markdown
-      ├── MessageContent.tsx
-      ├── MessageContentPrev.tsx
-      ├── ToolInvocation.tsx
-      ├── index.ts
-      ├── styles.ts
     ├── repo
       ├── RepoSection.tsx
       ├── styles.ts
