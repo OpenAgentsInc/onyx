@@ -63,15 +63,14 @@
     ├── types
       ├── repo.ts
   ├── navigators
-    ├── AppNavigator.tsx
-    ├── DemoNavigator.tsx
     ├── navigationUtilities.ts
+  ├── old
+    ├── OnyxLayout.tsx
   ├── onyx
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
     ├── ChatOverlayPrev.tsx
     ├── ConfigureModal.tsx
-    ├── OnyxLayout.tsx
     ├── TextInputModal.tsx
     ├── VoiceInputModal.styles.ts
     ├── VoiceInputModal.tsx
