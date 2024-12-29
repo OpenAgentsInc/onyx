@@ -54,7 +54,7 @@ export function useChat() {
     const lastMessage = aiMessages[aiMessages.length - 1]
     if (!lastMessage || !lastMessage.toolInvocations) return
     if (lastMessage?.role === "assistant" && lastMessage.toolInvocations?.length > 0) {
-      console.log("Found tool invocations:", lastMessage.toolInvocations)
+      // console.log("Found tool invocations:", lastMessage.toolInvocations)
       pendingToolInvocations.current = lastMessage.toolInvocations
     }
   }, [aiMessages])

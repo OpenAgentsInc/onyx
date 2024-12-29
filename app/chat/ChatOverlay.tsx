@@ -1,6 +1,8 @@
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
 import { Image, ScrollView, TouchableOpacity, View } from "react-native"
+import { AutoImage } from "@/components/AutoImage"
+import { images } from "@/theme/images"
 import { Message } from "@ai-sdk/react"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { MessageContent } from "./markdown/MessageContent"
@@ -18,7 +20,7 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
   useEffect(() => {
     // Scroll to bottom whenever messages change
     scrollViewRef.current?.scrollToEnd({ animated: true })
-  }, [messages])
+  }, [messages, isLoading])
 
   const copyToClipboard = (content: string) => {
     Clipboard.setString(content)
@@ -43,21 +45,17 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
             </View>
           </TouchableOpacity>
         ))}
-      </ScrollView>
-
-      {isLoading && (
-        <Image
-          source={require("../../assets/images/Thinking-Animation.gif")}
+        <AutoImage
+          source={images.thinking}
+          maxHeight={80}
+          maxWidth={80}
+          height={40}
+          width={40}
           style={{
-            position: "absolute",
-            top: 18,
-            right: 10,
-            width: 40,
-            height: 40,
-            zIndex: 1000,
+            backgroundColor: "black",
           }}
         />
-      )}
+      </ScrollView>
     </View>
   )
 })
