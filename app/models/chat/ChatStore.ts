@@ -84,6 +84,15 @@ export const ChatStoreModel = types
       }
     })
 
+    const loadAllChats = flow(function* () {
+      try {
+        const allChats = yield getAllChats()
+        self.chats.replace(allChats)
+      } catch (e) {
+        log.error("Error loading all chats:", e)
+      }
+    })
+
     return {
       addMessage(message: {
         role: "system" | "user" | "assistant" | "function"
@@ -164,14 +173,7 @@ export const ChatStoreModel = types
         self.enabledTools.replace(tools)
       },
 
-      loadAllChats: flow(function* () {
-        try {
-          const allChats = yield getAllChats()
-          self.chats.replace(allChats)
-        } catch (e) {
-          log.error("Error loading all chats:", e)
-        }
-      }),
+      loadAllChats,
 
       afterCreate: flow(function* () {
         try {
@@ -182,7 +184,7 @@ export const ChatStoreModel = types
           yield loadMessagesFromStorage()
 
           // Load all chats
-          yield self.loadAllChats()
+          yield loadAllChats()
 
           // Set up persistence listener
           onSnapshot(self.messages, (snapshot) => {
