@@ -1,7 +1,6 @@
 import { ApiResponse, ApisauceInstance, create } from "apisauce"
 import { log } from "@/utils/log"
 import Config from "../../config"
-import { MessageModel } from "../../models/chat/ChatStore"
 import { ITool } from "../../models/tools/ToolStore"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
 

@@ -85,9 +85,6 @@
       ├── groq-api.types.ts
       ├── groq-chat.ts
       ├── index.ts
-    ├── local-models
-      ├── LocalModelService.ts
-      ├── constants.ts
   ├── theme
     ├── colors.ts
     ├── colorsDark.ts
