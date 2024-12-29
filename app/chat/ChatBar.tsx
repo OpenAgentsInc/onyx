@@ -49,6 +49,7 @@ export const ChatBar = () => {
         paddingHorizontal: 14,
         height: expanded ? Math.max(50, Math.min(height + 16, 300)) : 50,
         marginBottom: insets.bottom,
+        zIndex: 4,
       }}
     >
       <Pressable
