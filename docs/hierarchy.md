@@ -24,6 +24,7 @@
       ├── styles.ts
     ├── styles.ts
   ├── components
+    ├── AutoImage.tsx
     ├── Header.tsx
     ├── Icon.tsx
     ├── KeyboardDismisser.tsx
@@ -76,6 +77,10 @@
       ├── ErrorDetails.tsx
     ├── SettingsScreen
       ├── SettingsScreen.tsx
+      ├── coder
+        ├── RepoSettings.tsx
+        ├── styles.ts
+        ├── types.ts
       ├── index.ts
     ├── index.ts
   ├── services
@@ -92,7 +97,9 @@
   ├── theme
     ├── colors.ts
     ├── colorsDark.ts
+    ├── images.ts
     ├── index.ts
+    ├── onyx.ts
     ├── spacing.ts
     ├── spacingDark.ts
     ├── styles.ts
