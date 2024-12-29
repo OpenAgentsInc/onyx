@@ -1,10 +1,11 @@
+import { observer } from "mobx-react-lite"
 import React from "react"
 import { Text, TextInput, View } from "react-native"
 import { useStores } from "@/models"
 import { colorsDark as colors } from "@/theme"
 import { styles } from "./styles"
 
-export const GithubTokenSection = () => {
+export const GithubTokenSection = observer(() => {
   const { coderStore } = useStores()
   const [githubToken, setGithubToken] = React.useState(coderStore.githubToken)
 
@@ -26,4 +27,4 @@ export const GithubTokenSection = () => {
       />
     </View>
   )
-}
+})
