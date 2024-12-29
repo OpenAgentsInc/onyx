@@ -30,6 +30,7 @@
     ├── KeyboardDismisser.tsx
     ├── Screen.tsx
     ├── Text.tsx
+    ├── ThinkingAnimation.tsx
     ├── index.ts
   ├── config
     ├── config.base.ts
@@ -61,6 +62,7 @@
       ├── index.ts
     ├── coder
       ├── CoderStore.ts
+      ├── CoderStoreNew.ts
     ├── index.ts
     ├── types
       ├── repo.ts
@@ -79,6 +81,7 @@
       ├── SettingsScreen.tsx
       ├── coder
         ├── GithubTokenSection.tsx
+        ├── GithubTokenSectionNew.tsx
         ├── RepoFormSection.tsx
         ├── RepoListSection.tsx
         ├── RepoSettings.tsx
@@ -130,6 +133,7 @@
 ├── docs
   ├── ai-design-language.md
   ├── chat-persistence.md
+  ├── chatbar.md
   ├── coder-settings.md
   ├── data-marketplace.md
   ├── groq-voice.md

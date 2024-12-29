@@ -1,4 +1,4 @@
 ## App initialization flow
 
-- pacakage.json defines entry: `"main": "src/app.tsx",`
-- src/app.tsx
+- pacakage.json defines entry: `"main": "app/app.tsx",`
+- app/app.tsx

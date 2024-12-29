@@ -9,18 +9,16 @@ import "text-encoding-polyfill"
 import { Buffer } from "buffer"
 import { useFonts } from "expo-font"
 import * as React from "react"
-import { ActivityIndicator, AppRegistry, View, ViewStyle } from "react-native"
+import { ActivityIndicator, AppRegistry, View } from "react-native"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { customFontsToLoad } from "@/theme/typography"
-import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
 import { AppNavigator, useNavigationPersistence } from "./navigators"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import * as storage from "./utils/storage"
-import { useThemeProvider } from "./utils/useAppTheme"
 
 global.Buffer = Buffer
 
@@ -61,43 +59,10 @@ function App(props: AppProps) {
             onStateChange={onNavigationStateChange}
           />
         </KeyboardProvider>
-        {/* <View style={$container}>
-          <View style={$canvasContainer}>
-            <Canvas />
-          </View>
-          <ChatDrawerContainer />
-        </View> */}
       </ErrorBoundary>
     </SafeAreaProvider>
   )
 }
-
-// function App(props: AppProps) {
-//   const { themeScheme, setThemeContextOverride, navigationTheme, ThemeProvider } =
-//     useThemeProvider("dark")
-//   const navigationRef = createNavigationContainerRef<any>()
-//   return (
-//     <ThemeProvider value={{ themeScheme, setThemeContextOverride }}>
-//       <NavigationContainer ref={navigationRef} theme={navigationTheme} {...props}>
-//         <AppContents {...props} />
-//       </NavigationContainer>
-//     </ThemeProvider>
-//   )
-// }
-
-// const $container: ViewStyle = {
-//   flex: 1,
-//   backgroundColor: "#000",
-// }
-
-// const $canvasContainer: ViewStyle = {
-//   position: "absolute",
-//   top: 0,
-//   left: 0,
-//   right: 0,
-//   bottom: 0,
-//   zIndex: 0,
-// }
 
 AppRegistry.registerComponent("main", () => App)
 
