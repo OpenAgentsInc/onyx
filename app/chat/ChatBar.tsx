@@ -90,7 +90,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
         onPress={handleBarPress}
         style={{
           flexDirection: "row",
-          alignItems: "center",
+          alignItems: "flex-end",
           minHeight: 34,
         }}
       >
@@ -136,7 +136,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             onPressIn={handleBarPress}
           />
           {isProcessing && (
-            <View style={{ position: "absolute", right: 0, top: "50%", transform: [{ translateY: -8 }] }}>
+            <View style={{ position: "absolute", right: 0, bottom: 9 }}>
               <ThinkingAnimation size={16} />
             </View>
           )}
@@ -152,6 +152,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             marginLeft: 12,
             alignItems: "center",
             justifyContent: "center",
+            marginBottom: 4,
           }}
         >
           <AntDesign name="arrowup" size={20} color={(text.trim() || isRecording) ? "black" : "#666"} />
