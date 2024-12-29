@@ -1,12 +1,11 @@
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
-import { Image, ScrollView, TouchableOpacity, View } from "react-native"
-import { AutoImage } from "@/components/AutoImage"
-import { images } from "@/theme/images"
+import { ScrollView, TouchableOpacity, View } from "react-native"
 import { Message } from "@ai-sdk/react"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { MessageContent } from "./markdown/MessageContent"
 import { styles as baseStyles } from "./styles"
+import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 
 interface ChatOverlayProps {
   messages: Message[]
@@ -45,18 +44,7 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
             </View>
           </TouchableOpacity>
         ))}
-        {isLoading && (
-          <Image
-            source={images.thinking}
-            style={{
-              backgroundColor: "black",
-              height: 30,
-              width: 30,
-              marginVertical: 10,
-            }}
-            resizeMode="contain"
-          />
-        )}
+        {isLoading && <ThinkingAnimation size={30} />}
       </ScrollView>
     </View>
   )
