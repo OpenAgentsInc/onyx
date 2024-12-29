@@ -90,7 +90,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
         onPress={handleBarPress}
         style={{
           flexDirection: "row",
-          alignItems: "flex-end",
+          alignItems: "center",
           minHeight: 34,
         }}
       >
@@ -100,7 +100,6 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             marginRight: 16,
             backgroundColor: isRecording ? "white" : "transparent",
             borderRadius: 36,
-            padding: 8,
             width: 36,
             height: 36,
             alignItems: "center",
@@ -137,7 +136,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             onPressIn={handleBarPress}
           />
           {isProcessing && (
-            <View style={{ position: "absolute", right: 0, bottom: 0 }}>
+            <View style={{ position: "absolute", right: 0, top: "50%", transform: [{ translateY: -8 }] }}>
               <ThinkingAnimation size={16} />
             </View>
           )}
@@ -151,7 +150,6 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             width: 28,
             height: 28,
             marginLeft: 12,
-            alignSelf: "flex-end",
             alignItems: "center",
             justifyContent: "center",
           }}
