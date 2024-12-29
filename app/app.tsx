@@ -62,7 +62,7 @@ function AppContents(props: AppProps) {
 
 function App(props: AppProps) {
   const { themeScheme, setThemeContextOverride, navigationTheme, ThemeProvider } =
-    useThemeProvider()
+    useThemeProvider("dark")
   return (
     <ThemeProvider value={{ themeScheme, setThemeContextOverride }}>
       <NavigationContainer ref={navigationRef} theme={navigationTheme} {...props}>
