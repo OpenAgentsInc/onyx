@@ -49,8 +49,8 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
         paddingBottom: 10,
         paddingHorizontal: 14,
         height: expanded ? Math.max(50, Math.min(height + 16, 300)) : 50,
-        marginBottom: insets.bottom,
         zIndex: 4,
+        marginBottom: expanded ? insets.bottom / 2 : 0,
       }}
     >
       <Pressable
