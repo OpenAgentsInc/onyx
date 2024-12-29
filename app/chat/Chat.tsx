@@ -3,11 +3,14 @@ import { Header, KeyboardDismisser } from "@/components"
 import { useChat } from "@/hooks/useChat"
 import { ChatBar } from "./ChatBar"
 import { ChatOverlay } from "./ChatOverlay"
-import { useState } from "react"
 
-export const Chat = () => {
+interface ChatProps {
+  drawerOpen: boolean
+  setDrawerOpen: (open: boolean) => void
+}
+
+export const Chat = ({ drawerOpen, setDrawerOpen }: ChatProps) => {
   const { handleSendMessage, isLoading, messages } = useChat()
-  const [drawerOpen, setDrawerOpen] = useState(false)
 
   return (
     <View style={{ flex: 1 }}>
@@ -16,7 +19,7 @@ export const Chat = () => {
         <Header 
           title="Chat" 
           leftIcon="menu"
-          onLeftPress={() => setDrawerOpen(prev => !prev)}
+          onLeftPress={() => setDrawerOpen(!drawerOpen)}
         />
         <ChatOverlay messages={messages} isLoading={isLoading} />
         <ChatBar handleSendMessage={handleSendMessage} />
