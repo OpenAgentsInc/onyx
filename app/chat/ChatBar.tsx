@@ -28,6 +28,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   }
 
   const handleSendPress = (e) => {
+    if (!text.trim()) return
     e.stopPropagation()
     handleSendMessage(text)
     setText("")
