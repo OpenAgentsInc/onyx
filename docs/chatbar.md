@@ -6,6 +6,8 @@
 - Mic button toggles recording state
 - Send button (arrow) should be white and enabled during recording
 - Components should be disabled during processing state
+- Mic button should be a perfect 36x36 circle with centered icon
+- Send button should be a perfect 28x28 circle with centered icon
 
 ### Recording Modes
 1. **Normal Recording** (Mic Button)
@@ -31,8 +33,9 @@
 ### Visual Feedback
 - Mic button turns white when recording
 - Send button turns white during recording or when text is present
-- Small thinking animation appears below input during processing
+- Small thinking animation appears inline at end of text during processing
 - Processing animation should not affect layout or push content
+- Thinking animation should be 16x16 and aligned with text baseline
 
 ### Text Handling
 - All transcribed text should be trimmed of extra whitespace
@@ -45,9 +48,9 @@
 
 ### Height Behavior
 - Input field should dynamically resize based on content in both expanded and collapsed states
-- Minimum height of 50px (including padding)
-- Maximum height of 300px (including padding)
-- Content height maximum of 240px
+- Container uses minHeight: 50px with 8px vertical padding
+- Input area uses minHeight: 34px
+- Content maximum height of 240px
 - Height changes should be smooth and maintain layout
 - Same height behavior whether keyboard is shown or hidden
 
@@ -57,9 +60,13 @@
 - Scrollable when content exceeds maximum height
 - Preserves cursor position during height changes
 - Opacity slightly reduced when not expanded
+- Placeholder text vertically centered when single line
 
 ### Layout
 - Maintains proper padding and margins in all states
 - Preserves safe area insets
 - Proper vertical alignment with mic and send buttons
 - Consistent spacing between elements regardless of height
+- 14px horizontal padding on container
+- 16px spacing between mic button and input
+- 12px spacing between input and send button
