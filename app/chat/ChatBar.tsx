@@ -18,7 +18,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const { isOpened: expanded, show, ref } = useKeyboard()
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording(
     (transcription) => {
-      setText(transcription)
+      setText(transcription.trim())
       show()
     }
   )
@@ -127,46 +127,13 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
           </Pressable>
         </Pressable>
-
-        {isRecording && (
-          <View style={{ alignItems: "center", marginTop: 4, position: "absolute", left: 0, right: 0, bottom: -24 }}>
-            <ThinkingAnimation size={20} />
-          </View>
-        )}
       </View>
 
-      {/* Commented out lateral animation
-      {isRecording && (
-        <View 
-          style={{
-            position: "absolute",
-            left: 60,
-            right: 60,
-            top: "50%",
-            height: 2,
-            backgroundColor: "rgba(255,255,255,0.2)",
-            overflow: "hidden",
-          }}
-        >
-          <Animated.View
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: "30%",
-              backgroundColor: "white",
-              borderRadius: 2,
-              transform: [{
-                translateX: translateX.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-50, 200]
-                })
-              }],
-            }}
-          />
+      {isProcessing && (
+        <View style={{ alignItems: "center", marginTop: 8 }}>
+          <ThinkingAnimation size={20} />
         </View>
-      )} */}
+      )}
     </View>
   )
 }
