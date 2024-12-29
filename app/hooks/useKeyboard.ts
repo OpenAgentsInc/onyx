@@ -6,15 +6,20 @@ let isKeyboardOpening = false
 let isKeyboardOpened = false
 let listeners: Set<(isOpened: boolean) => void> = new Set()
 let isInitialized = false
-let inputRef = null
+let globalInputRef: TextInput | null = null
 
 export function useKeyboard() {
   const [isOpened, setIsOpened] = useState(isKeyboardOpened)
-  const ref = useRef<TextInput>(null)
+  const localRef = useRef<TextInput>(null)
 
   useEffect(() => {
     // Add component's state setter to listeners
     listeners.add(setIsOpened)
+
+    // Update global ref when local ref is available
+    if (localRef.current) {
+      globalInputRef = localRef.current
+    }
 
     if (!isInitialized) {
       // Set up listeners only once
@@ -41,30 +46,37 @@ export function useKeyboard() {
         hideListener.remove()
         isInitialized = false
         listeners.clear()
-        inputRef = null
+        globalInputRef = null
       }
     }
 
-    // Cleanup component's listener
+    // Cleanup component's listener and ref
     return () => {
       listeners.delete(setIsOpened)
+      if (globalInputRef === localRef.current) {
+        globalInputRef = null
+      }
     }
   }, [])
 
-  // Store ref if this instance provides one
-  if (ref.current && !inputRef) {
-    inputRef = ref.current
-  }
+  // Update global ref whenever local ref changes
+  useEffect(() => {
+    if (localRef.current) {
+      globalInputRef = localRef.current
+    }
+  }, [localRef.current])
 
   return {
     isOpening: isKeyboardOpening,
     isOpened,
     dismiss: Keyboard.dismiss,
     show: () => {
-      if (inputRef) {
-        inputRef.focus()
+      console.log('show called', !!globalInputRef)
+      if (globalInputRef) {
+        console.log('focusing')
+        globalInputRef.focus()
       }
     },
-    ref,
+    ref: localRef,
   }
 }
