@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite"
 import React from "react"
 import { Text, TouchableOpacity, View } from "react-native"
 import { useStores } from "@/models"
@@ -11,7 +12,7 @@ interface RepoListSectionProps {
   onAddRepoClick: () => void
 }
 
-export const RepoListSection = ({
+export const RepoListSection = observer(({
   editingRepo,
   onEditRepo,
   onRemoveRepo,
@@ -64,4 +65,4 @@ export const RepoListSection = ({
       ))}
     </View>
   )
-}
+})
