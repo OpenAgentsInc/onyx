@@ -11,6 +11,11 @@ type ChatActions = {
   sendMessage: (content: string) => Promise<void>
 }
 
+interface FunctionCall {
+  name: string;
+  args: Record<string, any>;
+}
+
 /**
  * Chat actions that integrate with the Groq and Gemini APIs
  */
@@ -74,11 +79,11 @@ export const withGroqActions = (self: Instance<typeof ChatStoreModel>): ChatActi
         const content = message.content
 
         // Try to parse content as a function call
-        let functionCall = null
+        let functionCall: FunctionCall | null = null
         try {
           const parsed = JSON.parse(content)
           if (parsed && parsed.functionCall && parsed.functionCall.name && parsed.functionCall.args) {
-            functionCall = parsed.functionCall
+            functionCall = parsed.functionCall as FunctionCall
           }
         } catch (err) {
           // Not a function call JSON
