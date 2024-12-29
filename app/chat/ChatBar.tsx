@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Keyboard, Platform, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { colorsDark as colors } from "@/theme"
@@ -14,6 +14,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const [height, setHeight] = useState(24)
   const [text, setText] = useState("")
   const { isOpened: expanded, show, ref } = useKeyboard()
+  const [inputMounted, setInputMounted] = useState(false)
 
   const insets = useSafeAreaInsets()
 
@@ -34,6 +35,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
     Keyboard.dismiss()
   }
 
+  // Always render the input, just hide it when not expanded
   return (
     <View
       style={{
@@ -59,41 +61,26 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           <FontAwesome name="microphone" size={20} color="#666" />
         </Pressable>
 
-        {expanded ? (
-          <TextInput
-            ref={ref}
-            autoFocus
-            spellCheck={false}
-            multiline
-            style={{
-              flex: 1,
-              color: "white",
-              fontSize: 16,
-              fontFamily: typography.primary.normal,
-              paddingBottom: 5,
-            }}
-            onContentSizeChange={updateSize}
-            placeholder="Message"
-            placeholderTextColor="#666"
-            onChangeText={setText}
-            value={text}
-          />
-        ) : (
-          <TextInput
-            pointerEvents="none"
-            editable={false}
-            style={{
-              flex: 1,
-              color: "white",
-              fontSize: 16,
-              fontFamily: typography.primary.normal,
-              paddingBottom: 4,
-            }}
-            placeholder="Message"
-            placeholderTextColor="#666"
-            value={text}
-          />
-        )}
+        <TextInput
+          ref={ref}
+          autoFocus={expanded}
+          spellCheck={false}
+          multiline
+          style={{
+            flex: 1,
+            color: "white",
+            fontSize: 16,
+            fontFamily: typography.primary.normal,
+            paddingBottom: expanded ? 5 : 4,
+          }}
+          editable={expanded}
+          pointerEvents={expanded ? "auto" : "none"}
+          onContentSizeChange={updateSize}
+          placeholder="Message"
+          placeholderTextColor="#666"
+          onChangeText={setText}
+          value={text}
+        />
 
         <Pressable
           onPress={handleSendPress}
