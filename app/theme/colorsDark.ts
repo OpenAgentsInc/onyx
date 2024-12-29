@@ -41,7 +41,7 @@ export const colors = {
   transparent: "rgba(0, 0, 0, 0)",
   text: palette.neutral800,
   textDim: palette.neutral600,
-  background: palette.neutral100,
+  background: 'black', // palette.neutral100,
   border: palette.neutral200,
   tint: palette.primary500,
   tintInactive: palette.neutral300,

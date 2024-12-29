@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite"
 import { useEffect } from "react"
 import { ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { useStores } from "@/models"
-import { colors, typography } from "@/theme"
+import { colorsDark as colors, typography } from "@/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 
 type Props = {
