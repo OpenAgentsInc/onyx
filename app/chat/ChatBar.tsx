@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { Animated, Keyboard, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useKeyboard } from "@/hooks/useKeyboard"
@@ -6,6 +6,7 @@ import { useVoiceRecording } from "@/hooks/useVoiceRecording"
 import { colorsDark as colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
+import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 
 interface ChatBarProps {
   handleSendMessage: (message: string) => void
@@ -23,30 +24,6 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   )
 
   const insets = useSafeAreaInsets()
-  const translateX = useRef(new Animated.Value(0)).current
-
-  useEffect(() => {
-    if (isRecording) {
-      // Start animation
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(translateX, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(translateX, {
-            toValue: 0,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start()
-    } else {
-      // Stop animation
-      translateX.setValue(0)
-    }
-  }, [isRecording])
 
   const updateSize = (event) => {
     const newHeight = Math.min(event.nativeEvent.contentSize.height, 240)
@@ -151,6 +128,13 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
       </Pressable>
 
       {isRecording && (
+        <View style={{ alignItems: "center", marginTop: 4 }}>
+          <ThinkingAnimation size={20} />
+        </View>
+      )}
+
+      {/* Commented out lateral animation
+      {isRecording && (
         <View 
           style={{
             position: "absolute",
@@ -174,13 +158,13 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
               transform: [{
                 translateX: translateX.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [-50, 200] // Adjust these values to control animation width
+                  outputRange: [-50, 200]
                 })
               }],
             }}
           />
         </View>
-      )}
+      )} */}
     </View>
   )
 }
