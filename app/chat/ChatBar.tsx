@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react"
-import { Keyboard, Platform, Pressable, TextInput, View } from "react-native"
+import { useState } from "react"
+import { Keyboard, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useKeyboard } from "@/hooks/useKeyboard"
 import { colorsDark as colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
-import { useKeyboard } from "@/hooks/useKeyboard"
 
 interface ChatBarProps {
   handleSendMessage: (message: string) => void
