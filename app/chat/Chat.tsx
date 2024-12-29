@@ -16,15 +16,10 @@ export const Chat = () => {
           bottom: 0,
           zIndex: 2,
         }}
-        onPress={() => {
-          console.log("Chat container pressed")
-          Keyboard.dismiss()
-        }}
+        onPress={Keyboard.dismiss}
       />
-      <View style={{ flex: 1, flexDirection: "column" }} pointerEvents="box-none">
-        <View style={{ flex: 1 }} pointerEvents="box-none">
-          <ChatOverlay messages={messages} isLoading={isLoading} />
-        </View>
+      <View style={{ flex: 1 }}>
+        <ChatOverlay messages={messages} isLoading={isLoading} />
         <ChatBar />
       </View>
     </View>
