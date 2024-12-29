@@ -1,7 +1,7 @@
 import React from "react"
 import { Linking, StyleSheet, View } from "react-native"
 import Markdown from "react-native-markdown-display"
-import { colors } from "@/theme"
+import { colorsDark as colors } from "@/theme"
 import { Message } from "@ai-sdk/react"
 import { markdownStyles } from "./styles"
 import { ToolInvocation } from "./ToolInvocation"
@@ -28,7 +28,8 @@ export function MessageContent({ message }: MessageContentProps) {
   }
 
   const isUserMessage = message.role === "user"
-  const hasToolInvocations = !isUserMessage && Array.isArray(message.toolInvocations) && message.toolInvocations.length > 0
+  const hasToolInvocations =
+    !isUserMessage && Array.isArray(message.toolInvocations) && message.toolInvocations.length > 0
   const hasContent = message.content && message.content.trim() !== ""
 
   return (
