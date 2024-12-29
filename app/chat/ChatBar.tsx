@@ -15,15 +15,15 @@ interface ChatBarProps {
 export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const [height, setHeight] = useState(24)
   const [text, setText] = useState("")
-  const [pendingTranscription, setPendingTranscription] = useState("")
+  const [sendImmediately, setSendImmediately] = useState(false)
   const { isOpened: expanded, show, ref } = useKeyboard()
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording(
     (transcription) => {
       const trimmedTranscription = transcription.trim()
-      if (pendingTranscription) {
-        // If we had a pending transcription, it means we're in "send immediately" mode
+      if (sendImmediately) {
+        // Send immediately without showing keyboard or setting text
         handleSendMessage(trimmedTranscription)
-        setPendingTranscription("")
+        setSendImmediately(false)
       } else {
         // Normal mode - append to existing text
         setText(prev => {
@@ -45,19 +45,19 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const handleMicPress = async (e) => {
     e.stopPropagation()
     if (isRecording) {
-      setPendingTranscription("") // Clear any pending transcription
+      setSendImmediately(false)
       await stopRecording()
     } else {
       await startRecording()
     }
   }
 
-  const handleSendPress = (e) => {
+  const handleSendPress = async (e) => {
     e.stopPropagation()
     if (isRecording) {
-      // If recording, set pending flag and stop recording
-      setPendingTranscription("pending")
-      stopRecording()
+      // Set flag and stop recording - transcription will be sent when it comes back
+      setSendImmediately(true)
+      await stopRecording()
     } else if (text.trim()) {
       // Normal text send
       handleSendMessage(text)
