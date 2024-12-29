@@ -33,7 +33,7 @@ export const ChatDrawerContainer = () => {
         contentContainerStyle={$styles.flex1}
         {...(isAndroid ? { KeyboardAvoidingViewProps: { behavior: undefined } } : {})}
       >
-        <Chat />
+        <Chat drawerOpen={open} setDrawerOpen={setOpen} />
       </Screen>
     </Drawer>
   )
