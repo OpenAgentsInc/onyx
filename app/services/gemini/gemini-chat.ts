@@ -4,7 +4,6 @@ import Config from "../../config"
 import { MessageModel } from "../../models/chat/ChatStore"
 import { ITool } from "../../models/tools/ToolStore"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
-import { DEFAULT_SYSTEM_MESSAGE } from "../local-models/constants"
 
 import type { GeminiConfig, ChatMessage, ChatCompletionResponse, GenerateContentConfig, FunctionDeclaration } from "./gemini-api.types"
 import type { IMessage } from "../../models/chat/ChatStore"
@@ -80,13 +79,13 @@ export class GeminiChatApi {
       })
     } else {
       // Add default system message as user message
-      nonSystemMessages.unshift(MessageModel.create({
-        id: "system",
-        role: "user",
-        content: DEFAULT_SYSTEM_MESSAGE.content,
-        createdAt: Date.now(),
-        metadata: {},
-      }))
+      // nonSystemMessages.unshift(MessageModel.create({
+      //   id: "system",
+      //   role: "user",
+      //   content: DEFAULT_SYSTEM_MESSAGE.content,
+      //   createdAt: Date.now(),
+      //   metadata: {},
+      // }))
     }
 
     // Filter out any messages with empty content and ensure content is a string

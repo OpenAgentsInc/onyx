@@ -3,7 +3,6 @@ import { log } from "@/utils/log"
 import Config from "../../config"
 import { MessageModel } from "../../models/chat/ChatStore"
 import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
-import { DEFAULT_SYSTEM_MESSAGE } from "../local-models/constants"
 
 import type { GroqConfig, ChatMessage, ChatCompletionResponse, TranscriptionResponse, TranscriptionConfig } from "./groq-api.types"
 import type { IMessage } from "../../models/chat/ChatStore"
@@ -33,75 +32,6 @@ export class GroqChatApi {
     })
   }
 
-  /**
-   * Converts ChatStore messages to Groq API format
-   */
-  private convertToGroqMessages(messages: IMessage[]): ChatMessage[] {
-    // Add system message if not present
-    if (!messages.find(msg => msg.role === "system")) {
-      const systemMessage = MessageModel.create({
-        id: "system",
-        role: "system",
-        content: DEFAULT_SYSTEM_MESSAGE.content,
-        createdAt: Date.now(),
-        metadata: {},
-      })
-      messages = [systemMessage, ...messages]
-    }
-    return messages.map(msg => ({
-      role: msg.role as "system" | "user" | "assistant",
-      content: msg.content
-    }))
-  }
-
-  /**
-   * Creates a chat completion with the Groq API
-   */
-  async createChatCompletion(
-    messages: IMessage[],
-    model: string = "llama-3.1-8b-instant",
-    options: {
-      temperature?: number
-      max_tokens?: number
-      top_p?: number
-      stop?: string | string[]
-      response_format?: { type: "json_object" }
-    } = {},
-  ): Promise<{ kind: "ok"; response: ChatCompletionResponse } | GeneralApiProblem> {
-    try {
-      const groqMessages = this.convertToGroqMessages(messages)
-
-      const response: ApiResponse<ChatCompletionResponse> = await this.apisauce.post(
-        "/chat/completions",
-        {
-          messages: groqMessages,
-          model,
-          ...options,
-        },
-      )
-
-      log({
-        name: "[GroqChatApi] createChatCompletion",
-        preview: "Chat completion response",
-        value: response.data,
-        important: true,
-      })
-
-      if (!response.ok) {
-        const problem = getGeneralApiProblem(response)
-        if (problem) return problem
-      }
-
-      if (!response.data) throw new Error("No data received from Groq API")
-
-      return { kind: "ok", response: response.data }
-    } catch (e) {
-      if (__DEV__) {
-        log.error("[GroqChatApi] " + (e instanceof Error ? e.message : "Unknown error"))
-      }
-      return { kind: "bad-data" }
-    }
-  }
 
   /**
    * Transcribes audio using the Groq API
