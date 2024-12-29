@@ -7,12 +7,13 @@ import {
   View,
   ViewStyle,
 } from "react-native"
+import { useAppTheme } from "@/utils/useAppTheme"
 import { isRTL, translate } from "../i18n"
 import { $styles } from "../theme"
 import { ExtendedEdge, useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
 import { Icon, IconTypes } from "./Icon"
 import { Text, TextProps } from "./Text"
-import { useAppTheme } from "@/utils/useAppTheme"
+
 import type { ThemedStyle } from "@/theme"
 
 export interface HeaderProps {
@@ -206,7 +207,7 @@ export function Header(props: HeaderProps) {
           >
             <Text
               weight="medium"
-              size="md"
+              size="sm"
               text={titleContent}
               style={[$title, $titleStyleOverride]}
             />
