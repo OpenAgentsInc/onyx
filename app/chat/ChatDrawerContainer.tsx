@@ -1,9 +1,5 @@
 import { useState } from "react"
-import {
-  Dimensions,
-  Platform,
-  View,
-} from "react-native"
+import { Dimensions, Platform } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
 import { Screen } from "@/components/Screen"
 import { $styles } from "@/theme"
