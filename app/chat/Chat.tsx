@@ -1,8 +1,9 @@
 import { Keyboard, Pressable, View } from "react-native"
+import { Header } from "@/components"
 import { useChat } from "@/hooks/useChat"
+import { useKeyboard } from "@/hooks/useKeyboard"
 import { ChatBar } from "./ChatBar"
 import { ChatOverlay } from "./ChatOverlay"
-import { useKeyboard } from "@/hooks/useKeyboard"
 
 export const Chat = () => {
   const { handleSendMessage, isLoading, messages } = useChat()
@@ -22,6 +23,7 @@ export const Chat = () => {
         onPress={Keyboard.dismiss}
       />
       <View style={{ flex: 1 }}>
+        <Header title="Chat" />
         <ChatOverlay messages={messages} isLoading={isLoading} />
         <ChatBar handleSendMessage={handleSendMessage} />
       </View>
