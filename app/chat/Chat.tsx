@@ -1,6 +1,7 @@
 import { View } from "react-native"
 import { Header, KeyboardDismisser } from "@/components"
 import { useChat } from "@/hooks/useChat"
+import { navigate } from "@/navigators"
 import { ChatBar } from "./ChatBar"
 import { ChatOverlay } from "./ChatOverlay"
 
@@ -21,6 +22,7 @@ export const Chat = ({ drawerOpen, setDrawerOpen }: ChatProps) => {
           leftIcon="menu"
           onLeftPress={() => setDrawerOpen(!drawerOpen)}
           rightIcon="settings"
+          onRightPress={() => navigate("Settings")}
         />
         <ChatOverlay messages={messages} isLoading={isLoading} />
         <ChatBar handleSendMessage={handleSendMessage} />
