@@ -6413,6 +6413,18 @@ react-native-image-viewing@^0.2.1:
   resolved "https://registry.yarnpkg.com/react-native-image-viewing/-/react-native-image-viewing-0.2.2.tgz#fb26e57d7d3d9ce4559a3af3d244387c0367242b"
   integrity sha512-osWieG+p/d2NPbAyonOMubttajtYEYiRGQaJA54slFxZ69j1V4/dCmcrVQry47ktVKy8/qpFwCpW1eT6MH5T2Q==
 
+react-native-is-edge-to-edge@^1.1.6:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/react-native-is-edge-to-edge/-/react-native-is-edge-to-edge-1.1.6.tgz#69ec13f70d76e9245e275eed4140d0873a78f902"
+  integrity sha512-1pHnFTlBahins6UAajXUqeCOHew9l9C2C8tErnpGC3IyLJzvxD+TpYAixnCbrVS52f7+NvMttbiSI290XfwN0w==
+
+react-native-keyboard-controller@1.15.2:
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/react-native-keyboard-controller/-/react-native-keyboard-controller-1.15.2.tgz#9c675053dccd6f7c9a17e9762f617d296d1ab999"
+  integrity sha512-ZN151OyMJ2GQkhebARY/5G9rXgSlNCKy+WjS6p4o7S+5ulb4nGzl6UkpEuT7/C6bHDeAjDupdrET9tyyTee3nA==
+  dependencies:
+    react-native-is-edge-to-edge "^1.1.6"
+
 react-native-markdown-display@^7.0.2:
   version "7.0.2"
   resolved "https://registry.yarnpkg.com/react-native-markdown-display/-/react-native-markdown-display-7.0.2.tgz#b6584cec8d6670c0141fb8780bc2f0710188a4c2"

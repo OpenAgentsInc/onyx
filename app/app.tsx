@@ -14,11 +14,14 @@ import { ActivityIndicator, Alert, AppRegistry, View, ViewStyle } from "react-na
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
+import { NavigationContainer } from "@react-navigation/native"
 import { ChatDrawerContainer } from "./chat/ChatDrawerContainer"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
+import { navigationRef } from "./navigators/navigationUtilities"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
+import { useThemeProvider } from "./utils/useAppTheme"
 
 global.Buffer = Buffer
 
@@ -47,7 +50,6 @@ function AppContents(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <View style={$container}>
-          <StatusBar style="light" />
           <View style={$canvasContainer}>
             <Canvas />
           </View>
@@ -59,7 +61,15 @@ function AppContents(props: AppProps) {
 }
 
 function App(props: AppProps) {
-  return <AppContents {...props} />
+  const { themeScheme, setThemeContextOverride, navigationTheme, ThemeProvider } =
+    useThemeProvider()
+  return (
+    <ThemeProvider value={{ themeScheme, setThemeContextOverride }}>
+      <NavigationContainer ref={navigationRef} theme={navigationTheme} {...props}>
+        <AppContents {...props} />
+      </NavigationContainer>
+    </ThemeProvider>
+  )
 }
 
 const $container: ViewStyle = {
