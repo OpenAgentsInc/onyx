@@ -1,17 +1,16 @@
 import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 import { ChatStoreModel } from "./chat/ChatStore"
 import { CoderStoreModel } from "./coder/CoderStore"
-import { ToolStoreModel } from "./tools"
 
 const RootStoreModel = types
   .model("RootStore")
   .props({
     chatStore: types.optional(ChatStoreModel, {}),
-    toolStore: types.optional(ToolStoreModel, {
-      tools: [],
-      isInitialized: false,
-      error: null,
-    }),
+    // toolStore: types.optional(ToolStoreModel, {
+    //   tools: [],
+    //   isInitialized: false,
+    //   error: null,
+    // }),
     coderStore: types.optional(CoderStoreModel, {
       isInitialized: false,
       error: null,
@@ -31,11 +30,6 @@ export type RootStore = Instance<typeof RootStoreModel>
 export const createRootStoreDefaultModel = () =>
   RootStoreModel.create({
     chatStore: {},
-    toolStore: {
-      tools: [],
-      isInitialized: false,
-      error: null,
-    },
     coderStore: {
       isInitialized: false,
       error: null,

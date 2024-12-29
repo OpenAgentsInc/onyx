@@ -25,31 +25,6 @@ export async function setupRootStore(rootStore: RootStore) {
     }
   }
 
-  // Initialize tools immediately after restoring state
-  try {
-    log({
-      name: "[setupRootStore] Initializing tools",
-      preview: "Starting tool initialization",
-      value: { isInitialized: rootStore.toolStore.isInitialized },
-      important: true,
-    })
-
-    // Force initialize tools regardless of isInitialized state
-    await rootStore.toolStore.initializeDefaultTools()
-
-    log({
-      name: "[setupRootStore] Tools initialized",
-      preview: "Tool initialization complete",
-      value: {
-        tools: rootStore.toolStore.tools.map(t => t.id),
-        isInitialized: rootStore.toolStore.isInitialized
-      },
-      important: true,
-    })
-  } catch (e) {
-    log.error("[setupRootStore] Failed to initialize tools:", e)
-  }
-
   // track changes & save to AsyncStorage
   const unsubscribe = onSnapshot(rootStore, (snapshot) => storage.save(ROOT_STATE_STORAGE_KEY, snapshot))
 
