@@ -1,32 +1,21 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Keyboard, Platform, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { colorsDark as colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
+import { useKeyboard } from "@/hooks/useKeyboard"
 
 interface ChatBarProps {
   handleSendMessage: (message: string) => void
 }
 
 export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
-  const [expanded, setExpanded] = useState(false)
   const [height, setHeight] = useState(24)
   const [text, setText] = useState("")
+  const { isOpened: expanded } = useKeyboard()
 
   const insets = useSafeAreaInsets()
-
-  useEffect(() => {
-    const eventName = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide"
-    const keyboardListener = Keyboard.addListener(eventName, () => {
-      setExpanded(false)
-      setHeight(24)
-    })
-
-    return () => {
-      keyboardListener.remove()
-    }
-  }, [])
 
   const updateSize = (event) => {
     const newHeight = Math.min(event.nativeEvent.contentSize.height, 240)
@@ -59,7 +48,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
       }}
     >
       <Pressable
-        onPress={() => setExpanded(true)}
+        onPress={() => Keyboard.dismiss()}
         style={{
           flex: 1,
           flexDirection: "row",
