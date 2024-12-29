@@ -18,6 +18,20 @@ You can manage multiple GitHub Personal Access Tokens (PATs) in the settings:
   - **Active Token**: Click a token to make it active - this token will be used for GitHub operations
   - For security, tokens are displayed in truncated form (e.g., `ghp1...f4d2`)
 
+### Legacy Token Support
+For backward compatibility, the system maintains support for existing tokens:
+
+- **Legacy Migration**: If you had a token before the multi-token update:
+  - Your token is automatically migrated as "Legacy Token"
+  - It remains active and functional
+  - You can continue using the old token or add new ones
+  
+- **Token Synchronization**:
+  - The system maintains both old and new token storage
+  - Changes to the legacy token update the new system
+  - Changes to the active token in the new system update the legacy token
+  - This ensures smooth transition and no disruption to existing functionality
+
 ### Creating GitHub Tokens
 1. Go to GitHub Settings > Developer Settings > Personal Access Tokens
 2. Generate a new token with these permissions:
@@ -93,6 +107,7 @@ Each tool can be enabled/disabled independently to customize the coder's capabil
    - Use descriptive names for tokens (e.g., "Personal Projects", "Work Repos")
    - Create separate tokens for different purposes
    - Regularly review and remove unused tokens
+   - Consider migrating legacy tokens to named tokens for better organization
 
 2. **Repository Organization**:
    - Keep the repository list focused on active projects
@@ -105,6 +120,28 @@ Each tool can be enabled/disabled independently to customize the coder's capabil
    - Revoke compromised tokens immediately
    - Use read-only tokens when possible
 
+## Technical Implementation
+
+### Token Storage System
+The coder uses a dual storage system for tokens:
+
+1. **Legacy Storage**:
+   - Maintains a single token field for backward compatibility
+   - Automatically syncs with the active token in the new system
+   - Ensures existing integrations continue to work
+
+2. **New Token System**:
+   - Stores multiple named tokens
+   - Each token has a unique ID, name, and value
+   - Supports selecting an active token
+   - Automatically migrates legacy tokens
+
+3. **Synchronization**:
+   - When setting an active token, updates legacy storage
+   - When updating legacy token, updates or creates token in new system
+   - Maintains consistency between both systems
+   - Handles token removal and updates in both systems
+
 ## Troubleshooting
 
 Common issues and solutions:
@@ -113,6 +150,7 @@ Common issues and solutions:
    - Verify token has required permissions
    - Check token hasn't expired
    - Ensure token is active in GitHub settings
+   - For legacy tokens, try removing and re-adding as a named token
 
 2. **Repository Access**:
    - Confirm repository exists and is accessible
@@ -123,3 +161,8 @@ Common issues and solutions:
    - Ensure required token permissions are granted
    - Check if repository is properly connected
    - Verify active token and repository are set
+
+4. **Migration Issues**:
+   - If legacy token isn't showing up, try re-entering it
+   - If new tokens aren't working, check active token selection
+   - Verify both legacy and new token storage are properly synced
