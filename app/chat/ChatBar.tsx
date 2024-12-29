@@ -21,7 +21,13 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
     (transcription) => {
       const trimmedTranscription = transcription.trim()
       if (sendImmediatelyRef.current) {
-        handleSendMessage(trimmedTranscription)
+        // Send all accumulated text plus new transcription
+        const existingText = text.trim()
+        const fullMessage = existingText 
+          ? `${existingText} ${trimmedTranscription}`
+          : trimmedTranscription
+        handleSendMessage(fullMessage)
+        setText("")
         sendImmediatelyRef.current = false
       } else {
         setText(prev => {
