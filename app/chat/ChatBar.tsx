@@ -28,7 +28,6 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           if (!prev.trim()) return trimmedTranscription
           return `${prev.trim()} ${trimmedTranscription}`
         })
-        show()
       }
     }
   )
