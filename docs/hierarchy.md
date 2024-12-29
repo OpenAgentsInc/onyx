@@ -78,7 +78,11 @@
     ├── SettingsScreen
       ├── SettingsScreen.tsx
       ├── coder
+        ├── GithubTokenSection.tsx
+        ├── RepoFormSection.tsx
+        ├── RepoListSection.tsx
         ├── RepoSettings.tsx
+        ├── ToolsSection.tsx
         ├── styles.ts
         ├── types.ts
       ├── index.ts
@@ -126,6 +130,7 @@
 ├── docs
   ├── ai-design-language.md
   ├── chat-persistence.md
+  ├── coder-settings.md
   ├── data-marketplace.md
   ├── groq-voice.md
   ├── init.md
