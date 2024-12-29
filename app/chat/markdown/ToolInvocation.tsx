@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { colors, typography } from "@/theme"
+import { colorsDark as colors, typography } from "@/theme"
 
 interface JSONValue {
   [key: string]: any
