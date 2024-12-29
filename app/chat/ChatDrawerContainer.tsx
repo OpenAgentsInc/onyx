@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Dimensions, Platform } from "react-native"
+import { Platform } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
 import { Screen } from "@/components/Screen"
 import { $styles } from "@/theme"
@@ -34,12 +34,3 @@ export const ChatDrawerContainer = () => {
     </Drawer>
   )
 }
-
-const $chatContainer = {
-  position: "absolute",
-  top: 0,
-  right: 0,
-  left: 0,
-  bottom: 0,
-  height: Dimensions.get("window").height,
-} as const

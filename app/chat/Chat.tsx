@@ -16,7 +16,12 @@ export const Chat = ({ drawerOpen, setDrawerOpen }: ChatProps) => {
     <View style={{ flex: 1 }}>
       <KeyboardDismisser />
       <View style={{ flex: 1 }}>
-        <Header title="Chat" leftIcon="menu" onLeftPress={() => setDrawerOpen(!drawerOpen)} />
+        <Header
+          title="Chat"
+          leftIcon="menu"
+          onLeftPress={() => setDrawerOpen(!drawerOpen)}
+          rightIcon="settings"
+        />
         <ChatOverlay messages={messages} isLoading={isLoading} />
         <ChatBar handleSendMessage={handleSendMessage} />
       </View>
