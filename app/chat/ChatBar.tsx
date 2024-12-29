@@ -1,12 +1,12 @@
 import { useRef, useState } from "react"
 import { Animated, Keyboard, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 import { useKeyboard } from "@/hooks/useKeyboard"
 import { useVoiceRecording } from "@/hooks/useVoiceRecording"
 import { colorsDark as colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
+import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 
 interface ChatBarProps {
   handleSendMessage: (message: string) => void
@@ -20,7 +20,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
     (transcription) => {
       setText(transcription)
       show()
-    },
+    }
   )
 
   const insets = useSafeAreaInsets()
@@ -66,68 +66,107 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
         marginBottom: expanded ? insets.bottom / 2 : 0,
       }}
     >
-      <Pressable
-        onPress={handleBarPress}
-        style={{
-          flex: 1,
-          flexDirection: "row",
-          alignItems: "flex-end",
-        }}
-      >
+      <View style={{ flex: 1 }}>
         <Pressable
-          onPress={handleMicPress}
-          style={{
-            marginRight: 16,
-            paddingBottom: 5,
-            backgroundColor: isRecording ? "white" : "transparent",
-            borderRadius: 20,
-            padding: 8,
-          }}
-          disabled={isProcessing}
-        >
-          <FontAwesome name="microphone" size={20} color={isRecording ? "black" : "#666"} />
-        </Pressable>
-
-        <TextInput
-          ref={ref}
-          spellCheck={false}
-          multiline
+          onPress={handleBarPress}
           style={{
             flex: 1,
-            color: "white",
-            fontSize: 16,
-            fontFamily: typography.primary.normal,
-            paddingBottom: expanded ? 5 : 4,
-            opacity: expanded ? 1 : 0.8,
-          }}
-          editable={!isRecording}
-          onContentSizeChange={updateSize}
-          placeholder={isRecording ? "Recording..." : "Message"}
-          placeholderTextColor="#666"
-          onChangeText={setText}
-          value={text}
-          onPressIn={handleBarPress}
-        />
-
-        <Pressable
-          onPress={handleSendPress}
-          style={{
-            backgroundColor: text.trim() ? "white" : "transparent",
-            borderRadius: 12,
-            padding: 4,
-            marginLeft: 12,
-            marginBottom: 2,
+            flexDirection: "row",
+            alignItems: "flex-end",
           }}
         >
-          <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
-        </Pressable>
-      </Pressable>
+          <Pressable 
+            onPress={handleMicPress} 
+            style={{ 
+              marginRight: 16, 
+              paddingBottom: 5,
+              backgroundColor: isRecording ? "white" : "transparent",
+              borderRadius: 20,
+              padding: 8,
+            }}
+            disabled={isProcessing}
+          >
+            <FontAwesome 
+              name="microphone" 
+              size={20} 
+              color={isRecording ? "black" : "#666"} 
+            />
+          </Pressable>
 
+          <TextInput
+            ref={ref}
+            spellCheck={false}
+            multiline
+            style={{
+              flex: 1,
+              color: "white",
+              fontSize: 16,
+              fontFamily: typography.primary.normal,
+              paddingBottom: expanded ? 5 : 4,
+              opacity: expanded ? 1 : 0.8,
+            }}
+            editable={!isRecording}
+            onContentSizeChange={updateSize}
+            placeholder={isRecording ? "Recording..." : "Message"}
+            placeholderTextColor="#666"
+            onChangeText={setText}
+            value={text}
+            onPressIn={handleBarPress}
+          />
+
+          <Pressable
+            onPress={handleSendPress}
+            style={{
+              backgroundColor: text.trim() ? "white" : "transparent",
+              borderRadius: 12,
+              padding: 4,
+              marginLeft: 12,
+              marginBottom: 2,
+            }}
+          >
+            <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
+          </Pressable>
+        </Pressable>
+
+        {isRecording && (
+          <View style={{ alignItems: "center", marginTop: 4, position: "absolute", left: 0, right: 0, bottom: -24 }}>
+            <ThinkingAnimation size={20} />
+          </View>
+        )}
+      </View>
+
+      {/* Commented out lateral animation
       {isRecording && (
-        <View style={{ alignItems: "center", marginTop: 4 }}>
-          <ThinkingAnimation size={20} />
+        <View 
+          style={{
+            position: "absolute",
+            left: 60,
+            right: 60,
+            top: "50%",
+            height: 2,
+            backgroundColor: "rgba(255,255,255,0.2)",
+            overflow: "hidden",
+          }}
+        >
+          <Animated.View
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: "30%",
+              backgroundColor: "white",
+              borderRadius: 2,
+              transform: [{
+                translateX: translateX.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-50, 200]
+                })
+              }],
+            }}
+          />
         </View>
-      )}
+      )} */}
     </View>
   )
 }
