@@ -8,18 +8,16 @@ import "@/utils/crypto-polyfill"
 import "text-encoding-polyfill"
 import { Buffer } from "buffer"
 import { useFonts } from "expo-font"
-import { StatusBar } from "expo-status-bar"
 import * as React from "react"
-import { ActivityIndicator, Alert, AppRegistry, View, ViewStyle } from "react-native"
+import { ActivityIndicator, AppRegistry, View, ViewStyle } from "react-native"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { Canvas } from "@/canvas"
 import { customFontsToLoad } from "@/theme/typography"
-import { NavigationContainer } from "@react-navigation/native"
+import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native"
 import { ChatDrawerContainer } from "./chat/ChatDrawerContainer"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
-import { navigationRef } from "./navigators/navigationUtilities"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import { useThemeProvider } from "./utils/useAppTheme"
 
@@ -63,6 +61,7 @@ function AppContents(props: AppProps) {
 function App(props: AppProps) {
   const { themeScheme, setThemeContextOverride, navigationTheme, ThemeProvider } =
     useThemeProvider("dark")
+  const navigationRef = createNavigationContainerRef<any>()
   return (
     <ThemeProvider value={{ themeScheme, setThemeContextOverride }}>
       <NavigationContainer ref={navigationRef} theme={navigationTheme} {...props}>
