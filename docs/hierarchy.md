@@ -118,6 +118,7 @@
     ├── ignore-warnings.ts
     ├── isEmulator.ts
     ├── log.ts
+    ├── polyfills.ts
     ├── storage
       ├── index.ts
       ├── storage.test.ts

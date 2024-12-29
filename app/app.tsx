@@ -4,9 +4,7 @@ if (__DEV__) {
 
 import "react-native-gesture-handler"
 import "@/utils/ignore-warnings"
-import "@/utils/crypto-polyfill"
-import "text-encoding-polyfill"
-import { Buffer } from "buffer"
+import "@/utils/polyfills"
 import { useFonts } from "expo-font"
 import * as React from "react"
 import { ActivityIndicator, AppRegistry, View } from "react-native"
@@ -19,8 +17,6 @@ import { useInitialRootStore } from "./models"
 import { AppNavigator, useNavigationPersistence } from "./navigators"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import * as storage from "./utils/storage"
-
-global.Buffer = Buffer
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
