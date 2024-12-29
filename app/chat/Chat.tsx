@@ -4,7 +4,7 @@ import { ChatBar } from "./ChatBar"
 import { ChatOverlay } from "./ChatOverlay"
 
 export const Chat = () => {
-  const { isLoading, messages } = useChat()
+  const { handleSendMessage, isLoading, messages } = useChat()
   return (
     <View style={{ flex: 1 }}>
       <Pressable
@@ -20,7 +20,7 @@ export const Chat = () => {
       />
       <View style={{ flex: 1 }}>
         <ChatOverlay messages={messages} isLoading={isLoading} />
-        <ChatBar />
+        <ChatBar handleSendMessage={handleSendMessage} />
       </View>
     </View>
   )

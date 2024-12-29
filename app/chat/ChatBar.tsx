@@ -5,7 +5,11 @@ import { colorsDark as colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
 
-export const ChatBar = () => {
+interface ChatBarProps {
+  handleSendMessage: (message: string) => void
+}
+
+export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const [expanded, setExpanded] = useState(false)
   const [height, setHeight] = useState(24)
   const [text, setText] = useState("")
@@ -36,7 +40,9 @@ export const ChatBar = () => {
 
   const handleSendPress = (e) => {
     e.stopPropagation()
-    console.log("Send pressed")
+    handleSendMessage(text)
+    setText("")
+    Keyboard.dismiss()
   }
 
   return (
