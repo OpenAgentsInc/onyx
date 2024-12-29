@@ -45,16 +45,18 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
             </View>
           </TouchableOpacity>
         ))}
-        <AutoImage
-          source={images.thinking}
-          maxHeight={80}
-          maxWidth={80}
-          height={40}
-          width={40}
-          style={{
-            backgroundColor: "black",
-          }}
-        />
+        {isLoading && (
+          <Image
+            source={images.thinking}
+            style={{
+              backgroundColor: "black",
+              height: 30,
+              width: 30,
+              marginVertical: 10,
+            }}
+            resizeMode="contain"
+          />
+        )}
       </ScrollView>
     </View>
   )
