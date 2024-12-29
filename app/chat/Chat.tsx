@@ -2,17 +2,11 @@ import { Keyboard, Pressable, View } from "react-native"
 import { useChat } from "@/hooks/useChat"
 import { ChatBar } from "./ChatBar"
 import { ChatOverlay } from "./ChatOverlay"
-
-Keyboard.addListener("keyboardDidShow", () => {
-  console.log("keyboardDidShow")
-})
-
-Keyboard.addListener("keyboardWillShow", () => {
-  console.log("keyboardWillShow")
-})
+import { useKeyboard } from "@/hooks/useKeyboard"
 
 export const Chat = () => {
   const { handleSendMessage, isLoading, messages } = useChat()
+  const { isOpened } = useKeyboard()
 
   return (
     <View style={{ flex: 1 }}>
@@ -23,7 +17,7 @@ export const Chat = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: Keyboard.isVisible() ? 2 : -1,
+          zIndex: isOpened ? 2 : -1,
         }}
         onPress={Keyboard.dismiss}
       />
