@@ -2,7 +2,6 @@ import { observer } from "mobx-react-lite"
 import React, { useState } from "react"
 import {
   KeyboardAvoidingView,
-  Modal,
   Platform,
   ScrollView,
   Text,
@@ -14,7 +13,6 @@ import { useStores } from "@/models"
 import { Repo } from "@/models/types/repo"
 import { colorsDark as colors } from "@/theme"
 import { styles as baseStyles } from "@/theme/onyx"
-import { Ionicons } from "@expo/vector-icons"
 import { styles } from "./styles"
 import { AVAILABLE_TOOLS, RepoSettingsProps } from "./types"
 

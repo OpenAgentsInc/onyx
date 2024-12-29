@@ -65,7 +65,7 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   input: {
-    backgroundColor: colors.palette.neutral200, // Dark input background
+    backgroundColor: colors.backgroundSecondary, // Dark input background
     color: colors.palette.neutral800, // Light text
     padding: 10,
     borderRadius: 5,
@@ -80,7 +80,7 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   button: {
-    backgroundColor: colors.palette.neutral200, // Dark button background
+    backgroundColor: colors.backgroundSecondary, // Dark button background
     padding: 10,
     borderRadius: 5,
     opacity: 0.5,
@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   toolButton: {
-    backgroundColor: colors.palette.neutral200, // Dark tool button background
+    backgroundColor: colors.backgroundSecondary, // Dark tool button background
     padding: 12,
     borderRadius: 5,
     marginBottom: 8,
