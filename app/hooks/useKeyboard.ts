@@ -75,14 +75,34 @@ export function useKeyboard() {
     console.log('show called', !!globalInputRef)
     if (globalInputRef) {
       console.log('focusing')
-      globalInputRef.focus()
+      // Force keyboard to show
+      if (Platform.OS === 'ios') {
+        globalInputRef.focus()
+      } else {
+        // On Android, sometimes need to blur then focus
+        globalInputRef.blur()
+        setTimeout(() => {
+          if (globalInputRef) {
+            globalInputRef.focus()
+          }
+        }, 50)
+      }
     } else {
       // If ref not available, try again after a short delay
       setTimeout(() => {
         console.log('retrying focus', !!globalInputRef)
         if (globalInputRef) {
           console.log('focusing (retry)')
-          globalInputRef.focus()
+          if (Platform.OS === 'ios') {
+            globalInputRef.focus()
+          } else {
+            globalInputRef.blur()
+            setTimeout(() => {
+              if (globalInputRef) {
+                globalInputRef.focus()
+              }
+            }, 50)
+          }
         }
       }, 50)
     }
