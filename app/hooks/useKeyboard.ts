@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react"
-import { Keyboard, Platform } from "react-native"
+import { useEffect, useState, useRef } from "react"
+import { Keyboard, Platform, TextInput } from "react-native"
 
 // Module-level singleton state
 let isKeyboardOpening = false
 let isKeyboardOpened = false
 let listeners: Set<(isOpened: boolean) => void> = new Set()
 let isInitialized = false
+let inputRef = null
 
 export function useKeyboard() {
   const [isOpened, setIsOpened] = useState(isKeyboardOpened)
+  const ref = useRef<TextInput>(null)
 
   useEffect(() => {
     // Add component's state setter to listeners
@@ -39,6 +41,7 @@ export function useKeyboard() {
         hideListener.remove()
         isInitialized = false
         listeners.clear()
+        inputRef = null
       }
     }
 
@@ -48,9 +51,20 @@ export function useKeyboard() {
     }
   }, [])
 
+  // Store ref if this instance provides one
+  if (ref.current && !inputRef) {
+    inputRef = ref.current
+  }
+
   return {
     isOpening: isKeyboardOpening,
     isOpened,
     dismiss: Keyboard.dismiss,
+    show: () => {
+      if (inputRef) {
+        inputRef.focus()
+      }
+    },
+    ref,
   }
 }
