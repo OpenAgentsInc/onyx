@@ -44,7 +44,7 @@ export const ChatBar = () => {
       style={{
         borderRadius: 20,
         marginHorizontal: 20,
-        backgroundColor: colors.background,
+        backgroundColor: colors.backgroundSecondary,
         paddingBottom: 10,
         paddingHorizontal: 14,
         height: expanded ? Math.max(50, Math.min(height + 16, 300)) : 50,
