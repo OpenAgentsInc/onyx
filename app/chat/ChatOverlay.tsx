@@ -1,10 +1,10 @@
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
 import { Image, ScrollView, TouchableOpacity, View } from "react-native"
-import { MessageContent } from "@/onyx/markdown/MessageContent"
-import { styles as baseStyles } from "@/onyx/styles"
 import { Message } from "@ai-sdk/react"
 import Clipboard from "@react-native-clipboard/clipboard"
+import { MessageContent } from "./markdown/MessageContent"
+import { styles as baseStyles } from "./styles"
 
 interface ChatOverlayProps {
   messages: Message[]
