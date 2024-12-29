@@ -67,6 +67,9 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
     }
   }
 
+  // Calculate container height based on content height
+  const containerHeight = Math.max(50, Math.min(height + 16, 300))
+
   return (
     <View
       style={{
@@ -75,7 +78,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
         backgroundColor: colors.backgroundSecondary,
         paddingBottom: 10,
         paddingHorizontal: 14,
-        height: expanded ? Math.max(50, Math.min(height + 16, 300)) : 50,
+        height: containerHeight,
         zIndex: 4,
         marginBottom: expanded ? insets.bottom / 2 : 0,
       }}
@@ -118,6 +121,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
               fontFamily: typography.primary.normal,
               paddingBottom: expanded ? 5 : 4,
               opacity: expanded ? 1 : 0.8,
+              maxHeight: 240,
             }}
             editable={!isRecording}
             onContentSizeChange={updateSize}
