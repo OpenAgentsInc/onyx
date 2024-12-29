@@ -1,18 +1,13 @@
 import { useState } from "react"
 import {
   Dimensions,
-  Keyboard,
   Platform,
-  Pressable,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
 import { Screen } from "@/components/Screen"
 import { $styles } from "@/theme"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
-import { Feather } from "@expo/vector-icons"
 import { Chat } from "./Chat"
 import { ChatDrawerContent } from "./ChatDrawerContent"
 
@@ -38,24 +33,11 @@ export const ChatDrawerContainer = () => {
         contentContainerStyle={$styles.flex1}
         {...(isAndroid ? { KeyboardAvoidingViewProps: { behavior: undefined } } : {})}
       >
-        <TouchableOpacity onPress={() => setOpen((prevOpen) => !prevOpen)} style={$menuButton}>
-          <Feather name="menu" size={24} color="white" />
-        </TouchableOpacity>
         <Chat />
       </Screen>
     </Drawer>
   )
 }
-
-const $menuButton = {
-  position: "absolute",
-  top: 55,
-  left: 15,
-  zIndex: 900,
-  backgroundColor: "rgba(32, 32, 32, 0.8)",
-  padding: 8,
-  borderRadius: 4,
-} as const
 
 const $chatContainer = {
   position: "absolute",
