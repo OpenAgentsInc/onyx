@@ -16,11 +16,6 @@ export function useKeyboard() {
     // Add component's state setter to listeners
     listeners.add(setIsOpened)
 
-    // Update global ref when local ref is available
-    if (localRef.current) {
-      globalInputRef = localRef.current
-    }
-
     if (!isInitialized) {
       // Set up listeners only once
       const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow"
@@ -61,22 +56,43 @@ export function useKeyboard() {
 
   // Update global ref whenever local ref changes
   useEffect(() => {
-    if (localRef.current) {
-      globalInputRef = localRef.current
+    const checkRef = () => {
+      if (localRef.current) {
+        globalInputRef = localRef.current
+      }
     }
-  }, [localRef.current])
+
+    // Check immediately
+    checkRef()
+    
+    // And after a short delay to ensure mounting
+    const timer = setTimeout(checkRef, 100)
+    
+    return () => clearTimeout(timer)
+  }, [])
+
+  const show = () => {
+    console.log('show called', !!globalInputRef)
+    if (globalInputRef) {
+      console.log('focusing')
+      globalInputRef.focus()
+    } else {
+      // If ref not available, try again after a short delay
+      setTimeout(() => {
+        console.log('retrying focus', !!globalInputRef)
+        if (globalInputRef) {
+          console.log('focusing (retry)')
+          globalInputRef.focus()
+        }
+      }, 50)
+    }
+  }
 
   return {
     isOpening: isKeyboardOpening,
     isOpened,
     dismiss: Keyboard.dismiss,
-    show: () => {
-      console.log('show called', !!globalInputRef)
-      if (globalInputRef) {
-        console.log('focusing')
-        globalInputRef.focus()
-      }
-    },
+    show,
     ref: localRef,
   }
 }
