@@ -99,8 +99,12 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           style={{ 
             marginRight: 16,
             backgroundColor: isRecording ? "white" : "transparent",
-            borderRadius: 20,
+            borderRadius: 36,
             padding: 8,
+            width: 36,
+            height: 36,
+            alignItems: "center",
+            justifyContent: "center",
           }}
           disabled={isProcessing}
         >
@@ -143,10 +147,13 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           onPress={handleSendPress}
           style={{
             backgroundColor: (text.trim() || isRecording) ? "white" : "transparent",
-            borderRadius: 12,
-            padding: 4,
+            borderRadius: 28,
+            width: 28,
+            height: 28,
             marginLeft: 12,
             alignSelf: "flex-end",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <AntDesign name="arrowup" size={20} color={(text.trim() || isRecording) ? "black" : "#666"} />
