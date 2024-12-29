@@ -1,10 +1,11 @@
+import { observer } from "mobx-react-lite"
 import React from "react"
 import { Text, TouchableOpacity, View } from "react-native"
 import { useStores } from "@/models"
 import { styles } from "./styles"
 import { AVAILABLE_TOOLS } from "./types"
 
-export const ToolsSection = () => {
+export const ToolsSection = observer(() => {
   const { chatStore } = useStores()
 
   const handleToolToggle = (toolId: string) => {
@@ -41,4 +42,4 @@ export const ToolsSection = () => {
       ))}
     </View>
   )
-}
+})
