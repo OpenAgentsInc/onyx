@@ -116,27 +116,34 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             />
           </Pressable>
 
-          <TextInput
-            ref={ref}
-            spellCheck={false}
-            multiline
-            style={{
-              flex: 1,
-              color: "white",
-              fontSize: 16,
-              fontFamily: typography.primary.normal,
-              paddingBottom: expanded ? 5 : 4,
-              opacity: expanded ? 1 : 0.8,
-              maxHeight: 240,
-            }}
-            editable={!isRecording}
-            onContentSizeChange={updateSize}
-            placeholder={isRecording ? "Recording..." : "Message"}
-            placeholderTextColor="#666"
-            onChangeText={setText}
-            value={text}
-            onPressIn={handleBarPress}
-          />
+          <View style={{ flex: 1 }}>
+            <TextInput
+              ref={ref}
+              spellCheck={false}
+              multiline
+              style={{
+                flex: 1,
+                color: "white",
+                fontSize: 16,
+                fontFamily: typography.primary.normal,
+                paddingBottom: expanded ? 5 : 4,
+                opacity: expanded ? 1 : 0.8,
+                maxHeight: 240,
+              }}
+              editable={!isRecording}
+              onContentSizeChange={updateSize}
+              placeholder={isRecording ? "Recording..." : "Message"}
+              placeholderTextColor="#666"
+              onChangeText={setText}
+              value={text}
+              onPressIn={handleBarPress}
+            />
+            {isProcessing && (
+              <View style={{ position: "absolute", right: 0, bottom: expanded ? 5 : 4 }}>
+                <ThinkingAnimation size={16} />
+              </View>
+            )}
+          </View>
 
           <Pressable
             onPress={handleSendPress}
@@ -152,12 +159,6 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           </Pressable>
         </Pressable>
       </View>
-
-      {isProcessing && (
-        <View style={{ alignItems: "center", marginTop: 8 }}>
-          <ThinkingAnimation size={20} />
-        </View>
-      )}
     </View>
   )
 }
