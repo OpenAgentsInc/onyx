@@ -33,16 +33,14 @@ export const ChatDrawerContainer = () => {
     >
       <Screen
         preset="fixed"
-        safeAreaEdges={["top"]}
+        safeAreaEdges={["top", "bottom"]}
         contentContainerStyle={$styles.flex1}
         {...(isAndroid ? { KeyboardAvoidingViewProps: { behavior: undefined } } : {})}
       >
         <TouchableOpacity onPress={() => setOpen((prevOpen) => !prevOpen)} style={$menuButton}>
           <Feather name="menu" size={24} color="white" />
         </TouchableOpacity>
-        <View style={$chatContainer}>
-          <Chat />
-        </View>
+        <Chat />
       </Screen>
 
       {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Keyboard, Platform, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { colors } from "@/theme"
+import { colorsDark as colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
 
