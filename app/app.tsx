@@ -38,7 +38,7 @@ function App(props: AppProps) {
     setTimeout(hideSplashScreen, 500)
   })
 
-  if (!loaded || !rehydrated) {
+  if (!loaded || !rehydrated || !isNavigationStateRestored) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#fff" />
