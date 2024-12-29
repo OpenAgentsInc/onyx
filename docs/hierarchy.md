@@ -19,7 +19,6 @@
     ├── ChatOverlay.tsx
     ├── markdown
       ├── MessageContent.tsx
-      ├── MessageContentPrev.tsx
       ├── ToolInvocation.tsx
       ├── index.ts
       ├── styles.ts
@@ -47,24 +46,6 @@
     ├── useHeader.tsx
     ├── useKeyboard.ts
     ├── useVoicePermissions.ts
-  ├── i18n
-    ├── ar.ts
-    ├── demo-ar.ts
-    ├── demo-en.ts
-    ├── demo-es.ts
-    ├── demo-fr.ts
-    ├── demo-hi.ts
-    ├── demo-ja.ts
-    ├── demo-ko.ts
-    ├── en.ts
-    ├── es.ts
-    ├── fr.ts
-    ├── hi.ts
-    ├── i18n.ts
-    ├── index.ts
-    ├── ja.ts
-    ├── ko.ts
-    ├── translate.ts
   ├── models
     ├── RootStore.ts
     ├── _helpers

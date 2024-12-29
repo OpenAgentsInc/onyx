@@ -94,6 +94,7 @@ function generateHierarchy() {
       ".git/**",
       "assets/icons/**",
       "assets/images/**",
+      "app/i18n/**",
     ],
   });
 
