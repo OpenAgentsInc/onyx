@@ -30,16 +30,22 @@ export const CoderStoreModel = types
   .actions(withSetPropAction)
   .actions((self) => ({
     afterCreate() {
-      // If there's an old token, migrate it to the new system
-      if (self.githubToken && self.githubTokens.length === 0) {
-        const id = `token_${Date.now()}`
-        const newToken = GithubTokenModel.create({
-          id,
-          name: "Legacy Token",
-          token: self.githubToken,
-        })
-        self.githubTokens.push(newToken)
-        self.activeTokenId = id
+      // CRITICAL: If there's an old token, ALWAYS ensure it exists in the new system
+      if (self.githubToken) {
+        const legacyTokenExists = self.githubTokens.some(t => 
+          t.name === "Legacy Token" && t.token === self.githubToken
+        )
+        
+        if (!legacyTokenExists) {
+          const id = `token_${Date.now()}`
+          const newToken = GithubTokenModel.create({
+            id,
+            name: "Legacy Token",
+            token: self.githubToken,
+          })
+          self.githubTokens.push(newToken)
+          self.activeTokenId = id
+        }
       }
     },
 
@@ -68,31 +74,33 @@ export const CoderStoreModel = types
       self.githubTokens.push(newToken)
       if (!self.activeTokenId) {
         self.activeTokenId = id
-      }
-      // Update legacy token if this becomes active
-      if (self.activeTokenId === id) {
-        self.githubToken = token
+        self.githubToken = token // Keep legacy token in sync
       }
     },
 
     removeGithubToken(id: string) {
       const index = self.githubTokens.findIndex(t => t.id === id)
       if (index !== -1) {
+        const token = self.githubTokens[index]
+        // Don't allow removing the legacy token if it's the only one with that value
+        if (token.name === "Legacy Token" && token.token === self.githubToken) {
+          return // Protect the legacy token
+        }
+        
         // If removing active token, update legacy token
         if (self.activeTokenId === id) {
-          self.githubToken = ""
-        }
-        self.githubTokens = cast(self.githubTokens.filter((_, i) => i !== index))
-        if (self.activeTokenId === id) {
-          self.activeTokenId = self.githubTokens.length > 0 ? self.githubTokens[0].id : null
-          // Update legacy token with new active token if exists
-          if (self.activeTokenId) {
-            const newActiveToken = self.githubTokens.find(t => t.id === self.activeTokenId)
-            if (newActiveToken) {
-              self.githubToken = newActiveToken.token
-            }
+          // Find another token to make active
+          const remainingTokens = self.githubTokens.filter((_, i) => i !== index)
+          if (remainingTokens.length > 0) {
+            self.activeTokenId = remainingTokens[0].id
+            self.githubToken = remainingTokens[0].token
+          } else {
+            self.activeTokenId = null
+            // Don't clear githubToken here - preserve it
           }
         }
+        
+        self.githubTokens = cast(self.githubTokens.filter((_, i) => i !== index))
       }
     },
 
@@ -118,8 +126,6 @@ export const CoderStoreModel = types
           if (token) {
             self.githubToken = token.token
           }
-        } else {
-          self.githubToken = ""
         }
       }
     },
@@ -194,7 +200,8 @@ export const CoderStoreModel = types
     },
 
     get githubTokenValue() {
-      return self.activeToken?.token || self.githubToken || ""
+      // CRITICAL: Always return the legacy token if it exists
+      return self.githubToken || self.activeToken?.token || ""
     },
 
     get hasGithubToken() {
