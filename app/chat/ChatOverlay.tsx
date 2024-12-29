@@ -25,7 +25,7 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, paddingHorizontal: 10 }}>
       <ScrollView
         ref={scrollViewRef}
         style={[baseStyles.messageList, { flex: 1 }]}
