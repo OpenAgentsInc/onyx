@@ -1,9 +1,8 @@
 import { Audio } from "expo-av"
 import { useEffect, useRef, useState } from "react"
-import { Platform } from "react-native"
-import { useVoicePermissions } from "./useVoicePermissions"
 import { groqChatApi } from "@/services/groq/groq-chat"
 import { log } from "@/utils/log"
+import { useVoicePermissions } from "./useVoicePermissions"
 
 export const useVoiceRecording = (onTranscription: (text: string) => void) => {
   const [isRecording, setIsRecording] = useState(false)
@@ -37,7 +36,7 @@ export const useVoiceRecording = (onTranscription: (text: string) => void) => {
   const startRecording = async () => {
     try {
       setError("")
-      
+
       if (!hasPermission) {
         const granted = await requestPermissions()
         if (!granted) {
