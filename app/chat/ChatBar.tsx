@@ -13,7 +13,7 @@ interface ChatBarProps {
 export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const [height, setHeight] = useState(24)
   const [text, setText] = useState("")
-  const { isOpened: expanded } = useKeyboard()
+  const { isOpened: expanded, show, ref } = useKeyboard()
 
   const insets = useSafeAreaInsets()
 
@@ -48,7 +48,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
       }}
     >
       <Pressable
-        onPress={() => Keyboard.dismiss()}
+        onPress={show}
         style={{
           flex: 1,
           flexDirection: "row",
@@ -61,6 +61,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
 
         {expanded ? (
           <TextInput
+            ref={ref}
             autoFocus
             spellCheck={false}
             multiline
