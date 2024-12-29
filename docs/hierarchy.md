@@ -25,9 +25,9 @@
       ├── styles.ts
     ├── styles.ts
   ├── components
-    ├── DismissKeyboardView.tsx
     ├── Header.tsx
     ├── Icon.tsx
+    ├── KeyboardDismisser.tsx
     ├── Screen.tsx
     ├── Text.tsx
     ├── index.ts
