@@ -154,7 +154,7 @@ export function ToolInvocation({ toolInvocation }: { toolInvocation: ToolInvocat
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.backgroundSecondary,
     borderRadius: 8,
     marginBottom: 8,
     borderWidth: 1,
