@@ -49,7 +49,6 @@
       ├── useStores.ts
       ├── withSetPropAction.ts
     ├── chat
-      ├── ChatActions.ts
       ├── ChatStorage.ts
       ├── ChatStore.ts
       ├── index.ts
@@ -62,23 +61,6 @@
       ├── index.ts
     ├── types
       ├── repo.ts
-  ├── navigators
-    ├── navigationUtilities.ts
-  ├── old
-    ├── ChatOverlayPrev.tsx
-    ├── OnyxLayout.tsx
-  ├── onyx
-    ├── BottomButtons.styles.ts
-    ├── BottomButtons.tsx
-    ├── ConfigureModal.tsx
-    ├── TextInputModal.tsx
-    ├── VoiceInputModal.styles.ts
-    ├── VoiceInputModal.tsx
-    ├── repo
-      ├── RepoSection.tsx
-      ├── styles.ts
-      ├── types.ts
-    ├── styles.ts
   ├── screens
     ├── ErrorScreen
       ├── ErrorBoundary.tsx
