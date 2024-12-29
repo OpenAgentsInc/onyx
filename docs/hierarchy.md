@@ -26,7 +26,10 @@
     ├── styles.ts
   ├── components
     ├── DismissKeyboardView.tsx
+    ├── Header.tsx
+    ├── Icon.tsx
     ├── Screen.tsx
+    ├── Text.tsx
   ├── config
     ├── config.base.ts
     ├── config.dev.ts
@@ -40,7 +43,26 @@
   ├── hooks
     ├── useAutoUpdate.ts
     ├── useChat.ts
+    ├── useKeyboard.ts
     ├── useVoicePermissions.ts
+  ├── i18n
+    ├── ar.ts
+    ├── demo-ar.ts
+    ├── demo-en.ts
+    ├── demo-es.ts
+    ├── demo-fr.ts
+    ├── demo-hi.ts
+    ├── demo-ja.ts
+    ├── demo-ko.ts
+    ├── en.ts
+    ├── es.ts
+    ├── fr.ts
+    ├── hi.ts
+    ├── i18n.ts
+    ├── index.ts
+    ├── ja.ts
+    ├── ko.ts
+    ├── translate.ts
   ├── models
     ├── RootStore.ts
     ├── _helpers
@@ -55,10 +77,6 @@
     ├── coder
       ├── CoderStore.ts
     ├── index.ts
-    ├── tools
-      ├── ToolActions.ts
-      ├── ToolStore.ts
-      ├── index.ts
     ├── types
       ├── repo.ts
   ├── screens
@@ -72,15 +90,6 @@
       ├── apiProblem.test.ts
       ├── apiProblem.ts
       ├── index.ts
-    ├── gemini
-      ├── gemini-api.types.ts
-      ├── gemini-chat.ts
-      ├── index.ts
-      ├── tools
-        ├── github-impl.ts
-        ├── github.ts
-        ├── index.ts
-        ├── types.ts
     ├── groq
       ├── groq-api.types.ts
       ├── groq-chat.ts
@@ -122,28 +131,16 @@
     ├── splash.png
 ├── dist
 ├── docs
-  ├── DocsNewNavigation.md
   ├── ai-design-language.md
   ├── chat-persistence.md
   ├── data-marketplace.md
-  ├── gemini-function-calling.md
-  ├── gemini.md
-  ├── github-tools.md
   ├── groq-voice.md
-  ├── groq.md
   ├── init.md
-  ├── keys.md
-  ├── llm-store.md
-  ├── local-models.md
   ├── markdown.md
-  ├── model-switching.md
   ├── onboarding.md
-  ├── onyx-layout.md
   ├── permissions.md
   ├── roadmap-brainstorming.md
   ├── roadmap.md
-  ├── tool-component.md
-  ├── tools.md
 ├── eas.json
 ├── ios
 ├── package.json
