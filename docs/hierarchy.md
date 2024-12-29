@@ -24,6 +24,9 @@
       ├── index.ts
       ├── styles.ts
     ├── styles.ts
+  ├── components
+    ├── DismissKeyboardView.tsx
+    ├── Screen.tsx
   ├── config
     ├── config.base.ts
     ├── config.dev.ts
@@ -59,6 +62,10 @@
       ├── index.ts
     ├── types
       ├── repo.ts
+  ├── navigators
+    ├── AppNavigator.tsx
+    ├── DemoNavigator.tsx
+    ├── navigationUtilities.ts
   ├── onyx
     ├── BottomButtons.styles.ts
     ├── BottomButtons.tsx
@@ -108,7 +115,12 @@
       ├── constants.ts
   ├── theme
     ├── colors.ts
+    ├── colorsDark.ts
     ├── index.ts
+    ├── spacing.ts
+    ├── spacingDark.ts
+    ├── styles.ts
+    ├── timing.ts
     ├── typography.ts
   ├── utils
     ├── clearStorage.ts
@@ -120,6 +132,7 @@
       ├── index.ts
       ├── storage.test.ts
       ├── storage.ts
+    ├── useAppTheme.ts
     ├── useIsFocused.ts
     ├── useIsMounted.ts
     ├── useSafeAreaInsetsStyle.ts
