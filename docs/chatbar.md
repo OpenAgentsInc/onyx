@@ -39,8 +39,25 @@
 - When appending transcriptions, maintain single space between segments
 - Empty or whitespace-only text should not enable send button
 
-## General Input
-- Multiline input with dynamic height
-- Maximum height of 240px
-- Preserves safe area insets
+## Input Field Behavior
+
+### Height Behavior
+- Input field should dynamically resize based on content in both expanded and collapsed states
+- Minimum height of 50px (including padding)
+- Maximum height of 300px (including padding)
+- Content height maximum of 240px
+- Height changes should be smooth and maintain layout
+- Same height behavior whether keyboard is shown or hidden
+
+### Text Input
+- Multiline input enabled
+- Maintains proper line breaks
+- Scrollable when content exceeds maximum height
+- Preserves cursor position during height changes
+- Opacity slightly reduced when not expanded
+
+### Layout
 - Maintains proper padding and margins in all states
+- Preserves safe area insets
+- Proper vertical alignment with mic and send buttons
+- Consistent spacing between elements regardless of height
