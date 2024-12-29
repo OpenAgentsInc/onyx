@@ -32,28 +32,6 @@ export const ChatDrawerContainer = () => {
         <ChatDrawerContent drawerInsets={$drawerInsets} setOpen={setOpen} />
       )}
     >
-      <Pressable
-        onPress={() => {
-          console.log("hi")
-          Keyboard.dismiss()
-        }}
-        accessible={false}
-        // capture clicks but pass them through
-
-        style={{
-          zIndex: 9999,
-          flex: 1,
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          // height: 1000,
-          // width: 1000,
-          // backgroundColor: "red",
-        }}
-      ></Pressable>
-
       <Screen
         preset="fixed"
         safeAreaEdges={["top", "bottom"]}
@@ -65,23 +43,8 @@ export const ChatDrawerContainer = () => {
         </TouchableOpacity>
         <Chat />
       </Screen>
-
-      {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={[$drawerInsets, $container]}>
-          <TouchableOpacity onPress={() => setOpen((prevOpen) => !prevOpen)} style={$menuButton}>
-            <Feather name="menu" size={24} color="white" />
-          </TouchableOpacity>
-          <View style={$chatContainer}>
-            <Chat />
-          </View>
-        </View>
-      </TouchableWithoutFeedback> */}
     </Drawer>
   )
-}
-
-const $container = {
-  flex: 1,
 }
 
 const $menuButton = {
