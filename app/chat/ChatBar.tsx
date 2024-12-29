@@ -15,17 +15,15 @@ interface ChatBarProps {
 export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const [height, setHeight] = useState(24)
   const [text, setText] = useState("")
-  const [sendImmediately, setSendImmediately] = useState(false)
+  const sendImmediatelyRef = useRef(false)
   const { isOpened: expanded, show, ref } = useKeyboard()
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording(
     (transcription) => {
       const trimmedTranscription = transcription.trim()
-      if (sendImmediately) {
-        // Send immediately without showing keyboard or setting text
+      if (sendImmediatelyRef.current) {
         handleSendMessage(trimmedTranscription)
-        setSendImmediately(false)
+        sendImmediatelyRef.current = false
       } else {
-        // Normal mode - append to existing text
         setText(prev => {
           if (!prev.trim()) return trimmedTranscription
           return `${prev.trim()} ${trimmedTranscription}`
@@ -45,7 +43,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const handleMicPress = async (e) => {
     e.stopPropagation()
     if (isRecording) {
-      setSendImmediately(false)
+      sendImmediatelyRef.current = false
       await stopRecording()
     } else {
       await startRecording()
@@ -55,11 +53,9 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const handleSendPress = async (e) => {
     e.stopPropagation()
     if (isRecording) {
-      // Set flag and stop recording - transcription will be sent when it comes back
-      setSendImmediately(true)
+      sendImmediatelyRef.current = true
       await stopRecording()
     } else if (text.trim()) {
-      // Normal text send
       handleSendMessage(text)
       setText("")
       Keyboard.dismiss()
