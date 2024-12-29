@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Keyboard, Pressable, TextInput, View } from "react-native"
+import { useEffect, useRef, useState } from "react"
+import { Animated, Keyboard, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useKeyboard } from "@/hooks/useKeyboard"
 import { useVoiceRecording } from "@/hooks/useVoiceRecording"
@@ -23,6 +23,30 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   )
 
   const insets = useSafeAreaInsets()
+  const translateX = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    if (isRecording) {
+      // Start animation
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(translateX, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(translateX, {
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start()
+    } else {
+      // Stop animation
+      translateX.setValue(0)
+    }
+  }, [isRecording])
 
   const updateSize = (event) => {
     const newHeight = Math.min(event.nativeEvent.contentSize.height, 240)
@@ -138,7 +162,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             overflow: "hidden",
           }}
         >
-          <View
+          <Animated.View
             style={{
               position: "absolute",
               left: 0,
@@ -147,8 +171,12 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
               width: "30%",
               backgroundColor: "white",
               borderRadius: 2,
-              transform: [{ translateX: -50 }],
-              animation: "recording 2s linear infinite",
+              transform: [{
+                translateX: translateX.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-50, 200] // Adjust these values to control animation width
+                })
+              }],
             }}
           />
         </View>
