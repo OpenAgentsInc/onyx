@@ -1,12 +1,12 @@
 import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
-import { ChatStoreWithActions } from "./chat/ChatStore"
-import { ToolStoreModel } from "./tools"
+import { ChatStoreModel } from "./chat/ChatStore"
 import { CoderStoreModel } from "./coder/CoderStore"
+import { ToolStoreModel } from "./tools"
 
 const RootStoreModel = types
   .model("RootStore")
   .props({
-    chatStore: types.optional(ChatStoreWithActions, {}),
+    chatStore: types.optional(ChatStoreModel, {}),
     toolStore: types.optional(ToolStoreModel, {
       tools: [],
       isInitialized: false,
