@@ -17,7 +17,7 @@ export const Chat = ({ drawerOpen, setDrawerOpen }: ChatProps) => {
       <KeyboardDismisser />
       <View style={{ flex: 1 }}>
         <Header
-          title="Chat"
+          title="Onyx Chat"
           leftIcon="menu"
           onLeftPress={() => setDrawerOpen(!drawerOpen)}
           rightIcon="settings"

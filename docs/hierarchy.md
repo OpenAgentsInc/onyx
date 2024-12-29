@@ -63,10 +63,21 @@
     ├── index.ts
     ├── types
       ├── repo.ts
+  ├── navigators
+    ├── AppNavigator.tsx
+    ├── index.ts
+    ├── navigationUtilities.ts
   ├── screens
+    ├── ChatScreen
+      ├── ChatScreen.tsx
+      ├── index.ts
     ├── ErrorScreen
       ├── ErrorBoundary.tsx
       ├── ErrorDetails.tsx
+    ├── SettingsScreen
+      ├── SettingsScreen.tsx
+      ├── index.ts
+    ├── index.ts
   ├── services
     ├── api
       ├── api.ts
