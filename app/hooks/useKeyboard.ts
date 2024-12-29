@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Keyboard, Platform, TextInput } from "react-native"
 
 // Module-level singleton state
@@ -64,17 +64,15 @@ export function useKeyboard() {
 
     // Check immediately
     checkRef()
-    
+
     // And after a short delay to ensure mounting
     const timer = setTimeout(checkRef, 100)
-    
+
     return () => clearTimeout(timer)
   }, [])
 
   const show = () => {
-    console.log('show called', !!globalInputRef)
     if (globalInputRef) {
-      console.log('focusing')
       // Force keyboard to show
       if (Platform.OS === 'ios') {
         globalInputRef.focus()
