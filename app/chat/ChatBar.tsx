@@ -15,15 +15,23 @@ interface ChatBarProps {
 export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const [height, setHeight] = useState(24)
   const [text, setText] = useState("")
+  const [pendingTranscription, setPendingTranscription] = useState("")
   const { isOpened: expanded, show, ref } = useKeyboard()
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording(
     (transcription) => {
-      setText(prev => {
-        const trimmedTranscription = transcription.trim()
-        if (!prev.trim()) return trimmedTranscription
-        return `${prev.trim()} ${trimmedTranscription}`
-      })
-      show()
+      const trimmedTranscription = transcription.trim()
+      if (pendingTranscription) {
+        // If we had a pending transcription, it means we're in "send immediately" mode
+        handleSendMessage(trimmedTranscription)
+        setPendingTranscription("")
+      } else {
+        // Normal mode - append to existing text
+        setText(prev => {
+          if (!prev.trim()) return trimmedTranscription
+          return `${prev.trim()} ${trimmedTranscription}`
+        })
+        show()
+      }
     }
   )
 
@@ -37,6 +45,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const handleMicPress = async (e) => {
     e.stopPropagation()
     if (isRecording) {
+      setPendingTranscription("") // Clear any pending transcription
       await stopRecording()
     } else {
       await startRecording()
@@ -44,11 +53,17 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   }
 
   const handleSendPress = (e) => {
-    if (!text.trim()) return
     e.stopPropagation()
-    handleSendMessage(text)
-    setText("")
-    Keyboard.dismiss()
+    if (isRecording) {
+      // If recording, set pending flag and stop recording
+      setPendingTranscription("pending")
+      stopRecording()
+    } else if (text.trim()) {
+      // Normal text send
+      handleSendMessage(text)
+      setText("")
+      Keyboard.dismiss()
+    }
   }
 
   const handleBarPress = () => {
@@ -121,14 +136,14 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           <Pressable
             onPress={handleSendPress}
             style={{
-              backgroundColor: text.trim() ? "white" : "transparent",
+              backgroundColor: (text.trim() || isRecording) ? "white" : "transparent",
               borderRadius: 12,
               padding: 4,
               marginLeft: 12,
               marginBottom: 2,
             }}
           >
-            <AntDesign name="arrowup" size={20} color={text.trim() ? "black" : "#666"} />
+            <AntDesign name="arrowup" size={20} color={(text.trim() || isRecording) ? "black" : "#666"} />
           </Pressable>
         </Pressable>
       </View>
