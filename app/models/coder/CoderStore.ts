@@ -20,6 +20,8 @@ export const CoderStoreModel = types
   .model("CoderStore")
   .props({
     error: types.maybeNull(types.string),
+    // Keep the old token field for backward compatibility
+    githubToken: types.optional(types.string, ""),
     githubTokens: types.array(GithubTokenModel),
     activeTokenId: types.maybeNull(types.string),
     repos: types.array(RepoModel),
@@ -27,8 +29,36 @@ export const CoderStoreModel = types
   })
   .actions(withSetPropAction)
   .actions((self) => ({
+    afterCreate() {
+      // If there's an old token, migrate it to the new system
+      if (self.githubToken && self.githubTokens.length === 0) {
+        const id = `token_${Date.now()}`
+        const newToken = GithubTokenModel.create({
+          id,
+          name: "Legacy Token",
+          token: self.githubToken,
+        })
+        self.githubTokens.push(newToken)
+        self.activeTokenId = id
+      }
+    },
+
     setError(error: string | null) {
       self.error = error
+    },
+
+    // Keep the old method for backward compatibility
+    setGithubToken(token: string) {
+      self.githubToken = token
+      // Also add/update in new system
+      if (token) {
+        const existingToken = self.githubTokens.find(t => t.name === "Legacy Token")
+        if (existingToken) {
+          this.updateGithubToken(existingToken.id, "Legacy Token", token)
+        } else {
+          this.addGithubToken("Legacy Token", token)
+        }
+      }
     },
 
     // Token actions
@@ -39,14 +69,29 @@ export const CoderStoreModel = types
       if (!self.activeTokenId) {
         self.activeTokenId = id
       }
+      // Update legacy token if this becomes active
+      if (self.activeTokenId === id) {
+        self.githubToken = token
+      }
     },
 
     removeGithubToken(id: string) {
       const index = self.githubTokens.findIndex(t => t.id === id)
       if (index !== -1) {
+        // If removing active token, update legacy token
+        if (self.activeTokenId === id) {
+          self.githubToken = ""
+        }
         self.githubTokens = cast(self.githubTokens.filter((_, i) => i !== index))
         if (self.activeTokenId === id) {
           self.activeTokenId = self.githubTokens.length > 0 ? self.githubTokens[0].id : null
+          // Update legacy token with new active token if exists
+          if (self.activeTokenId) {
+            const newActiveToken = self.githubTokens.find(t => t.id === self.activeTokenId)
+            if (newActiveToken) {
+              self.githubToken = newActiveToken.token
+            }
+          }
         }
       }
     },
@@ -57,12 +102,25 @@ export const CoderStoreModel = types
         self.githubTokens = cast(self.githubTokens.map((t, i) =>
           i === index ? GithubTokenModel.create({ id, name, token }) : t
         ))
+        // If updating active token, update legacy token
+        if (self.activeTokenId === id) {
+          self.githubToken = token
+        }
       }
     },
 
     setActiveTokenId(id: string | null) {
       if (id === null || self.githubTokens.some(t => t.id === id)) {
         self.activeTokenId = id
+        // Update legacy token
+        if (id) {
+          const token = self.githubTokens.find(t => t.id === id)
+          if (token) {
+            self.githubToken = token.token
+          }
+        } else {
+          self.githubToken = ""
+        }
       }
     },
 
@@ -135,12 +193,12 @@ export const CoderStoreModel = types
       return self.activeTokenId ? self.githubTokens.find(t => t.id === self.activeTokenId) : null
     },
 
-    get githubToken() {
-      return self.activeToken?.token || ""
+    get githubTokenValue() {
+      return self.activeToken?.token || self.githubToken || ""
     },
 
     get hasGithubToken() {
-      return self.githubTokens.length > 0
+      return !!(self.githubToken || self.githubTokens.length > 0)
     },
 
     get activeRepo() {
@@ -155,6 +213,7 @@ export interface CoderStoreSnapshotIn extends SnapshotIn<typeof CoderStoreModel>
 export const createCoderStoreDefaultModel = () =>
   CoderStoreModel.create({
     error: null,
+    githubToken: "",
     githubTokens: [],
     activeTokenId: null,
     repos: [],
