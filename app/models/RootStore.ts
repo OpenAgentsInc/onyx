@@ -17,7 +17,7 @@ const RootStoreModel = types
       error: null,
       githubToken: "",
       repos: [],
-      activeRepo: null,
+      activeRepoIndex: null,
     })
   })
 
@@ -41,6 +41,6 @@ export const createRootStoreDefaultModel = () =>
       error: null,
       githubToken: "",
       repos: [],
-      activeRepo: null,
+      activeRepoIndex: null,
     }
   })
