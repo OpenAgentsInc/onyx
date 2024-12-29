@@ -1,27 +1,15 @@
-import { Keyboard, Pressable, View } from "react-native"
-import { Header } from "@/components"
+import { View } from "react-native"
+import { Header, KeyboardDismisser } from "@/components"
 import { useChat } from "@/hooks/useChat"
-import { useKeyboard } from "@/hooks/useKeyboard"
 import { ChatBar } from "./ChatBar"
 import { ChatOverlay } from "./ChatOverlay"
 
 export const Chat = () => {
   const { handleSendMessage, isLoading, messages } = useChat()
-  const { isOpened } = useKeyboard()
 
   return (
     <View style={{ flex: 1 }}>
-      <Pressable
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: isOpened ? 2 : -1,
-        }}
-        onPress={Keyboard.dismiss}
-      />
+      <KeyboardDismisser />
       <View style={{ flex: 1 }}>
         <Header title="Chat" />
         <ChatOverlay messages={messages} isLoading={isLoading} />
