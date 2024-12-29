@@ -14,7 +14,6 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const [height, setHeight] = useState(24)
   const [text, setText] = useState("")
   const { isOpened: expanded, show, ref } = useKeyboard()
-  const [inputMounted, setInputMounted] = useState(false)
 
   const insets = useSafeAreaInsets()
 
@@ -35,7 +34,12 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
     Keyboard.dismiss()
   }
 
-  // Always render the input, just hide it when not expanded
+  const handleBarPress = () => {
+    if (!expanded) {
+      show()
+    }
+  }
+
   return (
     <View
       style={{
@@ -50,7 +54,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
       }}
     >
       <Pressable
-        onPress={show}
+        onPress={handleBarPress}
         style={{
           flex: 1,
           flexDirection: "row",
@@ -63,7 +67,6 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
 
         <TextInput
           ref={ref}
-          autoFocus={expanded}
           spellCheck={false}
           multiline
           style={{
@@ -72,14 +75,15 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             fontSize: 16,
             fontFamily: typography.primary.normal,
             paddingBottom: expanded ? 5 : 4,
+            opacity: expanded ? 1 : 0.8,
           }}
-          editable={expanded}
-          pointerEvents={expanded ? "auto" : "none"}
+          editable={true}
           onContentSizeChange={updateSize}
           placeholder="Message"
           placeholderTextColor="#666"
           onChangeText={setText}
           value={text}
+          onPressIn={handleBarPress}
         />
 
         <Pressable
