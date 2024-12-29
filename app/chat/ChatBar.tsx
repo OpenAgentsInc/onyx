@@ -1,12 +1,12 @@
 import { useRef, useState } from "react"
 import { Animated, Keyboard, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 import { useKeyboard } from "@/hooks/useKeyboard"
 import { useVoiceRecording } from "@/hooks/useVoiceRecording"
 import { colorsDark as colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
-import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 
 interface ChatBarProps {
   handleSendMessage: (message: string) => void
@@ -20,7 +20,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
     (transcription) => {
       setText(transcription)
       show()
-    }
+    },
   )
 
   const insets = useSafeAreaInsets()
@@ -74,10 +74,10 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           alignItems: "flex-end",
         }}
       >
-        <Pressable 
-          onPress={handleMicPress} 
-          style={{ 
-            marginRight: 16, 
+        <Pressable
+          onPress={handleMicPress}
+          style={{
+            marginRight: 16,
             paddingBottom: 5,
             backgroundColor: isRecording ? "white" : "transparent",
             borderRadius: 20,
@@ -85,11 +85,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           }}
           disabled={isProcessing}
         >
-          <FontAwesome 
-            name="microphone" 
-            size={20} 
-            color={isRecording ? "black" : "#666"} 
-          />
+          <FontAwesome name="microphone" size={20} color={isRecording ? "black" : "#666"} />
         </Pressable>
 
         <TextInput
@@ -132,39 +128,6 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           <ThinkingAnimation size={20} />
         </View>
       )}
-
-      {/* Commented out lateral animation
-      {isRecording && (
-        <View 
-          style={{
-            position: "absolute",
-            left: 60,
-            right: 60,
-            top: "50%",
-            height: 2,
-            backgroundColor: "rgba(255,255,255,0.2)",
-            overflow: "hidden",
-          }}
-        >
-          <Animated.View
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: "30%",
-              backgroundColor: "white",
-              borderRadius: 2,
-              transform: [{
-                translateX: translateX.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-50, 200]
-                })
-              }],
-            }}
-          />
-        </View>
-      )} */}
     </View>
   )
 }
