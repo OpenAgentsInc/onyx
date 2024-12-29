@@ -6,11 +6,6 @@ const RootStoreModel = types
   .model("RootStore")
   .props({
     chatStore: types.optional(ChatStoreModel, {}),
-    // toolStore: types.optional(ToolStoreModel, {
-    //   tools: [],
-    //   isInitialized: false,
-    //   error: null,
-    // }),
     coderStore: types.optional(CoderStoreModel, {
       isInitialized: false,
       error: null,
