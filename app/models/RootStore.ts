@@ -7,7 +7,6 @@ const RootStoreModel = types
   .props({
     chatStore: types.optional(ChatStoreModel, {}),
     coderStore: types.optional(CoderStoreModel, {
-      isInitialized: false,
       error: null,
       githubToken: "",
       repos: [],
@@ -26,7 +25,6 @@ export const createRootStoreDefaultModel = () =>
   RootStoreModel.create({
     chatStore: {},
     coderStore: {
-      isInitialized: false,
       error: null,
       githubToken: "",
       repos: [],

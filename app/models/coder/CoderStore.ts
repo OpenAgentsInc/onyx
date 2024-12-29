@@ -1,4 +1,4 @@
-import { Instance, SnapshotIn, SnapshotOut, cast, types } from "mobx-state-tree"
+import { cast, Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { Repo } from "../types/repo"
 
@@ -12,7 +12,6 @@ export const RepoModel = types.model("Repo", {
 export const CoderStoreModel = types
   .model("CoderStore")
   .props({
-    isInitialized: types.optional(types.boolean, false),
     error: types.maybeNull(types.string),
     githubToken: types.optional(types.string, ""),
     repos: types.array(RepoModel),
@@ -43,7 +42,7 @@ export const CoderStoreModel = types
         repo.name === repoToRemove.name &&
         repo.branch === repoToRemove.branch
       )
-      
+
       if (index !== -1) {
         self.repos = cast(self.repos.filter((_, i) => i !== index))
         if (self.activeRepoIndex === index) {
@@ -60,7 +59,7 @@ export const CoderStoreModel = types
         repo.name === oldRepo.name &&
         repo.branch === oldRepo.branch
       )
-      
+
       if (index !== -1) {
         self.repos = cast(self.repos.map((repo, i) =>
           i === index ? RepoModel.create(newRepo) : repo
@@ -80,13 +79,13 @@ export const CoderStoreModel = types
         self.activeRepoIndex = null
         return
       }
-      
+
       const index = self.repos.findIndex(r =>
         r.owner === repo.owner &&
         r.name === repo.name &&
         r.branch === repo.branch
       )
-      
+
       if (index !== -1) {
         self.activeRepoIndex = index
       }
@@ -96,7 +95,7 @@ export const CoderStoreModel = types
     get hasGithubToken() {
       return !!self.githubToken
     },
-    
+
     get activeRepo() {
       return self.activeRepoIndex !== null ? self.repos[self.activeRepoIndex] : null
     }
@@ -108,7 +107,6 @@ export interface CoderStoreSnapshotIn extends SnapshotIn<typeof CoderStoreModel>
 
 export const createCoderStoreDefaultModel = () =>
   CoderStoreModel.create({
-    isInitialized: false,
     error: null,
     githubToken: "",
     repos: [],
