@@ -18,8 +18,8 @@
 2. **Immediate Send** (Arrow Button)
    - Start recording with mic button
    - Hit send button while recording
-   - Transcription is sent immediately when ready
-   - Text never appears in input field
+   - Transcription is combined with any existing text and sent immediately
+   - Input is cleared after sending
    - Keyboard stays in current state (shown/hidden)
 
 ### Keyboard Behavior
@@ -38,6 +38,8 @@
 - All transcribed text should be trimmed of extra whitespace
 - When appending transcriptions, maintain single space between segments
 - Empty or whitespace-only text should not enable send button
+- When sending immediately, combine existing text with new transcription
+- Clear input after successful immediate send
 
 ## Input Field Behavior
 
