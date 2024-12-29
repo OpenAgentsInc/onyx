@@ -18,7 +18,11 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   const { isOpened: expanded, show, ref } = useKeyboard()
   const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording(
     (transcription) => {
-      setText(transcription.trim())
+      setText(prev => {
+        const trimmedTranscription = transcription.trim()
+        if (!prev.trim()) return trimmedTranscription
+        return `${prev.trim()} ${trimmedTranscription}`
+      })
       show()
     }
   )
