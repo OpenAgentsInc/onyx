@@ -30,6 +30,7 @@
     ├── Icon.tsx
     ├── Screen.tsx
     ├── Text.tsx
+    ├── index.ts
   ├── config
     ├── config.base.ts
     ├── config.dev.ts
@@ -43,6 +44,7 @@
   ├── hooks
     ├── useAutoUpdate.ts
     ├── useChat.ts
+    ├── useHeader.tsx
     ├── useKeyboard.ts
     ├── useVoicePermissions.ts
   ├── i18n
@@ -120,15 +122,6 @@
 ├── app.config.ts
 ├── app.json
 ├── assets
-  ├── icons
-    ├── configure.png
-    ├── text.png
-    ├── voice.png
-  ├── images
-    ├── Thinking-Animation-Orig.gif
-    ├── Thinking-Animation.gif
-    ├── app-icon-all.png
-    ├── splash.png
 ├── dist
 ├── docs
   ├── ai-design-language.md
