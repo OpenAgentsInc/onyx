@@ -73,92 +73,85 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
     }
   }
 
-  // Calculate container height based on content height
-  const containerHeight = Math.max(50, Math.min(height + 16, 300))
-
   return (
     <View
       style={{
         borderRadius: 20,
         marginHorizontal: 20,
         backgroundColor: colors.backgroundSecondary,
-        paddingBottom: 10,
+        paddingVertical: 8,
         paddingHorizontal: 14,
-        height: containerHeight,
+        minHeight: 50,
         zIndex: 4,
         marginBottom: expanded ? insets.bottom / 2 : 0,
       }}
     >
-      <View style={{ flex: 1 }}>
+      <Pressable
+        onPress={handleBarPress}
+        style={{
+          flexDirection: "row",
+          alignItems: "flex-end",
+          minHeight: 34,
+        }}
+      >
+        <Pressable 
+          onPress={handleMicPress} 
+          style={{ 
+            marginRight: 16,
+            backgroundColor: isRecording ? "white" : "transparent",
+            borderRadius: 20,
+            padding: 8,
+          }}
+          disabled={isProcessing}
+        >
+          <FontAwesome 
+            name="microphone" 
+            size={20} 
+            color={isRecording ? "black" : "#666"} 
+          />
+        </Pressable>
+
+        <View style={{ flex: 1, minHeight: 34 }}>
+          <TextInput
+            ref={ref}
+            spellCheck={false}
+            multiline
+            style={{
+              color: "white",
+              fontSize: 16,
+              fontFamily: typography.primary.normal,
+              opacity: expanded ? 1 : 0.8,
+              minHeight: 34,
+              maxHeight: 240,
+            }}
+            editable={!isRecording}
+            onContentSizeChange={updateSize}
+            placeholder={isRecording ? "Recording..." : "Message"}
+            placeholderTextColor="#666"
+            onChangeText={setText}
+            value={text}
+            onPressIn={handleBarPress}
+          />
+          {isProcessing && (
+            <View style={{ position: "absolute", right: 0, bottom: 0 }}>
+              <ThinkingAnimation size={16} />
+            </View>
+          )}
+        </View>
+
         <Pressable
-          onPress={handleBarPress}
+          onPress={handleSendPress}
           style={{
-            flex: 1,
-            flexDirection: "row",
-            alignItems: "flex-end",
+            backgroundColor: (text.trim() || isRecording) ? "white" : "transparent",
+            borderRadius: 12,
+            padding: 4,
+            marginLeft: 12,
+            alignSelf: "flex-end",
           }}
         >
-          <Pressable 
-            onPress={handleMicPress} 
-            style={{ 
-              marginRight: 16, 
-              paddingBottom: 5,
-              backgroundColor: isRecording ? "white" : "transparent",
-              borderRadius: 20,
-              padding: 8,
-            }}
-            disabled={isProcessing}
-          >
-            <FontAwesome 
-              name="microphone" 
-              size={20} 
-              color={isRecording ? "black" : "#666"} 
-            />
-          </Pressable>
-
-          <View style={{ flex: 1 }}>
-            <TextInput
-              ref={ref}
-              spellCheck={false}
-              multiline
-              style={{
-                flex: 1,
-                color: "white",
-                fontSize: 16,
-                fontFamily: typography.primary.normal,
-                paddingBottom: expanded ? 5 : 4,
-                opacity: expanded ? 1 : 0.8,
-                maxHeight: 240,
-              }}
-              editable={!isRecording}
-              onContentSizeChange={updateSize}
-              placeholder={isRecording ? "Recording..." : "Message"}
-              placeholderTextColor="#666"
-              onChangeText={setText}
-              value={text}
-              onPressIn={handleBarPress}
-            />
-            {isProcessing && (
-              <View style={{ position: "absolute", right: 0, bottom: expanded ? 5 : 4 }}>
-                <ThinkingAnimation size={16} />
-              </View>
-            )}
-          </View>
-
-          <Pressable
-            onPress={handleSendPress}
-            style={{
-              backgroundColor: (text.trim() || isRecording) ? "white" : "transparent",
-              borderRadius: 12,
-              padding: 4,
-              marginLeft: 12,
-              marginBottom: 2,
-            }}
-          >
-            <AntDesign name="arrowup" size={20} color={(text.trim() || isRecording) ? "black" : "#666"} />
-          </Pressable>
+          <AntDesign name="arrowup" size={20} color={(text.trim() || isRecording) ? "black" : "#666"} />
         </Pressable>
-      </View>
+      </Pressable>
     </View>
   )
 }
