@@ -1,11 +1,11 @@
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
 import { ScrollView, TouchableOpacity, View } from "react-native"
+import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 import { Message } from "@ai-sdk/react"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { MessageContent } from "./markdown/MessageContent"
 import { styles as baseStyles } from "./styles"
-import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 
 interface ChatOverlayProps {
   messages: Message[]
@@ -26,7 +26,7 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
   }
 
   return (
-    <View style={{ flex: 1, paddingHorizontal: 10 }}>
+    <View style={{ flex: 1, paddingHorizontal: 12 }}>
       <ScrollView
         ref={scrollViewRef}
         style={[baseStyles.messageList, { flex: 1 }]}

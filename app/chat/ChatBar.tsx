@@ -1,12 +1,12 @@
 import { useRef, useState } from "react"
 import { Animated, Keyboard, Pressable, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 import { useKeyboard } from "@/hooks/useKeyboard"
 import { useVoiceRecording } from "@/hooks/useVoiceRecording"
 import { colorsDark as colors } from "@/theme"
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 import { typography } from "../theme/typography"
-import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 
 interface ChatBarProps {
   handleSendMessage: (message: string) => void
@@ -23,19 +23,19 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
       if (sendImmediatelyRef.current) {
         // Send all accumulated text plus new transcription
         const existingText = text.trim()
-        const fullMessage = existingText 
+        const fullMessage = existingText
           ? `${existingText} ${trimmedTranscription}`
           : trimmedTranscription
         handleSendMessage(fullMessage)
         setText("")
         sendImmediatelyRef.current = false
       } else {
-        setText(prev => {
+        setText((prev) => {
           if (!prev.trim()) return trimmedTranscription
           return `${prev.trim()} ${trimmedTranscription}`
         })
       }
-    }
+    },
   )
 
   const insets = useSafeAreaInsets()
@@ -76,11 +76,11 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
   return (
     <View
       style={{
-        borderRadius: 20,
-        marginHorizontal: 20,
+        borderRadius: 10,
+        marginHorizontal: 10,
         backgroundColor: colors.backgroundSecondary,
         paddingVertical: 8,
-        paddingHorizontal: 14,
+        paddingHorizontal: 8,
         minHeight: 50,
         zIndex: 4,
         marginBottom: expanded ? insets.bottom / 2 : 0,
@@ -94,9 +94,9 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           minHeight: 34,
         }}
       >
-        <Pressable 
-          onPress={handleMicPress} 
-          style={{ 
+        <Pressable
+          onPress={handleMicPress}
+          style={{
             marginRight: 16,
             backgroundColor: isRecording ? "white" : "transparent",
             borderRadius: 36,
@@ -107,11 +107,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
           }}
           disabled={isProcessing}
         >
-          <FontAwesome 
-            name="microphone" 
-            size={20} 
-            color={isRecording ? "black" : "#666"} 
-          />
+          <FontAwesome name="microphone" size={20} color={isRecording ? "black" : "#666"} />
         </Pressable>
 
         <View style={{ flex: 1, minHeight: 34 }}>
@@ -145,7 +141,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
         <Pressable
           onPress={handleSendPress}
           style={{
-            backgroundColor: (text.trim() || isRecording) ? "white" : "transparent",
+            backgroundColor: text.trim() || isRecording ? "white" : "transparent",
             borderRadius: 28,
             width: 28,
             height: 28,
@@ -155,7 +151,11 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
             marginBottom: 4,
           }}
         >
-          <AntDesign name="arrowup" size={20} color={(text.trim() || isRecording) ? "black" : "#666"} />
+          <AntDesign
+            name="arrowup"
+            size={20}
+            color={text.trim() || isRecording ? "black" : "#666"}
+          />
         </Pressable>
       </Pressable>
     </View>
