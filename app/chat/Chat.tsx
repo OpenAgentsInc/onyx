@@ -14,15 +14,17 @@ export const Chat = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: 1
         }}
         onPress={() => {
           console.log("Chat container pressed")
           Keyboard.dismiss()
         }}
       />
-      <View style={{ flex: 1, flexDirection: "column", zIndex: 2 }}>
-        <View style={{ flex: 1 }}>
+      <View 
+        style={{ flex: 1, flexDirection: "column" }}
+        pointerEvents="box-none"
+      >
+        <View style={{ flex: 1 }} pointerEvents="box-none">
           <ChatOverlay messages={messages} isLoading={isLoading} />
         </View>
         <ChatBar />
