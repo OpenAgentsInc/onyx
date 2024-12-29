@@ -1,11 +1,4 @@
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native"
+import { View } from "react-native"
 import { useChat } from "@/hooks/useChat"
 import { ChatBar } from "./ChatBar"
 import { ChatOverlay } from "./ChatOverlay"
