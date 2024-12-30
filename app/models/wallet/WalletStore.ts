@@ -1,6 +1,19 @@
+import Constants from "expo-constants"
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { spark } from "@/services/spark/spark"
+import { breezService } from "@/services/breez/breezService"
 import { SecureStorageService } from "@/services/storage/secureStorage"
+import { Transaction } from "@/services/breez/types"
+
+const TransactionModel = types.model("Transaction", {
+  id: types.string,
+  amount: types.number,
+  timestamp: types.number,
+  type: types.enumeration(["send", "receive"]),
+  status: types.enumeration(["pending", "complete", "failed"]),
+  description: types.maybe(types.string),
+  paymentHash: types.maybe(types.string),
+  fee: types.maybe(types.number),
+})
 
 export const WalletStoreModel = types
   .model("WalletStore")
@@ -12,6 +25,7 @@ export const WalletStoreModel = types
     balanceSat: types.optional(types.number, 0),
     pendingSendSat: types.optional(types.number, 0),
     pendingReceiveSat: types.optional(types.number, 0),
+    transactions: types.array(TransactionModel),
     mnemonic: types.maybeNull(types.string),
   })
   .views((store) => ({
@@ -31,10 +45,17 @@ export const WalletStoreModel = types
     get hasPendingTransactions() {
       return store.pendingSendSat > 0 || store.pendingReceiveSat > 0
     },
+    get recentTransactions() {
+      return store.transactions.slice().sort((a, b) => b.timestamp - a.timestamp)
+    },
+    get pendingTransactions() {
+      return store.transactions.filter(tx => tx.status === "pending")
+    },
   }))
   .actions((store) => ({
     async setup() {
-      spark.generateMnemonic()
+      const mnemonic = await SecureStorageService.generateMnemonic()
+      store.mnemonic = mnemonic
     },
     setAuthToken(value?: string) {
       store.authToken = value
@@ -62,8 +83,25 @@ export const WalletStoreModel = types
           }
         }
 
-        // Initialize spark with the mnemonic
-        await spark.createSparkWallet(store.mnemonic)
+        const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
+        if (!breezApiKey) {
+          console.warn("[WalletStore] BREEZ_API_KEY not set - using development mode")
+          store.isInitialized = true
+          return
+        }
+
+        // If we were previously initialized, disconnect first
+        if (breezService.isInitialized()) {
+          await breezService.disconnect()
+        }
+
+        // Initialize breez with the mnemonic
+        await breezService.initialize({
+          workingDir: "", // This is handled internally by the service
+          apiKey: breezApiKey,
+          network: "MAINNET",
+          mnemonic: store.mnemonic,
+        })
 
         store.isInitialized = true
         store.setError(null)
@@ -79,8 +117,8 @@ export const WalletStoreModel = types
     async restoreWallet(mnemonic: string) {
       try {
         // First disconnect if we're initialized
-        if (store.isInitialized) {
-          await spark.reset()
+        if (breezService.isInitialized()) {
+          await breezService.disconnect()
         }
 
         // Reset the store state
@@ -88,6 +126,7 @@ export const WalletStoreModel = types
         store.balanceSat = 0
         store.pendingSendSat = 0
         store.pendingReceiveSat = 0
+        store.transactions.clear()
         store.mnemonic = null
 
         // Validate and save mnemonic to secure storage
@@ -100,7 +139,18 @@ export const WalletStoreModel = types
         store.mnemonic = mnemonic
 
         // Initialize with new mnemonic
-        await spark.createSparkWallet(mnemonic)
+        const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
+        if (!breezApiKey) {
+          throw new Error("BREEZ_API_KEY not set")
+        }
+
+        // Initialize breez with the new mnemonic
+        await breezService.initialize({
+          workingDir: "",
+          apiKey: breezApiKey,
+          network: "MAINNET",
+          mnemonic: mnemonic,
+        })
 
         store.isInitialized = true
         store.setError(null)
@@ -116,8 +166,8 @@ export const WalletStoreModel = types
     },
     async disconnect() {
       try {
-        if (store.isInitialized) {
-          await spark.reset()
+        if (breezService.isInitialized()) {
+          await breezService.disconnect()
         }
         await SecureStorageService.deleteMnemonic()
         store.isInitialized = false
@@ -129,17 +179,65 @@ export const WalletStoreModel = types
       }
     },
     async fetchBalanceInfo() {
-      if (!store.isInitialized) {
+      if (!store.isInitialized || !breezService.isInitialized()) {
         return
       }
 
       try {
-        const balance = await spark.getBtcBalance()
-        store.balanceSat = Number(balance)
+        const info = await breezService.getBalance()
+        store.balanceSat = info.balanceSat
+        store.pendingSendSat = info.pendingSendSat
+        store.pendingReceiveSat = info.pendingReceiveSat
         store.setError(null)
       } catch (error) {
         console.error("[WalletStore] Balance fetch error:", error)
         store.setError(error instanceof Error ? error.message : "Failed to fetch balance info")
+      }
+    },
+    async fetchTransactions() {
+      if (!store.isInitialized || !breezService.isInitialized()) {
+        return
+      }
+
+      try {
+        const txs = await breezService.getTransactions()
+        store.transactions.replace(txs)
+        store.setError(null)
+      } catch (error) {
+        console.error("[WalletStore] Transactions fetch error:", error)
+        store.setError(error instanceof Error ? error.message : "Failed to fetch transactions")
+      }
+    },
+    async sendPayment(bolt11: string, amount: number) {
+      if (!breezService.isInitialized()) {
+        throw new Error("Wallet not initialized")
+      }
+
+      try {
+        const tx = await breezService.sendPayment(bolt11, amount)
+        store.transactions.push(tx)
+        await store.fetchBalanceInfo()
+        store.setError(null)
+        return tx
+      } catch (error) {
+        console.error("[WalletStore] Send payment error:", error)
+        store.setError(error instanceof Error ? error.message : "Failed to send payment")
+        throw error
+      }
+    },
+    async receivePayment(amount: number, description?: string) {
+      if (!breezService.isInitialized()) {
+        throw new Error("Wallet not initialized")
+      }
+
+      try {
+        const bolt11 = await breezService.receivePayment(amount, description)
+        store.setError(null)
+        return bolt11
+      } catch (error) {
+        console.error("[WalletStore] Receive payment error:", error)
+        store.setError(error instanceof Error ? error.message : "Failed to create invoice")
+        throw error
       }
     },
   }))
