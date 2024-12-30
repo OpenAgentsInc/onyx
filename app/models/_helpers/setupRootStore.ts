@@ -1,5 +1,4 @@
-import { applySnapshot, IDisposer, onSnapshot } from "mobx-state-tree"
-import { log } from "@/utils/log"
+import { applySnapshot, onSnapshot } from "mobx-state-tree"
 import * as storage from "../../utils/storage"
 import { RootStore, RootStoreSnapshotIn } from "../RootStore"
 
