@@ -3,17 +3,8 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { breezService } from "@/services/breez/breezService"
 import { SecureStorageService } from "@/services/storage/secureStorage"
 import { log } from "@/utils/log"
-
-const TransactionModel = types.model("Transaction", {
-  id: types.string,
-  amount: types.number,
-  timestamp: types.number,
-  type: types.enumeration(["send", "receive"]),
-  status: types.enumeration(["pending", "complete", "failed"]),
-  description: types.maybe(types.string),
-  paymentHash: types.maybe(types.string),
-  fee: types.maybe(types.number),
-})
+import * as actions from "./actions"
+import { TransactionModel } from "./TransactionModel"
 
 export const WalletStoreModel = types
   .model("WalletStore")
@@ -47,6 +38,11 @@ export const WalletStoreModel = types
     },
     setError(message: string | null) {
       store.error = message
+    },
+  }))
+  .actions((store) => ({
+    async setup() {
+      return await actions.setup(store)
     }
   }))
 
@@ -70,18 +66,7 @@ export const WalletStoreModel = types
     }
 
     return {
-      async setup() {
-        console.log("um")
-        const mnemonic = await SecureStorageService.generateMnemonic()
-        store.setMnemonic(mnemonic)
 
-        // store.mnemonic = mnemonic
-        log({
-          name: "WalletStore",
-          preview: "Generated mnemonic",
-          value: mnemonic,
-        })
-      },
 
       async restoreWallet(mnemonic: string) {
         try {
