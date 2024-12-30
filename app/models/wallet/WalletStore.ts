@@ -2,6 +2,7 @@ import Constants from "expo-constants"
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { breezService } from "@/services/breez/breezService"
 import { SecureStorageService } from "@/services/storage/secureStorage"
+import { log } from "@/utils/log"
 
 const TransactionModel = types.model("Transaction", {
   id: types.string,
@@ -39,7 +40,15 @@ export const WalletStoreModel = types
       return store.transactions.filter(tx => tx.status === "pending")
     },
   }))
+
+  .actions((store) => ({
+    setMnemonic(mnemonic: string) {
+      store.mnemonic = mnemonic
+    }
+  }))
+
   .actions((store) => {
+
     // Helper function to set error state
     const setError = (message: string | null) => {
       store.error = message
@@ -65,8 +74,16 @@ export const WalletStoreModel = types
 
     return {
       async setup() {
+        console.log("um")
         const mnemonic = await SecureStorageService.generateMnemonic()
-        store.mnemonic = mnemonic
+        store.setMnemonic(mnemonic)
+
+        // store.mnemonic = mnemonic
+        log({
+          name: "WalletStore",
+          preview: "Generated mnemonic",
+          value: mnemonic,
+        })
       },
 
       async initialize() {

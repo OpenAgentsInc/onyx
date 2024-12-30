@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react"
+import { log } from "@/utils/log"
 import {
   createRootStoreDefaultModel, RootStore, RootStoreModel
 } from "../RootStore"
@@ -48,7 +49,7 @@ export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
             console.tron?.trackMstNode(rootStore)
           }
 
-          // rootStore.coderStore.setup()
+          await rootStore.walletStore.setup()
 
           // let the app know we've finished rehydrating
           setRehydrated(true)
