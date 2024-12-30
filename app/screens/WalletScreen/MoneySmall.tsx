@@ -57,7 +57,7 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
 
   const primaryUnit = EUnit.BTC
   const nextUnit = EUnit.fiat
-  const denomination: EDenomination = EDenomination.modern as EDenomination
+  const denomination = EDenomination.modern as const
   const hideBalance = false
 
   const sats = Math.abs(props.sats)
