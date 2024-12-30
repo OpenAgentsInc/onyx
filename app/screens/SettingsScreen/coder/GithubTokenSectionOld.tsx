@@ -21,7 +21,7 @@ export const GithubTokenSection = observer(() => {
   }
 
   const handleEditToken = (id: string) => {
-    const token = coderStore.githubTokens.find(t => t.id === id)
+    const token = coderStore.githubTokens.find((t) => t.id === id)
     if (token) {
       setEditingTokenId(id)
       setTokenInput({ name: token.name, token: token.token })
@@ -69,7 +69,7 @@ export const GithubTokenSection = observer(() => {
           <TextInput
             style={[styles.input, styles.text]}
             value={tokenInput.name}
-            onChangeText={(value) => setTokenInput(prev => ({ ...prev, name: value }))}
+            onChangeText={(value) => setTokenInput((prev) => ({ ...prev, name: value }))}
             placeholder="Token name"
             placeholderTextColor={colors.palette.neutral400}
             autoCapitalize="none"
@@ -79,7 +79,7 @@ export const GithubTokenSection = observer(() => {
           <TextInput
             style={[styles.input, styles.text]}
             value={tokenInput.token}
-            onChangeText={(value) => setTokenInput(prev => ({ ...prev, token: value }))}
+            onChangeText={(value) => setTokenInput((prev) => ({ ...prev, token: value }))}
             placeholder="GitHub token"
             placeholderTextColor={colors.palette.neutral400}
             secureTextEntry={true}

@@ -7,8 +7,8 @@ import { styles as baseStyles } from "@/theme/onyx"
 import { GithubTokenSection } from "./GithubTokenSection"
 import { RepoFormSection } from "./RepoFormSection"
 import { RepoListSection } from "./RepoListSection"
-import { ToolsSection } from "./ToolsSection"
 import { styles } from "./styles"
+import { ToolsSection } from "./ToolsSection"
 import { RepoSettingsProps } from "./types"
 
 export const RepoSettings = observer(({ visible, onClose }: RepoSettingsProps) => {
@@ -89,9 +89,8 @@ export const RepoSettings = observer(({ visible, onClose }: RepoSettingsProps) =
           Onyx can analyze or edit codebases. Add a GitHub token and connect repos.
         </Text>
 
-        <GithubTokenSection />
         <ToolsSection />
-        
+
         {showRepoForm && (
           <RepoFormSection
             editingRepo={editingRepo}
@@ -108,6 +107,8 @@ export const RepoSettings = observer(({ visible, onClose }: RepoSettingsProps) =
           onRemoveRepo={handleRemoveRepo}
           onAddRepoClick={handleAddRepoClick}
         />
+
+        <GithubTokenSection />
       </ScrollView>
     </KeyboardAvoidingView>
   )
