@@ -23,6 +23,7 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 export type AppStackParamList = {
   Chat: undefined
   Settings: undefined
+  Wallet: undefined
 }
 
 /**
