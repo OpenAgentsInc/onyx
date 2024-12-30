@@ -3,13 +3,12 @@ import { StyleProp, StyleSheet, View, ViewStyle } from "react-native"
 import { Text } from "@/components/Text"
 import { typography } from "@/theme"
 import { colors } from "@/theme/colorsDark"
+import { EDenomination } from "./MoneySmall"
 
 export enum EUnit {
   BTC = "BTC",
   fiat = "fiat",
 }
-
-export type EDenomination = "modern" | "classic"
 
 type TSize = "display" | "title" | "bodyMSB" | "bodySSB" | "captionB" | "caption13Up"
 
@@ -112,7 +111,7 @@ const Money = (props: MoneyProps): ReactElement => {
         return dv.fiatFormatted
       }
       case EUnit.BTC: {
-        if (denomination === EDenominationValues.classic) {
+        if (denomination === EDenomination.classic) {
           if (decimalLength === "long") {
             return Number(dv.bitcoinFormatted).toFixed(8)
           }
