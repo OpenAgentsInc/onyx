@@ -1,5 +1,12 @@
 import { types } from "mobx-state-tree"
 
+export const NostrKeysModel = types.model("NostrKeys", {
+  privateKey: types.string,
+  publicKey: types.string,
+  npub: types.string,
+  nsec: types.string,
+})
+
 export const TransactionModel = types.model("Transaction", {
   id: types.string,
   amount: types.number,

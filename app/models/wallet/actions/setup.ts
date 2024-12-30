@@ -1,6 +1,8 @@
 import Constants from "expo-constants"
 import { breezService } from "@/services/breez"
+import { nostr } from "@/services/nostr/nostr"
 import { SecureStorageService } from "@/services/storage/secureStorage"
+import { log } from "@/utils/log"
 import { IWalletStore } from "../types"
 
 export async function setup(store: IWalletStore) {
@@ -26,6 +28,16 @@ export async function setup(store: IWalletStore) {
       apiKey: breezApiKey,
       network: "MAINNET",
       mnemonic: mnemonic,
+    })
+
+    const keys = await nostr.deriveNostrKeys(mnemonic)
+    store.setNostrKeys(keys)
+
+    log({
+      name: "WalletStore",
+      preview: 'Derived Nostr keys',
+      value: keys,
+      important: true
     })
 
     store.setInitialized(true)

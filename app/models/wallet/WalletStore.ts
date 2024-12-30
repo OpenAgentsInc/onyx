@@ -1,7 +1,8 @@
 import { Instance, types } from "mobx-state-tree"
+import { NostrKeys } from "@/services/nostr/nostr.types"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import * as actions from "./actions"
-import { TransactionModel } from "./TransactionModel"
+import { NostrKeysModel, TransactionModel } from "./models"
 import { IWalletStore } from "./types"
 import { createViews } from "./views"
 
@@ -15,10 +16,14 @@ const WalletStoreModel = types
     pendingReceiveSat: types.optional(types.number, 0),
     transactions: types.array(TransactionModel),
     mnemonic: types.maybe(types.string),
+    nostrKeys: types.maybe(NostrKeysModel),
   })
   .views(createViews)
   .actions(withSetPropAction)
   .actions(self => ({
+    setNostrKeys(nostrKeys: NostrKeys) {
+      self.nostrKeys = nostrKeys
+    },
     setBalanceSat(balanceSat: number) {
       self.balanceSat = balanceSat
     },
