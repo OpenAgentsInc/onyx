@@ -6,7 +6,7 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "icon": "./assets/images/app-icon-all.png",
+    "icon": "./assets/images/app-icon-all.jpg",
     "backgroundColor": "#000000",
     "newArchEnabled": true,
     "jsEngine": "hermes",
@@ -14,7 +14,7 @@
       "**/*"
     ],
     "android": {
-      "icon": "./assets/images/app-icon-all.png",
+      "icon": "./assets/images/app-icon-all.jpg",
       "package": "com.openagents.onyx",
       "splash": {
         "image": "./assets/images/splash.png",
@@ -28,7 +28,7 @@
       ]
     },
     "ios": {
-      "icon": "./assets/images/app-icon-all.png",
+      "icon": "./assets/images/app-icon-all.jpg",
       "supportsTablet": true,
       "bundleIdentifier": "com.openagents.onyx",
       "splash": {

@@ -1,5 +1,6 @@
 import { memo, ReactElement, useEffect, useMemo } from "react"
 import { ActivityIndicator, StyleSheet, View } from "react-native"
+import { Text } from "@/components"
 import { useStores } from "@/models"
 import Money from "./Money"
 
@@ -34,9 +35,17 @@ const BalanceHeader = (): ReactElement => {
     }
   }, [isInitialized, error, fetchBalanceInfo])
 
+  if (error) {
+    return (
+      <View style={styles.pendingContainer}>
+        <Text text={error} />
+      </View>
+    )
+  }
+
   if (!isInitialized) {
     return (
-      <View style={[styles.container, styles.loading]}>
+      <View style={[styles.loading]}>
         <ActivityIndicator size="large" color="#ffffff" />
       </View>
     )
