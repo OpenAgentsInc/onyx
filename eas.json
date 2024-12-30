@@ -65,14 +65,14 @@
         "ENVIRONMENT": "production"
       },
       "environment": "production",
-      "channel": "v0.0.6"
+      "channel": "v0.1.0"
     },
     "production-apk": {
       "extends": "production",
       "android": {
         "buildType": "apk"
       },
-      "channel": "v0.0.6-apk"
+      "channel": "v0.1.0-apk"
     }
   },
   "submit": {
