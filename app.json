@@ -6,7 +6,7 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "icon": "./assets/images/app-icon-all.jpg",
+    "icon": "./assets/images/app-icon-all.png",
     "backgroundColor": "#000000",
     "newArchEnabled": true,
     "jsEngine": "hermes",
@@ -14,7 +14,7 @@
       "**/*"
     ],
     "android": {
-      "icon": "./assets/images/app-icon-all.jpg",
+      "icon": "./assets/images/app-icon-all.png",
       "package": "com.openagents.onyx",
       "splash": {
         "image": "./assets/images/splash.png",
@@ -28,7 +28,7 @@
       ]
     },
     "ios": {
-      "icon": "./assets/images/app-icon-all.jpg",
+      "icon": "./assets/images/app-icon-all.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.openagents.onyx",
       "splash": {
@@ -73,7 +73,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash.png",
-          "resizeMode": "cover",
+          "resizeMode": "contain",
           "backgroundColor": "#000000"
         }
       ]
