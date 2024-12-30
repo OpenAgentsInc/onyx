@@ -1,5 +1,5 @@
-import { IStateTreeNode, Instance } from "mobx-state-tree"
-import { WalletStoreModel } from "./WalletStore"
+import { IStateTreeNode, Instance, IArrayType } from "mobx-state-tree"
+import { TransactionModel } from "./TransactionModel"
 
 // Wallet Store Types
 export interface IWalletStoreBase extends IStateTreeNode {
@@ -17,7 +17,7 @@ export interface IWalletStoreBalance extends IWalletStoreBase {
 }
 
 export interface IWalletStoreWithTransactions extends IWalletStoreBalance {
-  transactions: any[]
+  transactions: IArrayType<typeof TransactionModel>
 }
 
 export interface IWalletStore extends IWalletStoreWithTransactions {
@@ -29,4 +29,5 @@ export interface IWalletStore extends IWalletStoreWithTransactions {
   disconnect: () => Promise<void>
 }
 
-export type WalletStore = Instance<typeof WalletStoreModel>
+// Use a type alias that references the model directly
+export type WalletStore = Instance<ReturnType<typeof import("./WalletStore").WalletStoreModel>>
