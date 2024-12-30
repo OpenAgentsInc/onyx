@@ -1,7 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import * as actions from "./actions"
 import { TransactionModel } from "./TransactionModel"
-import { views } from "./views"
+import { createViews } from "./views"
 
 export const WalletStoreModel = types
   .model("WalletStore")
@@ -14,7 +14,7 @@ export const WalletStoreModel = types
     transactions: types.array(TransactionModel),
     mnemonic: types.maybeNull(types.string),
   })
-  .views(views)
+  .views(createViews)
   // Basic actions that don't depend on anything else
   .actions((store) => ({
     setMnemonic(mnemonic: string) {
@@ -52,5 +52,5 @@ export const WalletStoreModel = types
     },
   }))
 
-export interface WalletStore extends Instance<typeof WalletStoreModel> { }
+export interface WalletStoreType extends Instance<typeof WalletStoreModel> { }
 export interface WalletStoreSnapshot extends SnapshotOut<typeof WalletStoreModel> { }
