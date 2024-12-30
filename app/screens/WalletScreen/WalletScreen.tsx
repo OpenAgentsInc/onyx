@@ -2,12 +2,19 @@ import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { View, ViewStyle } from "react-native"
 import { Button, Icon, Screen } from "@/components"
+import { useHeader } from "@/hooks/useHeader"
+import { goBack } from "@/navigators"
 import { useNavigation } from "@react-navigation/native"
 import BalanceHeader from "./BalanceHeader"
 import { TransactionsList } from "./TransactionsList"
 
 export const WalletScreen: FC<{}> = observer(function WalletScreen() {
   const navigation = useNavigation<any>()
+  useHeader({
+    title: "Wallet",
+    leftIcon: "back",
+    onLeftPress: goBack,
+  })
   return (
     <Screen style={$root} contentContainerStyle={$contentContainer} preset="fixed">
       <View style={$topSection}>

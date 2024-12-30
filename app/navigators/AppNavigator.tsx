@@ -58,6 +58,7 @@ const AppStack = observer(function AppStack() {
     >
       <Stack.Screen name="Chat" component={Screens.ChatScreen} />
       <Stack.Screen name="Settings" component={Screens.SettingsScreen} />
+      <Stack.Screen name="Wallet" component={Screens.WalletScreen} />
     </Stack.Navigator>
   )
 })

@@ -33,4 +33,5 @@ export const typography = {
    * The primary font. Used in most places.
    */
   primary: fonts.jetBrainsMono,
+  secondary: fonts.jetBrainsMono,
 }

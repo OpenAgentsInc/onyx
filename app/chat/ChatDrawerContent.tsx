@@ -33,7 +33,7 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
   }
 
   const handleWalletPress = () => {
-    navigation.navigate("WalletScreen" as never)
+    navigation.navigate("Wallet" as never)
     setOpen(false)
   }
 
