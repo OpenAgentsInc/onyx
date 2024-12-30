@@ -1,8 +1,8 @@
 import { SecureStorageService } from "@/services/storage/secureStorage"
 import { log } from "@/utils/log"
-import { WalletStore } from "../WalletStore"
+import { IWalletStore } from "./types"
 
-export async function setup(store: WalletStore) {
+export async function setup(store: IWalletStore) {
   const mnemonic = await SecureStorageService.generateMnemonic()
   store.setMnemonic(mnemonic)
   log({
