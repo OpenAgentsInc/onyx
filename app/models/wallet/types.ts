@@ -1,13 +1,24 @@
 import { IStateTreeNode, Instance, IAnyModelType } from "mobx-state-tree"
 
 // Base store interface with just the properties
-export interface IWalletStoreProps extends IStateTreeNode {
+export interface IWalletStoreBase extends IStateTreeNode {
   isInitialized: boolean
   error: string | null
+  mnemonic: string | null
+  setMnemonic: (mnemonic: string) => void
+  setError: (message: string | null) => void
+}
+
+// Balance related properties and actions
+export interface IWalletStoreBalance extends IWalletStoreBase {
   balanceSat: number
   pendingSendSat: number
   pendingReceiveSat: number
-  mnemonic: string | null
+  fetchBalanceInfo: () => Promise<void>
+}
+
+// Store with transactions
+export interface IWalletStoreWithTransactions extends IWalletStoreBalance {
   transactions: {
     clear: () => void
     replace: (items: any[]) => void
@@ -15,20 +26,9 @@ export interface IWalletStoreProps extends IStateTreeNode {
   }
 }
 
-// Basic actions interface
-export interface IWalletStoreActions {
-  setMnemonic: (mnemonic: string) => void
-  setError: (message: string | null) => void
-}
-
-// Balance actions interface
-export interface IWalletStoreBalanceActions {
+// Full store interface
+export interface IWalletStore extends IWalletStoreWithTransactions {
   setup: () => Promise<void>
-  fetchBalanceInfo: () => Promise<void>
-}
-
-// Full store interface combining all interfaces
-export interface IWalletStore extends IWalletStoreProps, IWalletStoreActions, IWalletStoreBalanceActions {
   fetchTransactions: () => Promise<void>
   sendPayment: (bolt11: string, amount: number) => Promise<void>
   receivePayment: (amount: number, description?: string) => Promise<void>
