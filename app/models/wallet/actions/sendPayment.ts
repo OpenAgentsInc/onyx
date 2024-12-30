@@ -10,6 +10,8 @@ export async function sendPayment(store: IWalletStoreWithTransactions, bolt11: s
   try {
     const tx = await breezService.sendPayment(bolt11, amount)
     store.transactions.push(tx)
+    // Since store implements IWalletStoreWithTransactions which extends IWalletStoreBalance,
+    // it's safe to pass to fetchBalanceInfo
     await fetchBalanceInfo(store)
     store.setError(null)
     return tx
