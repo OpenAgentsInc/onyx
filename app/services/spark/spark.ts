@@ -11,7 +11,6 @@ class Spark {
       value: mnemonic,
     })
 
-    // Get the public key
     const pubkey = sparkWallet.getMasterPublicKey();
     log({
       name: 'Spark',
@@ -21,5 +20,4 @@ class Spark {
   }
 }
 
-// Singleton instance of the API for convenience
 export const spark = new Spark()

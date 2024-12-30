@@ -1,4 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { spark } from "@/services/spark/spark"
 
 export const WalletStoreModel = types
   .model("WalletStore")
@@ -19,6 +20,9 @@ export const WalletStoreModel = types
     },
   }))
   .actions((store) => ({
+    async setup() {
+      spark.generateMnemonic()
+    },
     setAuthToken(value?: string) {
       store.authToken = value
     },
