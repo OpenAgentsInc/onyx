@@ -40,7 +40,7 @@ const Money = (props: MoneyProps): ReactElement => {
 
   const primaryUnit = EUnit.BTC
   const nextUnit = EUnit.fiat
-  const denomination = EDenomination.modern
+  const denomination: EDenomination = EDenomination.modern
   const hideBalance = false
 
   const sats = Math.abs(props.sats)
