@@ -1,9 +1,9 @@
 import Constants from "expo-constants"
 import { breezService } from "@/services/breez/breezService"
 import { SecureStorageService } from "@/services/storage/secureStorage"
-import { WalletStore } from "../WalletStore"
+import { IWalletStore } from "./types"
 
-export async function initialize(store: WalletStore) {
+export async function initialize(store: IWalletStore) {
   try {
     // Get mnemonic from secure storage if not in store
     if (!store.mnemonic) {
