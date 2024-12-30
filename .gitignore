@@ -94,3 +94,5 @@ web-build/
 
 .env
 .env.local
+
+.npmrc
