@@ -17,13 +17,14 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
   const { handleSendMessage, isLoading, messages } = useChat()
   const { height } = useReanimatedKeyboardAnimation()
 
-  const chatBarStyle = useAnimatedStyle(() => ({
+  const chatBarContainerStyle = useAnimatedStyle(() => ({
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'transparent',
-    transform: [{ translateY: height.value }]
+    backgroundColor: '#000000',
+    transform: [{ translateY: height.value }],
+    paddingBottom: Math.max(-height.value, 0) // Extend background to bottom of screen
   }))
 
   return (
@@ -45,7 +46,7 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
         >
           <ChatOverlay messages={messages} isLoading={isLoading} />
         </KeyboardAwareScrollView>
-        <Animated.View style={chatBarStyle}>
+        <Animated.View style={chatBarContainerStyle}>
           <ChatBar handleSendMessage={handleSendMessage} />
         </Animated.View>
       </View>
