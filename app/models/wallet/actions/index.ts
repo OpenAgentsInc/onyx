@@ -1,3 +1,4 @@
 export * from './initialize'
-export * from './restoreWallet'
 export * from './setup'
+export * from './restoreWallet'
+export * from './types'
