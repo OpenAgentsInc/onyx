@@ -2,6 +2,7 @@ import Constants from "expo-constants"
 import { breezService } from "@/services/breez"
 import { SecureStorageService } from "@/services/storage/secureStorage"
 import { IWalletStore } from "./types"
+import { fetchBalanceInfo } from "./fetchBalanceInfo"
 
 export async function restoreWallet(store: IWalletStore, mnemonic: string) {
   try {
@@ -45,7 +46,7 @@ export async function restoreWallet(store: IWalletStore, mnemonic: string) {
     store.setError(null)
 
     // Fetch initial balance
-    await store.fetchBalanceInfo()
+    await fetchBalanceInfo(store)
     return true
   } catch (error) {
     console.error("[WalletStore] Restoration error:", error)
