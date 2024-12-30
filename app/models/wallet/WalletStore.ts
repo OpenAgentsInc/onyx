@@ -1,8 +1,8 @@
-import { types, Instance } from "mobx-state-tree"
+import { Instance, types } from "mobx-state-tree"
 import * as actions from "./actions"
 import { TransactionModel } from "./TransactionModel"
-import { createViews } from "./views"
 import { IWalletStore } from "./types"
+import { createViews } from "./views"
 
 const WalletStoreModel = types
   .model("WalletStore")
@@ -31,13 +31,9 @@ const WalletStoreModel = types
     async fetchBalanceInfo() {
       await actions.fetchBalanceInfo(self as unknown as IWalletStore)
     },
-  }))
-  .actions(self => ({
     async disconnect() {
       return await actions.disconnect(self as unknown as IWalletStore)
     },
-  }))
-  .actions(self => ({
     async fetchTransactions() {
       return await actions.fetchTransactions(self as unknown as IWalletStore)
     },
