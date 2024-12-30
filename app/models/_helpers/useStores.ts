@@ -50,6 +50,8 @@ export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
           }
 
           await rootStore.walletStore.setup()
+          await rootStore.walletStore.fetchBalanceInfo()
+          await rootStore.walletStore.fetchTransactions()
 
           // let the app know we've finished rehydrating
           setRehydrated(true)
