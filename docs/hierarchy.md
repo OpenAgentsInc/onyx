@@ -13,7 +13,25 @@
     ├── types.ts
   ├── chat
     ├── Chat.tsx
+    ├── ChatBar.tsx
+    ├── ChatDrawerContainer.tsx
     ├── ChatDrawerContent.tsx
+    ├── ChatOverlay.tsx
+    ├── markdown
+      ├── MessageContent.tsx
+      ├── ToolInvocation.tsx
+      ├── index.ts
+      ├── styles.ts
+    ├── styles.ts
+  ├── components
+    ├── AutoImage.tsx
+    ├── Header.tsx
+    ├── Icon.tsx
+    ├── KeyboardDismisser.tsx
+    ├── Screen.tsx
+    ├── Text.tsx
+    ├── ThinkingAnimation.tsx
+    ├── index.ts
   ├── config
     ├── config.base.ts
     ├── config.dev.ts
@@ -26,7 +44,11 @@
     ├── ReactotronConfig.ts
   ├── hooks
     ├── useAutoUpdate.ts
+    ├── useChat.ts
+    ├── useHeader.tsx
+    ├── useKeyboard.ts
     ├── useVoicePermissions.ts
+    ├── useVoiceRecording.ts
   ├── models
     ├── RootStore.ts
     ├── _helpers
@@ -35,43 +57,37 @@
       ├── useStores.ts
       ├── withSetPropAction.ts
     ├── chat
-      ├── ChatActions.ts
+      ├── ChatStorage.ts
       ├── ChatStore.ts
       ├── index.ts
     ├── coder
       ├── CoderStore.ts
     ├── index.ts
-    ├── tools
-      ├── ToolActions.ts
-      ├── ToolStore.ts
-      ├── index.ts
     ├── types
       ├── repo.ts
-  ├── onyx
-    ├── BottomButtons.styles.ts
-    ├── BottomButtons.tsx
-    ├── ChatOverlay.tsx
-    ├── ChatOverlayPrev.tsx
-    ├── ConfigureModal.tsx
-    ├── OnyxLayout.tsx
-    ├── TextInputModal.tsx
-    ├── VoiceInputModal.styles.ts
-    ├── VoiceInputModal.tsx
-    ├── markdown
-      ├── MessageContent.tsx
-      ├── MessageContentPrev.tsx
-      ├── ToolInvocation.tsx
-      ├── index.ts
-      ├── styles.ts
-    ├── repo
-      ├── RepoSection.tsx
-      ├── styles.ts
-      ├── types.ts
-    ├── styles.ts
+  ├── navigators
+    ├── AppNavigator.tsx
+    ├── index.ts
+    ├── navigationUtilities.ts
   ├── screens
+    ├── ChatScreen
+      ├── ChatScreen.tsx
+      ├── index.ts
     ├── ErrorScreen
       ├── ErrorBoundary.tsx
       ├── ErrorDetails.tsx
+    ├── SettingsScreen
+      ├── SettingsScreen.tsx
+      ├── coder
+        ├── GithubTokenSection.tsx
+        ├── RepoFormSection.tsx
+        ├── RepoListSection.tsx
+        ├── RepoSettings.tsx
+        ├── ToolsSection.tsx
+        ├── styles.ts
+        ├── types.ts
+      ├── index.ts
+    ├── index.ts
   ├── services
     ├── api
       ├── api.ts
@@ -79,25 +95,20 @@
       ├── apiProblem.test.ts
       ├── apiProblem.ts
       ├── index.ts
-    ├── gemini
-      ├── gemini-api.types.ts
-      ├── gemini-chat.ts
-      ├── index.ts
-      ├── tools
-        ├── github-impl.ts
-        ├── github.ts
-        ├── index.ts
-        ├── types.ts
     ├── groq
       ├── groq-api.types.ts
       ├── groq-chat.ts
       ├── index.ts
-    ├── local-models
-      ├── LocalModelService.ts
-      ├── constants.ts
   ├── theme
     ├── colors.ts
+    ├── colorsDark.ts
+    ├── images.ts
     ├── index.ts
+    ├── onyx.ts
+    ├── spacing.ts
+    ├── spacingDark.ts
+    ├── styles.ts
+    ├── timing.ts
     ├── typography.ts
   ├── utils
     ├── clearStorage.ts
@@ -105,48 +116,32 @@
     ├── ignore-warnings.ts
     ├── isEmulator.ts
     ├── log.ts
+    ├── polyfills.ts
     ├── storage
       ├── index.ts
       ├── storage.test.ts
       ├── storage.ts
+    ├── useAppTheme.ts
     ├── useIsFocused.ts
     ├── useIsMounted.ts
     ├── useSafeAreaInsetsStyle.ts
 ├── app.config.ts
 ├── app.json
 ├── assets
-  ├── icons
-    ├── configure.png
-    ├── text.png
-    ├── voice.png
-  ├── images
-    ├── Thinking-Animation-Orig.gif
-    ├── Thinking-Animation.gif
-    ├── app-icon-all.png
-    ├── splash.png
 ├── dist
 ├── docs
-  ├── DocsNewNavigation.md
   ├── ai-design-language.md
+  ├── chat-persistence.md
+  ├── chatbar.md
+  ├── coder-settings.md
   ├── data-marketplace.md
-  ├── gemini-function-calling.md
-  ├── gemini.md
-  ├── github-tools.md
   ├── groq-voice.md
-  ├── groq.md
   ├── init.md
-  ├── keys.md
-  ├── llm-store.md
-  ├── local-models.md
   ├── markdown.md
-  ├── model-switching.md
   ├── onboarding.md
-  ├── onyx-layout.md
   ├── permissions.md
   ├── roadmap-brainstorming.md
   ├── roadmap.md
-  ├── tool-component.md
-  ├── tools.md
 ├── eas.json
 ├── ios
 ├── package.json

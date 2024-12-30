@@ -1,5 +1,4 @@
-import { applySnapshot, IDisposer, onSnapshot } from "mobx-state-tree"
-import { log } from "@/utils/log"
+import { applySnapshot, onSnapshot } from "mobx-state-tree"
 import * as storage from "../../utils/storage"
 import { RootStore, RootStoreSnapshotIn } from "../RootStore"
 
@@ -23,31 +22,6 @@ export async function setupRootStore(rootStore: RootStore) {
     if (__DEV__) {
       console.error(e instanceof Error ? e.message : "Error loading root store")
     }
-  }
-
-  // Initialize tools immediately after restoring state
-  try {
-    log({
-      name: "[setupRootStore] Initializing tools",
-      preview: "Starting tool initialization",
-      value: { isInitialized: rootStore.toolStore.isInitialized },
-      important: true,
-    })
-
-    // Force initialize tools regardless of isInitialized state
-    await rootStore.toolStore.initializeDefaultTools()
-
-    log({
-      name: "[setupRootStore] Tools initialized",
-      preview: "Tool initialization complete",
-      value: {
-        tools: rootStore.toolStore.tools.map(t => t.id),
-        isInitialized: rootStore.toolStore.isInitialized
-      },
-      important: true,
-    })
-  } catch (e) {
-    log.error("[setupRootStore] Failed to initialize tools:", e)
   }
 
   // track changes & save to AsyncStorage

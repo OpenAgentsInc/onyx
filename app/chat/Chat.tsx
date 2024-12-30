@@ -1,53 +1,43 @@
-import { useState } from "react"
-import { Dimensions, TouchableOpacity, View } from "react-native"
-import { Drawer } from "react-native-drawer-layout"
-import { OnyxLayout } from "@/onyx/OnyxLayout"
-import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
-import { Feather } from "@expo/vector-icons"
-import { ChatDrawerContent } from "./ChatDrawerContent"
+import { observer } from "mobx-react-lite"
+import { Platform, View } from "react-native"
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
+import { Header } from "@/components"
+import { useChat } from "@/hooks/useChat"
+import { navigate } from "@/navigators"
+import { ChatBar } from "./ChatBar"
+import { ChatOverlay } from "./ChatOverlay"
 
-export const Chat = () => {
-  const [open, setOpen] = useState(false)
-  const $drawerInsets = useSafeAreaInsetsStyle(["top"])
+interface ChatProps {
+  drawerOpen: boolean
+  setDrawerOpen: (open: boolean) => void
+}
+
+export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
+  const { handleSendMessage, isLoading, messages } = useChat()
 
   return (
-    <Drawer
-      open={open}
-      onOpen={() => setOpen(true)}
-      onClose={() => setOpen(false)}
-      drawerType="slide"
-      renderDrawerContent={() => (
-        <ChatDrawerContent drawerInsets={$drawerInsets} setOpen={setOpen} />
-      )}
-    >
-      <View style={$drawerInsets}>
-        <TouchableOpacity
-          onPress={() => setOpen((prevOpen) => !prevOpen)}
-          style={{
-            position: "absolute",
-            top: 55,
-            left: 15,
-            zIndex: 900,
-            backgroundColor: "rgba(32, 32, 32, 0.8)",
-            padding: 8,
-            borderRadius: 4,
-          }}
+    <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
+        <Header
+          title="Onyx Chat"
+          leftIcon="menu"
+          onLeftPress={() => setDrawerOpen(!drawerOpen)}
+          rightIcon="settings"
+          onRightPress={() => navigate("Settings")}
+        />
+        <KeyboardAwareScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          enabled={true}
+          disableScrollOnKeyboardHide={false}
         >
-          <Feather name="menu" size={24} color="white" />
-        </TouchableOpacity>
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            left: 0,
-            bottom: 0,
-            height: Dimensions.get("window").height,
-          }}
-        >
-          <OnyxLayout />
-        </View>
+          <View style={{ flex: 1 }}>
+            <ChatOverlay messages={messages} isLoading={isLoading} />
+            <ChatBar handleSendMessage={handleSendMessage} />
+          </View>
+        </KeyboardAwareScrollView>
       </View>
-    </Drawer>
+    </View>
   )
-}
+})

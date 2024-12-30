@@ -1,9 +1,9 @@
-import { Text, View, TouchableOpacity, ScrollView } from "react-native"
-import { colors, typography } from "@/theme"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { useStores } from "@/models"
 import { observer } from "mobx-react-lite"
 import { useEffect } from "react"
+import { ScrollView, Text, TouchableOpacity, View } from "react-native"
+import { useStores } from "@/models"
+import { colorsDark as colors, typography } from "@/theme"
+import { MaterialCommunityIcons } from "@expo/vector-icons"
 
 type Props = {
   drawerInsets: any // replace any with the correct type
@@ -34,9 +34,7 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
     if (!messages || messages.length === 0) {
       return "New Chat"
     }
-    const lastUserMessage = messages
-      .filter(msg => msg.role === "user")
-      .pop()
+    const lastUserMessage = messages.filter((msg) => msg.role === "user").pop()
     if (!lastUserMessage) {
       return "New Chat"
     }
@@ -49,8 +47,8 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
 
   // Sort chats by creation time (using first message's timestamp or chat ID timestamp)
   const sortedChats = [...chatStore.allChats].sort((a, b) => {
-    const aTime = a.messages[0]?.createdAt || parseInt(a.id.split('_')[1]) || 0
-    const bTime = b.messages[0]?.createdAt || parseInt(b.id.split('_')[1]) || 0
+    const aTime = a.messages[0]?.createdAt || parseInt(a.id.split("_")[1]) || 0
+    const bTime = b.messages[0]?.createdAt || parseInt(b.id.split("_")[1]) || 0
     return bTime - aTime // Reverse chronological order
   })
 
@@ -72,7 +70,7 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
           borderBottomColor: colors.border,
         }}
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={handleNewChat}
           style={{
             flexDirection: "row",
@@ -95,13 +93,14 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
               padding: 16,
               borderBottomWidth: 1,
               borderBottomColor: colors.border,
-              backgroundColor: chatStore.currentConversationId === chat.id 
-                ? colors.palette.neutral200 
-                : "transparent",
+              backgroundColor:
+                chatStore.currentConversationId === chat.id
+                  ? colors.palette.neutral200
+                  : "transparent",
             }}
           >
-            <Text 
-              style={{ 
+            <Text
+              style={{
                 color: "white",
                 fontFamily: typography.primary.medium,
                 marginBottom: 4,
@@ -110,13 +109,15 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
             >
               {getChatPreview(chat.messages)}
             </Text>
-            <Text 
-              style={{ 
+            <Text
+              style={{
                 color: colors.palette.neutral400,
                 fontSize: 12,
               }}
             >
-              {new Date(chat.messages[0]?.createdAt || parseInt(chat.id.split('_')[1]) || Date.now()).toLocaleDateString()}
+              {new Date(
+                chat.messages[0]?.createdAt || parseInt(chat.id.split("_")[1]) || Date.now(),
+              ).toLocaleDateString()}
             </Text>
           </TouchableOpacity>
         ))}

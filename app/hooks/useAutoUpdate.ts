@@ -4,7 +4,6 @@ import { useEffect } from "react"
 export const useAutoUpdate = () => {
   const handleCheckUpdate = async () => {
     if (__DEV__) {
-      console.log('Update checking disabled in development');
       return;
     }
 
@@ -28,7 +27,6 @@ export const useAutoUpdate = () => {
 
   useEffect(() => {
     if (__DEV__) {
-      console.log('Update checking disabled in development');
       return;
     }
 

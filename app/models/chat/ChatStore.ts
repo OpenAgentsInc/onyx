@@ -1,11 +1,11 @@
 import {
-  applySnapshot, flow, Instance, onSnapshot, SnapshotIn, SnapshotOut, types
+  flow, Instance, onSnapshot, SnapshotIn, SnapshotOut, types
 } from "mobx-state-tree"
 import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
-// Add Groq actions after ChatStore is defined to avoid circular dependency
-import { withGroqActions } from "./ChatActions"
-import { initializeDatabase, loadChat, saveChat, getAllChats } from "./ChatStorage"
+import {
+  getAllChats, initializeDatabase, loadChat, saveChat
+} from "./ChatStorage"
 
 // Message Types
 export const MessageModel = types
@@ -84,6 +84,15 @@ export const ChatStoreModel = types
       }
     })
 
+    const loadAllChats = flow(function* () {
+      try {
+        const allChats = yield getAllChats()
+        self.chats.replace(allChats)
+      } catch (e) {
+        log.error("Error loading all chats:", e)
+      }
+    })
+
     return {
       addMessage(message: {
         role: "system" | "user" | "assistant" | "function"
@@ -103,7 +112,7 @@ export const ChatStoreModel = types
 
         // Update chats list after adding a message
         updateChatsList()
-        
+
         return msg
       },
 
@@ -131,7 +140,7 @@ export const ChatStoreModel = types
       setCurrentConversationId: flow(function* (id: string) {
         self.currentConversationId = id
         yield loadMessagesFromStorage()
-        
+
         // Ensure this chat exists in the chats list
         const chatExists = self.chats.some(chat => chat.id === id)
         if (!chatExists) {
@@ -164,14 +173,7 @@ export const ChatStoreModel = types
         self.enabledTools.replace(tools)
       },
 
-      loadAllChats: flow(function* () {
-        try {
-          const allChats = yield getAllChats()
-          self.chats.replace(allChats)
-        } catch (e) {
-          log.error("Error loading all chats:", e)
-        }
-      }),
+      loadAllChats,
 
       afterCreate: flow(function* () {
         try {
@@ -182,7 +184,7 @@ export const ChatStoreModel = types
           yield loadMessagesFromStorage()
 
           // Load all chats
-          yield self.loadAllChats()
+          yield loadAllChats()
 
           // Set up persistence listener
           onSnapshot(self.messages, (snapshot) => {
@@ -224,15 +226,8 @@ export interface ChatStore extends Instance<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotOut extends SnapshotOut<typeof ChatStoreModel> { }
 export interface ChatStoreSnapshotIn extends SnapshotIn<typeof ChatStoreModel> { }
 
-// Create a new model that includes the Groq actions
-export const ChatStoreWithActions = types.compose(
-  "ChatStoreWithActions",
-  ChatStoreModel,
-  types.model({})
-).actions(self => withGroqActions(self as ChatStore))
-
 export const createChatStoreDefaultModel = () =>
-  ChatStoreWithActions.create({
+  ChatStoreModel.create({
     isInitialized: false,
     error: null,
     messages: [],

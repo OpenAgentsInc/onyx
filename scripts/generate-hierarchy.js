@@ -92,6 +92,9 @@ function generateHierarchy() {
     ignore: [
       "node_modules/**",
       ".git/**",
+      "assets/icons/**",
+      "assets/images/**",
+      "app/i18n/**",
     ],
   });
 

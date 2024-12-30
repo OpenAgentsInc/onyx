@@ -9,10 +9,12 @@ Onyx requires certain permissions to enable voice input features. The permission
 ## Required Permissions
 
 ### Android
+
 - `RECORD_AUDIO` - Required for microphone access
 - Speech recognition services are handled through Google's services
 
 ### iOS
+
 - Microphone permission - Handled automatically by Voice API
 - Speech recognition permission - Handled automatically by Voice API
 
@@ -23,13 +25,14 @@ Onyx requires certain permissions to enable voice input features. The permission
 The app uses a custom hook `useVoicePermissions` to manage voice-related permissions:
 
 ```typescript
-import { useVoicePermissions } from '../hooks/useVoicePermissions'
+import { useVoicePermissions } from "../hooks/useVoicePermissions"
 
 // Usage in components
 const { hasPermission, isChecking, requestPermissions } = useVoicePermissions()
 ```
 
 The hook provides:
+
 - `hasPermission`: Boolean indicating if required permissions are granted
 - `isChecking`: Boolean indicating if permissions are being checked
 - `requestPermissions()`: Function to request necessary permissions
@@ -38,21 +41,20 @@ The hook provides:
 ### Platform-Specific Handling
 
 #### Android
+
 ```typescript
 // Using PermissionsAndroid API
-const granted = await PermissionsAndroid.request(
-  PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-  {
-    title: "Microphone Permission",
-    message: "Onyx needs access to your microphone for voice input",
-    buttonNeutral: "Ask Me Later",
-    buttonNegative: "Cancel",
-    buttonPositive: "OK"
-  }
-)
+const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, {
+  title: "Microphone Permission",
+  message: "Onyx needs access to your microphone for voice input",
+  buttonNeutral: "Ask Me Later",
+  buttonNegative: "Cancel",
+  buttonPositive: "OK",
+})
 ```
 
 #### iOS
+
 - Permissions are handled automatically by the Voice API
 - No manual permission requests needed
 - System permission dialogs appear when needed
@@ -60,6 +62,7 @@ const granted = await PermissionsAndroid.request(
 ## Voice Input Modal
 
 The VoiceInputModal component uses the permissions hook to:
+
 1. Check permissions when opened
 2. Request permissions if needed
 3. Show appropriate UI states:
@@ -76,7 +79,7 @@ const VoiceInputModal = () => {
       startRecording()
     }
   }, [visible, hasPermission])
-  
+
   // ... rest of the component
 }
 ```
@@ -86,6 +89,7 @@ const VoiceInputModal = () => {
 ### Android Manifest
 
 Required permissions are declared in `android/app/src/main/AndroidManifest.xml`:
+
 ```xml
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 ```
@@ -93,6 +97,7 @@ Required permissions are declared in `android/app/src/main/AndroidManifest.xml`:
 ### iOS Info.plist
 
 Required permission descriptions in `ios/[AppName]/Info.plist`:
+
 ```xml
 <key>NSMicrophoneUsageDescription</key>
 <string>Onyx needs access to your microphone for voice input</string>
@@ -103,12 +108,14 @@ Required permission descriptions in `ios/[AppName]/Info.plist`:
 ## Error Handling
 
 The permission system handles several cases:
+
 1. Permission denied
 2. Permission not yet requested
 3. System errors
 4. Missing speech recognition services (Android)
 
 Error messages are displayed to users with appropriate actions:
+
 - Clear explanation of why permissions are needed
 - Option to retry permission request
 - Guidance for enabling permissions in settings
@@ -116,16 +123,19 @@ Error messages are displayed to users with appropriate actions:
 ## Best Practices
 
 1. **Request Timing**
+
    - Only request permissions when needed
    - Check permissions before starting voice input
    - Provide clear context for permission requests
 
 2. **User Experience**
+
    - Show loading states during permission checks
    - Provide clear feedback for permission status
    - Gracefully handle permission denials
 
 3. **Error Handling**
+
    - Catch and handle all permission-related errors
    - Provide clear error messages
    - Guide users to resolve permission issues
@@ -138,6 +148,7 @@ Error messages are displayed to users with appropriate actions:
 ## Testing
 
 Test the following scenarios:
+
 1. First-time permission requests
 2. Permission denials
 3. Permission grants
@@ -149,11 +160,13 @@ Test the following scenarios:
 Common issues and solutions:
 
 1. **Permission Denied**
+
    - Guide users to app settings
    - Explain why permissions are needed
    - Provide retry option
 
 2. **Android Speech Services**
+
    - Check Google app installation
    - Verify Google services availability
    - Handle offline scenarios
@@ -166,6 +179,7 @@ Common issues and solutions:
 ## Future Improvements
 
 Planned enhancements:
+
 1. Better permission denial handling
 2. Offline voice recognition options
 3. Enhanced error messages

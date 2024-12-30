@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { RootStore, RootStoreModel, createRootStoreDefaultModel } from "../RootStore"
+import {
+  createRootStoreDefaultModel, RootStore, RootStoreModel
+} from "../RootStore"
 import { setupRootStore } from "./setupRootStore"
 
 /**
@@ -34,35 +36,37 @@ export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
   // Kick off initial async loading actions, like loading fonts and rehydrating RootStore
   useEffect(() => {
     let _unsubscribe: () => void | undefined
-    ;(async () => {
-      try {
-        // set up the RootStore (returns the state restored from AsyncStorage)
-        const { unsubscribe } = await setupRootStore(rootStore)
-        _unsubscribe = unsubscribe
+      ; (async () => {
+        try {
+          // set up the RootStore (returns the state restored from AsyncStorage)
+          const { unsubscribe } = await setupRootStore(rootStore)
+          _unsubscribe = unsubscribe
 
-        // reactotron integration with the MST root store (DEV only)
-        if (__DEV__) {
-          // @ts-ignore
-          console.tron?.trackMstNode(rootStore)
+          // reactotron integration with the MST root store (DEV only)
+          if (__DEV__) {
+            // @ts-ignore
+            console.tron?.trackMstNode(rootStore)
+          }
+
+          // rootStore.coderStore.setup()
+
+          // let the app know we've finished rehydrating
+          setRehydrated(true)
+
+          // invoke the callback, if provided
+          if (callback) await callback()
+        } catch (error) {
+          console.error("Failed to setup root store:", error)
+          // Still set rehydrated to true to prevent infinite loading
+          setRehydrated(true)
         }
-
-        // let the app know we've finished rehydrating
-        setRehydrated(true)
-
-        // invoke the callback, if provided
-        if (callback) await callback()
-      } catch (error) {
-        console.error("Failed to setup root store:", error)
-        // Still set rehydrated to true to prevent infinite loading
-        setRehydrated(true)
-      }
-    })()
+      })()
 
     return () => {
       // cleanup
       if (_unsubscribe !== undefined) _unsubscribe()
     }
-  }, [callback])
+  }, []) // Empty dependency array since we only want this to run once on mount
 
   return { rehydrated }
 }
