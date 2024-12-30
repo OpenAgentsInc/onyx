@@ -11,6 +11,7 @@ export interface IWalletStoreBase extends IStateTreeNode {
   setMnemonic: (mnemonic: string) => void
   setError: (message: string | null) => void
   setInitialized: (isInitialized: boolean) => void
+  setTransactions: (transactions: any[]) => void
 }
 
 // Balance related properties and actions
