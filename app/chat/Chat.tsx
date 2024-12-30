@@ -29,10 +29,11 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
           style={{ flex: 1 }}
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
-          extraKeyboardSpace={Platform.select({
-            ios: 20,
+          bottomOffset={Platform.select({
+            ios: 10,
             android: 10
           })}
+          enabled={true}
         >
           <View style={{ flex: 1 }}>
             <ChatOverlay messages={messages} isLoading={isLoading} />
