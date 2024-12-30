@@ -1,4 +1,4 @@
-import { WalletStore } from "../../../types"
+import { WalletStore } from "./types"
 
 export const createViews = (self: WalletStore) => ({
   get totalBalance() {
