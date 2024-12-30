@@ -1,9 +1,9 @@
-import { View, Platform } from "react-native"
 import { observer } from "mobx-react-lite"
+import { Platform, View } from "react-native"
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
 import { Header } from "@/components"
 import { useChat } from "@/hooks/useChat"
 import { navigate } from "@/navigators"
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
 import { ChatBar } from "./ChatBar"
 import { ChatOverlay } from "./ChatOverlay"
 
@@ -29,10 +29,6 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
           style={{ flex: 1 }}
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
-          bottomOffset={Platform.select({
-            ios: 10,
-            android: 10
-          })}
           enabled={true}
           disableScrollOnKeyboardHide={false}
         >

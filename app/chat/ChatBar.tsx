@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { Animated, Keyboard, Pressable, TextInput, View } from "react-native"
+import { Keyboard, Pressable, TextInput, View } from "react-native"
 import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 import { useKeyboard } from "@/hooks/useKeyboard"
 import { useVoiceRecording } from "@/hooks/useVoiceRecording"
