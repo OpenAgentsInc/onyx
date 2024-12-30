@@ -23,7 +23,7 @@ export const ChatDrawerContainer = () => {
     >
       <Screen
         preset="fixed"
-        safeAreaEdges={["bottom"]}
+        // safeAreaEdges={["bottom"]}
         contentContainerStyle={$styles.flex1}
         KeyboardAvoidingViewProps={{ behavior: undefined }}
       >

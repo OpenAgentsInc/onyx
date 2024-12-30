@@ -80,6 +80,7 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
         paddingHorizontal: 8,
         minHeight: 50,
         zIndex: 4,
+        marginBottom: 10,
       }}
     >
       <Pressable

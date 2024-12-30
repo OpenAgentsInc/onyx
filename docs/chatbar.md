@@ -1,5 +1,32 @@
 # ChatBar Component Behavior Requirements
 
+## Positioning & Layout
+
+### Container Positioning
+- Fixed to bottom of screen using absolute positioning
+- Moves up with keyboard when it appears
+- Always visible, never scrolls with content
+- Background color transparent to allow proper layering
+- Position styles:
+  ```js
+  {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'transparent'
+  }
+  ```
+
+### Container Layout
+- Maintains proper padding and margins in all states
+- Preserves safe area insets
+- Proper vertical alignment with mic and send buttons
+- Consistent spacing between elements regardless of height
+- 14px horizontal padding on container
+- 16px spacing between mic button and input
+- 12px spacing between input and send button
+
 ## Voice Recording
 
 ### Recording Controls
@@ -61,12 +88,3 @@
 - Preserves cursor position during height changes
 - Opacity slightly reduced when not expanded
 - Placeholder text vertically centered when single line
-
-### Layout
-- Maintains proper padding and margins in all states
-- Preserves safe area insets
-- Proper vertical alignment with mic and send buttons
-- Consistent spacing between elements regardless of height
-- 14px horizontal padding on container
-- 16px spacing between mic button and input
-- 12px spacing between input and send button
