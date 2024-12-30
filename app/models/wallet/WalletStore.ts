@@ -1,4 +1,4 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { types } from "mobx-state-tree"
 import * as actions from "./actions"
 import { TransactionModel } from "./TransactionModel"
 import { createViews } from "./views"
@@ -51,6 +51,3 @@ export const WalletStoreModel = types
       return await actions.receivePayment(store, amount, description)
     },
   }))
-
-export interface WalletStoreType extends Instance<typeof WalletStoreModel> { }
-export interface WalletStoreSnapshot extends SnapshotOut<typeof WalletStoreModel> { }
