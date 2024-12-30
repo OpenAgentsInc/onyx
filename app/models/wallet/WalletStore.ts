@@ -31,7 +31,6 @@ export const WalletStoreModel = types
       return store.transactions.filter(tx => tx.status === "pending")
     },
   }))
-
   .actions((store) => ({
     setMnemonic(mnemonic: string) {
       store.mnemonic = mnemonic
@@ -40,12 +39,6 @@ export const WalletStoreModel = types
       store.error = message
     },
   }))
-  .actions((store) => ({
-    async setup() {
-      return await actions.setup(store)
-    }
-  }))
-
   .actions((store) => {
     // Helper function to fetch balance info
     const fetchBalanceInfo = async () => {
@@ -137,7 +130,13 @@ export const WalletStoreModel = types
         }
       },
     }
-  })
+  }))
+  // Move setup action to the end after all other actions are defined
+  .actions((store) => ({
+    async setup() {
+      return await actions.setup(store)
+    }
+  }))
 
 export interface WalletStore extends Instance<typeof WalletStoreModel> { }
 export interface WalletStoreSnapshot extends SnapshotOut<typeof WalletStoreModel> { }
