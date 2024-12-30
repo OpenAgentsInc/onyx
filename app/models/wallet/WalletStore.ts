@@ -1,6 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import * as actions from "./actions"
 import { TransactionModel } from "./TransactionModel"
+import { views } from "./views"
 
 export const WalletStoreModel = types
   .model("WalletStore")
@@ -13,20 +14,7 @@ export const WalletStoreModel = types
     transactions: types.array(TransactionModel),
     mnemonic: types.maybeNull(types.string),
   })
-  .views((store) => ({
-    get totalBalance() {
-      return store.balanceSat
-    },
-    get hasPendingTransactions() {
-      return store.pendingSendSat > 0 || store.pendingReceiveSat > 0
-    },
-    get recentTransactions() {
-      return store.transactions.slice().sort((a, b) => b.timestamp - a.timestamp)
-    },
-    get pendingTransactions() {
-      return store.transactions.filter(tx => tx.status === "pending")
-    },
-  }))
+  .views(views)
   // Basic actions that don't depend on anything else
   .actions((store) => ({
     setMnemonic(mnemonic: string) {
