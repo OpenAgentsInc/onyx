@@ -35,6 +35,10 @@ type MoneyProps = {
 }
 
 const MoneySmall = observer((props: MoneyProps): ReactElement => {
+  // const primaryUnit = useAppSelector(unitSelector);
+  // const nextUnit = useAppSelector(nextUnitSelector);
+  // const denomination = useAppSelector(denominationSelector);
+  // const hideBalance = useAppSelector(hideBalanceSelector);
   const { walletStore } = useStores()
   const { balanceSat, pendingSendSat, pendingReceiveSat, isInitialized, error, fetchBalanceInfo } =
     walletStore
@@ -47,8 +51,9 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
 
       // Set up periodic refresh
       const interval = setInterval(() => {
+        // console.log("[MoneySmall] Periodic balance fetch")
         fetchBalanceInfo()
-      }, 60000)
+      }, 60000) //
 
       return () => clearInterval(interval)
     }
@@ -57,7 +62,7 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
 
   const primaryUnit = EUnit.BTC
   const nextUnit = EUnit.fiat
-  const denomination = EDenomination.modern as const
+  const denomination = EDenomination.modern as EDenomination
   const hideBalance = false
 
   const sats = Math.abs(props.sats)
@@ -72,6 +77,8 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
   const shouldRoundUp = props.shouldRoundUp ?? false
   const testID = props.testID
 
+  // const dv = useDisplayValues(sats, shouldRoundUp);
+
   const dv = {
     fiatWhole: "600",
     fiatFormatted: "600",
@@ -79,10 +86,29 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
     fiatSymbol: "$",
   }
 
+  // const [Text, iconMargin] = useMemo(() => {
+  //   switch (size) {
+  //     case 'captionB':
+  //       return [Caption13Up, 3];
+  //     case 'caption13Up':
+  //       return [CaptionB, 4];
+  //     case 'bodyMSB':
+  //       return [BodyMSB, 4];
+  //     case 'bodySSB':
+  //       return [BodySSB, 4];
+  //     case 'title':
+  //       return [Title, 6];
+  //     default:
+  //       return [Display, 6];
+  //   }
+  // }, [size]);
+
   const symbol = useMemo(() => {
     const style = {
-      marginRight: 5,
+      // marginTop: 4,
+      marginRight: 5, // iconMargin,
       fontSize: 20,
+      // lineHeight: 40,
       color: colors.palette.accent100,
       fontFamily: typography.primary.bold,
     }
@@ -90,17 +116,19 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
     return (
       <Text
         style={style}
+        // color={symbolColor ?? color ?? 'secondary'}
         testID="MoneyFiatSymbol"
       >
         {unit === EUnit.BTC ? "₿" : dv.fiatSymbol}
       </Text>
     )
-  }, [unit, dv.fiatSymbol])
+  }, [Text, size, unit, color, symbolColor, dv.fiatSymbol]) // iconMargin
 
   let text = useMemo(() => {
     switch (unit) {
       case EUnit.fiat: {
         if (dv.fiatWhole.length > 12) {
+          // const { newValue, abbreviation } = abbreviateNumber(dv.fiatWhole);
           const newValue = 600
           const abbreviation = "k"
           return `${newValue}${abbreviation}`
@@ -135,6 +163,7 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
       {sign && (
         <Text
           style={styles.sign}
+          // color={color ?? 'secondary'}
           testID="MoneySign"
         >
           {sign}
@@ -142,6 +171,7 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
       )}
       {showSymbol && symbol}
       <Text
+        // color={color}
         style={styles.balance}
         testID="MoneyText"
       >
@@ -154,14 +184,19 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
 const styles = StyleSheet.create({
   root: {
     flexDirection: "row",
+    // alignItems: 'flex-end',
     justifyContent: "flex-end",
     marginRight: 4,
     marginTop: 4,
   },
-  sign: {},
+  sign: {
+    // marginTop: -100
+    // marginBottom: 44
+  },
   balance: {
     fontSize: 20,
     marginTop: 1,
+    // lineHeight: 40,
     fontFamily: typography.primary.bold,
   },
 })
