@@ -25,6 +25,12 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
     transform: [{ translateY: height.value }],
   }))
 
+  const backgroundStyle = useAnimatedStyle(() => ({
+    backgroundColor: '#000000',
+    // Only add bottom padding when keyboard is not showing (height.value === 0)
+    paddingBottom: height.value === 0 ? 20 : 0,
+  }))
+
   return (
     <View style={{ flex: 1 }}>
       <Header
@@ -45,12 +51,9 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
           <ChatOverlay messages={messages} isLoading={isLoading} />
         </KeyboardAwareScrollView>
         <Animated.View style={chatBarContainerStyle}>
-          <View style={{
-            backgroundColor: '#000000',
-            paddingBottom: 20, // Extra padding for bottom safe area
-          }}>
+          <Animated.View style={backgroundStyle}>
             <ChatBar handleSendMessage={handleSendMessage} />
-          </View>
+          </Animated.View>
         </Animated.View>
       </View>
     </View>
