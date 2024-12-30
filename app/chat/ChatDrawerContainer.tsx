@@ -7,8 +7,6 @@ import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import { Chat } from "./Chat"
 import { ChatDrawerContent } from "./ChatDrawerContent"
 
-const isAndroid = Platform.OS === "android"
-
 export const ChatDrawerContainer = () => {
   const [open, setOpen] = useState(false)
   const $drawerInsets = useSafeAreaInsetsStyle(["top"])
@@ -27,7 +25,7 @@ export const ChatDrawerContainer = () => {
         preset="fixed"
         safeAreaEdges={["bottom"]}
         contentContainerStyle={$styles.flex1}
-        {...(isAndroid ? { KeyboardAvoidingViewProps: { behavior: undefined } } : {})}
+        KeyboardAvoidingViewProps={{ behavior: undefined }}
       >
         <Chat drawerOpen={open} setDrawerOpen={setOpen} />
       </Screen>
