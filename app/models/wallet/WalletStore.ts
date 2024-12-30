@@ -39,7 +39,7 @@ export const WalletStoreModel = types
   // Add fetchBalanceInfo first since other actions depend on it
   .actions((store) => ({
     async fetchBalanceInfo() {
-      return await actions.fetchBalanceInfo(store)
+      await actions.fetchBalanceInfo(store)
     },
   }))
   // Actions that depend on basic actions
