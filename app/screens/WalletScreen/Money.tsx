@@ -33,14 +33,9 @@ type MoneyProps = {
 }
 
 const Money = (props: MoneyProps): ReactElement => {
-  // const primaryUnit = useAppSelector(unitSelector);
-  // const nextUnit = useAppSelector(nextUnitSelector);
-  // const denomination = useAppSelector(denominationSelector);
-  // const hideBalance = useAppSelector(hideBalanceSelector);
-
   const primaryUnit = EUnit.BTC
   const nextUnit = EUnit.fiat
-  const denomination: EDenomination = EDenomination.modern as EDenomination
+  const denomination = EDenomination.modern as const
   const hideBalance = false
 
   const sats = Math.abs(props.sats)
@@ -54,8 +49,6 @@ const Money = (props: MoneyProps): ReactElement => {
   const sign = props.sign
   const shouldRoundUp = props.shouldRoundUp ?? false
   const testID = props.testID
-
-  // const dv = useDisplayValues(sats, shouldRoundUp);
 
   const dv = {
     fiatWhole: "600",
