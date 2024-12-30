@@ -4,6 +4,7 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { useStores } from "@/models"
 import { colorsDark as colors, typography } from "@/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
+import { useNavigation } from "@react-navigation/native"
 
 type Props = {
   drawerInsets: any // replace any with the correct type
@@ -12,6 +13,7 @@ type Props = {
 
 export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => {
   const { chatStore } = useStores()
+  const navigation = useNavigation()
 
   useEffect(() => {
     chatStore.loadAllChats()
@@ -27,6 +29,11 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
 
   const handleSelectChat = (chatId: string) => {
     chatStore.setCurrentConversationId(chatId)
+    setOpen(false)
+  }
+
+  const handleWalletPress = () => {
+    navigation.navigate("WalletScreen" as never)
     setOpen(false)
   }
 
@@ -75,11 +82,25 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
           style={{
             flexDirection: "row",
             alignItems: "center",
+            marginBottom: 16,
           }}
         >
           <MaterialCommunityIcons name="chat-plus-outline" size={24} color="white" />
           <Text style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}>
             New chat
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={handleWalletPress}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <MaterialCommunityIcons name="wallet-outline" size={24} color="white" />
+          <Text style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}>
+            Wallet
           </Text>
         </TouchableOpacity>
       </View>
