@@ -22,9 +22,7 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#000000',
     transform: [{ translateY: height.value }],
-    paddingBottom: Math.max(-height.value, 0) // Extend background to bottom of screen
   }))
 
   return (
@@ -47,7 +45,12 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
           <ChatOverlay messages={messages} isLoading={isLoading} />
         </KeyboardAwareScrollView>
         <Animated.View style={chatBarContainerStyle}>
-          <ChatBar handleSendMessage={handleSendMessage} />
+          <View style={{
+            backgroundColor: '#000000',
+            paddingBottom: 20, // Extra padding for bottom safe area
+          }}>
+            <ChatBar handleSendMessage={handleSendMessage} />
+          </View>
         </Animated.View>
       </View>
     </View>
