@@ -1,7 +1,7 @@
 import { breezService } from "@/services/breez/breezService"
-import { IWalletStore } from "./types"
+import { IWalletStoreWithTransactions } from "./types"
 
-export async function fetchTransactions(store: IWalletStore) {
+export async function fetchTransactions(store: IWalletStoreWithTransactions) {
   if (!store.isInitialized || !breezService.isInitialized()) {
     return
   }
