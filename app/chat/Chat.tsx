@@ -25,26 +25,27 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
           rightIcon="settings"
           onRightPress={() => navigate("Settings")}
         />
-        <View style={{ flex: 1 }}>
-          <KeyboardAwareScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-            enabled={true}
-            disableScrollOnKeyboardHide={false}
-          >
-            <ChatOverlay messages={messages} isLoading={isLoading} />
-          </KeyboardAwareScrollView>
-          <View style={{ 
-            position: 'absolute', 
-            bottom: 0, 
-            left: 0, 
-            right: 0,
-            backgroundColor: 'transparent'
-          }}>
-            <ChatBar handleSendMessage={handleSendMessage} />
+        <KeyboardAwareScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          enabled={true}
+          disableScrollOnKeyboardHide={false}
+        >
+          <View style={{ flex: 1, position: 'relative' }}>
+            <View style={{ flex: 1, marginBottom: 70 }}>
+              <ChatOverlay messages={messages} isLoading={isLoading} />
+            </View>
+            <View style={{ 
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+            }}>
+              <ChatBar handleSendMessage={handleSendMessage} />
+            </View>
           </View>
-        </View>
+        </KeyboardAwareScrollView>
       </View>
     </View>
   )
