@@ -115,7 +115,7 @@ const Money = (props: MoneyProps): ReactElement => {
         return dv.fiatFormatted
       }
       case EUnit.BTC: {
-        if (denomination === EDenomination.classic) {
+        if (denomination === "classic") {
           if (decimalLength === "long") {
             return Number(dv.bitcoinFormatted).toFixed(8)
           }
