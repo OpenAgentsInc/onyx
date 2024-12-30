@@ -1,4 +1,5 @@
 import { View } from "react-native"
+import { observer } from "mobx-react-lite"
 import { Header, KeyboardDismisser } from "@/components"
 import { useChat } from "@/hooks/useChat"
 import { navigate } from "@/navigators"
@@ -10,7 +11,7 @@ interface ChatProps {
   setDrawerOpen: (open: boolean) => void
 }
 
-export const Chat = ({ drawerOpen, setDrawerOpen }: ChatProps) => {
+export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
   const { handleSendMessage, isLoading, messages } = useChat()
 
   return (
@@ -29,4 +30,4 @@ export const Chat = ({ drawerOpen, setDrawerOpen }: ChatProps) => {
       </View>
     </View>
   )
-}
+})
