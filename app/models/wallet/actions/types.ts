@@ -25,4 +25,6 @@ export interface IWalletStoreWithTransactions extends IWalletStoreBalance {
 }
 
 // Extended interface with all requirements
-export interface IWalletStore extends IWalletStoreWithTransactions {}
+export interface IWalletStore extends IWalletStoreWithTransactions {
+  fetchBalanceInfo: () => Promise<void>
+}
