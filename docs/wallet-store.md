@@ -25,22 +25,32 @@ The store uses a layered interface approach to manage dependencies:
    - Basic properties and actions
    - Minimal interface for simple operations
    ```typescript
-   interface IWalletStoreBase {
+   interface IWalletStoreBase extends IStateTreeNode {
+     isInitialized: boolean
+     error: string | null
      mnemonic: string | null
      setMnemonic: (mnemonic: string) => void
      setError: (message: string | null) => void
    }
    ```
 
-2. **IWalletStoreWithTransactions**
+2. **IWalletStoreBalance**
    - Extends base interface
-   - Adds transaction-related properties and methods
+   - Adds balance-related properties and actions
    ```typescript
-   interface IWalletStoreWithTransactions extends IWalletStoreBase {
-     isInitialized: boolean
+   interface IWalletStoreBalance extends IWalletStoreBase {
      balanceSat: number
      pendingSendSat: number
      pendingReceiveSat: number
+     fetchBalanceInfo: () => Promise<void>
+   }
+   ```
+
+3. **IWalletStoreWithTransactions**
+   - Extends balance interface
+   - Adds transaction-related properties and methods
+   ```typescript
+   interface IWalletStoreWithTransactions extends IWalletStoreBalance {
      transactions: {
        clear: () => void
        replace: (items: any[]) => void
@@ -49,12 +59,16 @@ The store uses a layered interface approach to manage dependencies:
    }
    ```
 
-3. **IWalletStore**
+4. **IWalletStore**
    - Full interface with all capabilities
    - Used by actions that need complete store access
    ```typescript
    interface IWalletStore extends IWalletStoreWithTransactions {
-     fetchBalanceInfo: () => Promise<void>
+     setup: () => Promise<void>
+     fetchTransactions: () => Promise<void>
+     sendPayment: (bolt11: string, amount: number) => Promise<void>
+     receivePayment: (amount: number, description?: string) => Promise<void>
+     disconnect: () => Promise<void>
    }
    ```
 
@@ -67,6 +81,7 @@ Actions are organized in dependency order:
    - setError
 
 2. **Core Actions**
+   - setup
    - fetchBalanceInfo
    - disconnect
 
@@ -75,15 +90,12 @@ Actions are organized in dependency order:
    - sendPayment
    - receivePayment
 
-4. **Setup Actions**
-   - setup
-   - initialize
-
 ## Usage Example
 
 ```typescript
 const store = WalletStoreModel.create({
   isInitialized: false,
+  error: null,
   balanceSat: 0,
   pendingSendSat: 0,
   pendingReceiveSat: 0,
@@ -126,6 +138,12 @@ The store integrates with several services:
 - SecureStorageService: Mnemonic storage
 - TransactionModel: Transaction data structure
 
+## Type Safety Notes
+
+1. The store uses proper type casting with `as unknown as IWalletStore` in actions to maintain type safety while allowing necessary type conversions.
+2. Balance properties match the breezService API exactly (balanceSat, pendingSendSat, pendingReceiveSat).
+3. Transaction array methods (clear, replace, push) are properly typed in the interfaces.
+
 ## Best Practices
 
 1. Always use the most specific interface for actions
@@ -133,3 +151,5 @@ The store integrates with several services:
 3. Keep action implementations separate from the store definition
 4. Use consistent error handling patterns
 5. Document complex operations and dependencies
+6. Use proper type casting when necessary
+7. Match external API property names exactly
