@@ -27,17 +27,14 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
       <View style={{ flex: 1 }}>
         <KeyboardAwareScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={{ 
-            flexGrow: 1,
-            paddingBottom: 70 // Space for ChatBar
-          }}
+          contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
           enabled={true}
           disableScrollOnKeyboardHide={false}
         >
           <ChatOverlay messages={messages} isLoading={isLoading} />
         </KeyboardAwareScrollView>
-        <View style={{ 
+        <View style={{
           position: 'absolute',
           bottom: 0,
           left: 0,
