@@ -18,7 +18,7 @@ const generateId = () => Math.random().toString(36).substring(2, 15)
 
 class BreezServiceImpl implements BreezService {
   private sdk: any = null
-  private mnemonic: string | null = null
+  private mnemonic: string | undefined | null = undefined
   private isInitializedFlag = false
   private initializationPromise: Promise<void> | null = null
 

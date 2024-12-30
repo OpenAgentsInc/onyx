@@ -1,7 +1,7 @@
 import Constants from "expo-constants"
 import { breezService } from "@/services/breez"
-import { IWalletStore } from "../types"
 import { SecureStorageService } from "@/services/storage/secureStorage"
+import { IWalletStore } from "../types"
 
 export async function setup(store: IWalletStore) {
   try {
@@ -28,7 +28,6 @@ export async function setup(store: IWalletStore) {
       mnemonic: mnemonic,
     })
 
-    store.isInitialized = true
     store.setError(null)
     return true
   } catch (error) {

@@ -1,4 +1,5 @@
 import { Instance, types } from "mobx-state-tree"
+import { withSetPropAction } from "../_helpers/withSetPropAction"
 import * as actions from "./actions"
 import { TransactionModel } from "./TransactionModel"
 import { IWalletStore } from "./types"
@@ -13,10 +14,23 @@ const WalletStoreModel = types
     pendingSendSat: types.optional(types.number, 0),
     pendingReceiveSat: types.optional(types.number, 0),
     transactions: types.array(TransactionModel),
-    mnemonic: types.maybeNull(types.string),
+    mnemonic: types.maybe(types.string),
   })
   .views(createViews)
+  .actions(withSetPropAction)
   .actions(self => ({
+    setBalanceSat(balanceSat: number) {
+      self.balanceSat = balanceSat
+    },
+    setPendingSendSat(pendingSendSat: number) {
+      self.pendingSendSat = pendingSendSat
+    },
+    setPendingReceiveSat(pendingReceiveSat: number) {
+      self.pendingReceiveSat = pendingReceiveSat
+    },
+    setInitialized(isInitialized: boolean) {
+      self.isInitialized = isInitialized
+    },
     setMnemonic(mnemonic: string) {
       self.mnemonic = mnemonic
     },
@@ -27,9 +41,6 @@ const WalletStoreModel = types
   .actions(self => ({
     async setup() {
       return await actions.setup(self as unknown as IWalletStore)
-    },
-    async initialize() {
-      return await actions.initialize(self as unknown as IWalletStore)
     },
     async fetchBalanceInfo() {
       await actions.fetchBalanceInfo(self as unknown as IWalletStore)

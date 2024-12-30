@@ -1,12 +1,16 @@
-import { IStateTreeNode, Instance, IAnyModelType } from "mobx-state-tree"
+import { IAnyModelType, Instance, IStateTreeNode } from "mobx-state-tree"
 
 // Base store interface with just the properties
 export interface IWalletStoreBase extends IStateTreeNode {
   isInitialized: boolean
   error: string | null
   mnemonic: string | null
+  setBalanceSat: (balanceSat: number) => void
+  setPendingReceiveSat: (pendingReceiveSat: number) => void
+  setPendingSendSat: (pendingSendSat: number) => void
   setMnemonic: (mnemonic: string) => void
   setError: (message: string | null) => void
+  setInitialized: (isInitialized: boolean) => void
 }
 
 // Balance related properties and actions
