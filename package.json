@@ -104,7 +104,6 @@
     "reactotron-react-native-mmkv": "^0.2.6",
     "text-encoding-polyfill": "^0.6.7",
     "three": "^0.171.0",
-    "wallet-sdk": "OpenAgentsInc/wallet-sdk",
     "zod": "3.24.1",
     "zustand": "^5.0.2"
   },
