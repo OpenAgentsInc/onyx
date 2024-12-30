@@ -2,7 +2,7 @@ import { types } from "mobx-state-tree"
 import * as actions from "./actions"
 import { TransactionModel } from "./TransactionModel"
 import { createViews } from "./views"
-import { IWalletStoreProps } from "./types"
+import { IWalletStore } from "./types"
 
 export const WalletStoreModel = types
   .model("WalletStore")
@@ -16,7 +16,7 @@ export const WalletStoreModel = types
     mnemonic: types.maybeNull(types.string),
   })
   .views(createViews)
-  .actions((self: IWalletStoreProps) => ({
+  .actions(self => ({
     setMnemonic(mnemonic: string) {
       self.mnemonic = mnemonic
     },
@@ -24,27 +24,27 @@ export const WalletStoreModel = types
       self.error = message
     },
   }))
-  .actions((self: IWalletStoreProps) => ({
+  .actions(self => ({
     async setup() {
-      return await actions.setup(self)
+      return await actions.setup(self as IWalletStore)
     },
     async fetchBalanceInfo() {
-      await actions.fetchBalanceInfo(self)
+      await actions.fetchBalanceInfo(self as IWalletStore)
     },
   }))
-  .actions((self: IWalletStoreProps) => ({
+  .actions(self => ({
     async disconnect() {
-      return await actions.disconnect(self)
+      return await actions.disconnect(self as IWalletStore)
     },
   }))
-  .actions((self: IWalletStoreProps) => ({
+  .actions(self => ({
     async fetchTransactions() {
-      return await actions.fetchTransactions(self)
+      return await actions.fetchTransactions(self as IWalletStore)
     },
     async sendPayment(bolt11: string, amount: number) {
-      return await actions.sendPayment(self, bolt11, amount)
+      return await actions.sendPayment(self as IWalletStore, bolt11, amount)
     },
     async receivePayment(amount: number, description?: string) {
-      return await actions.receivePayment(self, amount, description)
+      return await actions.receivePayment(self as IWalletStore, amount, description)
     },
   }))
