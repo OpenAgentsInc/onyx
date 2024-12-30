@@ -1,6 +1,5 @@
 import { useRef, useState } from "react"
 import { Animated, Keyboard, Pressable, TextInput, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 import { useKeyboard } from "@/hooks/useKeyboard"
 import { useVoiceRecording } from "@/hooks/useVoiceRecording"
@@ -37,8 +36,6 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
       }
     },
   )
-
-  const insets = useSafeAreaInsets()
 
   const updateSize = (event) => {
     const newHeight = Math.min(event.nativeEvent.contentSize.height, 240)
@@ -83,7 +80,6 @@ export const ChatBar = ({ handleSendMessage }: ChatBarProps) => {
         paddingHorizontal: 8,
         minHeight: 50,
         zIndex: 4,
-        marginBottom: expanded ? insets.bottom / 2 : 0,
       }}
     >
       <Pressable
