@@ -1,9 +1,9 @@
-import { View } from "react-native"
 import { observer } from "mobx-react-lite"
+import { View } from "react-native"
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
 import { Header, KeyboardDismisser } from "@/components"
 import { useChat } from "@/hooks/useChat"
 import { navigate } from "@/navigators"
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
 import { ChatBar } from "./ChatBar"
 import { ChatOverlay } from "./ChatOverlay"
 
@@ -17,7 +17,6 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <KeyboardDismisser />
       <View style={{ flex: 1 }}>
         <Header
           title="Onyx Chat"
