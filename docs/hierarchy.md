@@ -65,6 +65,21 @@
     ├── index.ts
     ├── types
       ├── repo.ts
+    ├── wallet
+      ├── TransactionModel.ts
+      ├── WalletStore.ts
+      ├── actions
+        ├── disconnect.ts
+        ├── fetchBalanceInfo.ts
+        ├── fetchTransactions.ts
+        ├── index.ts
+        ├── initialize.ts
+        ├── receivePayment.ts
+        ├── restoreWallet.ts
+        ├── sendPayment.ts
+        ├── setup.ts
+      ├── types.ts
+      ├── views.ts
   ├── navigators
     ├── AppNavigator.tsx
     ├── index.ts
@@ -95,10 +110,18 @@
       ├── apiProblem.test.ts
       ├── apiProblem.ts
       ├── index.ts
+    ├── breez
+      ├── breezService.ts
+      ├── index.ts
+      ├── types.ts
     ├── groq
       ├── groq-api.types.ts
       ├── groq-chat.ts
       ├── index.ts
+    ├── spark
+      ├── spark.ts
+    ├── storage
+      ├── secureStorage.ts
   ├── theme
     ├── colors.ts
     ├── colorsDark.ts
@@ -142,6 +165,7 @@
   ├── permissions.md
   ├── roadmap-brainstorming.md
   ├── roadmap.md
+  ├── wallet-store.md
 ├── eas.json
 ├── ios
 ├── package.json
