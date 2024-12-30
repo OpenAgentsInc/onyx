@@ -1,8 +1,8 @@
 import Constants from "expo-constants"
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { breezService } from "@/services/breez/breezService"
-import { SecureStorageService } from "@/services/storage/secureStorage"
 import { Transaction } from "@/services/breez/types"
+import { SecureStorageService } from "@/services/storage/secureStorage"
 
 const TransactionModel = types.model("Transaction", {
   id: types.string,
