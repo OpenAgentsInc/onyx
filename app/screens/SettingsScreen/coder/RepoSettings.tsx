@@ -89,6 +89,8 @@ export const RepoSettings = observer(({ visible, onClose }: RepoSettingsProps) =
           Onyx can analyze or edit codebases. Add a GitHub token and connect repos.
         </Text>
 
+        <GithubTokenSection />
+
         <ToolsSection />
 
         {showRepoForm && (
@@ -107,8 +109,6 @@ export const RepoSettings = observer(({ visible, onClose }: RepoSettingsProps) =
           onRemoveRepo={handleRemoveRepo}
           onAddRepoClick={handleAddRepoClick}
         />
-
-        <GithubTokenSection />
       </ScrollView>
     </KeyboardAvoidingView>
   )
