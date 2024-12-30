@@ -2,8 +2,9 @@ import * as FileSystem from "expo-file-system"
 import { log } from "@/utils/log"
 import {
   connect, defaultConfig, disconnect, getInfo, InputTypeVariant,
-  LiquidNetwork, listPayments, lnurlPay, parse, PaymentMethod,
-  prepareLnurlPay, prepareReceivePayment, receivePayment
+  LiquidNetwork, listPayments, lnurlPay, LnUrlPayResultVariant, parse,
+  PaymentDetailsVariant, PaymentMethod, prepareLnurlPay,
+  prepareReceivePayment, receivePayment
 } from "@breeztech/react-native-breez-sdk-liquid"
 import { BalanceInfo, BreezConfig, BreezService, Transaction } from "./types"
 
@@ -160,15 +161,36 @@ class BreezServiceImpl implements BreezService {
           value: result
         })
 
-        return {
-          id: result.paymentHash || generateId(),
-          amount: amount,
-          timestamp: Date.now(),
-          type: 'send',
-          status: 'complete',
-          paymentHash: result.paymentHash,
-          fee: prepareResponse.feesSat,
+        if (result.type === LnUrlPayResultVariant.ENDPOINT_SUCCESS) {
+          const details = result.data.payment.details
+          const paymentHash = details.type === PaymentDetailsVariant.LIGHTNING
+            ? details.paymentHash
+            : generateId()
+
+          return {
+            id: paymentHash || generateId(),
+            amount: amount,
+            timestamp: Date.now(),
+            type: 'send',
+            status: 'complete',
+            paymentHash: paymentHash,
+            fee: prepareResponse.feesSat,
+          }
+        } else if (result.type === LnUrlPayResultVariant.PAY_ERROR) {
+          return {
+            id: result.data.paymentHash || generateId(),
+            amount: amount,
+            timestamp: Date.now(),
+            type: 'send',
+            status: 'failed',
+            paymentHash: result.data.paymentHash,
+            fee: prepareResponse.feesSat,
+          }
+        } else {
+          // Handle ENDPOINT_ERROR
+          throw new Error(result.data.reason)
         }
+
       } else {
         // Handle regular BOLT11 invoice
         const result = await this.sdk.sendPayment(input, amount)
