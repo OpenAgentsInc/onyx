@@ -8,9 +8,9 @@ export async function fetchBalanceInfo(store: IWalletStore) {
 
   try {
     const balance = await breezService.getBalance()
-    store.balanceSat = balance.confirmedBalance
-    store.pendingSendSat = balance.pendingSend
-    store.pendingReceiveSat = balance.pendingReceive
+    store.balanceSat = balance.balanceSat
+    store.pendingSendSat = balance.pendingSendSat
+    store.pendingReceiveSat = balance.pendingReceiveSat
     store.setError(null)
   } catch (error) {
     console.error("[WalletStore] Balance fetch error:", error)
