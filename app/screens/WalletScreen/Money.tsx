@@ -9,9 +9,10 @@ export enum EUnit {
   fiat = "fiat",
 }
 
-export enum EDenomination {
-  modern = "modern",
-  classic = "classic",
+export type EDenomination = "modern" | "classic"
+export const EDenominationValues = {
+  modern: "modern" as EDenomination,
+  classic: "classic" as EDenomination,
 }
 
 type TSize = "display" | "title" | "bodyMSB" | "bodySSB" | "captionB" | "caption13Up"
@@ -35,7 +36,7 @@ type MoneyProps = {
 const Money = (props: MoneyProps): ReactElement => {
   const primaryUnit = EUnit.BTC
   const nextUnit = EUnit.fiat
-  const denomination = EDenomination.modern as const
+  const denomination = EDenominationValues.modern
   const hideBalance = false
 
   const sats = Math.abs(props.sats)
@@ -89,7 +90,7 @@ const Money = (props: MoneyProps): ReactElement => {
         return dv.fiatFormatted
       }
       case EUnit.BTC: {
-        if (denomination === EDenomination.classic) {
+        if (denomination === EDenominationValues.classic) {
           if (decimalLength === "long") {
             return Number(dv.bitcoinFormatted).toFixed(8)
           }
