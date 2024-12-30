@@ -62,7 +62,6 @@
       ├── index.ts
     ├── coder
       ├── CoderStore.ts
-      ├── CoderStoreNew.ts
     ├── index.ts
     ├── types
       ├── repo.ts
@@ -81,7 +80,6 @@
       ├── SettingsScreen.tsx
       ├── coder
         ├── GithubTokenSection.tsx
-        ├── GithubTokenSectionNew.tsx
         ├── RepoFormSection.tsx
         ├── RepoListSection.tsx
         ├── RepoSettings.tsx
