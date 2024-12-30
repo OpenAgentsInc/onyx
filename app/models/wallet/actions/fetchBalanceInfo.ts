@@ -1,19 +1,19 @@
 import { breezService } from "@/services/breez/breezService"
-import { IWalletStoreBalance } from "../types"
+import { IWalletStore } from "../types"
 
-export async function fetchBalanceInfo(store: IWalletStoreBalance) {
+export async function fetchBalanceInfo(store: IWalletStore) {
   if (!store.isInitialized || !breezService.isInitialized()) {
     return
   }
 
   try {
-    const info = await breezService.getBalance()
-    store.balanceSat = info.balanceSat
-    store.pendingSendSat = info.pendingSendSat
-    store.pendingReceiveSat = info.pendingReceiveSat
+    const balance = await breezService.getBalance()
+    store.balanceSat = balance.confirmedBalance
+    store.pendingSendSat = balance.pendingSend
+    store.pendingReceiveSat = balance.pendingReceive
     store.setError(null)
   } catch (error) {
     console.error("[WalletStore] Balance fetch error:", error)
-    store.setError(error instanceof Error ? error.message : "Failed to fetch balance info")
+    store.setError(error instanceof Error ? error.message : "Failed to fetch balance")
   }
 }
