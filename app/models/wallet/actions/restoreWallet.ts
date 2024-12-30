@@ -1,9 +1,9 @@
 import Constants from "expo-constants"
 import { breezService } from "@/services/breez"
 import { SecureStorageService } from "@/services/storage/secureStorage"
-import { WalletStore } from "../WalletStore"
+import { IWalletStore } from "./types"
 
-export async function restoreWallet(store: WalletStore, mnemonic: string) {
+export async function restoreWallet(store: IWalletStore, mnemonic: string) {
   try {
     // First disconnect if we're initialized
     if (breezService.isInitialized()) {
