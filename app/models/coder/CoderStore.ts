@@ -201,7 +201,7 @@ export const CoderStoreModel = types
 
     get githubTokenValue() {
       // CRITICAL: Always return the legacy token if it exists
-      return self.githubToken || self.activeToken?.token || ""
+      return self.githubToken || (self.activeToken ? self.activeToken.token : "") || ""
     },
 
     get hasGithubToken() {
