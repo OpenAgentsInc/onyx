@@ -36,11 +36,14 @@ export const WalletStoreModel = types
       store.error = message
     },
   }))
-  // Actions that depend on basic actions
+  // Add fetchBalanceInfo first since other actions depend on it
   .actions((store) => ({
     async fetchBalanceInfo() {
       return await actions.fetchBalanceInfo(store)
     },
+  }))
+  // Actions that depend on basic actions
+  .actions((store) => ({
     async disconnect() {
       return await actions.disconnect(store)
     },
