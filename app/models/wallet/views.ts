@@ -1,7 +1,6 @@
-import { IStateTreeNode } from "mobx-state-tree"
-import { WalletStoreType } from "./types"
+import { WalletStore } from "../../../types"
 
-export const createViews = (self: IStateTreeNode & WalletStoreType) => ({
+export const createViews = (self: WalletStore) => ({
   get totalBalance() {
     return self.balanceSat
   },
