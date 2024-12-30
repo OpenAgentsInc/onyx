@@ -2,6 +2,7 @@ import { types } from "mobx-state-tree"
 import * as actions from "./actions"
 import { TransactionModel } from "./TransactionModel"
 import { createViews } from "./views"
+import { IWalletStoreProps } from "./types"
 
 export const WalletStoreModel = types
   .model("WalletStore")
@@ -15,7 +16,7 @@ export const WalletStoreModel = types
     mnemonic: types.maybeNull(types.string),
   })
   .views(createViews)
-  .actions(self => ({
+  .actions((self: IWalletStoreProps) => ({
     setMnemonic(mnemonic: string) {
       self.mnemonic = mnemonic
     },
@@ -23,7 +24,7 @@ export const WalletStoreModel = types
       self.error = message
     },
   }))
-  .actions(self => ({
+  .actions((self: IWalletStoreProps) => ({
     async setup() {
       return await actions.setup(self)
     },
@@ -31,12 +32,12 @@ export const WalletStoreModel = types
       await actions.fetchBalanceInfo(self)
     },
   }))
-  .actions(self => ({
+  .actions((self: IWalletStoreProps) => ({
     async disconnect() {
       return await actions.disconnect(self)
     },
   }))
-  .actions(self => ({
+  .actions((self: IWalletStoreProps) => ({
     async fetchTransactions() {
       return await actions.fetchTransactions(self)
     },
