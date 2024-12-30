@@ -1,4 +1,5 @@
 import { cast, Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
+import { log } from "@/utils/log"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
 import { Repo } from "../types/repo"
 
@@ -20,6 +21,16 @@ export const CoderStoreModel = types
   })
   .actions(withSetPropAction)
   .actions((self) => ({
+
+    async setup() {
+      log({
+        name: "CoderStore.setup",
+        important: true
+      })
+
+      self.isInitialized = true
+    },
+
     setError(error: string | null) {
       self.error = error
     },

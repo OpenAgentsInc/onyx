@@ -48,6 +48,8 @@ export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
             console.tron?.trackMstNode(rootStore)
           }
 
+          rootStore.coderStore.setup()
+
           // let the app know we've finished rehydrating
           setRehydrated(true)
 
