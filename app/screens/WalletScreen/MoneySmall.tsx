@@ -137,7 +137,7 @@ const MoneySmall = observer((props: MoneyProps): ReactElement => {
         return dv.fiatFormatted
       }
       case EUnit.BTC: {
-        if (denomination === "classic") {
+        if (denomination === EDenomination.classic) {
           if (decimalLength === "long") {
             return Number(dv.bitcoinFormatted).toFixed(8)
           }
