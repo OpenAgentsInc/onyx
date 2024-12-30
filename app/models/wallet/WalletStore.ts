@@ -28,6 +28,9 @@ const WalletStoreModel = types
     async setup() {
       return await actions.setup(self as unknown as IWalletStore)
     },
+    async initialize() {
+      return await actions.initialize(self as unknown as IWalletStore)
+    },
     async fetchBalanceInfo() {
       await actions.fetchBalanceInfo(self as unknown as IWalletStore)
     },
