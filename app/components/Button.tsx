@@ -1,4 +1,4 @@
-import { ComponentType } from "react"
+import React, { ComponentType } from "react"
 import {
   Pressable,
   PressableProps,
