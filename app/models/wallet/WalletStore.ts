@@ -37,6 +37,9 @@ const WalletStoreModel = types
     setError(message: string | null) {
       self.error = message
     },
+    setTransactions(transactions: any[]) {
+      self.transactions.replace(transactions)
+    },
   }))
   .actions(self => ({
     async setup() {
