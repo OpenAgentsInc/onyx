@@ -1,10 +1,10 @@
-import { types } from "mobx-state-tree"
+import { types, Instance } from "mobx-state-tree"
 import * as actions from "./actions"
 import { TransactionModel } from "./TransactionModel"
 import { createViews } from "./views"
 import { IWalletStore } from "./types"
 
-export const WalletStoreModel = types
+const WalletStoreModel = types
   .model("WalletStore")
   .props({
     isInitialized: types.optional(types.boolean, false),
@@ -26,25 +26,28 @@ export const WalletStoreModel = types
   }))
   .actions(self => ({
     async setup() {
-      return await actions.setup(self as IWalletStore)
+      return await actions.setup(self as unknown as IWalletStore)
     },
     async fetchBalanceInfo() {
-      await actions.fetchBalanceInfo(self as IWalletStore)
+      await actions.fetchBalanceInfo(self as unknown as IWalletStore)
     },
   }))
   .actions(self => ({
     async disconnect() {
-      return await actions.disconnect(self as IWalletStore)
+      return await actions.disconnect(self as unknown as IWalletStore)
     },
   }))
   .actions(self => ({
     async fetchTransactions() {
-      return await actions.fetchTransactions(self as IWalletStore)
+      return await actions.fetchTransactions(self as unknown as IWalletStore)
     },
     async sendPayment(bolt11: string, amount: number) {
-      return await actions.sendPayment(self as IWalletStore, bolt11, amount)
+      return await actions.sendPayment(self as unknown as IWalletStore, bolt11, amount)
     },
     async receivePayment(amount: number, description?: string) {
-      return await actions.receivePayment(self as IWalletStore, amount, description)
+      return await actions.receivePayment(self as unknown as IWalletStore, amount, description)
     },
   }))
+
+export { WalletStoreModel }
+export type WalletStoreType = Instance<typeof WalletStoreModel>
