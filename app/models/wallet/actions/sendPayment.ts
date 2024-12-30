@@ -1,5 +1,5 @@
 import { breezService } from "@/services/breez/breezService"
-import { IWalletStoreWithTransactions } from "./types"
+import { IWalletStoreWithTransactions } from "../types"
 import { fetchBalanceInfo } from "./fetchBalanceInfo"
 
 export async function sendPayment(store: IWalletStoreWithTransactions, bolt11: string, amount: number) {

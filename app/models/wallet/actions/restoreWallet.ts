@@ -1,7 +1,7 @@
 import Constants from "expo-constants"
 import { breezService } from "@/services/breez"
 import { SecureStorageService } from "@/services/storage/secureStorage"
-import { IWalletStore } from "./types"
+import { IWalletStore } from "../types"
 import { fetchBalanceInfo } from "./fetchBalanceInfo"
 
 export async function restoreWallet(store: IWalletStore, mnemonic: string) {

@@ -1,6 +1,6 @@
 import { breezService } from "@/services/breez/breezService"
 import { SecureStorageService } from "@/services/storage/secureStorage"
-import { IWalletStore } from "./types"
+import { IWalletStore } from "../types"
 
 export async function disconnect(store: IWalletStore) {
   try {
