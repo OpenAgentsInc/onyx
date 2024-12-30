@@ -1,7 +1,6 @@
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useRef } from "react"
 import { ScrollView, TouchableOpacity, View } from "react-native"
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
 import { ThinkingAnimation } from "@/components/ThinkingAnimation"
 import { Message } from "@ai-sdk/react"
 import Clipboard from "@react-native-clipboard/clipboard"
@@ -28,11 +27,10 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
 
   return (
     <View style={{ flex: 1, paddingHorizontal: 12 }}>
-      <KeyboardAwareScrollView
+      <ScrollView
         ref={scrollViewRef}
         style={[baseStyles.messageList, { flex: 1 }]}
         contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
-        keyboardShouldPersistTaps="never"
       >
         {messages.map((message: Message) => (
           <TouchableOpacity
@@ -46,7 +44,7 @@ export const ChatOverlay = observer(({ messages, isLoading, error }: ChatOverlay
           </TouchableOpacity>
         ))}
         {isLoading && <ThinkingAnimation size={30} />}
-      </KeyboardAwareScrollView>
+      </ScrollView>
     </View>
   )
 })
