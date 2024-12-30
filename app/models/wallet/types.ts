@@ -1,4 +1,4 @@
-import { IStateTreeNode, Instance, IArrayType } from "mobx-state-tree"
+import { IStateTreeNode, Instance, IAnyModelType } from "mobx-state-tree"
 import { TransactionModel } from "./TransactionModel"
 
 // Wallet Store Types
@@ -17,7 +17,11 @@ export interface IWalletStoreBalance extends IWalletStoreBase {
 }
 
 export interface IWalletStoreWithTransactions extends IWalletStoreBalance {
-  transactions: IArrayType<typeof TransactionModel>
+  transactions: {
+    clear: () => void
+    replace: (items: any[]) => void
+    push: (item: any) => void
+  }
 }
 
 export interface IWalletStore extends IWalletStoreWithTransactions {
@@ -29,5 +33,5 @@ export interface IWalletStore extends IWalletStoreWithTransactions {
   disconnect: () => Promise<void>
 }
 
-// Use a type alias that references the model directly
-export type WalletStore = Instance<ReturnType<typeof import("./WalletStore").WalletStoreModel>>
+// Break circular reference by using a simpler type
+export type WalletStore = Instance<IAnyModelType>
