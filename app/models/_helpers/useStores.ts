@@ -62,7 +62,7 @@ export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
       // cleanup
       if (_unsubscribe !== undefined) _unsubscribe()
     }
-  }, [callback])
+  }, []) // Empty dependency array since we only want this to run once on mount
 
   return { rehydrated }
 }
