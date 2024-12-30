@@ -28,6 +28,7 @@ export async function setup(store: IWalletStore) {
       mnemonic: mnemonic,
     })
 
+    store.setInitialized(true)
     store.setError(null)
     return true
   } catch (error) {
