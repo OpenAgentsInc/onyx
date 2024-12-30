@@ -121,6 +121,10 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.palette.angry500,
     minWidth: 80,
   },
+  editButton: {
+    backgroundColor: colors.palette.neutral200,
+    minWidth: 80,
+  },
   cancelEditButton: {
     backgroundColor: colors.palette.neutral300,
     flex: 1,
