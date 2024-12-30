@@ -1,7 +1,8 @@
-import { types } from "mobx-state-tree"
+import { types, Instance } from "mobx-state-tree"
 import * as actions from "./actions"
 import { TransactionModel } from "./TransactionModel"
 import { createViews } from "./views"
+import { IWalletStore } from "./types"
 
 export const WalletStoreModel = types
   .model("WalletStore")
@@ -15,8 +16,7 @@ export const WalletStoreModel = types
     mnemonic: types.maybeNull(types.string),
   })
   .views(createViews)
-  // Basic actions that don't depend on anything else
-  .actions((store) => ({
+  .actions((store: IWalletStore) => ({
     setMnemonic(mnemonic: string) {
       store.mnemonic = mnemonic
     },
@@ -24,8 +24,7 @@ export const WalletStoreModel = types
       store.error = message
     },
   }))
-  // Add fetchBalanceInfo first since other actions depend on it
-  .actions((store) => ({
+  .actions((store: IWalletStore) => ({
     async setup() {
       return await actions.setup(store)
     },
@@ -33,14 +32,12 @@ export const WalletStoreModel = types
       await actions.fetchBalanceInfo(store)
     },
   }))
-  // Actions that depend on basic actions
-  .actions((store) => ({
+  .actions((store: IWalletStore) => ({
     async disconnect() {
       return await actions.disconnect(store)
     },
   }))
-  // Actions that depend on fetchBalanceInfo
-  .actions((store) => ({
+  .actions((store: IWalletStore) => ({
     async fetchTransactions() {
       return await actions.fetchTransactions(store)
     },
