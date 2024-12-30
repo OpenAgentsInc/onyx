@@ -82,11 +82,7 @@ export const CoderStoreModel = types
       const index = self.githubTokens.findIndex(t => t.id === id)
       if (index !== -1) {
         const token = self.githubTokens[index]
-        // Don't allow removing the legacy token if it's the only one with that value
-        if (token.name === "Legacy Token" && token.token === self.githubToken) {
-          return // Protect the legacy token
-        }
-
+        
         // If removing active token, update legacy token
         if (self.activeTokenId === id) {
           // Find another token to make active
@@ -96,7 +92,10 @@ export const CoderStoreModel = types
             self.githubToken = remainingTokens[0].token
           } else {
             self.activeTokenId = null
-            // Don't clear githubToken here - preserve it
+            // Clear legacy token if we're removing it
+            if (token.name === "Legacy Token") {
+              self.githubToken = ""
+            }
           }
         }
 
