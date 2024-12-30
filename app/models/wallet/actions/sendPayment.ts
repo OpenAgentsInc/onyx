@@ -1,8 +1,8 @@
 import { breezService } from "@/services/breez/breezService"
-import { IWalletStore } from "../types"
+import { IWalletStoreProps } from "../types"
 import { fetchBalanceInfo } from "./fetchBalanceInfo"
 
-export async function sendPayment(store: IWalletStore, bolt11: string, amount: number) {
+export async function sendPayment(store: IWalletStoreProps, bolt11: string, amount: number) {
   if (!breezService.isInitialized()) {
     throw new Error("Wallet not initialized")
   }
