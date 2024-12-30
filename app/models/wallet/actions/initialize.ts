@@ -2,6 +2,7 @@ import Constants from "expo-constants"
 import { breezService } from "@/services/breez/breezService"
 import { SecureStorageService } from "@/services/storage/secureStorage"
 import { IWalletStore } from "./types"
+import { fetchBalanceInfo } from "./fetchBalanceInfo"
 
 export async function initialize(store: IWalletStore) {
   try {
@@ -40,7 +41,7 @@ export async function initialize(store: IWalletStore) {
     store.setError(null)
 
     // Fetch initial balance
-    await store.fetchBalanceInfo()
+    await fetchBalanceInfo(store)
   } catch (error) {
     console.error("[WalletStore] Initialization error:", error)
     store.setError(error instanceof Error ? error.message : "Failed to initialize wallet")
