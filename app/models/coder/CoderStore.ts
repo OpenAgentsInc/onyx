@@ -194,24 +194,27 @@ export const CoderStoreModel = types
       }
     }
   }))
-  .views((self) => ({
-    get activeToken() {
-      return self.activeTokenId ? self.githubTokens.find(t => t.id === self.activeTokenId) : null
-    },
+  .views((self) => {
+    const views = {
+      get activeToken() {
+        return self.activeTokenId ? self.githubTokens.find(t => t.id === self.activeTokenId) : null
+      },
 
-    get githubTokenValue() {
-      // CRITICAL: Always return the legacy token if it exists
-      return self.githubToken || (self.activeToken ? self.activeToken.token : "") || ""
-    },
+      get githubTokenValue() {
+        // CRITICAL: Always return the legacy token if it exists
+        return self.githubToken || (views.activeToken ? views.activeToken.token : "") || ""
+      },
 
-    get hasGithubToken() {
-      return !!(self.githubToken || self.githubTokens.length > 0)
-    },
+      get hasGithubToken() {
+        return !!(self.githubToken || self.githubTokens.length > 0)
+      },
 
-    get activeRepo() {
-      return self.activeRepoIndex !== null ? self.repos[self.activeRepoIndex] : null
+      get activeRepo() {
+        return self.activeRepoIndex !== null ? self.repos[self.activeRepoIndex] : null
+      }
     }
-  }))
+    return views
+  })
 
 export interface CoderStore extends Instance<typeof CoderStoreModel> { }
 export interface CoderStoreSnapshotOut extends SnapshotOut<typeof CoderStoreModel> { }
