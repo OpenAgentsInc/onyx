@@ -1,6 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { TransactionModel } from "./TransactionModel"
 import * as actions from "./actions"
+import { TransactionModel } from "./TransactionModel"
 
 export const WalletStoreModel = types
   .model("WalletStore")
@@ -38,6 +38,9 @@ export const WalletStoreModel = types
   }))
   // Add fetchBalanceInfo first since other actions depend on it
   .actions((store) => ({
+    async setup() {
+      return await actions.setup(store)
+    },
     async fetchBalanceInfo() {
       await actions.fetchBalanceInfo(store)
     },
@@ -59,12 +62,6 @@ export const WalletStoreModel = types
     async receivePayment(amount: number, description?: string) {
       return await actions.receivePayment(store, amount, description)
     },
-  }))
-  // Setup and initialization actions at the end
-  .actions((store) => ({
-    async setup() {
-      return await actions.setup(store)
-    }
   }))
 
 export interface WalletStore extends Instance<typeof WalletStoreModel> { }
