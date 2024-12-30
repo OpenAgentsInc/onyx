@@ -12,7 +12,7 @@ type Props = {
 }
 
 export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => {
-  const { chatStore } = useStores()
+  const { chatStore, walletStore } = useStores()
   const navigation = useNavigation()
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
         >
           <MaterialCommunityIcons name="wallet-outline" size={24} color="white" />
           <Text style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}>
-            Wallet
+            Wallet (₿{walletStore.balanceSat}; {walletStore.nostrKeys?.npub.slice(0, 12)})
           </Text>
         </TouchableOpacity>
       </View>
