@@ -130,7 +130,7 @@ export const WalletStoreModel = types
         }
       },
     }
-  }))
+  })
   // Move setup action to the end after all other actions are defined
   .actions((store) => ({
     async setup() {
