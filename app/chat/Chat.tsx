@@ -34,6 +34,7 @@ export const Chat = observer(({ drawerOpen, setDrawerOpen }: ChatProps) => {
             android: 10
           })}
           enabled={true}
+          disableScrollOnKeyboardHide={false}
         >
           <View style={{ flex: 1 }}>
             <ChatOverlay messages={messages} isLoading={isLoading} />
