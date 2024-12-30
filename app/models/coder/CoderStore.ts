@@ -10,12 +10,21 @@ export const RepoModel = types.model("Repo", {
   branch: types.string,
 })
 
+// GitHub Token Model
+export const GithubTokenModel = types.model("GithubToken", {
+  id: types.identifier,
+  name: types.string,
+  token: types.string,
+})
+
 export const CoderStoreModel = types
   .model("CoderStore")
   .props({
-    isInitialized: types.optional(types.boolean, false),
     error: types.maybeNull(types.string),
+    // Keep the old token field for backward compatibility
     githubToken: types.optional(types.string, ""),
+    githubTokens: types.array(GithubTokenModel),
+    activeTokenId: types.maybeNull(types.string),
     repos: types.array(RepoModel),
     activeRepoIndex: types.maybeNull(types.number),
   })
@@ -25,10 +34,31 @@ export const CoderStoreModel = types
     async setup() {
       log({
         name: "CoderStore.setup",
+        preview: "Handling GitHub tokens",
         important: true
       })
 
-      self.isInitialized = true
+      // First check if there is an old token
+      // If there is, add it to the new array
+
+      if (self.githubToken) {
+        const legacyTokenExists = self.githubTokens.some(t =>
+          t.name === "Legacy Token" && t.token === self.githubToken
+        )
+
+        if (!legacyTokenExists) {
+          const id = `token_${Date.now()}`
+          const newToken = GithubTokenModel.create({
+            id,
+            name: "Legacy Token",
+            token: self.githubToken,
+          })
+          self.githubTokens.push(newToken)
+          self.activeTokenId = id
+        }
+      }
+
+
     },
 
     setError(error: string | null) {
