@@ -40,7 +40,7 @@ const Money = (props: MoneyProps): ReactElement => {
 
   const primaryUnit = EUnit.BTC
   const nextUnit = EUnit.fiat
-  const denomination: EDenomination = EDenomination.modern
+  const denomination: EDenomination = EDenomination.modern as EDenomination
   const hideBalance = false
 
   const sats = Math.abs(props.sats)
@@ -64,27 +64,10 @@ const Money = (props: MoneyProps): ReactElement => {
     fiatSymbol: "$",
   }
 
-  // const [Text, iconMargin] = useMemo(() => {
-  //   switch (size) {
-  //     case 'captionB':
-  //       return [Caption13Up, 3];
-  //     case 'caption13Up':
-  //       return [CaptionB, 4];
-  //     case 'bodyMSB':
-  //       return [BodyMSB, 4];
-  //     case 'bodySSB':
-  //       return [BodySSB, 4];
-  //     case 'title':
-  //       return [Title, 6];
-  //     default:
-  //       return [Display, 6];
-  //   }
-  // }, [size]);
-
   const symbol = useMemo(() => {
     const style = {
       marginTop: -4,
-      marginRight: 5, // iconMargin,
+      marginRight: 5,
       fontSize: 30,
       lineHeight: 40,
       color: colors.palette.accent100,
@@ -94,19 +77,17 @@ const Money = (props: MoneyProps): ReactElement => {
     return (
       <Text
         style={style}
-        // color={symbolColor ?? color ?? 'secondary'}
         testID="MoneyFiatSymbol"
       >
         {unit === EUnit.BTC ? "₿" : dv.fiatSymbol}
       </Text>
     )
-  }, [Text, size, unit, color, symbolColor, dv.fiatSymbol]) // iconMargin
+  }, [unit, dv.fiatSymbol])
 
   let text = useMemo(() => {
     switch (unit) {
       case EUnit.fiat: {
         if (dv.fiatWhole.length > 12) {
-          // const { newValue, abbreviation } = abbreviateNumber(dv.fiatWhole);
           const newValue = 600
           const abbreviation = "k"
           return `${newValue}${abbreviation}`
@@ -141,7 +122,6 @@ const Money = (props: MoneyProps): ReactElement => {
       {sign && (
         <Text
           style={styles.sign}
-          // color={color ?? 'secondary'}
           testID="MoneySign"
         >
           {sign}
@@ -149,7 +129,6 @@ const Money = (props: MoneyProps): ReactElement => {
       )}
       {showSymbol && symbol}
       <Text
-        // color={color}
         style={styles.balance}
         testID="MoneyText"
       >
