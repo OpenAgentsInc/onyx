@@ -8,7 +8,7 @@ export async function fetchTransactions(store: IWalletStore) {
 
   try {
     const txs = await breezService.getTransactions()
-    store.transactions.replace(txs.map(tx => ({
+    store.setTransactions(txs.map(tx => ({
       ...tx,
       description: tx.description || undefined,
       paymentHash: tx.paymentHash || undefined,
