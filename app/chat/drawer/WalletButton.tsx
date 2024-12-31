@@ -21,7 +21,7 @@ export const WalletButton = ({ setOpen }: Props) => {
     <TouchableOpacity onPress={handleWalletPress} style={styles.walletButton}>
       <MaterialCommunityIcons name="wallet-outline" size={24} color="white" />
       <Text style={styles.buttonText}>
-        Wallet (₿{walletStore.balanceSat}; {walletStore.nostrKeys?.npub.slice(0, 12)})
+        Wallet (₿{walletStore.balanceSat})
       </Text>
     </TouchableOpacity>
   )
