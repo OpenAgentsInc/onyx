@@ -1,13 +1,13 @@
 import { observer } from "mobx-react-lite"
 import React from "react"
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native"
+import { Button } from "@/components"
 import { useHeader } from "@/hooks/useHeader"
+import { useStores } from "@/models"
 import { goBack } from "@/navigators"
+import { aiurApi } from "@/services/aiur"
 import { colorsDark as colors } from "@/theme"
 import { styles as baseStyles } from "@/theme/onyx"
-import { useStores } from "@/models"
-import { aiurApi } from "@/services/aiur"
-import { Button } from "@/components"
 import { typography } from "@/theme/typography"
 
 export const ShareScreen = observer(() => {
@@ -48,8 +48,8 @@ export const ShareScreen = observer(() => {
         messages: chatStore.currentMessages,
         metadata: {
           messageCount: chatStore.currentMessages.length,
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       })
 
       if (result.kind === "ok") {
@@ -96,22 +96,17 @@ export const ShareScreen = observer(() => {
             style={styles.button}
           />
 
-          {error ? (
-            <Text style={[styles.error]}>{error}</Text>
-          ) : null}
+          {error ? <Text style={[styles.error]}>{error}</Text> : null}
 
           {shareSuccess ? (
-            <Text style={[styles.successText]}>
-              Conversation shared successfully!
-            </Text>
+            <Text style={[styles.successText]}>Conversation shared successfully!</Text>
           ) : null}
         </View>
 
         <View style={styles.section}>
           <Text style={[styles.infoText]}>
-            • Recipients will receive a notification{"\n"}
-            • They can view the conversation in their Onyx app{"\n"}
-            • You can manage shares from settings
+            • Recipients will receive a notification{"\n"}• They can view the conversation in their
+            Onyx app{"\n"}• You can manage shares from settings
           </Text>
         </View>
       </ScrollView>
@@ -150,7 +145,7 @@ const styles = {
     fontFamily: typography.primary.normal,
     fontSize: 16,
     color: colors.text,
-    backgroundColor: colors.backgroundDark,
+    backgroundColor: colors.backgroundSecondary,
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
