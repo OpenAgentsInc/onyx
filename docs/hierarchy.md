@@ -90,6 +90,7 @@
       ├── views.ts
   ├── navigators
     ├── AppNavigator.tsx
+    ├── SettingsNavigator.tsx
     ├── index.ts
     ├── navigationUtilities.ts
   ├── screens
@@ -104,16 +105,19 @@
       ├── ProfileScreen.tsx
       ├── index.ts
     ├── SettingsScreen
+      ├── AutocoderSettings.tsx
       ├── SettingsScreen.tsx
       ├── coder
         ├── GithubTokenSection.tsx
         ├── RepoFormSection.tsx
         ├── RepoListSection.tsx
-        ├── RepoSettings.tsx
         ├── ToolsSection.tsx
         ├── styles.ts
         ├── types.ts
       ├── index.ts
+      ├── styles.ts
+    ├── ShareScreen
+      ├── ShareScreen.tsx
     ├── WalletScreen
       ├── BalanceHeader.tsx
       ├── Money.tsx
