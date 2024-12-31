@@ -20,6 +20,7 @@
       ├── ChatList.tsx
       ├── ChatPreview.ts
       ├── NewChatButton.tsx
+      ├── ProfileButton.tsx
       ├── README.md
       ├── WalletButton.tsx
       ├── index.tsx
@@ -98,6 +99,10 @@
     ├── ErrorScreen
       ├── ErrorBoundary.tsx
       ├── ErrorDetails.tsx
+    ├── ProfileScreen
+      ├── KeyRow.tsx
+      ├── ProfileScreen.tsx
+      ├── index.ts
     ├── SettingsScreen
       ├── SettingsScreen.tsx
       ├── coder
