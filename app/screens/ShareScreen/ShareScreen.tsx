@@ -71,7 +71,6 @@ export const ShareScreen = observer(() => {
       style={[baseStyles.modalContainer]}
     >
       <ScrollView style={styles.scrollView}>
-        <Text style={[styles.title]}>Share Conversation</Text>
         <Text style={[styles.subtitle]}>
           Share your conversation with another user via their email or npub.
         </Text>
@@ -118,12 +117,6 @@ const styles = {
   scrollView: {
     flex: 1,
     padding: 16,
-  },
-  title: {
-    fontFamily: typography.primary.bold,
-    fontSize: 24,
-    color: colors.text,
-    marginBottom: 8,
   },
   subtitle: {
     fontFamily: typography.primary.normal,
