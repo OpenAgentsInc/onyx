@@ -1,12 +1,5 @@
 import { ErrorInfo } from "react"
-import {
-  ScrollView,
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-} from "react-native"
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 
 export interface ErrorDetailsProps {
   error: Error
@@ -26,30 +19,17 @@ export function ErrorDetails(props: ErrorDetailsProps) {
         <View style={styles.topSection}>
           <Text style={styles.emoji}>🐞</Text>
           <Text style={styles.heading}>Error</Text>
-          <Text style={styles.subtitle}>
-            Something went wrong. Please try again later.
-          </Text>
+          <Text style={styles.subtitle}>Something went wrong. Please try again later.</Text>
         </View>
 
-        <ScrollView
-          style={styles.errorSection}
-          contentContainerStyle={styles.errorSectionContent}
-        >
-          <Text style={styles.errorContent}>
-            {`${props.error}`.trim()}
-          </Text>
-          <Text
-            selectable
-            style={styles.errorBacktrace}
-          >
+        <ScrollView style={styles.errorSection} contentContainerStyle={styles.errorSectionContent}>
+          <Text style={styles.errorContent}>{`${props.error}`.trim()}</Text>
+          <Text selectable style={styles.errorBacktrace}>
             {`${props.errorInfo?.componentStack ?? ""}`.trim()}
           </Text>
         </ScrollView>
 
-        <TouchableOpacity
-          style={styles.resetButton}
-          onPress={props.onReset}
-        >
+        <TouchableOpacity style={styles.resetButton} onPress={props.onReset}>
           <Text style={styles.resetButtonText}>Reset App</Text>
         </TouchableOpacity>
       </View>
@@ -78,7 +58,6 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 24,
-    fontWeight: "bold",
     color: "#dc3545",
     marginBottom: 8,
   },
@@ -99,7 +78,6 @@ const styles = StyleSheet.create({
   },
   errorContent: {
     color: "#dc3545",
-    fontWeight: "bold",
   },
   errorBacktrace: {
     marginTop: 16,
@@ -115,6 +93,5 @@ const styles = StyleSheet.create({
   resetButtonText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "bold",
   },
 })

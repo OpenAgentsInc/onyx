@@ -18,7 +18,6 @@ export const styles = StyleSheet.create({
   buttonText: {
     color: colors.palette.neutral800,
     fontSize: 16,
-    fontWeight: "bold",
     fontFamily: typography.primary.normal,
   },
   menuItem: {
@@ -32,7 +31,6 @@ export const styles = StyleSheet.create({
   menuItemText: {
     color: colors.palette.neutral800,
     fontSize: 16,
-    fontWeight: "bold",
     fontFamily: typography.primary.normal,
   },
   text: {

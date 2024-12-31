@@ -175,7 +175,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: "bold",
     fontFamily: typography.primary.bold,
     color: colors.text,
     marginRight: 8,
@@ -231,7 +230,6 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: "bold",
     fontFamily: typography.primary.normal,
     color: colors.text,
     marginBottom: 4,
