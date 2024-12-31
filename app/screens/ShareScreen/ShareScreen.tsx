@@ -162,7 +162,7 @@ const styles = {
   successText: {
     fontFamily: typography.primary.normal,
     fontSize: 14,
-    color: colors.palette.green500,
+    color: colors.palette.accent500,
     marginBottom: 16,
   },
   infoText: {
