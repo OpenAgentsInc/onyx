@@ -33,3 +33,5 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
     </View>
   )
 })
+
+export { ChatDrawerLayout } from "./ChatDrawerLayout"
