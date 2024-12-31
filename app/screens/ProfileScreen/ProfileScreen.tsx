@@ -24,7 +24,7 @@ export const ProfileScreen = observer(() => {
           fontFamily: typography.primary.light,
         }}
       >
-        Your NPUB: {walletStore.nostrKeys?.npub || "Not connected"}
+        Your npub: {walletStore.nostrKeys?.npub || "Not connected"}
       </Text>
     </View>
   )
