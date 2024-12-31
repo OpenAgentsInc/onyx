@@ -4,7 +4,7 @@ import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
 import type { AiurConfig, ProStatus, ShareRequest, ShareResponse, SharesResponse, TrainingDataRequest } from "./aiur.types"
 
 export const DEFAULT_AIUR_CONFIG: AiurConfig = {
-  url: Config.AIUR_API_URL || "https://openagents.com/api",
+  url: Config.AIUR_API_URL || (__DEV__ ? "http://localhost:8000" : "https://openagents.com"),
   timeout: 10000,
 }
 
@@ -31,7 +31,7 @@ export class AiurApi {
    * Gets the pro status for the current user
    */
   async getProStatus(): Promise<{ kind: "ok"; status: ProStatus } | GeneralApiProblem> {
-    const response: ApiResponse<ProStatus> = await this.apisauce.get("api/v1/pro/status")
+    const response: ApiResponse<ProStatus> = await this.apisauce.get("/api/v1/pro/status")
 
     if (!response.ok) {
       const problem = getGeneralApiProblem(response)
@@ -54,7 +54,7 @@ export class AiurApi {
     request: ShareRequest,
   ): Promise<{ kind: "ok"; share: ShareResponse } | GeneralApiProblem> {
     const response: ApiResponse<ShareResponse> = await this.apisauce.post(
-      `api/v1/chats/${chatId}/share`,
+      `/api/v1/chats/${chatId}/share`,
       request,
     )
 
@@ -76,7 +76,7 @@ export class AiurApi {
    */
   async getShares(chatId: string): Promise<{ kind: "ok"; shares: SharesResponse } | GeneralApiProblem> {
     const response: ApiResponse<SharesResponse> = await this.apisauce.get(
-      `api/v1/chats/${chatId}/shares`,
+      `/api/v1/chats/${chatId}/shares`,
     )
 
     if (!response.ok) {
@@ -100,7 +100,7 @@ export class AiurApi {
     shareId: string,
   ): Promise<{ kind: "ok" } | GeneralApiProblem> {
     const response: ApiResponse<void> = await this.apisauce.delete(
-      `api/v1/chats/${chatId}/shares/${shareId}`,
+      `/api/v1/chats/${chatId}/shares/${shareId}`,
     )
 
     if (!response.ok) {
@@ -119,7 +119,7 @@ export class AiurApi {
     request: TrainingDataRequest,
   ): Promise<{ kind: "ok" } | GeneralApiProblem> {
     const response: ApiResponse<void> = await this.apisauce.post(
-      `api/v1/chats/${chatId}/training`,
+      `/api/v1/chats/${chatId}/training`,
       request,
     )
 
