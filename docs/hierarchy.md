@@ -123,6 +123,10 @@
       ├── index.ts
     ├── index.ts
   ├── services
+    ├── aiur
+      ├── aiur.ts
+      ├── aiur.types.ts
+      ├── index.ts
     ├── api
       ├── api.ts
       ├── api.types.ts
@@ -174,6 +178,7 @@
 ├── dist
 ├── docs
   ├── ai-design-language.md
+  ├── aiur.md
   ├── chat-persistence.md
   ├── chatbar.md
   ├── coder-settings.md
@@ -183,6 +188,7 @@
   ├── markdown.md
   ├── onboarding.md
   ├── permissions.md
+  ├── pro.md
   ├── roadmap-brainstorming.md
   ├── roadmap.md
   ├── wallet-store.md
