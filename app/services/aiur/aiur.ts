@@ -4,7 +4,7 @@ import { GeneralApiProblem, getGeneralApiProblem } from "../api/apiProblem"
 import type { AiurConfig, ProStatus, ShareRequest, ShareResponse, SharesResponse, TrainingDataRequest } from "./aiur.types"
 
 export const DEFAULT_AIUR_CONFIG: AiurConfig = {
-  url: Config.AIUR_API_URL,
+  url: Config.AIUR_API_URL || "https://openagents.com/api",
   timeout: 10000,
 }
 
