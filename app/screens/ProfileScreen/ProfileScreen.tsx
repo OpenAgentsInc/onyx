@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite"
 import { useState } from "react"
-import { Text, View, Pressable, Clipboard } from "react-native"
+import { Text, View, TouchableOpacity } from "react-native"
+import Clipboard from "@react-native-clipboard/clipboard"
 import { useHeader } from "@/hooks/useHeader"
 import { useStores } from "@/models"
 import { goBack } from "@/navigators"
@@ -18,18 +19,27 @@ const KeyRow = ({ label, value, isSecret = false }) => {
 
   return (
     <View style={{ marginVertical: 8 }}>
-      <Text style={{ color: colors.textDim, fontSize: 14, marginBottom: 4 }}>{label}</Text>
+      <Text 
+        style={{ 
+          color: colors.textDim, 
+          fontSize: 14, 
+          marginBottom: 4,
+          fontFamily: typography.primary.normal,
+        }}
+      >
+        {label}
+      </Text>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Pressable
+        <TouchableOpacity
           onLongPress={copyToClipboard}
-          style={({ pressed }) => ({
+          activeOpacity={0.7}
+          style={{
             flex: 1,
-            opacity: pressed ? 0.7 : 1,
-            backgroundColor: colors.backgroundDark,
-            padding: 8,
-            borderRadius: 6,
+            backgroundColor: colors.backgroundSecondary,
+            padding: 12,
+            borderRadius: 8,
             marginRight: isSecret ? 8 : 0,
-          })}
+          }}
         >
           <Text
             style={{
@@ -41,21 +51,21 @@ const KeyRow = ({ label, value, isSecret = false }) => {
           >
             {displayValue}
           </Text>
-        </Pressable>
+        </TouchableOpacity>
         {isSecret && (
-          <Pressable
+          <TouchableOpacity
             onPress={() => setShowSecret(!showSecret)}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.7 : 1,
+            activeOpacity={0.7}
+            style={{
               padding: 8,
-            })}
+            }}
           >
             <MaterialCommunityIcons
               name={showSecret ? "eye-off" : "eye"}
               size={24}
               color={colors.text}
             />
-          </Pressable>
+          </TouchableOpacity>
         )}
       </View>
     </View>
@@ -75,7 +85,14 @@ export const ProfileScreen = observer(() => {
   if (!nostrKeys) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.background, paddingHorizontal: 16 }}>
-        <Text style={{ color: colors.text, fontSize: 16, marginTop: 20 }}>
+        <Text 
+          style={{ 
+            color: colors.text, 
+            fontSize: 16, 
+            marginTop: 20,
+            fontFamily: typography.primary.normal,
+          }}
+        >
           Not connected
         </Text>
       </View>
@@ -106,7 +123,7 @@ export const ProfileScreen = observer(() => {
           color: colors.textDim,
           fontSize: 12,
           marginTop: 16,
-          fontFamily: typography.primary.light,
+          fontFamily: typography.primary.normal,
         }}
       >
         Long press any key to copy it to clipboard
