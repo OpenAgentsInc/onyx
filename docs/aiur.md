@@ -79,8 +79,8 @@ When Aiur is unavailable:
 ## Development
 
 - Local development uses a mock Aiur service
-- Test environment available at test.openagents.com
-- Production environment at api.openagents.com
+- Test environment available at test.openagents.com/api
+- Production environment at openagents.com/api
 
 ## Configuration
 
@@ -88,7 +88,7 @@ When Aiur is unavailable:
 // config/config.base.ts
 export const AIUR_API_URL = __DEV__ 
   ? "http://localhost:8000"
-  : "https://api.openagents.com"
+  : "https://openagents.com/api"
 ```
 
 ## Security Considerations
