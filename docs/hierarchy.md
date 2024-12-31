@@ -14,9 +14,16 @@
   ├── chat
     ├── Chat.tsx
     ├── ChatBar.tsx
-    ├── ChatDrawerContainer.tsx
-    ├── ChatDrawerContent.tsx
     ├── ChatOverlay.tsx
+    ├── drawer
+      ├── ChatDrawerLayout.tsx
+      ├── ChatList.tsx
+      ├── ChatPreview.ts
+      ├── NewChatButton.tsx
+      ├── README.md
+      ├── WalletButton.tsx
+      ├── index.tsx
+      ├── styles.ts
     ├── markdown
       ├── MessageContent.tsx
       ├── ToolInvocation.tsx
@@ -25,6 +32,7 @@
     ├── styles.ts
   ├── components
     ├── AutoImage.tsx
+    ├── Button.tsx
     ├── Header.tsx
     ├── Icon.tsx
     ├── KeyboardDismisser.tsx
@@ -66,18 +74,17 @@
     ├── types
       ├── repo.ts
     ├── wallet
-      ├── TransactionModel.ts
       ├── WalletStore.ts
       ├── actions
         ├── disconnect.ts
         ├── fetchBalanceInfo.ts
         ├── fetchTransactions.ts
         ├── index.ts
-        ├── initialize.ts
         ├── receivePayment.ts
         ├── restoreWallet.ts
         ├── sendPayment.ts
         ├── setup.ts
+      ├── models.ts
       ├── types.ts
       ├── views.ts
   ├── navigators
@@ -102,6 +109,13 @@
         ├── styles.ts
         ├── types.ts
       ├── index.ts
+    ├── WalletScreen
+      ├── BalanceHeader.tsx
+      ├── Money.tsx
+      ├── MoneySmall.tsx
+      ├── TransactionsList.tsx
+      ├── WalletScreen.tsx
+      ├── index.ts
     ├── index.ts
   ├── services
     ├── api
@@ -118,8 +132,9 @@
       ├── groq-api.types.ts
       ├── groq-chat.ts
       ├── index.ts
-    ├── spark
-      ├── spark.ts
+    ├── nostr
+      ├── nostr.ts
+      ├── nostr.types.ts
     ├── storage
       ├── secureStorage.ts
   ├── theme
