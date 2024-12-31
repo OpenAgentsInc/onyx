@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { Platform } from "react-native"
 import { Drawer } from "react-native-drawer-layout"
 import { Screen } from "@/components/Screen"
 import { $styles } from "@/theme"
@@ -9,7 +8,7 @@ import { ChatDrawerContent } from "./ChatDrawerContent"
 
 export const ChatDrawerContainer = () => {
   const [open, setOpen] = useState(false)
-  const $drawerInsets = useSafeAreaInsetsStyle(["top"])
+  const $drawerInsets = useSafeAreaInsetsStyle(["top", "bottom"])
 
   return (
     <Drawer
@@ -23,7 +22,6 @@ export const ChatDrawerContainer = () => {
     >
       <Screen
         preset="fixed"
-        // safeAreaEdges={["bottom"]}
         contentContainerStyle={$styles.flex1}
         KeyboardAvoidingViewProps={{ behavior: undefined }}
       >
