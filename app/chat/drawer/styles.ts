@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
   newChatButton: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 8,
   },
   walletButton: {
     flexDirection: "row",
