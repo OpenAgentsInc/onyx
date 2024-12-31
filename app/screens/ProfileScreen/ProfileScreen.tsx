@@ -1,12 +1,12 @@
 import { observer } from "mobx-react-lite"
 import { useState } from "react"
-import { Text, View, TouchableOpacity } from "react-native"
-import Clipboard from "@react-native-clipboard/clipboard"
+import { Text, TouchableOpacity, View } from "react-native"
 import { useHeader } from "@/hooks/useHeader"
 import { useStores } from "@/models"
 import { goBack } from "@/navigators"
 import { colorsDark as colors, typography } from "@/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
+import Clipboard from "@react-native-clipboard/clipboard"
 
 const KeyRow = ({ label, value, isSecret = false }) => {
   const [showSecret, setShowSecret] = useState(false)
@@ -19,10 +19,10 @@ const KeyRow = ({ label, value, isSecret = false }) => {
 
   return (
     <View style={{ marginVertical: 8 }}>
-      <Text 
-        style={{ 
-          color: colors.textDim, 
-          fontSize: 14, 
+      <Text
+        style={{
+          color: colors.textDim,
+          fontSize: 14,
           marginBottom: 4,
           fontFamily: typography.primary.normal,
         }}
@@ -85,10 +85,10 @@ export const ProfileScreen = observer(() => {
   if (!nostrKeys) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.background, paddingHorizontal: 16 }}>
-        <Text 
-          style={{ 
-            color: colors.text, 
-            fontSize: 16, 
+        <Text
+          style={{
+            color: colors.text,
+            fontSize: 16,
             marginTop: 20,
             fontFamily: typography.primary.normal,
           }}
@@ -112,12 +112,12 @@ export const ProfileScreen = observer(() => {
       >
         Your Nostr Keys
       </Text>
-      
-      <KeyRow label="Public Key (hex)" value={nostrKeys.publicKey} />
+
       <KeyRow label="Public Key (npub)" value={nostrKeys.npub} />
-      <KeyRow label="Private Key (hex)" value={nostrKeys.privateKey} isSecret />
+      <KeyRow label="Public Key (hex)" value={nostrKeys.publicKey} />
       <KeyRow label="Private Key (nsec)" value={nostrKeys.nsec} isSecret />
-      
+      <KeyRow label="Private Key (hex)" value={nostrKeys.privateKey} isSecret />
+
       <Text
         style={{
           color: colors.textDim,
