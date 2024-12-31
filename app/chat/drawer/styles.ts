@@ -38,7 +38,8 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   chatItem: {
-    padding: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     backgroundColor: "transparent",
