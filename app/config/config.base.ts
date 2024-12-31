@@ -5,6 +5,7 @@ export interface ConfigBaseProps {
   catchErrors: "always" | "dev" | "prod" | "never"
   exitRoutes: string[]
   API_URL?: string
+  AIUR_API_URL?: string
   GROQ_API_KEY?: string | null
   GOOGLE_CLOUD_PROJECT: string | null
   GOOGLE_CLOUD_REGION: string | null
@@ -34,6 +35,11 @@ const BaseConfig: ConfigBaseProps = {
    * The API URL for backend services
    */
   API_URL: process.env.API_URL,
+
+  /**
+   * The Aiur API URL for OpenAgents.com services
+   */
+  AIUR_API_URL: process.env.AIUR_API_URL,
 
   /**
    * The Groq API key for chat completions
