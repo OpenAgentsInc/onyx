@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Share } from "react-native"
+import { View, Text, TouchableOpacity } from "react-native"
 import { useHeader } from "@/hooks/useHeader"
 import { goBack, navigate } from "@/navigators"
 import { styles } from "./styles"
@@ -10,24 +10,13 @@ export const SettingsScreen = () => {
     onLeftPress: goBack,
   })
 
-  const handleShareConversation = async () => {
-    try {
-      await Share.share({
-        message: "Check out my conversation on Onyx!",
-        // TODO: Implement actual conversation sharing logic
-      })
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={styles.button}
-        onPress={handleShareConversation}
+        style={styles.menuItem}
+        onPress={() => navigate("Settings", { screen: "ShareScreen" })}
       >
-        <Text style={styles.buttonText}>Share this conversation</Text>
+        <Text style={styles.menuItemText}>Share this conversation</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
