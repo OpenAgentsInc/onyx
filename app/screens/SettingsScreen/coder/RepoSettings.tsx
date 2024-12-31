@@ -9,9 +9,8 @@ import { RepoFormSection } from "./RepoFormSection"
 import { RepoListSection } from "./RepoListSection"
 import { styles } from "./styles"
 import { ToolsSection } from "./ToolsSection"
-import { RepoSettingsProps } from "./types"
 
-export const RepoSettings = observer(({ visible, onClose }: RepoSettingsProps) => {
+export const RepoSettings = observer(() => {
   const { coderStore } = useStores()
   const [editingRepo, setEditingRepo] = useState<null | Repo>(null)
   const [repoInput, setRepoInput] = useState({

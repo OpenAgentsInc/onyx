@@ -12,7 +12,7 @@ export const SettingsScreen = () => {
   })
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, paddingHorizontal: 10 }}>
-      <RepoSettings visible={true} onClose={() => {}} />
+      <RepoSettings />
     </View>
   )
 }
