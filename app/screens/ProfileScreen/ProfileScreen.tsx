@@ -19,10 +19,10 @@ export const ProfileScreen = observer(() => {
   if (!nostrKeys) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.background, paddingHorizontal: 16 }}>
-        <Text 
-          style={{ 
-            color: colors.text, 
-            fontSize: 16, 
+        <Text
+          style={{
+            color: colors.text,
+            fontSize: 16,
             marginTop: 20,
             fontFamily: typography.primary.normal,
           }}
@@ -46,12 +46,12 @@ export const ProfileScreen = observer(() => {
       >
         Your Nostr Keys
       </Text>
-      
-      <KeyRow label="Public Key (hex)" value={nostrKeys.publicKey} />
+
       <KeyRow label="Public Key (npub)" value={nostrKeys.npub} />
-      <KeyRow label="Private Key (hex)" value={nostrKeys.privateKey} isSecret />
+      <KeyRow label="Public Key (hex)" value={nostrKeys.publicKey} />
       <KeyRow label="Private Key (nsec)" value={nostrKeys.nsec} isSecret />
-      
+      <KeyRow label="Private Key (hex)" value={nostrKeys.privateKey} isSecret />
+
       <Text
         style={{
           color: colors.textDim,

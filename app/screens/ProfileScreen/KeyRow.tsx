@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { Text, View, TouchableOpacity } from "react-native"
-import Clipboard from "@react-native-clipboard/clipboard"
+import { Text, TouchableOpacity, View } from "react-native"
 import { colorsDark as colors, typography } from "@/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
+import Clipboard from "@react-native-clipboard/clipboard"
 
 interface KeyRowProps {
   label: string
@@ -24,10 +24,10 @@ export const KeyRow = ({ label, value, isSecret = false }: KeyRowProps) => {
 
   return (
     <View style={{ marginVertical: 8 }}>
-      <Text 
-        style={{ 
-          color: colors.textDim, 
-          fontSize: 14, 
+      <Text
+        style={{
+          color: colors.textDim,
+          fontSize: 14,
           marginBottom: 4,
           fontFamily: typography.primary.normal,
         }}
@@ -58,7 +58,7 @@ export const KeyRow = ({ label, value, isSecret = false }: KeyRowProps) => {
             {displayValue}
           </Text>
           {showCopied && (
-            <View 
+            <View
               style={{
                 position: "absolute",
                 right: 8,
@@ -69,7 +69,15 @@ export const KeyRow = ({ label, value, isSecret = false }: KeyRowProps) => {
                 borderRadius: 4,
               }}
             >
-              <Text style={{ color: colors.background, fontSize: 12 }}>Copied!</Text>
+              <Text
+                style={{
+                  color: colors.background,
+                  fontSize: 12,
+                  fontFamily: typography.primary.medium,
+                }}
+              >
+                Copied!
+              </Text>
             </View>
           )}
         </TouchableOpacity>
