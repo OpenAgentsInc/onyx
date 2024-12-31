@@ -6,6 +6,15 @@ The Pro service enables advanced features through integration with the OpenAgent
 - Pro subscribers ($10/month or $60/year)
 - Business Pro subscribers ($500+/month)
 
+## Authentication
+
+All API requests require the user's npub (Nostr public key in bech32 format) to be included in the headers:
+```typescript
+headers: {
+  "X-Nostr-Pubkey": npub
+}
+```
+
 ## Chat Sharing Features
 
 ### Direct User Sharing
