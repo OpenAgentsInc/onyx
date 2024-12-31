@@ -40,6 +40,7 @@ export class AiurApi {
 
     try {
       const status = response.data
+      if (!status) throw new Error("No data received")
       return { kind: "ok", status }
     } catch {
       return { kind: "bad-data" }
@@ -65,6 +66,7 @@ export class AiurApi {
 
     try {
       const share = response.data
+      if (!share) throw new Error("No data received")
       return { kind: "ok", share }
     } catch {
       return { kind: "bad-data" }
@@ -86,6 +88,7 @@ export class AiurApi {
 
     try {
       const shares = response.data
+      if (!shares) throw new Error("No data received")
       return { kind: "ok", shares }
     } catch {
       return { kind: "bad-data" }
