@@ -1,9 +1,9 @@
+import { observer } from "mobx-react-lite"
 import React from "react"
-import { TouchableOpacity, Text } from "react-native"
+import { Text, TouchableOpacity } from "react-native"
 import { useStores } from "@/models"
 import { navigate } from "@/navigators"
-import { colorsDark as colors } from "@/theme"
-import { observer } from "mobx-react-lite"
+import { colorsDark as colors, typography } from "@/theme"
 
 interface ProfileButtonProps {
   setOpen: (open: boolean) => void
@@ -11,7 +11,7 @@ interface ProfileButtonProps {
 
 export const ProfileButton = observer(({ setOpen }: ProfileButtonProps) => {
   const { walletStore } = useStores()
-  const npub = walletStore.npub
+  const npub = walletStore.nostrKeys?.npub
 
   return (
     <TouchableOpacity
@@ -26,7 +26,9 @@ export const ProfileButton = observer(({ setOpen }: ProfileButtonProps) => {
         navigate("Profile")
       }}
     >
-      <Text style={{ color: colors.text, fontSize: 16 }}>Profile ({npub ? npub.slice(0, 8) + "..." : "Not connected"})</Text>
+      <Text style={{ color: colors.text, fontSize: 16, fontFamily: typography.primary.normal }}>
+        Profile ({npub ? npub.slice(0, 8) + "..." : "Not connected"})
+      </Text>
     </TouchableOpacity>
   )
 })
