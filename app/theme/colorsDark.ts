@@ -30,7 +30,7 @@ const palette = {
   accent100: "#71717a", // zinc-500
 
   angry100: "#e4e4e7", // zinc-200
-  angry500: "#18181b", // zinc-900
+  angry500: "red",
 
   overlay20: "rgba(39, 39, 42, 0.2)", // zinc-800
   overlay50: "rgba(39, 39, 42, 0.5)", // zinc-800
