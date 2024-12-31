@@ -5,27 +5,38 @@ export interface ProStatus {
 }
 
 export interface ShareRequest {
-  type: "user" | "public"
-  recipientId?: string
-  permissions: "read" | "write"
-  trainingData: boolean
+  recipient: string // Email or npub
+  messages: any[] // Chat messages to share
+  metadata?: {
+    messageCount: number
+    timestamp: number
+    [key: string]: any
+  }
 }
 
 export interface Share {
   id: string
-  type: "user" | "public"
-  recipient?: {
+  recipient: {
     id: string
-    username: string
+    type: "email" | "npub"
+    value: string
   }
-  permissions: "read" | "write"
+  messages: any[]
+  metadata?: {
+    messageCount: number
+    timestamp: number
+    [key: string]: any
+  }
   createdAt: string
-  trainingData: boolean
 }
 
 export interface ShareResponse {
   shareId: string
-  shareUrl?: string
+  recipient: {
+    id: string
+    type: "email" | "npub" 
+    value: string
+  }
 }
 
 export interface SharesResponse {
