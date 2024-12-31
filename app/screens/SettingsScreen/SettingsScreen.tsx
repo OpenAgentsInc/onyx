@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, Share } from "react-native"
 import { useHeader } from "@/hooks/useHeader"
 import { goBack, navigate } from "@/navigators"
 import { colorsDark as colors } from "@/theme"
-import { styles } from "@/theme/onyx"
+import { styles } from "./styles"
 
 export const SettingsScreen = () => {
   useHeader({
@@ -25,7 +25,7 @@ export const SettingsScreen = () => {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, paddingHorizontal: 16 }}>
       <TouchableOpacity
-        style={[styles.button, { marginTop: 16 }]}
+        style={styles.button}
         onPress={handleShareConversation}
       >
         <Text style={styles.buttonText}>Share this conversation</Text>
@@ -33,10 +33,10 @@ export const SettingsScreen = () => {
 
       <View style={{ marginTop: 24 }}>
         <TouchableOpacity
-          style={[styles.menuItem, { padding: 16, borderRadius: 8, backgroundColor: colors.card }]}
+          style={styles.menuItem}
           onPress={() => navigate("Settings", { screen: "AutocoderSettings" })}
         >
-          <Text style={[styles.text, { fontSize: 16 }]}>Autocoder Settings</Text>
+          <Text style={[styles.text, { fontSize: 16, padding: 16 }]}>Autocoder Settings</Text>
         </TouchableOpacity>
         
         {/* Add more menu items here */}
