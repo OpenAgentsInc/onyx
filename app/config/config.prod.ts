@@ -7,5 +7,6 @@
  */
 export default {
   API_URL: "CHANGEME",
+  AIUR_API_URL: "https://openagents.com",
   NEXUS_URL: "https://nexus.openagents.com/chat",
 }
