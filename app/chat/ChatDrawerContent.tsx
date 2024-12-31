@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { useEffect } from "react"
-import { ScrollView, Text, TouchableOpacity, View } from "react-native"
+import { ScrollView, Text, TouchableOpacity, View, StyleSheet } from "react-native"
 import { useStores } from "@/models"
 import { colorsDark as colors, typography } from "@/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
@@ -60,82 +60,28 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
   })
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "black",
-        ...drawerInsets,
-        borderRightWidth: 1,
-        borderRightColor: colors.border,
-      }}
-    >
-      <View
-        style={{
-          paddingHorizontal: 20,
-          paddingVertical: 10,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        }}
-      >
-        <TouchableOpacity
-          onPress={handleNewChat}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 16,
-          }}
-        >
+    <View style={[styles.container, drawerInsets]}>
+      <View style={styles.topSection}>
+        <TouchableOpacity onPress={handleNewChat} style={styles.newChatButton}>
           <MaterialCommunityIcons name="chat-plus-outline" size={24} color="white" />
-          <Text style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}>
-            New chat
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={handleWalletPress}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <MaterialCommunityIcons name="wallet-outline" size={24} color="white" />
-          <Text style={{ fontFamily: typography.primary.medium, color: "white", marginLeft: 12 }}>
-            Wallet (₿{walletStore.balanceSat}; {walletStore.nostrKeys?.npub.slice(0, 12)})
-          </Text>
+          <Text style={styles.buttonText}>New chat</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView style={styles.scrollView}>
         {sortedChats.map((chat) => (
           <TouchableOpacity
             key={chat.id}
             onPress={() => handleSelectChat(chat.id)}
-            style={{
-              padding: 16,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
-              backgroundColor:
-                chatStore.currentConversationId === chat.id
-                  ? colors.palette.neutral200
-                  : "transparent",
-            }}
+            style={[
+              styles.chatItem,
+              chatStore.currentConversationId === chat.id && styles.selectedChat,
+            ]}
           >
-            <Text
-              style={{
-                color: "white",
-                fontFamily: typography.primary.medium,
-                marginBottom: 4,
-              }}
-              numberOfLines={1}
-            >
+            <Text style={styles.chatPreviewText} numberOfLines={1}>
               {getChatPreview(chat.messages)}
             </Text>
-            <Text
-              style={{
-                color: colors.palette.neutral400,
-                fontSize: 12,
-              }}
-            >
+            <Text style={styles.dateText}>
               {new Date(
                 chat.messages[0]?.createdAt || parseInt(chat.id.split("_")[1]) || Date.now(),
               ).toLocaleDateString()}
@@ -143,6 +89,71 @@ export const ChatDrawerContent = observer(({ drawerInsets, setOpen }: Props) => 
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      <View style={styles.bottomSection}>
+        <TouchableOpacity onPress={handleWalletPress} style={styles.walletButton}>
+          <MaterialCommunityIcons name="wallet-outline" size={24} color="white" />
+          <Text style={styles.buttonText}>
+            Wallet (₿{walletStore.balanceSat}; {walletStore.nostrKeys?.npub.slice(0, 12)})
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
+})
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "black",
+    borderRightWidth: 1,
+    borderRightColor: colors.border,
+  },
+  topSection: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  bottomSection: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  newChatButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  walletButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  buttonText: {
+    fontFamily: typography.primary.medium,
+    color: "white",
+    marginLeft: 12,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  chatItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: "transparent",
+  },
+  selectedChat: {
+    backgroundColor: colors.palette.neutral200,
+  },
+  chatPreviewText: {
+    color: "white",
+    fontFamily: typography.primary.medium,
+    marginBottom: 4,
+  },
+  dateText: {
+    color: colors.palette.neutral400,
+    fontSize: 12,
+  },
 })
