@@ -29,6 +29,11 @@ export const ShareScreen = observer(() => {
       return
     }
 
+    if (!walletStore.nostrKeys?.npub) {
+      setError("Nostr keys not found")
+      return
+    }
+
     try {
       setIsSharing(true)
       setError("")
@@ -53,8 +58,8 @@ export const ShareScreen = observer(() => {
       } else {
         setError("Failed to share conversation")
       }
-    } catch (e) {
-      setError(e.message || "Failed to share conversation")
+    } catch (error: any) {
+      setError(error?.message || "Failed to share conversation")
     } finally {
       setIsSharing(false)
     }
@@ -96,7 +101,7 @@ export const ShareScreen = observer(() => {
           ) : null}
 
           {shareSuccess ? (
-            <Text style={[styles.success]}>
+            <Text style={[styles.successText]}>
               Conversation shared successfully!
             </Text>
           ) : null}
@@ -159,10 +164,10 @@ const styles = {
     color: colors.error,
     marginBottom: 16,
   },
-  success: {
+  successText: {
     fontFamily: typography.primary.normal,
     fontSize: 14,
-    color: colors.success,
+    color: colors.palette.green500,
     marginBottom: 16,
   },
   infoText: {
