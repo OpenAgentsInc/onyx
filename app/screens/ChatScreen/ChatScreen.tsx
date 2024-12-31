@@ -1,5 +1,5 @@
-import { ChatDrawerContainer } from "@/chat/ChatDrawerContainer"
+import { ChatDrawerLayout } from "@/chat/drawer/ChatDrawerLayout"
 
 export const ChatScreen = () => {
-  return <ChatDrawerContainer />
+  return <ChatDrawerLayout />
 }
