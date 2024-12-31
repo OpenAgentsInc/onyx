@@ -24,6 +24,7 @@ export type AppStackParamList = {
   Chat: undefined
   Settings: undefined
   Wallet: undefined
+  Profile: undefined
 }
 
 /**
@@ -58,6 +59,7 @@ const AppStack = observer(function AppStack() {
     >
       <Stack.Screen name="Chat" component={Screens.ChatScreen} />
       <Stack.Screen name="Settings" component={Screens.SettingsScreen} />
+      <Stack.Screen name="Profile" component={Screens.ProfileScreen} />
       <Stack.Screen name="Wallet" component={Screens.WalletScreen} />
     </Stack.Navigator>
   )
