@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
   ViewStyle,
+  TextStyle,
 } from "react-native"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
@@ -163,18 +164,18 @@ const $container: ViewStyle = {
   alignSelf: "center",
 }
 
-const $heading = {
+const $heading: TextStyle = {
   fontSize: 24,
   marginBottom: 20,
   textAlign: "center",
 }
 
-const $label = {
+const $label: TextStyle = {
   marginBottom: 8,
   opacity: 0.8,
 }
 
-const $input = {
+const $input: TextStyle = {
   backgroundColor: "#222",
   color: "#fff",
   padding: 12,
@@ -185,7 +186,7 @@ const $input = {
   textAlignVertical: "top",
 }
 
-const $amountInput = {
+const $amountInput: TextStyle = {
   height: 45,
 }
 
@@ -202,13 +203,13 @@ const $buttonDisabled: ViewStyle = {
   opacity: 0.5,
 }
 
-const $buttonText = {
+const $buttonText: TextStyle = {
   color: "#fff",
   fontSize: 16,
   fontFamily: "JetBrainsMono-Regular",
 }
 
-const $errorText = {
+const $errorText: TextStyle = {
   color: "#ff4444",
   fontSize: 14,
   marginBottom: 12,
@@ -219,14 +220,14 @@ const $invoiceContainer: ViewStyle = {
   width: "100%",
 }
 
-const $invoiceBox = {
+const $invoiceBox: ViewStyle = {
   backgroundColor: "#222",
   padding: 16,
   borderRadius: 8,
   marginBottom: 16,
 }
 
-const $invoiceText = {
+const $invoiceText: TextStyle = {
   color: "#fff",
   fontFamily: "JetBrainsMono-Regular",
   fontSize: 12,
