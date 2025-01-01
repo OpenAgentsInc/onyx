@@ -5,10 +5,11 @@ import { useHeader } from "@/hooks/useHeader"
 import { goBack } from "@/navigators"
 import NotificationService from "@/services/notifications"
 import { colorsDark as colors, typography } from "@/theme"
+import { useStores } from "@/models/_helpers/useStores"
 
 export const NotificationsScreen = () => {
   const [isEnabled, setIsEnabled] = useState(false)
-  const [pushToken, setPushToken] = useState("")
+  const { userStore } = useStores()
 
   useHeader({
     title: "Notifications",
@@ -18,7 +19,10 @@ export const NotificationsScreen = () => {
 
   useEffect(() => {
     checkPermissions()
-    setPushToken(NotificationService.getExpoPushToken())
+    const token = NotificationService.getExpoPushToken()
+    if (token) {
+      userStore.setPushToken(token)
+    }
   }, [])
 
   const checkPermissions = async () => {
@@ -31,9 +35,14 @@ export const NotificationsScreen = () => {
       const { status } = await Notifications.requestPermissionsAsync()
       if (status === "granted") {
         await NotificationService.init()
-        setPushToken(NotificationService.getExpoPushToken())
+        const token = NotificationService.getExpoPushToken()
+        if (token) {
+          userStore.setPushToken(token)
+        }
       }
       setIsEnabled(status === "granted")
+    } else {
+      userStore.clearPushToken()
     }
   }
 
@@ -49,10 +58,10 @@ export const NotificationsScreen = () => {
         />
       </View>
 
-      {pushToken ? (
+      {userStore.pushToken ? (
         <View style={styles.section}>
           <Text style={styles.label}>Push Token:</Text>
-          <Text style={styles.tokenText}>{pushToken}</Text>
+          <Text style={styles.tokenText}>{userStore.pushToken}</Text>
         </View>
       ) : null}
     </View>
