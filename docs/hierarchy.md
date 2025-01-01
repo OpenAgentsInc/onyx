@@ -56,6 +56,7 @@
     ├── useChat.ts
     ├── useHeader.tsx
     ├── useKeyboard.ts
+    ├── useNotifications.ts
     ├── useVoicePermissions.ts
     ├── useVoiceRecording.ts
   ├── models
@@ -153,6 +154,8 @@
     ├── nostr
       ├── nostr.ts
       ├── nostr.types.ts
+    ├── notifications
+      ├── index.ts
     ├── storage
       ├── secureStorage.ts
   ├── theme
