@@ -6,6 +6,7 @@ import { goBack } from "@/navigators"
 import NotificationService from "@/services/notifications"
 import { colorsDark as colors, typography } from "@/theme"
 import { useStores } from "@/models/_helpers/useStores"
+import { KeyRow } from "@/screens/ProfileScreen/KeyRow"
 
 export const NotificationsScreen = () => {
   const [isEnabled, setIsEnabled] = useState(false)
@@ -60,8 +61,13 @@ export const NotificationsScreen = () => {
 
       {userStore.pushToken ? (
         <View style={styles.section}>
-          <Text style={styles.label}>Push Token:</Text>
-          <Text style={styles.tokenText}>{userStore.pushToken}</Text>
+          <KeyRow 
+            label="Push Token" 
+            value={userStore.pushToken}
+          />
+          <Text style={styles.hint}>
+            Long press the token to copy it to clipboard
+          </Text>
         </View>
       ) : null}
     </View>
@@ -86,9 +92,10 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: 8,
   },
-  tokenText: {
-    fontSize: 14,
+  hint: {
     color: colors.textDim,
+    fontSize: 12,
     marginTop: 8,
+    fontFamily: typography.primary.normal,
   },
 })
