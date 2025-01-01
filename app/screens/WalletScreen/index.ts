@@ -1,1 +1,5 @@
+export * from './BackupWalletScreen'
+export * from './ReceiveScreen'
+export * from './RestoreWalletScreen'
+export * from './SendScreen'
 export * from './WalletScreen'

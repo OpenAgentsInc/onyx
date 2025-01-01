@@ -13,6 +13,10 @@ export type AppStackParamList = {
   Settings: undefined
   Wallet: undefined
   Profile: undefined
+  Send: undefined
+  Receive: undefined
+  BackupWallet: undefined
+  RestoreWallet: undefined
 }
 
 const exitRoutes = Config.exitRoutes

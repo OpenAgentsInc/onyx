@@ -8,9 +8,12 @@ import { IWalletStore } from "../types"
 export async function setup(store: IWalletStore) {
   try {
     // Get mnemonic from secure storage
-    const mnemonic = await SecureStorageService.getMnemonic()
+    let mnemonic = await SecureStorageService.getMnemonic()
     if (!mnemonic) {
-      store.setError("No mnemonic found")
+
+      mnemonic = await SecureStorageService.generateMnemonic()
+
+      // store.setError("No mnemonic found")
       return false
     }
 
