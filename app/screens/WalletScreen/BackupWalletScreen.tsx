@@ -2,16 +2,25 @@ import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { Alert, Clipboard, ViewStyle } from "react-native"
 import { Button, Screen, Text } from "@/components"
+import { useHeader } from "@/hooks/useHeader"
 import { useStores } from "@/models"
-import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { goBack } from "@/navigators"
 import { WalletStackParamList } from "@/navigators/WalletNavigator"
 import * as alert from "@/utils/alert"
+import { NativeStackScreenProps } from "@react-navigation/native-stack"
 
-interface BackupWalletScreenProps extends NativeStackScreenProps<WalletStackParamList, "BackupWallet"> {}
+interface BackupWalletScreenProps
+  extends NativeStackScreenProps<WalletStackParamList, "BackupWallet"> {}
 
 export const BackupWalletScreen: FC<BackupWalletScreenProps> = observer(
   function BackupWalletScreen() {
     const { walletStore } = useStores()
+
+    useHeader({
+      title: "Backup Wallet",
+      leftIcon: "back",
+      onLeftPress: goBack,
+    })
 
     return (
       <Screen

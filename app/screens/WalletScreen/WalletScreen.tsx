@@ -4,9 +4,9 @@ import { View, ViewStyle } from "react-native"
 import { Button, Icon, Screen } from "@/components"
 import { useHeader } from "@/hooks/useHeader"
 import { goBack } from "@/navigators"
+import { WalletStackParamList } from "@/navigators/WalletNavigator"
 import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
-import { WalletStackParamList } from "@/navigators/WalletNavigator"
 import BalanceHeader from "./BalanceHeader"
 import { TransactionsList } from "./TransactionsList"
 
@@ -18,6 +18,10 @@ export const WalletScreen: FC = observer(function WalletScreen() {
     title: "Wallet",
     leftIcon: "back",
     onLeftPress: goBack,
+    rightIcon: "key",
+    onRightPress: () => {
+      navigation.navigate("BackupWallet")
+    },
   })
   return (
     <Screen style={$root} contentContainerStyle={$contentContainer} preset="fixed">
