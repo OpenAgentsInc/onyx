@@ -12,6 +12,72 @@ Notifications.setNotificationHandler({
   }),
 })
 
+async function sendPushNotification(expoPushToken: string) {
+  const message = {
+    to: expoPushToken,
+    sound: 'default',
+    title: 'Original Title',
+    body: 'And here is the body!',
+    data: { someData: 'goes here' },
+  }
+
+  await fetch('https://exp.host/--/api/v2/push/send', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Accept-encoding': 'gzip, deflate',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
+  })
+}
+
+function handleRegistrationError(errorMessage: string) {
+  alert(errorMessage)
+  throw new Error(errorMessage)
+}
+
+async function registerForPushNotificationsAsync() {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    })
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync()
+    let finalStatus = existingStatus
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync()
+      finalStatus = status
+    }
+    if (finalStatus !== 'granted') {
+      handleRegistrationError('Permission not granted to get push token for push notification!')
+      return
+    }
+    const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId
+    if (!projectId) {
+      handleRegistrationError('Project ID not found')
+    }
+    try {
+      const pushTokenString = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data
+      console.log(pushTokenString)
+      return pushTokenString
+    } catch (e: unknown) {
+      handleRegistrationError(`${e}`)
+    }
+  } else {
+    handleRegistrationError('Must use physical device for push notifications')
+  }
+}
+
 export class NotificationService {
   private static instance: NotificationService
   private expoPushToken: string = ''
@@ -26,46 +92,13 @@ export class NotificationService {
   }
 
   async init() {
-    if (!Device.isDevice) {
-      console.log('Must use physical device for Push Notifications')
-      return
-    }
-
-    // Request permission
-    const { status: existingStatus } = await Notifications.getPermissionsAsync()
-    let finalStatus = existingStatus
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync()
-      finalStatus = status
-    }
-    if (finalStatus !== 'granted') {
-      console.log('Failed to get push token for push notification!')
-      return
-    }
-
-    // Set up Android channel
-    if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      })
-    }
-
-    // Get push token
     try {
-      const projectId = Constants?.expoConfig?.extra?.eas?.projectId
-      if (!projectId) {
-        throw new Error('Project ID not found')
+      const token = await registerForPushNotificationsAsync()
+      if (token) {
+        this.expoPushToken = token
       }
-      const token = await Notifications.getExpoPushTokenAsync({
-        projectId,
-      })
-      this.expoPushToken = token.data
-      console.log('Push token:', token.data)
-    } catch (e) {
-      console.error('Error getting push token:', e)
+    } catch (error) {
+      console.error('Error initializing notifications:', error)
     }
   }
 
@@ -76,45 +109,28 @@ export class NotificationService {
   // Add notification listeners
   addNotificationReceivedListener(
     callback: (notification: Notifications.Notification) => void,
-  ) {
+  ): Notifications.EventSubscription {
     return Notifications.addNotificationReceivedListener(callback)
   }
 
   addNotificationResponseReceivedListener(
     callback: (response: Notifications.NotificationResponse) => void,
-  ) {
+  ): Notifications.EventSubscription {
     return Notifications.addNotificationResponseReceivedListener(callback)
   }
 
   // Remove notification listeners
-  removeNotificationSubscription(subscription: Notifications.Subscription) {
+  removeNotificationSubscription(subscription: Notifications.EventSubscription) {
     Notifications.removeNotificationSubscription(subscription)
   }
 
-  // Send a test notification (for development)
+  // Send a test notification
   async sendTestNotification() {
     if (!this.expoPushToken) {
       console.log('No push token available')
       return
     }
-
-    const message = {
-      to: this.expoPushToken,
-      sound: 'default',
-      title: 'Test Notification',
-      body: 'This is a test notification',
-      data: { someData: 'goes here' },
-    }
-
-    await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Accept-encoding': 'gzip, deflate',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(message),
-    })
+    await sendPushNotification(this.expoPushToken)
   }
 }
 
