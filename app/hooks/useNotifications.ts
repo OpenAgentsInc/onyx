@@ -1,26 +1,35 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as Notifications from 'expo-notifications'
 import NotificationService from '@/services/notifications'
 
 export function useNotifications() {
-  const notificationListener = useRef<Notifications.Subscription>()
-  const responseListener = useRef<Notifications.Subscription>()
+  const [expoPushToken, setExpoPushToken] = useState('')
+  const [notification, setNotification] = useState<Notifications.Notification | undefined>(undefined)
+  const notificationListener = useRef<Notifications.EventSubscription>()
+  const responseListener = useRef<Notifications.EventSubscription>()
 
   useEffect(() => {
+    // Initialize notifications and get token
+    NotificationService.init()
+      .then(() => {
+        const token = NotificationService.getExpoPushToken()
+        setExpoPushToken(token)
+      })
+      .catch(error => {
+        console.error('Error initializing notifications:', error)
+        setExpoPushToken(`${error}`)
+      })
+
     // Set up notification listeners
     notificationListener.current = NotificationService.addNotificationReceivedListener(
       notification => {
-        console.log('Notification received:', notification)
-        // Handle the notification here
-        // You can dispatch actions, update state, etc.
+        setNotification(notification)
       },
     )
 
     responseListener.current = NotificationService.addNotificationResponseReceivedListener(
       response => {
         console.log('Notification response:', response)
-        // Handle user's response to the notification
-        // This is called when user taps on the notification
       },
     )
 
@@ -36,7 +45,8 @@ export function useNotifications() {
   }, [])
 
   return {
-    getExpoPushToken: NotificationService.getExpoPushToken.bind(NotificationService),
+    expoPushToken,
+    notification,
     sendTestNotification: NotificationService.sendTestNotification.bind(NotificationService),
   }
 }
