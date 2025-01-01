@@ -29,12 +29,5 @@ module.exports = ({ config }: ConfigContext): Partial<ExpoConfig> => {
       GEMINI_API_KEY: process.env.GEMINI_API_KEY,
       GROQ_API_KEY: process.env.GROQ_API_KEY,
     },
-    ios: {
-      ...config.ios,
-      infoPlist: {
-        ...config.ios?.infoPlist,
-        UIBackgroundModes: ['remote-notification'],
-      },
-    },
   }
 }
