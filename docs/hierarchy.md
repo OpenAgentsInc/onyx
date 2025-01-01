@@ -108,6 +108,7 @@
       ├── index.ts
     ├── SettingsScreen
       ├── AutocoderSettings.tsx
+      ├── NotificationsScreen.tsx
       ├── SettingsScreen.tsx
       ├── coder
         ├── GithubTokenSection.tsx
