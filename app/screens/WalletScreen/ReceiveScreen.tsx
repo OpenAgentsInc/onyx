@@ -11,10 +11,11 @@ import {
 } from "react-native"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
-import { AppStackScreenProps } from "@/navigators"
+import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { WalletStackParamList } from "@/navigators/WalletNavigator"
 import Clipboard from "@react-native-clipboard/clipboard"
 
-interface ReceiveScreenProps extends AppStackScreenProps<"Receive"> {}
+interface ReceiveScreenProps extends NativeStackScreenProps<WalletStackParamList, "Receive"> {}
 
 export const ReceiveScreen: FC<ReceiveScreenProps> = observer(function ReceiveScreen() {
   const [amount, setAmount] = useState("")
