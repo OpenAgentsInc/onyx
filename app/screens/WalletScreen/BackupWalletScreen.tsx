@@ -25,7 +25,7 @@ export const BackupWalletScreen: FC<BackupWalletScreenProps> = observer(
       leftIcon: "back",
       onLeftPress: goBack,
       rightIcon: "refresh",
-      onRightPress: navigation.navigate("RestoreWallet"),
+      onRightPress: () => navigation.navigate("RestoreWallet"),
     })
 
     return (
