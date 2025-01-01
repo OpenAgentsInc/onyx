@@ -65,6 +65,9 @@ const WalletStoreModel = types
     async receivePayment(amount: number, description?: string) {
       return await actions.receivePayment(self as unknown as IWalletStore, amount, description)
     },
+    async restoreWallet(mnemonic: string) {
+      return await actions.restoreWallet(self as unknown as IWalletStore, mnemonic)
+    },
   }))
 
 export { WalletStoreModel }
