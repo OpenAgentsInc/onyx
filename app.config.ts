@@ -26,11 +26,8 @@ module.exports = ({ config }: ConfigContext): Partial<ExpoConfig> => {
     extra: {
       ...config.extra,
       BREEZ_API_KEY: process.env.BREEZ_API_KEY,
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY,
       GROQ_API_KEY: process.env.GROQ_API_KEY,
-    },
-    android: {
-      ...config.android,
-      useNextNotificationsApi: true,
     },
     ios: {
       ...config.ios,
