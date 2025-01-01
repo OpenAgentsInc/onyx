@@ -7,16 +7,13 @@ import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navig
 import Config from "../config"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import { SettingsNavigator } from "./SettingsNavigator"
+import { WalletNavigator } from "./WalletNavigator"
 
 export type AppStackParamList = {
   Chat: undefined
   Settings: undefined
   Wallet: undefined
   Profile: undefined
-  Send: undefined
-  Receive: undefined
-  BackupWallet: undefined
-  RestoreWallet: undefined
 }
 
 const exitRoutes = Config.exitRoutes
@@ -47,11 +44,7 @@ const AppStack = observer(function AppStack() {
       <Stack.Screen name="Chat" component={Screens.ChatScreen} />
       <Stack.Screen name="Settings" component={SettingsNavigator} />
       <Stack.Screen name="Profile" component={Screens.ProfileScreen} />
-      <Stack.Screen name="Wallet" component={Screens.WalletScreen} />
-      <Stack.Screen name="Send" component={Screens.SendScreen} />
-      <Stack.Screen name="Receive" component={Screens.ReceiveScreen} />
-      <Stack.Screen name="BackupWallet" component={Screens.BackupWalletScreen} />
-      <Stack.Screen name="RestoreWallet" component={Screens.RestoreWalletScreen} />
+      <Stack.Screen name="Wallet" component={WalletNavigator} />
     </Stack.Navigator>
   )
 })
