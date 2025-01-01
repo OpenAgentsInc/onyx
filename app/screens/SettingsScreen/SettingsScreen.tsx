@@ -29,8 +29,14 @@ export const SettingsScreen = () => {
         <Ionicons name="settings-outline" size={24} color={colors.palette.neutral800} style={{ marginRight: 12 }} />
         <Text style={styles.menuItemText}>Autocoder Settings</Text>
       </TouchableOpacity>
-      
-      {/* Add more menu items here */}
+
+      <TouchableOpacity
+        style={[styles.menuItem, { flexDirection: "row", alignItems: "center" }]}
+        onPress={() => navigate("Settings", { screen: "NotificationsScreen" })}
+      >
+        <Ionicons name="notifications-outline" size={24} color={colors.palette.neutral800} style={{ marginRight: 12 }} />
+        <Text style={styles.menuItemText}>Notifications</Text>
+      </TouchableOpacity>
     </View>
   )
 }
