@@ -7,7 +7,10 @@ import { useStores } from "@/models"
 import { goBack } from "@/navigators"
 import { WalletStackParamList } from "@/navigators/WalletNavigator"
 import * as alert from "@/utils/alert"
-import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack"
+
+type BackupScreenNavigationProp = NativeStackNavigationProp<WalletStackParamList, "BackupWallet">
 
 interface BackupWalletScreenProps
   extends NativeStackScreenProps<WalletStackParamList, "BackupWallet"> {}
@@ -15,11 +18,14 @@ interface BackupWalletScreenProps
 export const BackupWalletScreen: FC<BackupWalletScreenProps> = observer(
   function BackupWalletScreen() {
     const { walletStore } = useStores()
+    const navigation = useNavigation<BackupScreenNavigationProp>()
 
     useHeader({
       title: "Backup Wallet",
       leftIcon: "back",
       onLeftPress: goBack,
+      rightIcon: "refresh",
+      onRightPress: navigation.navigate("RestoreWallet"),
     })
 
     return (

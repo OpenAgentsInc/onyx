@@ -1,74 +1,88 @@
+import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import { observer } from "mobx-react-lite" 
-import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator, TextStyle } from "react-native"
+import {
+  ActivityIndicator,
+  TextInput,
+  TextStyle,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native"
 import { Screen, Text } from "@/components"
+import { useHeader } from "@/hooks/useHeader"
 import { useStores } from "@/models"
-import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { goBack } from "@/navigators"
 import { WalletStackParamList } from "@/navigators/WalletNavigator"
+import { NativeStackScreenProps } from "@react-navigation/native-stack"
 
-interface RestoreWalletScreenProps extends NativeStackScreenProps<WalletStackParamList, "RestoreWallet"> {}
+interface RestoreWalletScreenProps
+  extends NativeStackScreenProps<WalletStackParamList, "RestoreWallet"> {}
 
-export const RestoreWalletScreen: FC<RestoreWalletScreenProps> = observer(function RestoreWalletScreen({ navigation }) {
-  const [seedPhrase, setSeedPhrase] = useState("")
-  const [isRestoring, setIsRestoring] = useState(false)
-  const { walletStore } = useStores()
-  
-  const handleRestore = async () => {
-    if (!seedPhrase.trim()) {
-      walletStore.setError("Please enter your seed phrase")
-      return
-    }
+export const RestoreWalletScreen: FC<RestoreWalletScreenProps> = observer(
+  function RestoreWalletScreen({ navigation }) {
+    useHeader({
+      title: "Restore Wallet",
+      leftIcon: "back",
+      onLeftPress: goBack,
+    })
 
-    setIsRestoring(true)
-    try {
-      const success = await walletStore.restoreWallet(seedPhrase.trim())
-      if (success) {
-        navigation.navigate("WalletMain")
+    const [seedPhrase, setSeedPhrase] = useState("")
+    const [isRestoring, setIsRestoring] = useState(false)
+    const { walletStore } = useStores()
+
+    const handleRestore = async () => {
+      if (!seedPhrase.trim()) {
+        walletStore.setError("Please enter your seed phrase")
+        return
       }
-    } catch (error) {
-      console.error("Restore error:", error)
-    } finally {
-      setIsRestoring(false)
+
+      setIsRestoring(true)
+      try {
+        const success = await walletStore.restoreWallet(seedPhrase.trim())
+        if (success) {
+          navigation.navigate("WalletMain")
+        }
+      } catch (error) {
+        console.error("Restore error:", error)
+      } finally {
+        setIsRestoring(false)
+      }
     }
-  }
 
-  return (
-    <Screen style={$root} preset="scroll">
-      <View style={$container}>
-        <TextInput
-          style={$input}
-          placeholder="Enter your 12-word seed phrase..."
-          placeholderTextColor="#666"
-          value={seedPhrase}
-          onChangeText={setSeedPhrase}
-          multiline={true}
-          numberOfLines={2}
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!isRestoring}
-        />
-        
-        {walletStore.error ? (
-          <Text style={$errorText}>{walletStore.error}</Text>
-        ) : null}
+    return (
+      <Screen style={$root} preset="scroll">
+        <View style={$container}>
+          <TextInput
+            style={$input}
+            placeholder="Enter your 12-word seed phrase..."
+            placeholderTextColor="#666"
+            value={seedPhrase}
+            onChangeText={setSeedPhrase}
+            multiline={true}
+            numberOfLines={2}
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isRestoring}
+          />
 
-        <TouchableOpacity
-          style={[$button, isRestoring && $buttonDisabled]}
-          onPress={handleRestore}
-          disabled={isRestoring}
-        >
-          {isRestoring ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={$buttonText}>
-              Restore Wallet
-            </Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </Screen>
-  )
-})
+          {walletStore.error ? <Text style={$errorText}>{walletStore.error}</Text> : null}
+
+          <TouchableOpacity
+            style={[$button, isRestoring && $buttonDisabled]}
+            onPress={handleRestore}
+            disabled={isRestoring}
+          >
+            {isRestoring ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={$buttonText}>Restore Wallet</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </Screen>
+    )
+  },
+)
 
 const $root: ViewStyle = {
   flex: 1,
