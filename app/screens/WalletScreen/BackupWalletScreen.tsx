@@ -2,28 +2,23 @@ import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { Alert, Clipboard, ViewStyle } from "react-native"
 import { Button, Screen, Text } from "@/components"
-// import { useNavigation } from "@react-navigation/native"
 import { useStores } from "@/models"
-import { AppStackScreenProps } from "@/navigators"
+import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { WalletStackParamList } from "@/navigators/WalletNavigator"
 import * as alert from "@/utils/alert"
 
-interface BackupWalletScreenProps extends AppStackScreenProps<"BackupWallet"> {}
+interface BackupWalletScreenProps extends NativeStackScreenProps<WalletStackParamList, "BackupWallet"> {}
 
 export const BackupWalletScreen: FC<BackupWalletScreenProps> = observer(
   function BackupWalletScreen() {
-    // Pull in one of our MST stores
-    // const { someStore, anotherStore } = useStores()
     const { walletStore } = useStores()
 
-    // Pull in navigation via hook
-    // const navigation = useNavigation()
     return (
       <Screen
         style={$root}
         preset="scroll"
         contentContainerStyle={{
           flex: 1,
-          // justifyContent: "center",
           alignItems: "center",
           paddingHorizontal: 25,
           paddingVertical: 50,
