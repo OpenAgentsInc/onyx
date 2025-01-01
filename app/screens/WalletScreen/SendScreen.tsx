@@ -1,13 +1,18 @@
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
 import {
-  ActivityIndicator, TextInput, TouchableOpacity, View, ViewStyle
+  ActivityIndicator,
+  TextInput,
+  TextStyle,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from "react-native"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
 import { AppStackScreenProps } from "@/navigators"
 
-interface SendScreenProps extends AppStackScreenProps<"Send"> { }
+interface SendScreenProps extends AppStackScreenProps<"Send"> {}
 
 export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
   const [recipient, setRecipient] = useState("")
@@ -48,16 +53,13 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
     }
   }
 
-  const isValidInput = recipient.trim() && amount.trim() && !isNaN(Number(amount)) && Number(amount) >= MIN_AMOUNT
+  const isValidInput =
+    recipient.trim() && amount.trim() && !isNaN(Number(amount)) && Number(amount) >= MIN_AMOUNT
 
   return (
     <Screen style={$root} preset="scroll">
       <View style={$container}>
-        <Text
-          text="Lightning invoice or address"
-          preset="subheading"
-          style={$label}
-        />
+        <Text text="Lightning invoice or address" preset="subheading" style={$label} />
 
         <TextInput
           style={$input}
@@ -72,11 +74,7 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
           editable={!isSending}
         />
 
-        <Text
-          text={`Amount`}
-          preset="subheading"
-          style={$label}
-        />
+        <Text text={`Amount`} preset="subheading" style={$label} />
 
         <TextInput
           style={[$input, $amountInput]}
@@ -90,9 +88,7 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
           editable={!isSending}
         />
 
-        {walletStore.error ? (
-          <Text style={$errorText}>{walletStore.error}</Text>
-        ) : null}
+        {walletStore.error ? <Text style={$errorText}>{walletStore.error}</Text> : null}
 
         <TouchableOpacity
           style={[$button, (!isValidInput || isSending) && $buttonDisabled]}
@@ -102,9 +98,7 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
           {isSending ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={$buttonText}>
-              Send Payment
-            </Text>
+            <Text style={$buttonText}>Send Payment</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -134,7 +128,7 @@ const $label = {
   opacity: 0.8,
 }
 
-const $input = {
+const $input: TextStyle = {
   backgroundColor: "#222",
   color: "#fff",
   padding: 12,
@@ -168,7 +162,7 @@ const $buttonText = {
   fontFamily: "JetBrainsMono-Regular",
 }
 
-const $errorText = {
+const $errorText: TextStyle = {
   color: "#ff4444",
   fontSize: 14,
   marginBottom: 12,
