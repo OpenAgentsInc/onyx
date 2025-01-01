@@ -91,6 +91,7 @@
   ├── navigators
     ├── AppNavigator.tsx
     ├── SettingsNavigator.tsx
+    ├── WalletNavigator.tsx
     ├── index.ts
     ├── navigationUtilities.ts
   ├── screens
