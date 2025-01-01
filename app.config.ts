@@ -21,12 +21,24 @@ module.exports = ({ config }: ConfigContext): Partial<ExpoConfig> => {
       ...existingPlugins,
       'expo-localization',
       'expo-sqlite',
+      'expo-notifications',
     ],
     extra: {
       ...config.extra,
       BREEZ_API_KEY: process.env.BREEZ_API_KEY,
       GEMINI_API_KEY: process.env.GEMINI_API_KEY,
       GROQ_API_KEY: process.env.GROQ_API_KEY,
+    },
+    android: {
+      ...config.android,
+      useNextNotificationsApi: true,
+    },
+    ios: {
+      ...config.ios,
+      infoPlist: {
+        ...config.ios?.infoPlist,
+        UIBackgroundModes: ['remote-notification'],
+      },
     },
   }
 }
