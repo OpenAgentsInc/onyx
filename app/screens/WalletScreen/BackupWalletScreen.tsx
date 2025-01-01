@@ -40,6 +40,7 @@ export const BackupWalletScreen: FC<BackupWalletScreenProps> = observer(
                 "Paste the recovery phrase into your password manager. Then come back to this app and press to empty the clipboard.",
               onOk: () => Clipboard.setString(""),
               okText: "Empty Clipboard",
+              err: null,
             })
           }}
           style={{ marginVertical: 50, width: 300 }}
