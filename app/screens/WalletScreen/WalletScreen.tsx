@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
-import { FC, useEffect } from "react"
-import { Alert, View, ViewStyle } from "react-native"
+import { FC } from "react"
+import { View, ViewStyle } from "react-native"
 import { Button, Icon, Screen } from "@/components"
 import { useHeader } from "@/hooks/useHeader"
 import { goBack } from "@/navigators"
@@ -23,8 +23,7 @@ export const WalletScreen: FC<{}> = observer(function WalletScreen() {
           <Button
             text="Send"
             onPress={() => {
-              // navigation.navigate("Send")
-              Alert.alert("Disabled", "Disabled for now")
+              navigation.navigate("Send")
             }}
             style={$actionButton}
             LeftAccessory={(props) => (
@@ -39,8 +38,7 @@ export const WalletScreen: FC<{}> = observer(function WalletScreen() {
           <Button
             text="Receive"
             onPress={() => {
-              Alert.alert("Disabled", "Disabled for now")
-              // navigation.navigate("Receive")
+              navigation.navigate("Receive")
             }}
             style={$actionButton}
             LeftAccessory={(props) => (
