@@ -1,18 +1,17 @@
 import { FC, useState } from "react"
 import { observer } from "mobx-react-lite" 
 import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator, TextStyle } from "react-native"
-import { AppStackScreenProps } from "@/navigators"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
-import { useNavigation } from "@react-navigation/native"
+import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { WalletStackParamList } from "@/navigators/WalletNavigator"
 
-interface RestoreWalletScreenProps extends AppStackScreenProps<"RestoreWallet"> {}
+interface RestoreWalletScreenProps extends NativeStackScreenProps<WalletStackParamList, "RestoreWallet"> {}
 
-export const RestoreWalletScreen: FC<RestoreWalletScreenProps> = observer(function RestoreWalletScreen() {
+export const RestoreWalletScreen: FC<RestoreWalletScreenProps> = observer(function RestoreWalletScreen({ navigation }) {
   const [seedPhrase, setSeedPhrase] = useState("")
   const [isRestoring, setIsRestoring] = useState(false)
   const { walletStore } = useStores()
-  const navigation = useNavigation()
   
   const handleRestore = async () => {
     if (!seedPhrase.trim()) {
@@ -24,7 +23,7 @@ export const RestoreWalletScreen: FC<RestoreWalletScreenProps> = observer(functi
     try {
       const success = await walletStore.restoreWallet(seedPhrase.trim())
       if (success) {
-        navigation.navigate("Wallet" as never)
+        navigation.navigate("WalletMain")
       }
     } catch (error) {
       console.error("Restore error:", error)
