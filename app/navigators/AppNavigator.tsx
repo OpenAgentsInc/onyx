@@ -48,6 +48,10 @@ const AppStack = observer(function AppStack() {
       <Stack.Screen name="Settings" component={SettingsNavigator} />
       <Stack.Screen name="Profile" component={Screens.ProfileScreen} />
       <Stack.Screen name="Wallet" component={Screens.WalletScreen} />
+      <Stack.Screen name="Send" component={Screens.SendScreen} />
+      <Stack.Screen name="Receive" component={Screens.ReceiveScreen} />
+      <Stack.Screen name="BackupWallet" component={Screens.BackupWalletScreen} />
+      <Stack.Screen name="RestoreWallet" component={Screens.RestoreWalletScreen} />
     </Stack.Navigator>
   )
 })
