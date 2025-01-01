@@ -5,11 +5,15 @@ import { Button, Icon, Screen } from "@/components"
 import { useHeader } from "@/hooks/useHeader"
 import { goBack } from "@/navigators"
 import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { WalletStackParamList } from "@/navigators/WalletNavigator"
 import BalanceHeader from "./BalanceHeader"
 import { TransactionsList } from "./TransactionsList"
 
-export const WalletScreen: FC<{}> = observer(function WalletScreen() {
-  const navigation = useNavigation<any>()
+type WalletScreenNavigationProp = NativeStackNavigationProp<WalletStackParamList, "WalletMain">
+
+export const WalletScreen: FC = observer(function WalletScreen() {
+  const navigation = useNavigation<WalletScreenNavigationProp>()
   useHeader({
     title: "Wallet",
     leftIcon: "back",
