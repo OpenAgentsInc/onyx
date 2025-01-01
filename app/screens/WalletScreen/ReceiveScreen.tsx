@@ -4,20 +4,28 @@ import {
   ActivityIndicator,
   Share,
   TextInput,
+  TextStyle,
   TouchableOpacity,
   View,
   ViewStyle,
-  TextStyle,
 } from "react-native"
 import { Screen, Text } from "@/components"
+import { useHeader } from "@/hooks/useHeader"
 import { useStores } from "@/models"
-import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { goBack } from "@/navigators"
 import { WalletStackParamList } from "@/navigators/WalletNavigator"
 import Clipboard from "@react-native-clipboard/clipboard"
+import { NativeStackScreenProps } from "@react-navigation/native-stack"
 
 interface ReceiveScreenProps extends NativeStackScreenProps<WalletStackParamList, "Receive"> {}
 
 export const ReceiveScreen: FC<ReceiveScreenProps> = observer(function ReceiveScreen() {
+  useHeader({
+    title: "Receive",
+    leftIcon: "back",
+    onLeftPress: goBack,
+  })
+
   const [amount, setAmount] = useState("")
   const [description, setDescription] = useState("")
   const [invoice, setInvoice] = useState("")

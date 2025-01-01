@@ -9,13 +9,21 @@ import {
   ViewStyle,
 } from "react-native"
 import { Screen, Text } from "@/components"
+import { useHeader } from "@/hooks/useHeader"
 import { useStores } from "@/models"
-import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { goBack } from "@/navigators"
 import { WalletStackParamList } from "@/navigators/WalletNavigator"
+import { NativeStackScreenProps } from "@react-navigation/native-stack"
 
 interface SendScreenProps extends NativeStackScreenProps<WalletStackParamList, "Send"> {}
 
 export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
+  useHeader({
+    title: "Send",
+    leftIcon: "back",
+    onLeftPress: goBack,
+  })
+
   const [recipient, setRecipient] = useState("")
   const [amount, setAmount] = useState("")
   const [isSending, setIsSending] = useState(false)
