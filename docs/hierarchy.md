@@ -119,9 +119,13 @@
     ├── ShareScreen
       ├── ShareScreen.tsx
     ├── WalletScreen
+      ├── BackupWalletScreen.tsx
       ├── BalanceHeader.tsx
       ├── Money.tsx
       ├── MoneySmall.tsx
+      ├── ReceiveScreen.tsx
+      ├── RestoreWalletScreen.tsx
+      ├── SendScreen.tsx
       ├── TransactionsList.tsx
       ├── WalletScreen.tsx
       ├── index.ts
@@ -162,6 +166,7 @@
     ├── timing.ts
     ├── typography.ts
   ├── utils
+    ├── alert.ts
     ├── clearStorage.ts
     ├── crypto-polyfill.ts
     ├── ignore-warnings.ts
@@ -200,6 +205,7 @@
 ├── ios
 ├── package.json
 ├── scripts
+  ├── deepseek_test_fixer.sh
 ├── tsconfig.json
 ├── yarn.lock
 ```
