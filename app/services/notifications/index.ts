@@ -1,7 +1,7 @@
-import { Platform } from 'react-native'
-import * as Device from 'expo-device'
-import * as Notifications from 'expo-notifications'
-import Constants from 'expo-constants'
+import Constants from "expo-constants"
+import * as Device from "expo-device"
+import * as Notifications from "expo-notifications"
+import { Platform } from "react-native"
 
 // Configure how notifications are presented when the app is in the foreground
 Notifications.setNotificationHandler({
@@ -33,7 +33,8 @@ async function sendPushNotification(expoPushToken: string) {
 }
 
 function handleRegistrationError(errorMessage: string) {
-  alert(errorMessage)
+  // alert(errorMessage)
+  console.log(errorMessage)
   throw new Error(errorMessage)
 }
 
@@ -82,7 +83,7 @@ export class NotificationService {
   private static instance: NotificationService
   private expoPushToken: string = ''
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): NotificationService {
     if (!NotificationService.instance) {
@@ -98,7 +99,7 @@ export class NotificationService {
         this.expoPushToken = token
       }
     } catch (error) {
-      console.error('Error initializing notifications:', error)
+      console.log('Error initializing notifications:', error)
     }
   }
 

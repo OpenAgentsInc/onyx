@@ -1,10 +1,10 @@
+import * as Notifications from "expo-notifications"
 import React, { useEffect, useState } from "react"
-import { View, Text, Switch, StyleSheet } from "react-native"
+import { StyleSheet, Switch, Text, View } from "react-native"
 import { useHeader } from "@/hooks/useHeader"
 import { goBack } from "@/navigators"
-import * as Notifications from "expo-notifications"
 import NotificationService from "@/services/notifications"
-import { colorsDark as colors } from "@/theme"
+import { colorsDark as colors, typography } from "@/theme"
 
 export const NotificationsScreen = () => {
   const [isEnabled, setIsEnabled] = useState(false)
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: "500",
+    fontFamily: typography.primary.normal,
     color: colors.text,
     marginBottom: 8,
   },
