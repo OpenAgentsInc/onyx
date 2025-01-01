@@ -17,6 +17,7 @@ import { useInitialRootStore } from "./models"
 import { AppNavigator, useNavigationPersistence } from "./navigators"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import * as storage from "./utils/storage"
+import NotificationService from "./services/notifications"
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
@@ -37,6 +38,11 @@ function App(props: AppProps) {
     // This runs after the root store has been initialized and rehydrated.
     setTimeout(hideSplashScreen, 500)
   })
+
+  // Initialize notifications
+  React.useEffect(() => {
+    NotificationService.init().catch(console.error)
+  }, [])
 
   if (!loaded || !rehydrated || !isNavigationStateRestored) {
     return (
