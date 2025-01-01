@@ -1,6 +1,6 @@
 import { FC, useState } from "react"
 import { observer } from "mobx-react-lite" 
-import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native"
+import { ViewStyle, TextInput, TouchableOpacity, View, ActivityIndicator, TextStyle } from "react-native"
 import { AppStackScreenProps } from "@/navigators"
 import { Screen, Text } from "@/components"
 import { useStores } from "@/models"
@@ -24,7 +24,7 @@ export const RestoreWalletScreen: FC<RestoreWalletScreenProps> = observer(functi
     try {
       const success = await walletStore.restoreWallet(seedPhrase.trim())
       if (success) {
-        navigation.navigate("Main")
+        navigation.navigate("Wallet" as never)
       }
     } catch (error) {
       console.error("Restore error:", error)
@@ -82,7 +82,7 @@ const $container: ViewStyle = {
   alignSelf: "center",
 }
 
-const $input = {
+const $input: TextStyle = {
   backgroundColor: "#222",
   color: "#fff",
   padding: 12,
@@ -106,13 +106,13 @@ const $buttonDisabled: ViewStyle = {
   opacity: 0.5,
 }
 
-const $buttonText = {
+const $buttonText: TextStyle = {
   color: "#fff",
   fontSize: 16,
   fontFamily: "JetBrainsMono-Regular",
 }
 
-const $errorText = {
+const $errorText: TextStyle = {
   color: "#ff4444",
   fontSize: 14,
   marginBottom: 12,
