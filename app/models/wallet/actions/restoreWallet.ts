@@ -17,7 +17,7 @@ export async function restoreWallet(store: IWalletStore, mnemonic: string) {
     store.setPendingSendSat(0)
     store.setPendingReceiveSat(0)
     store.setTransactions([])
-    store.setMnemonic(null)
+    store.setMnemonic(undefined)  // Changed from null to undefined
 
     // Validate and save mnemonic to secure storage
     const saved = await SecureStorageService.setMnemonic(mnemonic)
