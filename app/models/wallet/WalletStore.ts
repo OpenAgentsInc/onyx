@@ -10,6 +10,7 @@ const WalletStoreModel = types
   .model("WalletStore")
   .props({
     isInitialized: types.optional(types.boolean, false),
+    setupComplete: types.optional(types.boolean, false),
     error: types.maybeNull(types.string),
     balanceSat: types.optional(types.number, 0),
     pendingSendSat: types.optional(types.number, 0),
@@ -35,6 +36,9 @@ const WalletStoreModel = types
     },
     setInitialized(isInitialized: boolean) {
       self.isInitialized = isInitialized
+    },
+    setSetupComplete(complete: boolean) {
+      self.setupComplete = complete
     },
     setMnemonic(mnemonic: string) {
       self.mnemonic = mnemonic

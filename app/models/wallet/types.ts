@@ -3,6 +3,7 @@ import { IAnyModelType, Instance, IStateTreeNode } from "mobx-state-tree"
 // Base store interface with just the properties
 export interface IWalletStoreBase extends IStateTreeNode {
   isInitialized: boolean
+  setupComplete: boolean
   error: string | null
   mnemonic: string | null
   setBalanceSat: (balanceSat: number) => void
@@ -11,6 +12,7 @@ export interface IWalletStoreBase extends IStateTreeNode {
   setMnemonic: (mnemonic: string) => void
   setError: (message: string | null) => void
   setInitialized: (isInitialized: boolean) => void
+  setSetupComplete: (complete: boolean) => void
   setTransactions: (transactions: any[]) => void
   setNostrKeys: (nostrKeys: any) => void
 }

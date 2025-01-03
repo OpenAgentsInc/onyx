@@ -75,6 +75,8 @@
     ├── index.ts
     ├── types
       ├── repo.ts
+    ├── user
+      ├── UserStore.ts
     ├── wallet
       ├── WalletStore.ts
       ├── actions
