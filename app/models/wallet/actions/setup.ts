@@ -7,14 +7,20 @@ import { IWalletStore } from "../types"
 
 export async function setup(store: IWalletStore) {
   try {
+    // If setup is already complete, don't run again
+    if (store.setupComplete) {
+      return true
+    }
+
     // Get mnemonic from secure storage
     let mnemonic = await SecureStorageService.getMnemonic()
+    
+    // Generate new mnemonic if none exists
     if (!mnemonic) {
-
       mnemonic = await SecureStorageService.generateMnemonic()
-
-      // store.setError("No mnemonic found")
-      return false
+      
+      // Immediately save the new mnemonic
+      await SecureStorageService.saveMnemonic(mnemonic)
     }
 
     // Set mnemonic in store
@@ -33,6 +39,7 @@ export async function setup(store: IWalletStore) {
       mnemonic: mnemonic,
     })
 
+    // Derive and set Nostr keys
     const keys = await nostr.deriveNostrKeys(mnemonic)
     store.setNostrKeys(keys)
 
@@ -43,12 +50,17 @@ export async function setup(store: IWalletStore) {
       important: true
     })
 
+    // Mark initialization as complete
     store.setInitialized(true)
+    store.setSetupComplete(true)
     store.setError(null)
+    
     return true
   } catch (error) {
     console.error("[WalletStore] Setup error:", error)
     store.setError(error instanceof Error ? error.message : "Failed to setup wallet")
+    store.setInitialized(false)
+    store.setSetupComplete(false)
     return false
   }
 }
