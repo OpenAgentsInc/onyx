@@ -203,15 +203,15 @@ class BreezServiceImpl implements BreezService {
         })
 
         return {
-          id: result.payment.id || generateId(),
+          id: result.payment.txId || generateId(),
           amount: result.payment.amountSat,
-          timestamp: Date.now(),
+          timestamp: result.payment.timestamp,
           type: 'send',
           status: result.payment.status === 'complete' ? 'complete' : 'pending',
           paymentHash: result.payment.details.type === PaymentDetailsVariant.LIGHTNING 
             ? result.payment.details.paymentHash 
             : undefined,
-          fee: prepareResponse.feesSat,
+          fee: result.payment.feesSat,
         }
       }
     } catch (err) {
