@@ -1,4 +1,5 @@
 import { breezService } from "@/services/breez"
+import { navigate } from "@/navigators/navigationUtilities"
 import { IWalletStore } from "../types"
 
 export async function sendPayment(store: IWalletStore, bolt11: string, amount: number) {
@@ -9,6 +10,9 @@ export async function sendPayment(store: IWalletStore, bolt11: string, amount: n
     const currentTxs = store.transactions.slice()
     currentTxs.unshift(result)
     store.setTransactions(currentTxs)
+    
+    // Navigate back to WalletMain screen
+    navigate("Wallet", { screen: "WalletMain" })
     
     return result
   } catch (err) {
