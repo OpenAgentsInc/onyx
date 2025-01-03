@@ -195,8 +195,7 @@ class BreezServiceImpl implements BreezService {
       } else {
         // Handle regular BOLT11 invoice
         const prepareResponse = await prepareSendPayment({
-          bolt11: input,
-          amountSat: amount
+          destination: input
         })
 
         const result = await sendPayment({
