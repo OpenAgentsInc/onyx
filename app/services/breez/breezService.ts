@@ -4,7 +4,8 @@ import {
   connect, defaultConfig, disconnect, getInfo, InputTypeVariant,
   LiquidNetwork, listPayments, lnurlPay, LnUrlPayResultVariant, parse,
   PaymentDetailsVariant, PaymentMethod, prepareLnurlPay,
-  prepareReceivePayment, receivePayment, sendPayment
+  prepareReceivePayment, receivePayment, sendPayment, prepareSendPayment,
+  SendDestinationVariant
 } from "@breeztech/react-native-breez-sdk-liquid"
 import { BalanceInfo, BreezConfig, BreezService, Transaction } from "./types"
 
@@ -193,18 +194,25 @@ class BreezServiceImpl implements BreezService {
 
       } else {
         // Handle regular BOLT11 invoice
-        const result = await sendPayment({
+        const prepareResponse = await prepareSendPayment({
           bolt11: input,
           amountSat: amount
         })
+
+        const result = await sendPayment({
+          prepareResponse
+        })
+
         return {
-          id: result.paymentHash || generateId(),
-          amount: result.amountSat,
+          id: result.payment.id || generateId(),
+          amount: result.payment.amountSat,
           timestamp: Date.now(),
           type: 'send',
-          status: result.status === 'complete' ? 'complete' : 'pending',
-          paymentHash: result.paymentHash,
-          fee: result.feeSat,
+          status: result.payment.status === 'complete' ? 'complete' : 'pending',
+          paymentHash: result.payment.details.type === PaymentDetailsVariant.LIGHTNING 
+            ? result.payment.details.paymentHash 
+            : undefined,
+          fee: prepareResponse.feesSat,
         }
       }
     } catch (err) {
