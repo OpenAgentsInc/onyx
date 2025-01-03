@@ -5,11 +5,11 @@ export interface IWalletStoreBase extends IStateTreeNode {
   isInitialized: boolean
   setupComplete: boolean
   error: string | null
-  mnemonic: string | null
+  mnemonic: string | undefined
   setBalanceSat: (balanceSat: number) => void
   setPendingReceiveSat: (pendingReceiveSat: number) => void
   setPendingSendSat: (pendingSendSat: number) => void
-  setMnemonic: (mnemonic: string) => void
+  setMnemonic: (mnemonic: string | undefined) => void
   setError: (message: string | null) => void
   setInitialized: (isInitialized: boolean) => void
   setSetupComplete: (complete: boolean) => void

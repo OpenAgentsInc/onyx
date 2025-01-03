@@ -1,6 +1,5 @@
 import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 import { withSetPropAction } from "../_helpers/withSetPropAction"
-import { isDevEnvironment } from "@/config"
 
 export const UserStoreModel = types
   .model("UserStore")
@@ -9,13 +8,6 @@ export const UserStoreModel = types
   })
   .actions(withSetPropAction)
   .actions((self) => ({
-    afterCreate() {
-      // Set example push token in dev environment
-      if (isDevEnvironment) {
-        self.pushToken = "example-push-token"
-      }
-    },
-
     setPushToken(token: string) {
       self.pushToken = token
     },
@@ -36,5 +28,5 @@ export interface UserStoreSnapshotIn extends SnapshotIn<typeof UserStoreModel> {
 
 export const createUserStoreDefaultModel = () =>
   UserStoreModel.create({
-    pushToken: isDevEnvironment ? "example-push-token" : "",
+    pushToken: "",
   })

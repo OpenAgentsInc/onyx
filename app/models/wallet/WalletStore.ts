@@ -40,7 +40,7 @@ const WalletStoreModel = types
     setSetupComplete(complete: boolean) {
       self.setupComplete = complete
     },
-    setMnemonic(mnemonic: string) {
+    setMnemonic(mnemonic: string | undefined) {  // Updated to match types.maybe(types.string)
       self.mnemonic = mnemonic
     },
     setError(message: string | null) {

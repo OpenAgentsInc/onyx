@@ -8,8 +8,8 @@ export async function disconnect(store: IWalletStore) {
       await breezService.disconnect()
     }
     await SecureStorageService.deleteMnemonic()
-    store.isInitialized = false
-    store.mnemonic = null
+    store.setInitialized(false)
+    store.setMnemonic(undefined)
     store.setError(null)
   } catch (error) {
     console.error("[WalletStore] Disconnect error:", error)
