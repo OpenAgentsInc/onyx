@@ -33,7 +33,7 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
 
   const handleSend = async () => {
     if (!recipient.trim()) {
-      walletStore.setError("Please enter an invoice or Lightning address")
+      walletStore.setError("Please enter an invoice")
       return
     }
 
@@ -72,7 +72,7 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
 
         <TextInput
           style={$input}
-          placeholder="Invoice or address"
+          placeholder="Invoice"
           placeholderTextColor="#666"
           value={recipient}
           onChangeText={setRecipient}
