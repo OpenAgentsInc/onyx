@@ -3,7 +3,7 @@
     "name": "Onyx",
     "slug": "onyx",
     "scheme": "onyx",
-    "version": "0.0.6",
+    "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "icon": "./assets/images/app-icon-all.png",
@@ -73,7 +73,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash.png",
-          "resizeMode": "cover",
+          "resizeMode": "contain",
           "backgroundColor": "#000000"
         }
       ]

@@ -19,7 +19,6 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
     marginBottom: 8,
     marginTop: 16,
     color: colors.palette.neutral800, // Light text
@@ -42,7 +41,6 @@ export const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "bold",
     marginBottom: 10,
     color: colors.palette.neutral800, // Light text
   },
@@ -62,7 +60,6 @@ export const styles = StyleSheet.create({
   addButtonText: {
     color: colors.palette.neutral800,
     fontSize: 14,
-    fontWeight: "bold",
   },
   input: {
     backgroundColor: colors.backgroundSecondary, // Dark input background
@@ -110,7 +107,6 @@ export const styles = StyleSheet.create({
   },
   buttonText: {
     color: colors.palette.neutral800, // Light text
-    fontWeight: "bold",
   },
   branchText: {
     color: colors.palette.neutral600, // Dimmer text
@@ -147,7 +143,6 @@ export const styles = StyleSheet.create({
   toolName: {
     color: colors.palette.neutral800, // Light text
     fontSize: 16,
-    fontWeight: "bold",
     marginBottom: 4,
   },
   toolDescription: {
@@ -172,6 +167,5 @@ export const styles = StyleSheet.create({
   checkmark: {
     color: colors.palette.neutral800, // Light text
     fontSize: 16,
-    fontWeight: "bold",
   },
 })

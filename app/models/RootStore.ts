@@ -1,6 +1,8 @@
 import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 import { ChatStoreModel } from "./chat/ChatStore"
 import { CoderStoreModel } from "./coder/CoderStore"
+import { WalletStoreModel } from "./wallet/WalletStore"
+import { UserStoreModel } from "./user/UserStore"
 
 const RootStoreModel = types
   .model("RootStore")
@@ -11,7 +13,9 @@ const RootStoreModel = types
       githubToken: "",
       repos: [],
       activeRepoIndex: null,
-    })
+    }),
+    walletStore: types.optional(WalletStoreModel, {}),
+    userStore: types.optional(UserStoreModel, {})
   })
 
 export interface IRootStore extends Instance<typeof RootStoreModel> { }
@@ -29,5 +33,7 @@ export const createRootStoreDefaultModel = () =>
       githubToken: "",
       repos: [],
       activeRepoIndex: null,
-    }
+    },
+    walletStore: {},
+    userStore: {}
   })

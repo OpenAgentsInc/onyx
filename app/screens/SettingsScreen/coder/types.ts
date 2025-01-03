@@ -1,8 +1,3 @@
-export interface RepoSettingsProps {
-  visible: boolean
-  onClose: () => void
-}
-
 export interface Tool {
   id: string
   name: string

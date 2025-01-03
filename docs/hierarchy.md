@@ -14,9 +14,17 @@
   ├── chat
     ├── Chat.tsx
     ├── ChatBar.tsx
-    ├── ChatDrawerContainer.tsx
-    ├── ChatDrawerContent.tsx
     ├── ChatOverlay.tsx
+    ├── drawer
+      ├── ChatDrawerLayout.tsx
+      ├── ChatList.tsx
+      ├── ChatPreview.ts
+      ├── NewChatButton.tsx
+      ├── ProfileButton.tsx
+      ├── README.md
+      ├── WalletButton.tsx
+      ├── index.tsx
+      ├── styles.ts
     ├── markdown
       ├── MessageContent.tsx
       ├── ToolInvocation.tsx
@@ -25,6 +33,7 @@
     ├── styles.ts
   ├── components
     ├── AutoImage.tsx
+    ├── Button.tsx
     ├── Header.tsx
     ├── Icon.tsx
     ├── KeyboardDismisser.tsx
@@ -47,6 +56,7 @@
     ├── useChat.ts
     ├── useHeader.tsx
     ├── useKeyboard.ts
+    ├── useNotifications.ts
     ├── useVoicePermissions.ts
     ├── useVoiceRecording.ts
   ├── models
@@ -65,8 +75,24 @@
     ├── index.ts
     ├── types
       ├── repo.ts
+    ├── wallet
+      ├── WalletStore.ts
+      ├── actions
+        ├── disconnect.ts
+        ├── fetchBalanceInfo.ts
+        ├── fetchTransactions.ts
+        ├── index.ts
+        ├── receivePayment.ts
+        ├── restoreWallet.ts
+        ├── sendPayment.ts
+        ├── setup.ts
+      ├── models.ts
+      ├── types.ts
+      ├── views.ts
   ├── navigators
     ├── AppNavigator.tsx
+    ├── SettingsNavigator.tsx
+    ├── WalletNavigator.tsx
     ├── index.ts
     ├── navigationUtilities.ts
   ├── screens
@@ -76,29 +102,63 @@
     ├── ErrorScreen
       ├── ErrorBoundary.tsx
       ├── ErrorDetails.tsx
+    ├── ProfileScreen
+      ├── KeyRow.tsx
+      ├── ProfileScreen.tsx
+      ├── index.ts
     ├── SettingsScreen
+      ├── AutocoderSettings.tsx
+      ├── NotificationsScreen.tsx
       ├── SettingsScreen.tsx
       ├── coder
         ├── GithubTokenSection.tsx
         ├── RepoFormSection.tsx
         ├── RepoListSection.tsx
-        ├── RepoSettings.tsx
         ├── ToolsSection.tsx
         ├── styles.ts
         ├── types.ts
       ├── index.ts
+      ├── styles.ts
+    ├── ShareScreen
+      ├── ShareScreen.tsx
+    ├── WalletScreen
+      ├── BackupWalletScreen.tsx
+      ├── BalanceHeader.tsx
+      ├── Money.tsx
+      ├── MoneySmall.tsx
+      ├── ReceiveScreen.tsx
+      ├── RestoreWalletScreen.tsx
+      ├── SendScreen.tsx
+      ├── TransactionsList.tsx
+      ├── WalletScreen.tsx
+      ├── index.ts
     ├── index.ts
   ├── services
+    ├── aiur
+      ├── aiur.ts
+      ├── aiur.types.ts
+      ├── index.ts
     ├── api
       ├── api.ts
       ├── api.types.ts
       ├── apiProblem.test.ts
       ├── apiProblem.ts
       ├── index.ts
+    ├── breez
+      ├── breezService.ts
+      ├── index.ts
+      ├── types.ts
     ├── groq
       ├── groq-api.types.ts
       ├── groq-chat.ts
       ├── index.ts
+    ├── nostr
+      ├── nostr.ts
+      ├── nostr.types.ts
+    ├── notifications
+      ├── index.ts
+    ├── storage
+      ├── secureStorage.ts
   ├── theme
     ├── colors.ts
     ├── colorsDark.ts
@@ -111,6 +171,7 @@
     ├── timing.ts
     ├── typography.ts
   ├── utils
+    ├── alert.ts
     ├── clearStorage.ts
     ├── crypto-polyfill.ts
     ├── ignore-warnings.ts
@@ -131,6 +192,7 @@
 ├── dist
 ├── docs
   ├── ai-design-language.md
+  ├── aiur.md
   ├── chat-persistence.md
   ├── chatbar.md
   ├── coder-settings.md
@@ -140,12 +202,15 @@
   ├── markdown.md
   ├── onboarding.md
   ├── permissions.md
+  ├── pro.md
   ├── roadmap-brainstorming.md
   ├── roadmap.md
+  ├── wallet-store.md
 ├── eas.json
 ├── ios
 ├── package.json
 ├── scripts
+  ├── deepseek_test_fixer.sh
 ├── tsconfig.json
 ├── yarn.lock
 ```

@@ -21,6 +21,7 @@ module.exports = ({ config }: ConfigContext): Partial<ExpoConfig> => {
       ...existingPlugins,
       'expo-localization',
       'expo-sqlite',
+      'expo-notifications',
     ],
     extra: {
       ...config.extra,

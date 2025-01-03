@@ -4,14 +4,21 @@ import { KeyboardAvoidingView, Platform, ScrollView, Text } from "react-native"
 import { useStores } from "@/models"
 import { Repo } from "@/models/types/repo"
 import { styles as baseStyles } from "@/theme/onyx"
-import { GithubTokenSection } from "./GithubTokenSection"
-import { RepoFormSection } from "./RepoFormSection"
-import { RepoListSection } from "./RepoListSection"
-import { styles } from "./styles"
-import { ToolsSection } from "./ToolsSection"
-import { RepoSettingsProps } from "./types"
+import { GithubTokenSection } from "./coder/GithubTokenSection"
+import { RepoFormSection } from "./coder/RepoFormSection"
+import { RepoListSection } from "./coder/RepoListSection"
+import { styles } from "./coder/styles"
+import { ToolsSection } from "./coder/ToolsSection"
+import { useHeader } from "@/hooks/useHeader"
+import { goBack } from "@/navigators"
 
-export const RepoSettings = observer(({ visible, onClose }: RepoSettingsProps) => {
+export const AutocoderSettings = observer(() => {
+  useHeader({
+    title: "Autocoder Settings",
+    leftIcon: "back",
+    onLeftPress: goBack,
+  })
+
   const { coderStore } = useStores()
   const [editingRepo, setEditingRepo] = useState<null | Repo>(null)
   const [repoInput, setRepoInput] = useState({
