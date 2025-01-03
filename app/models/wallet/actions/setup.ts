@@ -7,11 +7,6 @@ import { IWalletStore } from "../types"
 
 export async function setup(store: IWalletStore) {
   try {
-    // If setup is already complete, don't run again
-    if (store.setupComplete) {
-      return true
-    }
-
     // Get mnemonic from secure storage
     let mnemonic = await SecureStorageService.getMnemonic()
     
@@ -52,7 +47,6 @@ export async function setup(store: IWalletStore) {
 
     // Mark initialization as complete
     store.setInitialized(true)
-    store.setSetupComplete(true)
     store.setError(null)
     
     return true
@@ -60,7 +54,6 @@ export async function setup(store: IWalletStore) {
     console.error("[WalletStore] Setup error:", error)
     store.setError(error instanceof Error ? error.message : "Failed to setup wallet")
     store.setInitialized(false)
-    store.setSetupComplete(false)
     return false
   }
 }
