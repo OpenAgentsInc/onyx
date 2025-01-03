@@ -7,7 +7,7 @@ export async function sendPayment(store: IWalletStore, bolt11: string, amount: n
     const result = await breezService.sendPayment(bolt11, amount)
     
     // Update transactions using the store action
-    store.transactions.replace([result, ...Array.from(store.transactions)])
+    store.transactions.replace([result, ...store.transactions.toJSON()])
     
     // Navigate back to WalletMain screen
     navigate("Wallet", { screen: "WalletMain" })
