@@ -19,8 +19,8 @@ export async function setup(store: IWalletStore) {
     if (!mnemonic) {
       mnemonic = await SecureStorageService.generateMnemonic()
       
-      // Immediately save the new mnemonic
-      await SecureStorageService.saveMnemonic(mnemonic)
+      // Note: generateMnemonic already saves the mnemonic internally
+      // No need to call setMnemonic again
     }
 
     // Set mnemonic in store
