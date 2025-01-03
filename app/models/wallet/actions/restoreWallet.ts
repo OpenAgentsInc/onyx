@@ -12,12 +12,12 @@ export async function restoreWallet(store: IWalletStore, mnemonic: string) {
     }
 
     // Reset the store state
-    store.isInitialized = false
-    store.balanceSat = 0
-    store.pendingSendSat = 0
-    store.pendingReceiveSat = 0
-    store.transactions.clear()
-    store.mnemonic = null
+    store.setInitialized(false)
+    store.setBalanceSat(0)
+    store.setPendingSendSat(0)
+    store.setPendingReceiveSat(0)
+    store.setTransactions([])
+    store.setMnemonic(null)
 
     // Validate and save mnemonic to secure storage
     const saved = await SecureStorageService.setMnemonic(mnemonic)
@@ -26,7 +26,7 @@ export async function restoreWallet(store: IWalletStore, mnemonic: string) {
     }
 
     // Set mnemonic in store
-    store.mnemonic = mnemonic
+    store.setMnemonic(mnemonic)
 
     // Initialize with new mnemonic
     const breezApiKey = Constants.expoConfig?.extra?.BREEZ_API_KEY
@@ -42,7 +42,7 @@ export async function restoreWallet(store: IWalletStore, mnemonic: string) {
       mnemonic: mnemonic,
     })
 
-    store.isInitialized = true
+    store.setInitialized(true)
     store.setError(null)
 
     // Fetch initial balance
