@@ -68,7 +68,7 @@ export const SendScreen: FC<SendScreenProps> = observer(function SendScreen() {
   return (
     <Screen style={$root} preset="scroll">
       <View style={$container}>
-        <Text text="Lightning invoice or address" preset="subheading" style={$label} />
+        <Text text="Lightning invoice" preset="subheading" style={$label} />
 
         <TextInput
           style={$input}
