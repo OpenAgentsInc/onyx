@@ -4,7 +4,7 @@ import {
   connect, defaultConfig, disconnect, getInfo, InputTypeVariant,
   LiquidNetwork, listPayments, lnurlPay, LnUrlPayResultVariant, parse,
   PaymentDetailsVariant, PaymentMethod, prepareLnurlPay,
-  prepareReceivePayment, receivePayment
+  prepareReceivePayment, receivePayment, sendPayment
 } from "@breeztech/react-native-breez-sdk-liquid"
 import { BalanceInfo, BreezConfig, BreezService, Transaction } from "./types"
 
@@ -193,7 +193,10 @@ class BreezServiceImpl implements BreezService {
 
       } else {
         // Handle regular BOLT11 invoice
-        const result = await this.sdk.sendPayment(input, amount)
+        const result = await sendPayment({
+          bolt11: input,
+          amountSat: amount
+        })
         return {
           id: result.paymentHash || generateId(),
           amount: result.amountSat,
