@@ -31,6 +31,7 @@ export interface IWalletStoreWithTransactions extends IWalletStoreBalance {
     clear: () => void
     replace: (items: any[]) => void
     push: (item: any) => void
+    toJSON: () => any[]
   }
 }
 
