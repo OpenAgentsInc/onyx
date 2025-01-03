@@ -3,12 +3,13 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "@/models"
 import { styles } from "./styles"
+import { observer } from "mobx-react-lite"
 
 type Props = {
   setOpen: (open: boolean) => void
 }
 
-export const WalletButton = ({ setOpen }: Props) => {
+export const WalletButton = observer(({ setOpen }: Props) => {
   const navigation = useNavigation()
   const { walletStore } = useStores()
 
@@ -25,4 +26,4 @@ export const WalletButton = ({ setOpen }: Props) => {
       </Text>
     </TouchableOpacity>
   )
-}
+})
