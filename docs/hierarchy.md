@@ -6,7 +6,6 @@
 ├── README.md
 ├── android
 ├── app
-  ├── app copy.tsx
   ├── app.tsx
   ├── canvas
     ├── Canvas.tsx
@@ -68,7 +67,9 @@
       ├── useStores.ts
       ├── withSetPropAction.ts
     ├── chat
+      ├── ChatStorage.native.ts
       ├── ChatStorage.ts
+      ├── ChatStorage.web.ts
       ├── ChatStore.ts
       ├── index.ts
     ├── coder
@@ -94,10 +95,17 @@
       ├── views.ts
   ├── navigators
     ├── AppNavigator.tsx
+    ├── AppNavigator.web.tsx
     ├── SettingsNavigator.tsx
     ├── WalletNavigator.tsx
     ├── index.ts
     ├── navigationUtilities.ts
+  ├── osint
+    ├── Test.tsx
+    ├── scrl
+      ├── Card.module.scss
+      ├── Card.tsx
+      ├── global.scss
   ├── screens
     ├── ChatScreen
       ├── ChatScreen.tsx
@@ -148,7 +156,9 @@
       ├── apiProblem.ts
       ├── index.ts
     ├── breez
+      ├── breezService.native.ts
       ├── breezService.ts
+      ├── breezService.web.ts
       ├── index.ts
       ├── types.ts
     ├── groq
@@ -161,7 +171,9 @@
     ├── notifications
       ├── index.ts
     ├── storage
+      ├── secureStorage.native.ts
       ├── secureStorage.ts
+      ├── secureStorage.web.ts
   ├── theme
     ├── colors.ts
     ├── colorsDark.ts
