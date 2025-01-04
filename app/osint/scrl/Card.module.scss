@@ -7,7 +7,7 @@
 }
 
 .children {
-  box-shadow: inset 2px 0 0 0 var(--theme-text);
+  box-shadow: inset 2px 0 0 0 "white";
   display: block;
   padding: calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 2ch
     calc(var(--font-size) * var(--theme-line-height-base)) 2ch;
@@ -30,26 +30,26 @@
 .left {
   min-width: 10%;
   width: 100%;
-  box-shadow: inset 2px 0 0 0 var(--theme-text);
+  box-shadow: inset 2px 0 0 0 "white";
   padding: calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 2ch 0px 1ch;
 }
 
 .leftCorner {
   flex-shrink: 0;
-  box-shadow: inset 2px 0 0 0 var(--theme-text);
+  box-shadow: inset 2px 0 0 0 "white";
   padding: calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 1ch 0px 1ch;
 }
 
 .right {
   min-width: 10%;
   width: 100%;
-  box-shadow: inset -2px 0 0 0 var(--theme-text);
+  box-shadow: inset -2px 0 0 0 "white";
   padding: calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 2ch 0px 1ch;
 }
 
 .rightCorner {
   flex-shrink: 0;
-  box-shadow: inset -2px 0 0 0 var(--theme-text);
+  box-shadow: inset -2px 0 0 0 "white";
   padding: calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 1ch 0px 1ch;
 }
 
@@ -58,5 +58,5 @@
   padding: 0 1ch;
   font-size: var(--font-size);
   font-weight: 400;
-  color: var(--theme-text);
+  color: "white";
 }
