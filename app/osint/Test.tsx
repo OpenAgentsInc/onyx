@@ -1,3 +1,4 @@
+import "@/global.css"
 import React from "react"
 import { ScrollView, StyleSheet, View } from "react-native"
 import { Text } from "@/components"

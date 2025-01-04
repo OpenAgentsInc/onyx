@@ -16,8 +16,8 @@ import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
 import { AppNavigator, useNavigationPersistence } from "./navigators"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
-import * as storage from "./utils/storage"
 import NotificationService from "./services/notifications"
+import * as storage from "./utils/storage"
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
