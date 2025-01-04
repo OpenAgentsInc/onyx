@@ -3,20 +3,16 @@
   display: block;
   padding: 0 1ch calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 1ch;
   white-space: pre-wrap;
-  border: 2px solid var(--theme-border);
-  background: var(--theme-background-modal);
-  color: var(--theme-text);
+  background: var(--theme-background);
 }
 
 .children {
-  box-shadow: inset 2px 0 0 0 var(--theme-border), inset -2px 0 0 0 var(--theme-border),
-    inset 0 -2px 0 0 var(--theme-border);
+  box-shadow: inset 2px 0 0 0 var(--theme-text);
   display: block;
   padding: calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 2ch
     calc(var(--font-size) * var(--theme-line-height-base)) 2ch;
   overflow-x: auto;
   overflow-y: hidden;
-  background: var(--theme-background);
 
   &::-webkit-scrollbar {
     display: none;
@@ -29,33 +25,31 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  border-bottom: 2px solid var(--theme-border);
-  background: var(--theme-background-modal);
 }
 
 .left {
   min-width: 10%;
   width: 100%;
-  box-shadow: inset 2px 0 0 0 var(--theme-border), inset 0 2px 0 0 var(--theme-border);
+  box-shadow: inset 2px 0 0 0 var(--theme-text);
   padding: calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 2ch 0px 1ch;
 }
 
 .leftCorner {
   flex-shrink: 0;
-  box-shadow: inset 2px 0 0 0 var(--theme-border), inset 0 2px 0 0 var(--theme-border);
+  box-shadow: inset 2px 0 0 0 var(--theme-text);
   padding: calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 1ch 0px 1ch;
 }
 
 .right {
   min-width: 10%;
   width: 100%;
-  box-shadow: inset -2px 0 0 0 var(--theme-border), inset 0 2px 0 0 var(--theme-border);
+  box-shadow: inset -2px 0 0 0 var(--theme-text);
   padding: calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 2ch 0px 1ch;
 }
 
 .rightCorner {
   flex-shrink: 0;
-  box-shadow: inset -2px 0 0 0 var(--theme-border), inset 0 2px 0 0 var(--theme-border);
+  box-shadow: inset -2px 0 0 0 var(--theme-text);
   padding: calc((var(--font-size) * 0.5) * var(--theme-line-height-base)) 1ch 0px 1ch;
 }
 
