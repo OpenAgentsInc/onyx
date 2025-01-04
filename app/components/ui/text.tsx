@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Text as RNText } from "react-native"
 import { cn } from "@/lib/utils"
+import { typography } from "@/theme"
 import * as Slot from "@rn-primitives/slot"
 
 import type { SlottableTextProps, TextRef } from "@rn-primitives/types"
@@ -13,6 +14,7 @@ const Text = React.forwardRef<TextRef, SlottableTextProps>(
     return (
       <Component
         className={cn("text-base text-foreground web:select-text", textClass, className)}
+        style={{ fontFamily: typography.primary.normal }}
         ref={ref}
         {...props}
       />
