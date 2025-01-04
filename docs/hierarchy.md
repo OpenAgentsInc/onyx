@@ -6,6 +6,7 @@
 ├── README.md
 ├── android
 ├── app
+  ├── app copy.tsx
   ├── app.tsx
   ├── canvas
     ├── Canvas.tsx
