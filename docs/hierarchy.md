@@ -41,6 +41,13 @@
     ├── Text.tsx
     ├── ThinkingAnimation.tsx
     ├── index.ts
+    ├── ui
+      ├── button.tsx
+      ├── card.tsx
+      ├── context-menu.tsx
+      ├── dialog.tsx
+      ├── input.tsx
+      ├── text.tsx
   ├── config
     ├── config.base.ts
     ├── config.dev.ts
@@ -51,6 +58,7 @@
     ├── ReactotronClient.ts
     ├── ReactotronClient.web.ts
     ├── ReactotronConfig.ts
+  ├── global.css
   ├── hooks
     ├── useAutoUpdate.ts
     ├── useChat.ts
@@ -59,6 +67,17 @@
     ├── useNotifications.ts
     ├── useVoicePermissions.ts
     ├── useVoiceRecording.ts
+  ├── lib
+    ├── constants.ts
+    ├── icons
+      ├── Check.tsx
+      ├── ChevronDown.tsx
+      ├── ChevronRight.tsx
+      ├── ChevronUp.tsx
+      ├── X.tsx
+      ├── iconWithClassName.ts
+    ├── useColorScheme.tsx
+    ├── utils.ts
   ├── models
     ├── RootStore.ts
     ├── _helpers
@@ -93,6 +112,7 @@
       ├── models.ts
       ├── types.ts
       ├── views.ts
+  ├── nativewind-env.d.ts
   ├── navigators
     ├── AppNavigator.tsx
     ├── AppNavigator.web.tsx
@@ -101,11 +121,11 @@
     ├── index.ts
     ├── navigationUtilities.ts
   ├── osint
+    ├── ChatDemo.tsx
+    ├── OSINTCard.tsx
+    ├── Test copy.tsx
     ├── Test.tsx
-    ├── scrl
-      ├── Card.module.scss
-      ├── Card.tsx
-      ├── global.scss
+    ├── data.ts
   ├── screens
     ├── ChatScreen
       ├── ChatScreen.tsx
@@ -204,6 +224,8 @@
 ├── app.config.ts
 ├── app.json
 ├── assets
+├── babel.config.js
+├── components.json
 ├── dist
 ├── docs
   ├── ai-design-language.md
@@ -216,6 +238,7 @@
   ├── init.md
   ├── markdown.md
   ├── onboarding.md
+  ├── osint-nostr.md
   ├── permissions.md
   ├── pro.md
   ├── roadmap-brainstorming.md
@@ -223,9 +246,12 @@
   ├── wallet-store.md
 ├── eas.json
 ├── ios
+├── metro.config.js
+├── nativewind-env.d.ts
 ├── package.json
 ├── scripts
   ├── deepseek_test_fixer.sh
+├── tailwind.config.js
 ├── tsconfig.json
 ├── yarn.lock
 ```
