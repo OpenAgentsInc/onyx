@@ -34,11 +34,16 @@ export class NodeRenderer {
       color: opts.color,
       transparent: true,
       opacity: opts.opacity,
+      // Ensure nodes render on top of edges
+      depthTest: true,
+      depthWrite: true
     })
 
     // Create mesh and position it
     const mesh = new THREE.Mesh(geometry, material)
     mesh.position.copy(position)
+    // Move slightly forward to ensure it renders on top of edges
+    mesh.position.z = 0.1
 
     // Add text
     const textMesh = NodeRenderer.createTextSprite(content, opts)
@@ -71,7 +76,7 @@ export class NodeRenderer {
     const lineHeight = context.measureText('M').actualBoundingBoxAscent + context.measureText('M').actualBoundingBoxDescent
     return {
       lines,
-      totalHeight: lines.length * lineHeight * 1.2
+      totalHeight: lines.length * lineHeight * 1.8  // Increased from 1.2 to 1.8 for more spacing
     }
   }
 
@@ -104,7 +109,7 @@ export class NodeRenderer {
     const startY = (canvas.height - totalHeight) / 2
     lines.forEach((line, index) => {
       const lineHeight = context.measureText('M').actualBoundingBoxAscent + context.measureText('M').actualBoundingBoxDescent
-      const y = startY + (index * lineHeight * 1.2)
+      const y = startY + (index * lineHeight * 1.8)  // Increased from 1.2 to 1.8 for more spacing
       context.fillText(line, canvas.width / 2, y)
     })
 
@@ -116,6 +121,8 @@ export class NodeRenderer {
       map: texture,
       transparent: true,
       opacity: options.opacity,
+      depthTest: false,  // Make sure text always renders on top
+      depthWrite: false
     })
 
     const sprite = new THREE.Sprite(spriteMaterial)
