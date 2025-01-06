@@ -1,6 +1,6 @@
-import * as THREE from "three"
 import { ExpoWebGLRenderingContext } from "expo-gl"
-import { MinimalCanvas } from "@/app/canvas/types"
+import * as THREE from "three"
+import { MinimalCanvas } from "@/canvas/types"
 
 interface KnowledgeNode {
   position: THREE.Vector3
@@ -22,7 +22,7 @@ export class AgentGraph {
 
   constructor(gl: ExpoWebGLRenderingContext) {
     this.gl = gl
-    
+
     // Initialize renderer
     this.renderer = new THREE.WebGLRenderer({
       canvas: {
@@ -104,34 +104,34 @@ export class AgentGraph {
       context.font = "bold 32px Arial"
       context.textAlign = "center"
       context.textBaseline = "middle"
-      
+
       // Add padding and measure text
       const padding = 20
       const textMetrics = context.measureText(content)
       const textWidth = textMetrics.width + padding * 2
       const textHeight = 40 + padding * 2
-      
+
       // Clear canvas with transparent background
       context.clearRect(0, 0, canvas.width, canvas.height)
-      
+
       // Draw text centered
       context.fillText(content, canvas.width / 2, canvas.height / 2)
 
       const texture = new THREE.CanvasTexture(canvas)
       texture.needsUpdate = true
-      
+
       const spriteMaterial = new THREE.SpriteMaterial({
         map: texture,
         transparent: true,
         opacity: 0.9,
       })
-      
+
       const sprite = new THREE.Sprite(spriteMaterial)
       // Adjust sprite scale to maintain text aspect ratio
       const scaleX = (textWidth / canvas.width) * 2
       const scaleY = (textHeight / canvas.height) * 2
       sprite.scale.set(Math.max(scaleX, 1.5), Math.max(scaleY, 0.4), 1)
-      
+
       // Position sprite slightly in front of the card
       sprite.position.z = 0.1
       mesh.add(sprite)
@@ -192,12 +192,12 @@ export class AgentGraph {
 
   public setNodes(nodes: KnowledgeNode[]) {
     // Clear existing nodes
-    this.nodes.forEach(node => {
+    this.nodes.forEach((node) => {
       if (node.mesh) {
         this.scene.remove(node.mesh)
       }
       if (node.edges) {
-        node.edges.forEach(edge => {
+        node.edges.forEach((edge) => {
           this.scene.remove(edge)
         })
       }
@@ -235,19 +235,19 @@ export class AgentGraph {
     if (this.animationFrame) {
       cancelAnimationFrame(this.animationFrame)
     }
-    
+
     // Clean up Three.js resources
-    this.nodes.forEach(node => {
+    this.nodes.forEach((node) => {
       if (node.mesh) {
         node.mesh.geometry.dispose()
         if (Array.isArray(node.mesh.material)) {
-          node.mesh.material.forEach(m => m.dispose())
+          node.mesh.material.forEach((m) => m.dispose())
         } else {
           node.mesh.material.dispose()
         }
       }
       if (node.edges) {
-        node.edges.forEach(edge => {
+        node.edges.forEach((edge) => {
           edge.geometry.dispose()
           edge.material.dispose()
         })

@@ -6,7 +6,7 @@ import { AgentGraph } from "@/agentgraph/AgentGraph"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { isEmulator } from "@/utils/isEmulator"
 import { useIsFocused } from "@/utils/useIsFocused"
-import { OSINTEvent } from "../types"
+import { OSINTEvent } from "../data"
 
 interface Inspector3DProps {
   selectedItem: OSINTEvent | null
