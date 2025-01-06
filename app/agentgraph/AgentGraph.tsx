@@ -23,7 +23,7 @@ export class AgentGraph {
   constructor(gl: ExpoWebGLRenderingContext) {
     this.gl = gl
 
-    // Initialize renderer
+    // Initialize renderer with canvas cast to HTMLCanvasElement
     this.renderer = new THREE.WebGLRenderer({
       canvas: {
         width: gl.drawingBufferWidth,
@@ -36,7 +36,7 @@ export class AgentGraph {
         toDataURL: (type?: string) => '',
         toBlob: (callback: BlobCallback) => {},
         captureStream: (frameRate?: number) => new MediaStream(),
-      } as MinimalCanvas,
+      } as unknown as HTMLCanvasElement, // Cast to HTMLCanvasElement via unknown
       context: gl,
     })
     this.renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight)
