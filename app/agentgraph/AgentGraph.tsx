@@ -1,6 +1,5 @@
 import { ExpoWebGLRenderingContext } from "expo-gl"
 import * as THREE from "three"
-import { MinimalCanvas } from "@/canvas/types"
 
 interface KnowledgeNode {
   position: THREE.Vector3
@@ -33,7 +32,7 @@ export class AgentGraph {
         removeEventListener: () => {},
         clientHeight: gl.drawingBufferHeight,
         getContext: () => gl,
-        toDataURL: (type?: string) => '',
+        toDataURL: (type?: string) => "",
         toBlob: (callback: BlobCallback) => {},
         captureStream: (frameRate?: number) => new MediaStream(),
       } as unknown as HTMLCanvasElement,
@@ -260,7 +259,7 @@ export class AgentGraph {
           if (edge.material instanceof THREE.Material) {
             edge.material.dispose()
           } else if (Array.isArray(edge.material)) {
-            edge.material.forEach(m => m.dispose())
+            edge.material.forEach((m) => m.dispose())
           }
         })
       }
