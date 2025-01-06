@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ScrollView, View } from "react-native"
 import {
   Card,
@@ -32,6 +32,11 @@ export function ChatDemo() {
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollViewRef = useRef<ScrollView>(null)
 
+  // Focus input on mount
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
+
   const onChangeText = (text: string) => {
     setValue(text)
   }
@@ -52,8 +57,10 @@ export function ChatDemo() {
           scrollViewRef.current?.scrollToEnd({ animated: true })
         }, 100)
 
-        // Keep input focused
-        inputRef.current?.focus()
+        // Force focus back to input
+        setTimeout(() => {
+          inputRef.current?.focus()
+        }, 0)
       }
     }
   }
@@ -85,6 +92,7 @@ export function ChatDemo() {
             onKeyPress={handleSubmit}
             aria-labelledby="inputLabel"
             aria-errormessage="inputError"
+            style={{ borderWidth: 0 }}
           />
         </CardFooter>
       </Card>
