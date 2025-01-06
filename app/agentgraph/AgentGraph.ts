@@ -30,18 +30,18 @@ export class AgentGraph {
         width: gl.drawingBufferWidth,
         height: gl.drawingBufferHeight,
         style: {},
-        addEventListener: () => {},
-        removeEventListener: () => {},
+        addEventListener: () => { },
+        removeEventListener: () => { },
         clientHeight: gl.drawingBufferHeight,
         getContext: () => gl,
         toDataURL: () => "",
-        toBlob: () => {},
+        toBlob: () => { },
         captureStream: () => new MediaStream(),
       } as unknown as HTMLCanvasElement,
       context: gl,
       alpha: true,
     })
-    
+
     this.renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight)
     this.renderer.setClearColor(this.options.backgroundColor, 1)
 
@@ -156,7 +156,7 @@ export class AgentGraph {
 
   public resize(width: number, height: number) {
     this.renderer.setSize(width, height)
-    
+
     // Update orthographic camera aspect ratio
     const aspect = width / height
     const frustumSize = 5
@@ -170,6 +170,7 @@ export class AgentGraph {
       this.render()
     }
   }
+
 
   public dispose() {
     this.mounted = false

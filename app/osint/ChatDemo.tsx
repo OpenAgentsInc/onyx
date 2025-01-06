@@ -51,8 +51,6 @@ export function ChatDemo() {
   const inputRef = useRef<TextInput>(null)
   const scrollViewRef = useRef<ScrollView>(null)
 
-  console.log(selectedItem)
-
   useEffect(() => {
     inputRef.current?.focus()
   }, [])

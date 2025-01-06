@@ -12,20 +12,20 @@ export interface NodeRenderOptions {
 export class NodeRenderer {
   private static defaultOptions: NodeRenderOptions = {
     color: 0x111111,
-    textColor: "#00ff88",
-    fontSize: 48,
+    textColor: "#ffffff",  // Changed from "#00ff88" to white
+    fontSize: 36,         // Reduced from 48
     padding: 30,
-    opacity: 0.9,
+    opacity: 1,          // Changed from 0.9 to 1 for full opacity
     maxWidth: 400
   }
 
   public static createNodeMesh(
-    content: string, 
+    content: string,
     position: THREE.Vector3,
     options: NodeRenderOptions = {}
   ): THREE.Mesh {
     const opts = { ...NodeRenderer.defaultOptions, ...options }
-    
+
     // Create simple plane geometry for 2D rendering
     const geometry = new THREE.PlaneGeometry(2, 1)
 
@@ -101,7 +101,7 @@ export class NodeRenderer {
     // Calculate text dimensions
     const maxWidth = canvas.width - (options.padding! * 2)
     const { lines, totalHeight } = NodeRenderer.wrapText(context, content, maxWidth)
-    
+
     // Clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -126,7 +126,7 @@ export class NodeRenderer {
     })
 
     const sprite = new THREE.Sprite(spriteMaterial)
-    
+
     // Make the sprite fill the mesh
     sprite.scale.set(2, 1, 1)
 

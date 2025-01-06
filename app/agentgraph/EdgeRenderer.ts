@@ -8,7 +8,7 @@ export interface EdgeRenderOptions {
 
 export class EdgeRenderer {
   private static defaultOptions: EdgeRenderOptions = {
-    color: 0x00ff88,
+    color: 0xffffff,  // Changed from 0x00ff88 to white
     opacity: 0.6,
     lineWidth: 1
   }
@@ -19,10 +19,10 @@ export class EdgeRenderer {
     options: EdgeRenderOptions = {}
   ): THREE.Line {
     const opts = { ...EdgeRenderer.defaultOptions, ...options }
-    
+
     const points = [start, end]
     const geometry = new THREE.BufferGeometry().setFromPoints(points)
-    
+
     const material = new THREE.LineBasicMaterial({
       color: opts.color,
       transparent: true,
