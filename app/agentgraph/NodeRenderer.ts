@@ -13,8 +13,8 @@ export class NodeRenderer {
   private static defaultOptions: NodeRenderOptions = {
     color: 0x111111,
     textColor: "#00ff88",
-    fontSize: 32,  // Increased from 24
-    padding: 20,
+    fontSize: 48,
+    padding: 30,
     opacity: 0.9,
     maxWidth: 400
   }
@@ -68,9 +68,10 @@ export class NodeRenderer {
     }
     lines.push(currentLine)
 
+    const lineHeight = context.measureText('M').actualBoundingBoxAscent + context.measureText('M').actualBoundingBoxDescent
     return {
       lines,
-      totalHeight: lines.length * (context.measureText('M').actualBoundingBoxAscent + context.measureText('M').actualBoundingBoxDescent * 1.5)
+      totalHeight: lines.length * lineHeight * 1.2
     }
   }
 
@@ -83,8 +84,8 @@ export class NodeRenderer {
     if (!context) return new THREE.Sprite()
 
     // Set canvas size
-    canvas.width = 1024  // Increased from 512
-    canvas.height = 1024 // Increased from 512
+    canvas.width = 512
+    canvas.height = 256
 
     // Configure text rendering
     context.fillStyle = options.textColor!
@@ -92,14 +93,10 @@ export class NodeRenderer {
     context.textAlign = "center"
     context.textBaseline = "middle"
 
-    // Wrap text and calculate dimensions
-    const maxWidth = options.maxWidth! - (options.padding! * 2)
+    // Calculate text dimensions
+    const maxWidth = canvas.width - (options.padding! * 2)
     const { lines, totalHeight } = NodeRenderer.wrapText(context, content, maxWidth)
     
-    const maxLineWidth = Math.max(...lines.map(line => context.measureText(line).width))
-    const textWidth = Math.min(maxLineWidth + options.padding! * 2, options.maxWidth!)
-    const textHeight = totalHeight + options.padding! * 2
-
     // Clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -107,7 +104,7 @@ export class NodeRenderer {
     const startY = (canvas.height - totalHeight) / 2
     lines.forEach((line, index) => {
       const lineHeight = context.measureText('M').actualBoundingBoxAscent + context.measureText('M').actualBoundingBoxDescent
-      const y = startY + (index * lineHeight * 1.5) + lineHeight / 2
+      const y = startY + (index * lineHeight * 1.2)
       context.fillText(line, canvas.width / 2, y)
     })
 
@@ -123,10 +120,8 @@ export class NodeRenderer {
 
     const sprite = new THREE.Sprite(spriteMaterial)
     
-    // Scale sprite with larger base size
-    const scaleX = (textWidth / canvas.width) * 4  // Doubled from 2
-    const scaleY = (textHeight / canvas.width) * 4 // Doubled from 2
-    sprite.scale.set(Math.max(scaleX, 1.6), Math.max(scaleY, 0.8), 1)  // Doubled minimum scales
+    // Make the sprite fill the mesh
+    sprite.scale.set(2, 1, 1)
 
     return sprite
   }
