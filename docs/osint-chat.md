@@ -10,6 +10,7 @@ app/
     ChatDemo.tsx         # Main chat component with split view
     components/
       Message.tsx        # Individual message component
+      Inspector3D.tsx    # 3D visualization of OSINT data
     types.ts            # TypeScript interfaces
     styles.ts           # Shared styles
     data.ts            # Sample OSINT data and interfaces
@@ -46,6 +47,49 @@ export function Message({ message }: MessageProps) {
 }
 ```
 
+### Inspector3D Component
+
+Located at `app/osint/components/Inspector3D.tsx`, provides a 3D visualization of OSINT data relationships:
+
+Key features:
+- Interactive 3D scene using Three.js
+- Node-based visualization of OSINT events
+- Dynamic text rendering with proper scaling
+- Animated connections between related events
+- Responsive canvas sizing
+
+Text Rendering Implementation:
+```typescript
+// Create text sprite with high visibility
+const canvas = document.createElement("canvas")
+const context = canvas.getContext("2d")
+if (context) {
+  // High-resolution canvas for crisp text
+  canvas.width = 512
+  canvas.height = 128
+  context.fillStyle = "#00ff88"
+  context.font = "bold 32px Arial"
+  context.textAlign = "center"
+  context.textBaseline = "middle"
+  
+  // Add padding and measure text
+  const padding = 20
+  const textMetrics = context.measureText(content)
+  const textWidth = textMetrics.width + padding * 2
+  const textHeight = 40 + padding * 2
+  
+  // Draw centered text
+  context.fillText(content, canvas.width / 2, canvas.height / 2)
+
+  // Create sprite with dynamic scaling
+  const sprite = new THREE.Sprite(spriteMaterial)
+  const scaleX = (textWidth / canvas.width) * 2
+  const scaleY = (textHeight / canvas.height) * 2
+  sprite.scale.set(Math.max(scaleX, 1.5), Math.max(scaleY, 0.4), 1)
+  sprite.position.z = 0.1
+}
+```
+
 ## Data Structure
 
 ### Message Interface
@@ -65,6 +109,18 @@ interface OSINTEvent {
   id: string
   content: string  // JSON-encoded string
   tags: any[]
+}
+```
+
+### Knowledge Node Interface
+```typescript
+interface KnowledgeNode {
+  position: THREE.Vector3
+  content: string
+  mesh?: THREE.Mesh
+  textMesh?: THREE.Mesh
+  edges?: THREE.Line[]
+  connections: number[]
 }
 ```
 
@@ -207,6 +263,7 @@ if (!selectedItem) {
 - Parses JSON content
 - Displays structured data
 - Shows tags and metadata
+- 3D visualization of relationships
 
 ## Future Improvements
 
@@ -215,12 +272,15 @@ if (!selectedItem) {
 - Infinite canvas for OSINT data visualization
 - Multiple selection support
 - Advanced filtering and search
+- Enhanced 3D visualization controls
+- Custom node appearance options
 
 2. Technical Debt:
 - Type safety for OSINT data structure
 - Better error handling for JSON parsing
 - Proper event type definitions
 - Performance optimization for large datasets
+- WebGL fallbacks for mobile devices
 
 ## Development Guidelines
 
@@ -254,11 +314,13 @@ Needed:
 - Integration tests for chat flow
 - E2E tests for user interactions
 - Performance testing
+- WebGL compatibility testing
 
 ## Dependencies
 
 Key libraries:
 - React Native Web
+- Three.js for 3D visualization
 - UI components from @/components/ui
 - Typography from theme
 - StyleSheet from React Native
