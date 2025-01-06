@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { ScrollView, View, TextInput, Platform } from "react-native"
+import { ScrollView, View, TextInput, Platform, ViewStyle } from "react-native"
 import {
   Card,
   CardContent,
@@ -31,6 +31,15 @@ const initialMessages = [
     osintData: relatedOSINTEvents[1]
   },
 ]
+
+const getMessageStyle = (hasOsintData: boolean): ViewStyle => {
+  if (Platform.OS === 'web') {
+    return {
+      cursor: hasOsintData ? 'pointer' as const : 'default' as const
+    }
+  }
+  return {}
+}
 
 export function ChatDemo() {
   const [value, setValue] = useState("")
@@ -94,10 +103,7 @@ export function ChatDemo() {
                 <View 
                   key={message.id}
                   onTouchEnd={() => message.osintData && setSelectedItem(message.osintData)}
-                  style={Platform.select({
-                    web: { cursor: message.osintData ? 'pointer' : 'default' },
-                    default: {}
-                  })}
+                  style={getMessageStyle(!!message.osintData)}
                 >
                   <MessageComponent message={message} />
                   {message.osintData && (
