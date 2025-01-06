@@ -1,14 +1,5 @@
 import * as React from "react"
-import {
-  Platform,
-  StyleProp,
-  StyleSheet,
-  Text,
-  TextProps,
-  type,
-  View,
-  ViewStyle,
-} from "react-native"
+import { Platform, StyleProp, StyleSheet, Text, TextProps, View, ViewStyle } from "react-native"
 import { TextClassContext } from "@/components/ui/text"
 import { Check } from "@/lib/icons/Check"
 import { ChevronDown } from "@/lib/icons/ChevronDown"
