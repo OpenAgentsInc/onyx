@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Platform, StyleProp, StyleSheet, Text, TextProps, View, ViewStyle } from "react-native"
+import { Platform, StyleProp, StyleSheet, Text, TextProps, View, ViewStyle, Pressable } from "react-native"
 import { TextClassContext } from "@/components/ui/text"
 import { Check } from "@/lib/icons/Check"
 import { ChevronDown } from "@/lib/icons/ChevronDown"
@@ -40,7 +40,9 @@ const ContextMenuSubTrigger = React.forwardRef<
         )}
         {...props}
       >
-        {children}
+        <Pressable>
+          {(state) => typeof children === 'function' ? children(state) : children}
+        </Pressable>
         <Icon size={18} className="ml-auto text-foreground" />
       </ContextMenuPrimitive.SubTrigger>
     </TextClassContext.Provider>
@@ -106,7 +108,9 @@ const ContextMenuContent = React.forwardRef<
           )}
           {...props}
         >
-          {children}
+          <Pressable>
+            {(state) => typeof children === 'function' ? children(state) : children}
+          </Pressable>
         </ContextMenuPrimitive.Content>
       </ContextMenuPrimitive.Overlay>
     </ContextMenuPrimitive.Portal>
@@ -132,7 +136,9 @@ const ContextMenuItem = React.forwardRef<
       )}
       {...props}
     >
-      {children}
+      <Pressable>
+        {(state) => typeof children === 'function' ? children(state) : children}
+      </Pressable>
     </ContextMenuPrimitive.Item>
   </TextClassContext.Provider>
 ))
@@ -156,7 +162,9 @@ const ContextMenuCheckboxItem = React.forwardRef<
         <Check size={14} strokeWidth={3} className="text-foreground" />
       </ContextMenuPrimitive.ItemIndicator>
     </View>
-    {children}
+    <Pressable>
+      {(state) => typeof children === 'function' ? children(state) : children}
+    </Pressable>
   </ContextMenuPrimitive.CheckboxItem>
 ))
 ContextMenuCheckboxItem.displayName = ContextMenuPrimitive.CheckboxItem.displayName
@@ -182,7 +190,9 @@ const ContextMenuRadioItem = React.forwardRef<
         <View className="bg-foreground h-2 w-2 rounded-full" />
       </ContextMenuPrimitive.ItemIndicator>
     </View>
-    {children}
+    <Pressable>
+      {(state) => typeof children === 'function' ? children(state) : children}
+    </Pressable>
   </ContextMenuPrimitive.RadioItem>
 ))
 ContextMenuRadioItem.displayName = ContextMenuPrimitive.RadioItem.displayName
