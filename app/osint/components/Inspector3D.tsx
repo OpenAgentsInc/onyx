@@ -1,3 +1,4 @@
+import { ExpoWebGLRenderingContext, GLView } from "expo-gl"
 import React, { useCallback, useEffect, useRef } from "react"
 import { StyleSheet, View } from "react-native"
 import * as THREE from "three"
@@ -20,12 +21,18 @@ interface KnowledgeNode {
 }
 
 export function Inspector3D({ selectedItem }: Inspector3DProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isFocused = useIsFocused();
+  const mountedRef = useRef(true);
+  const glRef = useRef<ExpoWebGLRenderingContext>();
   const rendererRef = useRef<THREE.WebGLRenderer>();
   const sceneRef = useRef<THREE.Scene>();
   const cameraRef = useRef<THREE.PerspectiveCamera>();
   const nodesRef = useRef<KnowledgeNode[]>([]);
   const animationFrameRef = useRef<number>();
+
+  if (isEmulator()) {
+    return <View style={styles.container} />;
+  }
 
   const createNodeMesh = (content: string, position: THREE.Vector3) => {
     // Create card geometry (flat box)
@@ -74,7 +81,11 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
   };
 
   const animate = useCallback(() => {
-    if (!rendererRef.current || !sceneRef.current || !cameraRef.current) {
+    if (!mountedRef.current || !isFocused) {
+      return;
+    }
+
+    if (!glRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) {
       return;
     }
 
@@ -107,34 +118,83 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
       }
     });
 
-    rendererRef.current.render(sceneRef.current, cameraRef.current);
-    animationFrameRef.current = requestAnimationFrame(animate);
+    try {
+      rendererRef.current.render(sceneRef.current, cameraRef.current);
+      glRef.current.endFrameEXP();
+
+      if (mountedRef.current && isFocused) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
+    } catch (error) {
+      console.error("Error in animation loop:", error);
+    }
+  }, [isFocused]);
+
+  const cleanupGL = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = undefined;
+    }
+
+    if (rendererRef.current) {
+      rendererRef.current.dispose();
+      rendererRef.current = undefined;
+    }
+
+    nodesRef.current.forEach(node => {
+      if (node.mesh) {
+        node.mesh.geometry.dispose();
+        (node.mesh.material as THREE.Material).dispose();
+        node.edges?.forEach(edge => {
+          edge.geometry.dispose();
+          (edge.material as THREE.Material).dispose();
+        });
+      }
+    });
+    nodesRef.current = [];
+
+    if (sceneRef.current) {
+      sceneRef.current.clear();
+      sceneRef.current = undefined;
+    }
+
+    glRef.current = undefined;
+    cameraRef.current = undefined;
   }, []);
 
-  const setupScene = useCallback(() => {
-    if (!canvasRef.current) return;
+  const setupScene = useCallback((gl: ExpoWebGLRenderingContext) => {
+    cleanupGL();
 
-    // Create renderer
     const renderer = new THREE.WebGLRenderer({
-      canvas: canvasRef.current,
-      antialias: true,
+      // @ts-ignore
+      canvas: {
+        width: gl.drawingBufferWidth,
+        height: gl.drawingBufferHeight,
+        style: {},
+        addEventListener: () => { },
+        removeEventListener: () => { },
+        clientHeight: gl.drawingBufferHeight,
+        getContext: () => gl,
+        toDataURL: () => "",
+        toBlob: () => { },
+        captureStream: () => new MediaStream(),
+      } as MinimalCanvas,
+      context: gl,
     });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(canvasRef.current.clientWidth, canvasRef.current.clientHeight);
+    renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
+    renderer.setPixelRatio(1);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.5;
 
-    // Create scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('black');
     scene.fog = new THREE.FogExp2(0x000000, 0.15);
 
-    // Create camera
     const camera = new THREE.PerspectiveCamera(
       75,
-      canvasRef.current.clientWidth / canvasRef.current.clientHeight,
+      gl.drawingBufferWidth / gl.drawingBufferHeight,
       0.1,
       1000
     );
@@ -195,55 +255,39 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
     scene.add(rimLight2);
 
     // Store refs
+    glRef.current = gl;
     rendererRef.current = renderer;
     sceneRef.current = scene;
     cameraRef.current = camera;
 
-    // Start animation
-    animate();
+    return true;
+  }, [cleanupGL]);
 
-    // Handle resize
-    const handleResize = () => {
-      if (!canvasRef.current || !cameraRef.current || !rendererRef.current) return;
-      
-      const width = canvasRef.current.clientWidth;
-      const height = canvasRef.current.clientHeight;
-      
-      cameraRef.current.aspect = width / height;
-      cameraRef.current.updateProjectionMatrix();
-      
-      rendererRef.current.setSize(width, height);
-    };
+  const onContextCreate = useCallback((gl: ExpoWebGLRenderingContext) => {
+    const success = setupScene(gl);
+    if (!success) {
+      return;
+    }
 
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [animate]);
+    if (isFocused && mountedRef.current) {
+      animationFrameRef.current = requestAnimationFrame(animate);
+    }
+  }, [isFocused, setupScene, animate]);
 
   useEffect(() => {
-    const cleanup = setupScene();
+    if (isFocused) {
+      cleanupGL();
+    } else {
+      cleanupGL();
+    }
+  }, [isFocused, cleanupGL]);
+
+  useEffect(() => {
     return () => {
-      cleanup?.();
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
-      }
-      nodesRef.current.forEach(node => {
-        if (node.mesh) {
-          node.mesh.geometry.dispose();
-          (node.mesh.material as THREE.Material).dispose();
-          node.edges?.forEach(edge => {
-            edge.geometry.dispose();
-            (edge.material as THREE.Material).dispose();
-          });
-        }
-      });
+      mountedRef.current = false;
+      cleanupGL();
     };
-  }, [setupScene]);
+  }, [cleanupGL]);
 
   if (!selectedItem) {
     return (
@@ -263,15 +307,29 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
         <CardDescription>OSINT Event Connections</CardDescription>
       </CardHeader>
       <CardContent style={{ flex: 1 }}>
-        <canvas
-          ref={canvasRef}
-          style={{
-            width: '100%',
-            height: '100%',
-            minHeight: 300,
-          }}
-        />
+        <View style={styles.container}>
+          <GLView
+            key={isFocused ? "focused" : "unfocused"}
+            msaaSamples={0}
+            style={styles.canvas}
+            onContextCreate={onContextCreate}
+          />
+        </View>
       </CardContent>
     </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  canvas: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    minHeight: 300,
+  },
+});
