@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { ScrollView, View } from "react-native"
 import {
   Card,
@@ -9,14 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Text } from "@/components/ui/text"
-import { colors } from "@/theme/colorsDark"
-
-interface Message {
-  id: number
-  text: string
-  user: string
-}
+import { Message as MessageComponent } from "./components/Message"
+import { Message } from "./types"
+import { styles } from "./styles"
 
 const initialMessages = [
   {
@@ -31,18 +26,11 @@ const initialMessages = [
   },
 ]
 
-function Message({ message }: { message: Message }) {
-  return (
-    <View style={{ marginVertical: 15 }}>
-      <Text className="opacity-50">{message.user}</Text>
-      <Text>{message.text}</Text>
-    </View>
-  )
-}
-
 export function ChatDemo() {
   const [value, setValue] = useState("")
   const [messages, setMessages] = useState<Message[]>(initialMessages)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const scrollViewRef = useRef<ScrollView>(null)
 
   const onChangeText = (text: string) => {
     setValue(text)
@@ -58,31 +46,39 @@ export function ChatDemo() {
         }
         setMessages([...messages, newMessage])
         setValue("")
+        
+        // Scroll to bottom after message is added
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true })
+        }, 100)
+
+        // Keep input focused
+        inputRef.current?.focus()
       }
     }
   }
 
   return (
-    <ScrollView
-      style={{
-        margin: 20,
-        width: 400,
-        height: 300,
-        paddingVertical: 10,
-      }}
-    >
-      <Card>
+    <View style={styles.container}>
+      <Card style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <CardHeader>
           <CardTitle>UAP Sensemaking</CardTitle>
           <CardDescription>Nostr NIP-28 Chat Channel</CardDescription>
         </CardHeader>
-        <CardContent>
-          {messages.map((message) => (
-            <Message key={message.id} message={message} />
-          ))}
+        <CardContent style={styles.messagesContainer}>
+          <ScrollView 
+            ref={scrollViewRef}
+            style={styles.scrollView}
+            contentContainerStyle={{ flexGrow: 1 }}
+          >
+            {messages.map((message) => (
+              <MessageComponent key={message.id} message={message} />
+            ))}
+          </ScrollView>
         </CardContent>
-        <CardFooter>
+        <CardFooter style={styles.inputContainer}>
           <Input
+            ref={inputRef}
             placeholder="Message"
             value={value}
             onChangeText={onChangeText}
@@ -92,6 +88,6 @@ export function ChatDemo() {
           />
         </CardFooter>
       </Card>
-    </ScrollView>
+    </View>
   )
 }
