@@ -6,6 +6,15 @@ import { cn } from "@/lib/utils"
 import { typography } from "@/theme"
 import * as DialogPrimitive from "@rn-primitives/dialog"
 
+type ChildrenType = React.ReactNode | ((state: any) => React.ReactNode)
+
+const renderChildren = (children: ChildrenType): React.ReactNode => {
+  if (typeof children === 'function') {
+    return children({})
+  }
+  return children as React.ReactNode
+}
+
 const Dialog = DialogPrimitive.Root
 
 const DialogTrigger = DialogPrimitive.Trigger
@@ -45,7 +54,7 @@ const DialogOverlayNative = React.forwardRef<
       ref={ref}
     >
       <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(150)}>
-        {children}
+        {renderChildren(children)}
       </Animated.View>
     </DialogPrimitive.Overlay>
   )
@@ -77,7 +86,7 @@ const DialogContent = React.forwardRef<
           )}
           {...props}
         >
-          {children}
+          {renderChildren(children)}
           <DialogPrimitive.Close
             className={
               "absolute right-4 top-4 p-0.5 web:group rounded-sm opacity-70 web:ring-offset-background web:transition-opacity web:hover:opacity-100 web:focus:outline-none web:focus:ring-2 web:focus:ring-ring web:focus:ring-offset-2 web:disabled:pointer-events-none"
