@@ -29,26 +29,30 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
     return <View style={styles.container} />
   }
 
+  // Update onContextCreate to depend on selectedItem
   const onContextCreate = useCallback((gl: ExpoWebGLRenderingContext) => {
     // Initialize AgentGraph
     graphRef.current = new AgentGraph(gl)
 
-    // Set initial nodes
-    const nodes: KnowledgeNode[] = [
-      {
-        position: new THREE.Vector3(-1.5, 0, 0),
-        content: "Drone Sighting",
-        connections: [1],
-      },
-      {
-        position: new THREE.Vector3(1.5, 0, 0),
-        content: "Government Data",
-        connections: [0],
-      },
-    ]
-    graphRef.current.setNodes(nodes)
-  }, [])
+    // Set nodes based on selectedItem
+    if (selectedItem) {
+      const nodes: KnowledgeNode[] = [
+        {
+          position: new THREE.Vector3(-1.5, 0, 0),
+          content: selectedItem.content || "OSINT Data",
+          connections: [1],
+        },
+        {
+          position: new THREE.Vector3(1.5, 0, 0),
+          content: "Related Data",
+          connections: [0],
+        },
+      ]
+      graphRef.current.setNodes(nodes)
+    }
+  }, [selectedItem]) // Add selectedItem as dependency
 
+  // Cleanup effect
   useEffect(() => {
     return () => {
       if (graphRef.current) {
@@ -77,7 +81,8 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
       <CardContent style={{ flex: 1 }}>
         <View style={styles.container}>
           <GLView
-            key={isFocused ? "focused" : "unfocused"}
+            // Add selectedItem to key to force re-render when it changes
+            key={`${isFocused ? "focused" : "unfocused"}-${selectedItem.id}`}
             style={styles.canvas}
             onContextCreate={onContextCreate}
           />
