@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { ScrollView, View } from "react-native"
+import { ScrollView, View, TextInput } from "react-native"
 import {
   Card,
   CardContent,
@@ -36,7 +36,7 @@ export function ChatDemo() {
   const [value, setValue] = useState("")
   const [messages, setMessages] = useState<(Message & { osintData?: OSINTEvent })[]>(initialMessages)
   const [selectedItem, setSelectedItem] = useState<OSINTEvent | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<TextInput>(null)
   const scrollViewRef = useRef<ScrollView>(null)
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export function ChatDemo() {
   return (
     <View style={{ 
       flexDirection: "row", 
-      height: "100vh",
+      flex: 1,
       padding: 20,
       gap: 20,
     }}>
@@ -93,7 +93,7 @@ export function ChatDemo() {
               {messages.map((message) => (
                 <View 
                   key={message.id}
-                  onClick={() => message.osintData && setSelectedItem(message.osintData)}
+                  onTouchEnd={() => message.osintData && setSelectedItem(message.osintData)}
                   style={{ cursor: message.osintData ? 'pointer' : 'default' }}
                 >
                   <MessageComponent message={message} />
