@@ -32,6 +32,7 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
   const cameraRef = useRef<THREE.PerspectiveCamera>();
   const nodesRef = useRef<KnowledgeNode[]>([]);
   const animationFrameRef = useRef<number>();
+  const fontRef = useRef<THREE.Font>();
 
   if (isEmulator()) {
     return <View style={styles.container} />;
@@ -66,22 +67,29 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
     const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
     mesh.add(edges);
 
-    // Add text
-    const textGeometry = new THREE.TextBufferGeometry(content, {
-      size: 0.15,
-      height: 0.02,
-    });
-    const textMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
-    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-    
-    // Center text on card
-    textGeometry.computeBoundingBox();
-    const textWidth = textGeometry.boundingBox!.max.x - textGeometry.boundingBox!.min.x;
-    textMesh.position.x = position.x - textWidth / 2;
-    textMesh.position.y = position.y;
-    textMesh.position.z = position.z + 0.03;
+    // Add text sprite as fallback
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (context) {
+      canvas.width = 256;
+      canvas.height = 64;
+      context.fillStyle = '#00ff88';
+      context.font = '24px Arial';
+      context.textAlign = 'center';
+      context.fillText(content, canvas.width / 2, canvas.height / 2);
+      
+      const texture = new THREE.CanvasTexture(canvas);
+      const spriteMaterial = new THREE.SpriteMaterial({ 
+        map: texture,
+        transparent: true,
+        opacity: 0.8
+      });
+      const sprite = new THREE.Sprite(spriteMaterial);
+      sprite.scale.set(1, 0.25, 1);
+      sprite.position.z = 0.03;
+      mesh.add(sprite);
+    }
 
-    mesh.add(textMesh);
     return mesh;
   };
 
