@@ -2,6 +2,8 @@ import { ExpoWebGLRenderingContext, GLView } from "expo-gl"
 import React, { useCallback, useEffect, useRef } from "react"
 import { StyleSheet, View } from "react-native"
 import * as THREE from "three"
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
+import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader'
 import { isEmulator } from "@/utils/isEmulator"
 import { useIsFocused } from "@/utils/useIsFocused"
 import { MinimalCanvas } from "@/app/canvas/types"
@@ -16,6 +18,7 @@ interface KnowledgeNode {
   position: THREE.Vector3
   content: string
   mesh?: THREE.Mesh
+  textMesh?: THREE.Mesh
   edges?: THREE.Line[]
   connections: number[]
 }
@@ -29,10 +32,46 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
   const cameraRef = useRef<THREE.PerspectiveCamera>();
   const nodesRef = useRef<KnowledgeNode[]>([]);
   const animationFrameRef = useRef<number>();
+  const fontRef = useRef<Font>();
 
   if (isEmulator()) {
     return <View style={styles.container} />;
   }
+
+  const createTextMesh = (text: string, position: THREE.Vector3) => {
+    if (!fontRef.current) return null;
+
+    // Create text geometry
+    const geometry = new TextGeometry(text, {
+      font: fontRef.current,
+      size: 0.15,
+      height: 0.02,
+      curveSegments: 12,
+      bevelEnabled: false,
+    });
+
+    // Center the text geometry
+    geometry.computeBoundingBox();
+    const textWidth = geometry.boundingBox!.max.x - geometry.boundingBox!.min.x;
+    const textHeight = geometry.boundingBox!.max.y - geometry.boundingBox!.min.y;
+
+    // Create emissive material for the text
+    const material = new THREE.MeshPhongMaterial({
+      color: 0x00ff88,
+      emissive: 0x00ff88,
+      emissiveIntensity: 0.5,
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    
+    // Position text centered on the card
+    mesh.position.copy(position);
+    mesh.position.x -= textWidth / 2;
+    mesh.position.y += 0.1; // Slightly above center
+    mesh.position.z += 0.03; // Slightly in front of card
+
+    return mesh;
+  };
 
   const createNodeMesh = (content: string, position: THREE.Vector3) => {
     // Create card geometry (flat box)
@@ -94,10 +133,17 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
       if (node.mesh) {
         // Gentle floating motion unique to each node
         const timeOffset = index * 0.5;
-        node.mesh.position.y = node.position.y + Math.sin(Date.now() * 0.001 + timeOffset) * 0.1;
+        const yOffset = Math.sin(Date.now() * 0.001 + timeOffset) * 0.1;
+        node.mesh.position.y = node.position.y + yOffset;
         
         // Subtle rotation
         node.mesh.rotation.y = Math.sin(Date.now() * 0.0005 + timeOffset) * 0.1;
+
+        // Update text position with the card
+        if (node.textMesh) {
+          node.textMesh.position.y = node.mesh.position.y + 0.1;
+          node.textMesh.rotation.y = node.mesh.rotation.y;
+        }
 
         // Update connection lines positions
         if (node.edges) {
@@ -150,6 +196,10 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
           (edge.material as THREE.Material).dispose();
         });
       }
+      if (node.textMesh) {
+        node.textMesh.geometry.dispose();
+        (node.textMesh.material as THREE.Material).dispose();
+      }
     });
     nodesRef.current = [];
 
@@ -165,100 +215,113 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
   const setupScene = useCallback((gl: ExpoWebGLRenderingContext) => {
     cleanupGL();
 
-    const renderer = new THREE.WebGLRenderer({
-      // @ts-ignore
-      canvas: {
-        width: gl.drawingBufferWidth,
-        height: gl.drawingBufferHeight,
-        style: {},
-        addEventListener: () => { },
-        removeEventListener: () => { },
-        clientHeight: gl.drawingBufferHeight,
-        getContext: () => gl,
-        toDataURL: () => "",
-        toBlob: () => { },
-        captureStream: () => new MediaStream(),
-      } as MinimalCanvas,
-      context: gl,
-    });
-    renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
-    renderer.setPixelRatio(1);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.5;
+    // Load font first
+    const loader = new FontLoader();
+    loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', (font) => {
+      fontRef.current = font;
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color('black');
-    scene.fog = new THREE.FogExp2(0x000000, 0.15);
-
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      gl.drawingBufferWidth / gl.drawingBufferHeight,
-      0.1,
-      1000
-    );
-    camera.position.z = 5;
-    camera.position.y = 0;
-    camera.lookAt(0, 0, 0);
-
-    // Create knowledge graph nodes
-    const nodes: KnowledgeNode[] = [
-      {
-        position: new THREE.Vector3(-1.5, 0, 0),
-        content: "Drone Sighting",
-        connections: [1]
-      },
-      {
-        position: new THREE.Vector3(1.5, 0, 0),
-        content: "Government Data",
-        connections: [0]
-      }
-    ];
-
-    // Create meshes and connections
-    nodes.forEach((node, index) => {
-      const mesh = createNodeMesh(node.content, node.position);
-      scene.add(mesh);
-      node.mesh = mesh;
-      node.edges = [];
-    });
-
-    // Create connections after all meshes are created
-    nodes.forEach((node, index) => {
-      node.connections.forEach(targetIndex => {
-        const targetNode = nodes[targetIndex];
-        const connection = createConnection(node.position, targetNode.position);
-        scene.add(connection);
-        node.edges?.push(connection);
+      const renderer = new THREE.WebGLRenderer({
+        // @ts-ignore
+        canvas: {
+          width: gl.drawingBufferWidth,
+          height: gl.drawingBufferHeight,
+          style: {},
+          addEventListener: () => { },
+          removeEventListener: () => { },
+          clientHeight: gl.drawingBufferHeight,
+          getContext: () => gl,
+          toDataURL: () => "",
+          toBlob: () => { },
+          captureStream: () => new MediaStream(),
+        } as MinimalCanvas,
+        context: gl,
       });
+      renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
+      renderer.setPixelRatio(1);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.5;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color('black');
+      scene.fog = new THREE.FogExp2(0x000000, 0.15);
+
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        gl.drawingBufferWidth / gl.drawingBufferHeight,
+        0.1,
+        1000
+      );
+      camera.position.z = 5;
+      camera.position.y = 0;
+      camera.lookAt(0, 0, 0);
+
+      // Create knowledge graph nodes
+      const nodes: KnowledgeNode[] = [
+        {
+          position: new THREE.Vector3(-1.5, 0, 0),
+          content: "Drone Sighting",
+          connections: [1]
+        },
+        {
+          position: new THREE.Vector3(1.5, 0, 0),
+          content: "Government Data",
+          connections: [0]
+        }
+      ];
+
+      // Create meshes and connections
+      nodes.forEach((node, index) => {
+        const mesh = createNodeMesh(node.content, node.position);
+        scene.add(mesh);
+        node.mesh = mesh;
+
+        const textMesh = createTextMesh(node.content, node.position);
+        if (textMesh) {
+          scene.add(textMesh);
+          node.textMesh = textMesh;
+        }
+
+        node.edges = [];
+      });
+
+      // Create connections after all meshes are created
+      nodes.forEach((node, index) => {
+        node.connections.forEach(targetIndex => {
+          const targetNode = nodes[targetIndex];
+          const connection = createConnection(node.position, targetNode.position);
+          scene.add(connection);
+          node.edges?.push(connection);
+        });
+      });
+
+      nodesRef.current = nodes;
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+      dirLight.position.set(5, 5, 5);
+      dirLight.castShadow = true;
+      scene.add(dirLight);
+
+      // Add rim lights
+      const rimLight1 = new THREE.SpotLight(0x00ff88, 2, 10, Math.PI / 4, 0.5, 1);
+      rimLight1.position.set(3, 2, 0);
+      scene.add(rimLight1);
+
+      const rimLight2 = new THREE.SpotLight(0x00ff88, 2, 10, Math.PI / 4, 0.5, 1);
+      rimLight2.position.set(-3, 2, 0);
+      scene.add(rimLight2);
+
+      // Store refs
+      glRef.current = gl;
+      rendererRef.current = renderer;
+      sceneRef.current = scene;
+      cameraRef.current = camera;
     });
-
-    nodesRef.current = nodes;
-
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    dirLight.position.set(5, 5, 5);
-    dirLight.castShadow = true;
-    scene.add(dirLight);
-
-    // Add rim lights
-    const rimLight1 = new THREE.SpotLight(0x00ff88, 2, 10, Math.PI / 4, 0.5, 1);
-    rimLight1.position.set(3, 2, 0);
-    scene.add(rimLight1);
-
-    const rimLight2 = new THREE.SpotLight(0x00ff88, 2, 10, Math.PI / 4, 0.5, 1);
-    rimLight2.position.set(-3, 2, 0);
-    scene.add(rimLight2);
-
-    // Store refs
-    glRef.current = gl;
-    rendererRef.current = renderer;
-    sceneRef.current = scene;
-    cameraRef.current = camera;
 
     return true;
   }, [cleanupGL]);
