@@ -2,6 +2,8 @@ import { ExpoWebGLRenderingContext, GLView } from "expo-gl"
 import React, { useCallback, useEffect, useRef } from "react"
 import { StyleSheet, View } from "react-native"
 import * as THREE from "three"
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
 import { isEmulator } from "@/utils/isEmulator"
 import { useIsFocused } from "@/utils/useIsFocused"
 import { MinimalCanvas } from "@/app/canvas/types"
@@ -16,6 +18,7 @@ interface KnowledgeNode {
   position: THREE.Vector3
   content: string
   mesh?: THREE.Mesh
+  textMesh?: THREE.Mesh
   edges?: THREE.Line[]
   connections: number[]
 }
@@ -52,8 +55,6 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
     // Create mesh and position it
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.copy(position);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
 
     // Add glowing edges
     const edgeGeometry = new THREE.EdgesGeometry(geometry);
@@ -65,6 +66,22 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
     const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
     mesh.add(edges);
 
+    // Add text
+    const textGeometry = new THREE.TextBufferGeometry(content, {
+      size: 0.15,
+      height: 0.02,
+    });
+    const textMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
+    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+    
+    // Center text on card
+    textGeometry.computeBoundingBox();
+    const textWidth = textGeometry.boundingBox!.max.x - textGeometry.boundingBox!.min.x;
+    textMesh.position.x = position.x - textWidth / 2;
+    textMesh.position.y = position.y;
+    textMesh.position.z = position.z + 0.03;
+
+    mesh.add(textMesh);
     return mesh;
   };
 
@@ -75,31 +92,25 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
       color: 0x00ff88,
       transparent: true,
       opacity: 0.3,
-      linewidth: 1,
     });
     return new THREE.Line(geometry, material);
   };
 
   const animate = useCallback(() => {
-    if (!mountedRef.current || !isFocused) {
-      return;
-    }
-
-    if (!glRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current) {
-      return;
-    }
+    if (!mountedRef.current || !isFocused) return;
+    if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
 
     // Animate nodes
     nodesRef.current.forEach((node, index) => {
       if (node.mesh) {
-        // Gentle floating motion unique to each node
+        // Gentle floating motion
         const timeOffset = index * 0.5;
         node.mesh.position.y = node.position.y + Math.sin(Date.now() * 0.001 + timeOffset) * 0.1;
         
         // Subtle rotation
         node.mesh.rotation.y = Math.sin(Date.now() * 0.0005 + timeOffset) * 0.1;
 
-        // Update connection lines positions
+        // Update connection lines
         if (node.edges) {
           node.edges.forEach((edge, edgeIndex) => {
             const positions = edge.geometry.attributes.position;
@@ -118,79 +129,30 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
       }
     });
 
-    try {
-      rendererRef.current.render(sceneRef.current, cameraRef.current);
-      glRef.current.endFrameEXP();
+    rendererRef.current.render(sceneRef.current, cameraRef.current);
+    glRef.current.endFrameEXP();
 
-      if (mountedRef.current && isFocused) {
-        animationFrameRef.current = requestAnimationFrame(animate);
-      }
-    } catch (error) {
-      console.error("Error in animation loop:", error);
-    }
+    animationFrameRef.current = requestAnimationFrame(animate);
   }, [isFocused]);
 
-  const cleanupGL = useCallback(() => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = undefined;
-    }
-
-    if (rendererRef.current) {
-      rendererRef.current.dispose();
-      rendererRef.current = undefined;
-    }
-
-    nodesRef.current.forEach(node => {
-      if (node.mesh) {
-        node.mesh.geometry.dispose();
-        (node.mesh.material as THREE.Material).dispose();
-        node.edges?.forEach(edge => {
-          edge.geometry.dispose();
-          (edge.material as THREE.Material).dispose();
-        });
-      }
-    });
-    nodesRef.current = [];
-
-    if (sceneRef.current) {
-      sceneRef.current.clear();
-      sceneRef.current = undefined;
-    }
-
-    glRef.current = undefined;
-    cameraRef.current = undefined;
-  }, []);
-
   const setupScene = useCallback((gl: ExpoWebGLRenderingContext) => {
-    cleanupGL();
-
     const renderer = new THREE.WebGLRenderer({
-      // @ts-ignore
       canvas: {
         width: gl.drawingBufferWidth,
         height: gl.drawingBufferHeight,
         style: {},
-        addEventListener: () => { },
-        removeEventListener: () => { },
+        addEventListener: () => {},
+        removeEventListener: () => {},
         clientHeight: gl.drawingBufferHeight,
         getContext: () => gl,
-        toDataURL: () => "",
-        toBlob: () => { },
-        captureStream: () => new MediaStream(),
       } as MinimalCanvas,
       context: gl,
     });
     renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
-    renderer.setPixelRatio(1);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.5;
+    renderer.setClearColor(0x000000);
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('black');
-    scene.fog = new THREE.FogExp2(0x000000, 0.15);
 
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -199,10 +161,8 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
       1000
     );
     camera.position.z = 5;
-    camera.position.y = 0;
-    camera.lookAt(0, 0, 0);
 
-    // Create knowledge graph nodes
+    // Create nodes
     const nodes: KnowledgeNode[] = [
       {
         position: new THREE.Vector3(-1.5, 0, 0),
@@ -224,7 +184,7 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
       node.edges = [];
     });
 
-    // Create connections after all meshes are created
+    // Create connections
     nodes.forEach((node, index) => {
       node.connections.forEach(targetIndex => {
         const targetNode = nodes[targetIndex];
@@ -236,23 +196,13 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
 
     nodesRef.current = nodes;
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    // Basic lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
     dirLight.position.set(5, 5, 5);
-    dirLight.castShadow = true;
     scene.add(dirLight);
-
-    // Add rim lights
-    const rimLight1 = new THREE.SpotLight(0x00ff88, 2, 10, Math.PI / 4, 0.5, 1);
-    rimLight1.position.set(3, 2, 0);
-    scene.add(rimLight1);
-
-    const rimLight2 = new THREE.SpotLight(0x00ff88, 2, 10, Math.PI / 4, 0.5, 1);
-    rimLight2.position.set(-3, 2, 0);
-    scene.add(rimLight2);
 
     // Store refs
     glRef.current = gl;
@@ -261,33 +211,21 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
     cameraRef.current = camera;
 
     return true;
-  }, [cleanupGL]);
+  }, []);
 
   const onContextCreate = useCallback((gl: ExpoWebGLRenderingContext) => {
-    const success = setupScene(gl);
-    if (!success) {
-      return;
-    }
-
-    if (isFocused && mountedRef.current) {
-      animationFrameRef.current = requestAnimationFrame(animate);
-    }
-  }, [isFocused, setupScene, animate]);
-
-  useEffect(() => {
-    if (isFocused) {
-      cleanupGL();
-    } else {
-      cleanupGL();
-    }
-  }, [isFocused, cleanupGL]);
+    setupScene(gl);
+    animate();
+  }, [setupScene, animate]);
 
   useEffect(() => {
     return () => {
       mountedRef.current = false;
-      cleanupGL();
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
-  }, [cleanupGL]);
+  }, []);
 
   if (!selectedItem) {
     return (
@@ -310,7 +248,6 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
         <View style={styles.container}>
           <GLView
             key={isFocused ? "focused" : "unfocused"}
-            msaaSamples={0}
             style={styles.canvas}
             onContextCreate={onContextCreate}
           />
