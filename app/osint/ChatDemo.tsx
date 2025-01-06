@@ -18,7 +18,7 @@ interface Message {
   user: string
 }
 
-const messages = [
+const initialMessages = [
   {
     id: 1,
     text: "Hello",
@@ -42,10 +42,26 @@ function Message({ message }: { message: Message }) {
 
 export function ChatDemo() {
   const [value, setValue] = useState("")
+  const [messages, setMessages] = useState<Message[]>(initialMessages)
 
   const onChangeText = (text: string) => {
     setValue(text)
   }
+
+  const handleSubmit = (e?: any) => {
+    if (e?.key === "Enter" || !e) {
+      if (value.trim()) {
+        const newMessage: Message = {
+          id: messages.length + 1,
+          text: value.trim(),
+          user: "You",
+        }
+        setMessages([...messages, newMessage])
+        setValue("")
+      }
+    }
+  }
+
   return (
     <ScrollView
       style={{
@@ -70,6 +86,7 @@ export function ChatDemo() {
             placeholder="Message"
             value={value}
             onChangeText={onChangeText}
+            onKeyPress={handleSubmit}
             aria-labelledby="inputLabel"
             aria-errormessage="inputError"
           />
