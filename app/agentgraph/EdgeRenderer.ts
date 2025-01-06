@@ -27,10 +27,16 @@ export class EdgeRenderer {
       color: opts.color,
       transparent: true,
       opacity: opts.opacity,
-      linewidth: opts.lineWidth
+      linewidth: opts.lineWidth,
+      // Ensure edges render behind nodes
+      depthTest: true,
+      depthWrite: true
     })
 
-    return new THREE.Line(geometry, material)
+    const line = new THREE.Line(geometry, material)
+    // Move slightly back to ensure it renders behind nodes
+    line.position.z = -0.1
+    return line
   }
 
   public static updateConnection(
