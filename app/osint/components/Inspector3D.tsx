@@ -67,26 +67,47 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
     const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial)
     mesh.add(edges)
 
-    // Add text sprite as fallback
+    // Add text sprite with improved visibility
     const canvas = document.createElement("canvas")
     const context = canvas.getContext("2d")
     if (context) {
-      canvas.width = 256
-      canvas.height = 64
+      // Increase canvas size for better text resolution
+      canvas.width = 512
+      canvas.height = 128
       context.fillStyle = "#00ff88"
-      context.font = "24px Arial"
+      context.font = "bold 32px Arial"
       context.textAlign = "center"
+      context.textBaseline = "middle"
+      
+      // Add padding and measure text
+      const padding = 20
+      const textMetrics = context.measureText(content)
+      const textWidth = textMetrics.width + padding * 2
+      const textHeight = 40 + padding * 2
+      
+      // Clear canvas with transparent background
+      context.clearRect(0, 0, canvas.width, canvas.height)
+      
+      // Draw text centered
       context.fillText(content, canvas.width / 2, canvas.height / 2)
 
       const texture = new THREE.CanvasTexture(canvas)
+      texture.needsUpdate = true
+      
       const spriteMaterial = new THREE.SpriteMaterial({
         map: texture,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.9,
       })
+      
       const sprite = new THREE.Sprite(spriteMaterial)
-      sprite.scale.set(1, 0.25, 1)
-      sprite.position.z = 0.03
+      // Adjust sprite scale to maintain text aspect ratio
+      const scaleX = (textWidth / canvas.width) * 2
+      const scaleY = (textHeight / canvas.height) * 2
+      sprite.scale.set(Math.max(scaleX, 1.5), Math.max(scaleY, 0.4), 1)
+      
+      // Position sprite slightly in front of the card
+      sprite.position.z = 0.1
       mesh.add(sprite)
     }
 
