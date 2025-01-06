@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { ScrollView, View, TextInput } from "react-native"
+import { ScrollView, View, TextInput, Platform } from "react-native"
 import {
   Card,
   CardContent,
@@ -94,7 +94,10 @@ export function ChatDemo() {
                 <View 
                   key={message.id}
                   onTouchEnd={() => message.osintData && setSelectedItem(message.osintData)}
-                  style={{ cursor: message.osintData ? 'pointer' : 'default' }}
+                  style={Platform.select({
+                    web: { cursor: message.osintData ? 'pointer' : 'default' },
+                    default: {}
+                  })}
                 >
                   <MessageComponent message={message} />
                   {message.osintData && (
