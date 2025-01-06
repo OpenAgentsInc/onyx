@@ -7,6 +7,7 @@ export const styles = StyleSheet.create({
     maxWidth: 800,
     alignSelf: "center",
     width: "100%",
+    margin: 20, // Add margin around the chat window
   },
   messagesContainer: {
     flex: 1,
@@ -14,8 +15,7 @@ export const styles = StyleSheet.create({
   },
   inputContainer: {
     padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#2a2a2a",
+    paddingTop: 0, // Remove top padding since CardFooter has its own
   },
   scrollView: {
     flex: 1,
