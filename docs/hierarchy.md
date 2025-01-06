@@ -125,7 +125,11 @@
     ├── OSINTCard.tsx
     ├── Test copy.tsx
     ├── Test.tsx
+    ├── components
+      ├── Message.tsx
     ├── data.ts
+    ├── styles.ts
+    ├── types.ts
   ├── screens
     ├── ChatScreen
       ├── ChatScreen.tsx
@@ -238,6 +242,7 @@
   ├── init.md
   ├── markdown.md
   ├── onboarding.md
+  ├── osint-chat.md
   ├── osint-nostr.md
   ├── permissions.md
   ├── pro.md
