@@ -13,27 +13,84 @@ import { Message as MessageComponent } from "./components/Message"
 import { Message } from "./types"
 import { styles } from "./styles"
 import { typography } from "@/theme"
+import { Text } from "@/components/ui/text"
+import { OSINTEvent, relatedOSINTEvents } from "./data"
 
 const initialMessages = [
   {
     id: 1,
-    text: "Hello",
+    text: "Hello, let's discuss the drone sightings from last night.",
     user: "Alice",
+    osintData: relatedOSINTEvents[0]
   },
   {
     id: 2,
-    text: "Hi",
+    text: "I've got some interesting data about government involvement.",
     user: "Bob",
+    osintData: relatedOSINTEvents[1]
   },
 ]
 
+interface InspectorProps {
+  selectedItem: OSINTEvent | null
+}
+
+function Inspector({ selectedItem }: InspectorProps) {
+  if (!selectedItem) {
+    return (
+      <Card style={{ height: "100%" }}>
+        <CardHeader>
+          <CardTitle>Inspector</CardTitle>
+          <CardDescription>Click on a message to inspect its data</CardDescription>
+        </CardHeader>
+      </Card>
+    )
+  }
+
+  const parsedContent = JSON.parse(selectedItem.content)
+
+  return (
+    <Card style={{ height: "100%" }}>
+      <CardHeader>
+        <CardTitle>{parsedContent.title}</CardTitle>
+        <CardDescription>OSINT Event (kind={selectedItem.kind})</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <View style={{ marginBottom: 20 }}>
+          <Text className="font-semibold mb-2">Description:</Text>
+          <Text>{parsedContent.description}</Text>
+        </View>
+        
+        <View style={{ marginBottom: 20 }}>
+          <Text className="font-semibold mb-2">Source:</Text>
+          <Text>{parsedContent.source}</Text>
+        </View>
+
+        <View style={{ marginBottom: 20 }}>
+          <Text className="font-semibold mb-2">Confidence:</Text>
+          <Text>{parsedContent.confidence}</Text>
+        </View>
+
+        <View>
+          <Text className="font-semibold mb-2">Tags:</Text>
+          {selectedItem.tags.map((tag, index) => (
+            <Text key={index} className="mb-1">
+              {tag.join(": ")}
+            </Text>
+          ))}
+        </View>
+      </CardContent>
+    </Card>
+  )
+}
+
 export function ChatDemo() {
   const [value, setValue] = useState("")
-  const [messages, setMessages] = useState<Message[]>(initialMessages)
+  const [messages, setMessages] = useState<(Message & { osintData?: OSINTEvent })[]>(initialMessages)
+  const [selectedItem, setSelectedItem] = useState<OSINTEvent | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollViewRef = useRef<ScrollView>(null)
 
-  // Focus input on mount
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
@@ -44,65 +101,85 @@ export function ChatDemo() {
 
   const handleSubmit = async (e?: any) => {
     if (e?.key === "Enter" || !e) {
-      e?.preventDefault?.() // Prevent any default behavior
+      e?.preventDefault?.()
       if (value.trim()) {
-        const newMessage: Message = {
+        const newMessage = {
           id: messages.length + 1,
           text: value.trim(),
           user: "You",
         }
-        
-        // Update messages and clear input
         setMessages(prev => [...prev, newMessage])
         setValue("")
         
-        // Ensure input stays focused
-        requestAnimationFrame(() => {
-          inputRef.current?.focus()
-        })
-        
-        // Scroll to bottom after message is added
         requestAnimationFrame(() => {
           scrollViewRef.current?.scrollToEnd({ animated: true })
+        })
+
+        requestAnimationFrame(() => {
+          inputRef.current?.focus()
         })
       }
     }
   }
 
   return (
-    <View style={styles.container}>
-      <Card style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <CardHeader>
-          <CardTitle>UAP Sensemaking</CardTitle>
-          <CardDescription>Nostr NIP-28 Chat Channel</CardDescription>
-        </CardHeader>
-        <CardContent style={styles.messagesContainer}>
-          <ScrollView 
-            ref={scrollViewRef}
-            style={styles.scrollView}
-            contentContainerStyle={{ flexGrow: 1 }}
-          >
-            {messages.map((message) => (
-              <MessageComponent key={message.id} message={message} />
-            ))}
-          </ScrollView>
-        </CardContent>
-        <CardFooter style={styles.inputContainer}>
-          <Input
-            ref={inputRef}
-            placeholder="Message"
-            value={value}
-            onChangeText={onChangeText}
-            onKeyPress={handleSubmit}
-            aria-labelledby="inputLabel"
-            aria-errormessage="inputError"
-            style={{ 
-              borderWidth: 0,
-              fontFamily: typography.primary.normal 
-            }}
-          />
-        </CardFooter>
-      </Card>
+    <View style={{ 
+      flexDirection: "row", 
+      height: "100vh",
+      padding: 20,
+      gap: 20,
+    }}>
+      {/* Chat Panel */}
+      <View style={{ flex: 1 }}>
+        <Card style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <CardHeader>
+            <CardTitle>UAP Sensemaking</CardTitle>
+            <CardDescription>Nostr NIP-28 Chat Channel</CardDescription>
+          </CardHeader>
+          <CardContent style={styles.messagesContainer}>
+            <ScrollView 
+              ref={scrollViewRef}
+              style={styles.scrollView}
+              contentContainerStyle={{ flexGrow: 1 }}
+            >
+              {messages.map((message) => (
+                <View 
+                  key={message.id}
+                  onClick={() => message.osintData && setSelectedItem(message.osintData)}
+                  style={{ cursor: message.osintData ? 'pointer' : 'default' }}
+                >
+                  <MessageComponent message={message} />
+                  {message.osintData && (
+                    <Text className="text-xs opacity-50 ml-4 mb-4">
+                      Click to inspect OSINT data
+                    </Text>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          </CardContent>
+          <CardFooter style={styles.inputContainer}>
+            <Input
+              ref={inputRef}
+              placeholder="Message"
+              value={value}
+              onChangeText={onChangeText}
+              onKeyPress={handleSubmit}
+              aria-labelledby="inputLabel"
+              aria-errormessage="inputError"
+              style={{ 
+                borderWidth: 0,
+                fontFamily: typography.primary.normal 
+              }}
+            />
+          </CardFooter>
+        </Card>
+      </View>
+
+      {/* Inspector Panel */}
+      <View style={{ flex: 1 }}>
+        <Inspector selectedItem={selectedItem} />
+      </View>
     </View>
   )
 }
