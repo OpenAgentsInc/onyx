@@ -58,6 +58,13 @@ export function OSINTCard({ event }: OSINTCardProps) {
   const [checkedItem, setCheckedItem] = React.useState(false)
   const [radioValue, setRadioValue] = React.useState("anonymous")
 
+  const handleVerify = () => console.log("Mark as verified")
+  const handleReport = () => console.log("Report as suspicious")
+  const handleCopyId = () => Platform.OS === 'web' && navigator.clipboard?.writeText(event.id)
+  const handleEmailShare = () => console.log("Sharing via Email")
+  const handleSMSShare = () => console.log("Sharing via SMS")
+  const handleDevTools = () => console.log("Developer Tools!")
+
   return (
     <Card className="mb-4">
       {/* Use a ContextMenuTrigger around the CardHeader so users can right-click / long-press for actions */}
@@ -75,13 +82,13 @@ export function OSINTCard({ event }: OSINTCardProps) {
         <ContextMenuContent align="start" className="w-64 native:w-72">
           {" "}
           <ContextMenuLabel inset>Quick Actions</ContextMenuLabel>
-          <ContextMenuItem inset onSelect={() => console.log("Mark as verified")}>
+          <ContextMenuItem inset onPress={handleVerify}>
             <Text>Mark as Verified</Text>
           </ContextMenuItem>
-          <ContextMenuItem inset onSelect={() => console.log("Report as suspicious")}>
+          <ContextMenuItem inset onPress={handleReport}>
             <Text>Report</Text>
           </ContextMenuItem>
-          <ContextMenuItem inset onSelect={() => navigator.clipboard?.writeText(event.id)}>
+          <ContextMenuItem inset onPress={handleCopyId}>
             <Text>Copy ID</Text>
             <ContextMenuShortcut>⌘C</ContextMenuShortcut>
           </ContextMenuItem>
@@ -92,14 +99,14 @@ export function OSINTCard({ event }: OSINTCardProps) {
             </ContextMenuSubTrigger>
             <ContextMenuSubContent className="web:w-48 native:mt-1">
               <Animated.View entering={FadeIn.duration(200)}>
-                <ContextMenuItem onSelect={() => console.log("Sharing via Email")}>
+                <ContextMenuItem onPress={handleEmailShare}>
                   <Text>Email</Text>
                 </ContextMenuItem>
-                <ContextMenuItem onSelect={() => console.log("Sharing via SMS")}>
+                <ContextMenuItem onPress={handleSMSShare}>
                   <Text>SMS</Text>
                 </ContextMenuItem>
                 <ContextMenuSeparator />
-                <ContextMenuItem onSelect={() => console.log("Developer Tools!")}>
+                <ContextMenuItem onPress={handleDevTools}>
                   <Text>Developer Tools</Text>
                 </ContextMenuItem>
               </Animated.View>
@@ -110,20 +117,19 @@ export function OSINTCard({ event }: OSINTCardProps) {
             checked={checkedItem}
             onCheckedChange={setCheckedItem}
             closeOnPress={false}
-            inset
           >
             <Text>Notify me about changes</Text>
           </ContextMenuCheckboxItem>
           <ContextMenuSeparator />
           <ContextMenuLabel inset>Assignee</ContextMenuLabel>
           <ContextMenuRadioGroup value={radioValue} onValueChange={setRadioValue}>
-            <ContextMenuRadioItem value="anonymous" inset closeOnPress={false}>
+            <ContextMenuRadioItem value="anonymous" closeOnPress={false}>
               <Text>Anonymous</Text>
             </ContextMenuRadioItem>
-            <ContextMenuRadioItem value="agent1" inset closeOnPress={false}>
+            <ContextMenuRadioItem value="agent1" closeOnPress={false}>
               <Text>Agent 1</Text>
             </ContextMenuRadioItem>
-            <ContextMenuRadioItem value="agent2" inset closeOnPress={false}>
+            <ContextMenuRadioItem value="agent2" closeOnPress={false}>
               <Text>Agent 2</Text>
             </ContextMenuRadioItem>
           </ContextMenuRadioGroup>
