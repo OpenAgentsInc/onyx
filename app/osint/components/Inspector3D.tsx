@@ -21,6 +21,13 @@ interface KnowledgeNode {
   connections: number[]
 }
 
+interface OSINTContent {
+  title: string
+  description: string
+  source: string
+  confidence: string
+}
+
 export function Inspector3D({ selectedItem }: Inspector3DProps) {
   const isFocused = useIsFocused()
   const graphRef = useRef<AgentGraph>()
@@ -36,19 +43,24 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
 
     // Set nodes based on selectedItem
     if (selectedItem) {
-      const nodes: KnowledgeNode[] = [
-        {
-          position: new THREE.Vector3(-1.5, 0, 0),
-          content: selectedItem.content || "OSINT Data",
-          connections: [1],
-        },
-        {
-          position: new THREE.Vector3(1.5, 0, 0),
-          content: "Related Data",
-          connections: [0],
-        },
-      ]
-      graphRef.current.setNodes(nodes)
+      try {
+        const parsedContent = JSON.parse(selectedItem.content) as OSINTContent
+        const nodes: KnowledgeNode[] = [
+          {
+            position: new THREE.Vector3(-1.5, 0, 0),
+            content: parsedContent.title || "OSINT Data",
+            connections: [1],
+          },
+          {
+            position: new THREE.Vector3(1.5, 0, 0),
+            content: parsedContent.source || "Data Source",
+            connections: [0],
+          },
+        ]
+        graphRef.current.setNodes(nodes)
+      } catch (e) {
+        console.error("Failed to parse OSINT content:", e)
+      }
     }
   }, [selectedItem]) // Add selectedItem as dependency
 
