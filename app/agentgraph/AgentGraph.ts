@@ -28,12 +28,12 @@ export class AgentGraph {
         width: gl.drawingBufferWidth,
         height: gl.drawingBufferHeight,
         style: {},
-        addEventListener: () => {},
-        removeEventListener: () => {},
+        addEventListener: () => { },
+        removeEventListener: () => { },
         clientHeight: gl.drawingBufferHeight,
         getContext: () => gl,
         toDataURL: (type?: string) => "",
-        toBlob: (callback: BlobCallback) => {},
+        toBlob: (callback: BlobCallback) => { },
         captureStream: (frameRate?: number) => new MediaStream(),
       } as unknown as HTMLCanvasElement,
       context: gl,
@@ -106,7 +106,7 @@ export class AgentGraph {
       canvas.width = 512
       canvas.height = 128
       context.fillStyle = "#00ff88"
-      context.font = "bold 32px Arial"
+      context.font = "bold 32px 'JetBrains Mono'"
       context.textAlign = "center"
       context.textBaseline = "middle"
 
