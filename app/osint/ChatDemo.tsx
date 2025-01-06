@@ -15,6 +15,7 @@ import { styles } from "./styles"
 import { typography } from "@/theme"
 import { Text } from "@/components/ui/text"
 import { OSINTEvent, relatedOSINTEvents } from "./data"
+import { Inspector3D } from "./components/Inspector3D"
 
 const initialMessages = [
   {
@@ -30,59 +31,6 @@ const initialMessages = [
     osintData: relatedOSINTEvents[1]
   },
 ]
-
-interface InspectorProps {
-  selectedItem: OSINTEvent | null
-}
-
-function Inspector({ selectedItem }: InspectorProps) {
-  if (!selectedItem) {
-    return (
-      <Card style={{ height: "100%" }}>
-        <CardHeader>
-          <CardTitle>Inspector</CardTitle>
-          <CardDescription>Click on a message to inspect its data</CardDescription>
-        </CardHeader>
-      </Card>
-    )
-  }
-
-  const parsedContent = JSON.parse(selectedItem.content)
-
-  return (
-    <Card style={{ height: "100%" }}>
-      <CardHeader>
-        <CardTitle>{parsedContent.title}</CardTitle>
-        <CardDescription>OSINT Event (kind={selectedItem.kind})</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <View style={{ marginBottom: 20 }}>
-          <Text className="font-semibold mb-2">Description:</Text>
-          <Text>{parsedContent.description}</Text>
-        </View>
-        
-        <View style={{ marginBottom: 20 }}>
-          <Text className="font-semibold mb-2">Source:</Text>
-          <Text>{parsedContent.source}</Text>
-        </View>
-
-        <View style={{ marginBottom: 20 }}>
-          <Text className="font-semibold mb-2">Confidence:</Text>
-          <Text>{parsedContent.confidence}</Text>
-        </View>
-
-        <View>
-          <Text className="font-semibold mb-2">Tags:</Text>
-          {selectedItem.tags.map((tag, index) => (
-            <Text key={index} className="mb-1">
-              {tag.join(": ")}
-            </Text>
-          ))}
-        </View>
-      </CardContent>
-    </Card>
-  )
-}
 
 export function ChatDemo() {
   const [value, setValue] = useState("")
@@ -178,7 +126,7 @@ export function ChatDemo() {
 
       {/* Inspector Panel */}
       <View style={{ flex: 1 }}>
-        <Inspector selectedItem={selectedItem} />
+        <Inspector3D selectedItem={selectedItem} />
       </View>
     </View>
   )
