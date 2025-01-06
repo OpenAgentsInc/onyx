@@ -40,9 +40,7 @@ const ContextMenuSubTrigger = React.forwardRef<
         )}
         {...props}
       >
-        <Pressable>
-          {(state) => typeof children === 'function' ? children(state) : children}
-        </Pressable>
+        {children}
         <Icon size={18} className="ml-auto text-foreground" />
       </ContextMenuPrimitive.SubTrigger>
     </TextClassContext.Provider>
@@ -108,9 +106,7 @@ const ContextMenuContent = React.forwardRef<
           )}
           {...props}
         >
-          <Pressable>
-            {(state) => typeof children === 'function' ? children(state) : children}
-          </Pressable>
+          {children}
         </ContextMenuPrimitive.Content>
       </ContextMenuPrimitive.Overlay>
     </ContextMenuPrimitive.Portal>
@@ -136,9 +132,7 @@ const ContextMenuItem = React.forwardRef<
       )}
       {...props}
     >
-      <Pressable>
-        {(state) => typeof children === 'function' ? children(state) : children}
-      </Pressable>
+      {children}
     </ContextMenuPrimitive.Item>
   </TextClassContext.Provider>
 ))
@@ -162,9 +156,7 @@ const ContextMenuCheckboxItem = React.forwardRef<
         <Check size={14} strokeWidth={3} className="text-foreground" />
       </ContextMenuPrimitive.ItemIndicator>
     </View>
-    <Pressable>
-      {(state) => typeof children === 'function' ? children(state) : children}
-    </Pressable>
+    {children}
   </ContextMenuPrimitive.CheckboxItem>
 ))
 ContextMenuCheckboxItem.displayName = ContextMenuPrimitive.CheckboxItem.displayName
@@ -190,9 +182,7 @@ const ContextMenuRadioItem = React.forwardRef<
         <View className="bg-foreground h-2 w-2 rounded-full" />
       </ContextMenuPrimitive.ItemIndicator>
     </View>
-    <Pressable>
-      {(state) => typeof children === 'function' ? children(state) : children}
-    </Pressable>
+    {children}
   </ContextMenuPrimitive.RadioItem>
 ))
 ContextMenuRadioItem.displayName = ContextMenuPrimitive.RadioItem.displayName
