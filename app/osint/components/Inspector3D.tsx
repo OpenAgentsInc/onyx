@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef } from "react"
 import { StyleSheet, View } from "react-native"
 import * as THREE from "three"
 import { AgentGraph } from "@/agentgraph/AgentGraph"
+import { KnowledgeNode } from "@/agentgraph/types"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { isEmulator } from "@/utils/isEmulator"
 import { useIsFocused } from "@/utils/useIsFocused"
@@ -10,15 +11,6 @@ import { OSINTEvent } from "../data"
 
 interface Inspector3DProps {
   selectedItem: OSINTEvent | null
-}
-
-interface KnowledgeNode {
-  position: THREE.Vector3
-  content: string
-  mesh?: THREE.Mesh
-  textMesh?: THREE.Mesh
-  edges?: THREE.Line[]
-  connections: number[]
 }
 
 interface OSINTContent {
@@ -36,40 +28,57 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
     return <View style={styles.container} />
   }
 
-  // Update onContextCreate to depend on selectedItem
   const onContextCreate = useCallback(
     (gl: ExpoWebGLRenderingContext) => {
-      // Initialize AgentGraph
-      graphRef.current = new AgentGraph(gl)
+      // Initialize AgentGraph with 2D options
+      graphRef.current = new AgentGraph(gl, {
+        is3D: false,
+        animate: false,
+        nodeSpacing: 3
+      })
 
-      // Set nodes based on selectedItem
       if (selectedItem) {
         try {
           const parsedContent = JSON.parse(selectedItem.content) as OSINTContent
+          
+          // Create a more detailed knowledge graph
           const nodes: KnowledgeNode[] = [
             {
-              position: new THREE.Vector3(-1.5, 0, 0),
+              position: new THREE.Vector3(0, 1, 0),
               content: parsedContent.title || "OSINT Data",
-              connections: [1],
+              connections: [1, 2]
             },
             {
-              position: new THREE.Vector3(1.5, 0, 0),
+              position: new THREE.Vector3(-2, -1, 0),
               content: parsedContent.source || "Data Source",
-              connections: [0],
+              connections: [0]
             },
+            {
+              position: new THREE.Vector3(2, -1, 0),
+              content: `Confidence: ${parsedContent.confidence || "N/A"}`,
+              connections: [0]
+            }
           ]
+
+          // Add description node if it exists and isn't too long
+          if (parsedContent.description && parsedContent.description.length < 50) {
+            nodes.push({
+              position: new THREE.Vector3(0, -2, 0),
+              content: parsedContent.description,
+              connections: [0]
+            })
+            nodes[0].connections.push(3)
+          }
+
           graphRef.current.setNodes(nodes)
         } catch (e) {
           console.error("Failed to parse OSINT content:", e)
         }
-      } else {
-        console.log("what the fuck")
       }
     },
-    [selectedItem],
-  ) // Add selectedItem as dependency
+    [selectedItem]
+  )
 
-  // Cleanup effect
   useEffect(() => {
     return () => {
       if (graphRef.current) {
@@ -98,7 +107,6 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
       <CardContent style={{ flex: 1 }}>
         <View style={styles.container}>
           <GLView
-            // Add selectedItem to key to force re-render when it changes
             key={`${isFocused ? "focused" : "unfocused"}-${selectedItem.id}`}
             style={styles.canvas}
             onContextCreate={onContextCreate}
@@ -113,12 +121,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
-    height: "100%",
+    height: "100%"
   },
   canvas: {
     flex: 1,
     width: "100%",
     height: "100%",
-    minHeight: 300,
-  },
+    minHeight: 300
+  }
 })
