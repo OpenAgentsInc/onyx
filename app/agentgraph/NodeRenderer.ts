@@ -13,7 +13,7 @@ export class NodeRenderer {
   private static defaultOptions: NodeRenderOptions = {
     color: 0x111111,
     textColor: "#00ff88",
-    fontSize: 24,
+    fontSize: 32,  // Increased from 24
     padding: 20,
     opacity: 0.9,
     maxWidth: 400
@@ -70,7 +70,7 @@ export class NodeRenderer {
 
     return {
       lines,
-      totalHeight: lines.length * (context.measureText('M').actualBoundingBoxAscent + context.measureText('M').actualBoundingBoxDescent * 1.2)
+      totalHeight: lines.length * (context.measureText('M').actualBoundingBoxAscent + context.measureText('M').actualBoundingBoxDescent * 1.5)
     }
   }
 
@@ -82,9 +82,9 @@ export class NodeRenderer {
     const context = canvas.getContext("2d")
     if (!context) return new THREE.Sprite()
 
-    // Set canvas size to be more square
-    canvas.width = 512
-    canvas.height = 512
+    // Set canvas size
+    canvas.width = 1024  // Increased from 512
+    canvas.height = 1024 // Increased from 512
 
     // Configure text rendering
     context.fillStyle = options.textColor!
@@ -107,7 +107,7 @@ export class NodeRenderer {
     const startY = (canvas.height - totalHeight) / 2
     lines.forEach((line, index) => {
       const lineHeight = context.measureText('M').actualBoundingBoxAscent + context.measureText('M').actualBoundingBoxDescent
-      const y = startY + (index * lineHeight * 1.2) + lineHeight / 2
+      const y = startY + (index * lineHeight * 1.5) + lineHeight / 2
       context.fillText(line, canvas.width / 2, y)
     })
 
@@ -123,10 +123,10 @@ export class NodeRenderer {
 
     const sprite = new THREE.Sprite(spriteMaterial)
     
-    // Scale sprite proportionally
-    const scaleX = (textWidth / canvas.width) * 2
-    const scaleY = (textHeight / canvas.width) * 2  // Using width for both to maintain aspect ratio
-    sprite.scale.set(Math.max(scaleX, 0.8), Math.max(scaleY, 0.4), 1)
+    // Scale sprite with larger base size
+    const scaleX = (textWidth / canvas.width) * 4  // Doubled from 2
+    const scaleY = (textHeight / canvas.width) * 4 // Doubled from 2
+    sprite.scale.set(Math.max(scaleX, 1.6), Math.max(scaleY, 0.8), 1)  // Doubled minimum scales
 
     return sprite
   }
