@@ -6,6 +6,7 @@ export interface NodeRenderOptions {
   fontSize?: number
   padding?: number
   opacity?: number
+  maxWidth?: number
 }
 
 export class NodeRenderer {
@@ -14,7 +15,8 @@ export class NodeRenderer {
     textColor: "#00ff88",
     fontSize: 24,
     padding: 20,
-    opacity: 0.9
+    opacity: 0.9,
+    maxWidth: 400
   }
 
   public static createNodeMesh(
@@ -45,6 +47,33 @@ export class NodeRenderer {
     return mesh
   }
 
+  private static wrapText(
+    context: CanvasRenderingContext2D,
+    text: string,
+    maxWidth: number
+  ): { lines: string[], totalHeight: number } {
+    const words = text.split(' ')
+    const lines: string[] = []
+    let currentLine = words[0]
+
+    for (let i = 1; i < words.length; i++) {
+      const word = words[i]
+      const width = context.measureText(currentLine + " " + word).width
+      if (width < maxWidth) {
+        currentLine += " " + word
+      } else {
+        lines.push(currentLine)
+        currentLine = word
+      }
+    }
+    lines.push(currentLine)
+
+    return {
+      lines,
+      totalHeight: lines.length * (context.measureText('M').actualBoundingBoxAscent + context.measureText('M').actualBoundingBoxDescent * 1.2)
+    }
+  }
+
   private static createTextSprite(
     content: string,
     options: NodeRenderOptions
@@ -53,9 +82,9 @@ export class NodeRenderer {
     const context = canvas.getContext("2d")
     if (!context) return new THREE.Sprite()
 
-    // Set canvas size
+    // Set canvas size to be more square
     canvas.width = 512
-    canvas.height = 128
+    canvas.height = 512
 
     // Configure text rendering
     context.fillStyle = options.textColor!
@@ -63,14 +92,24 @@ export class NodeRenderer {
     context.textAlign = "center"
     context.textBaseline = "middle"
 
-    // Measure text
-    const textMetrics = context.measureText(content)
-    const textWidth = textMetrics.width + options.padding! * 2
-    const textHeight = options.fontSize! + options.padding! * 2
+    // Wrap text and calculate dimensions
+    const maxWidth = options.maxWidth! - (options.padding! * 2)
+    const { lines, totalHeight } = NodeRenderer.wrapText(context, content, maxWidth)
+    
+    const maxLineWidth = Math.max(...lines.map(line => context.measureText(line).width))
+    const textWidth = Math.min(maxLineWidth + options.padding! * 2, options.maxWidth!)
+    const textHeight = totalHeight + options.padding! * 2
 
-    // Clear and draw text
+    // Clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height)
-    context.fillText(content, canvas.width / 2, canvas.height / 2)
+
+    // Draw text lines
+    const startY = (canvas.height - totalHeight) / 2
+    lines.forEach((line, index) => {
+      const lineHeight = context.measureText('M').actualBoundingBoxAscent + context.measureText('M').actualBoundingBoxDescent
+      const y = startY + (index * lineHeight * 1.2) + lineHeight / 2
+      context.fillText(line, canvas.width / 2, y)
+    })
 
     // Create sprite
     const texture = new THREE.CanvasTexture(canvas)
@@ -84,10 +123,10 @@ export class NodeRenderer {
 
     const sprite = new THREE.Sprite(spriteMaterial)
     
-    // Scale sprite to fit text
+    // Scale sprite proportionally
     const scaleX = (textWidth / canvas.width) * 2
-    const scaleY = (textHeight / canvas.height) * 2
-    sprite.scale.set(Math.max(scaleX, 1.5), Math.max(scaleY, 0.4), 1)
+    const scaleY = (textHeight / canvas.width) * 2  // Using width for both to maintain aspect ratio
+    sprite.scale.set(Math.max(scaleX, 0.8), Math.max(scaleY, 0.4), 1)
 
     return sprite
   }
