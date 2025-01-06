@@ -1,5 +1,14 @@
+import { useState } from "react"
 import { ScrollView, View } from "react-native"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Text } from "@/components/ui/text"
 import { colors } from "@/theme/colorsDark"
 
@@ -32,6 +41,11 @@ function Message({ message }: { message: Message }) {
 }
 
 export function ChatDemo() {
+  const [value, setValue] = useState("")
+
+  const onChangeText = (text: string) => {
+    setValue(text)
+  }
   return (
     <ScrollView
       style={{
@@ -51,6 +65,15 @@ export function ChatDemo() {
             <Message key={message.id} message={message} />
           ))}
         </CardContent>
+        <CardFooter>
+          <Input
+            placeholder="Message"
+            value={value}
+            onChangeText={onChangeText}
+            aria-labelledby="inputLabel"
+            aria-errormessage="inputError"
+          />
+        </CardFooter>
       </Card>
     </ScrollView>
   )
