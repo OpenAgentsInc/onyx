@@ -37,32 +37,37 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
   }
 
   // Update onContextCreate to depend on selectedItem
-  const onContextCreate = useCallback((gl: ExpoWebGLRenderingContext) => {
-    // Initialize AgentGraph
-    graphRef.current = new AgentGraph(gl)
+  const onContextCreate = useCallback(
+    (gl: ExpoWebGLRenderingContext) => {
+      // Initialize AgentGraph
+      graphRef.current = new AgentGraph(gl)
 
-    // Set nodes based on selectedItem
-    if (selectedItem) {
-      try {
-        const parsedContent = JSON.parse(selectedItem.content) as OSINTContent
-        const nodes: KnowledgeNode[] = [
-          {
-            position: new THREE.Vector3(-1.5, 0, 0),
-            content: parsedContent.title || "OSINT Data",
-            connections: [1],
-          },
-          {
-            position: new THREE.Vector3(1.5, 0, 0),
-            content: parsedContent.source || "Data Source",
-            connections: [0],
-          },
-        ]
-        graphRef.current.setNodes(nodes)
-      } catch (e) {
-        console.error("Failed to parse OSINT content:", e)
+      // Set nodes based on selectedItem
+      if (selectedItem) {
+        try {
+          const parsedContent = JSON.parse(selectedItem.content) as OSINTContent
+          const nodes: KnowledgeNode[] = [
+            {
+              position: new THREE.Vector3(-1.5, 0, 0),
+              content: parsedContent.title || "OSINT Data",
+              connections: [1],
+            },
+            {
+              position: new THREE.Vector3(1.5, 0, 0),
+              content: parsedContent.source || "Data Source",
+              connections: [0],
+            },
+          ]
+          graphRef.current.setNodes(nodes)
+        } catch (e) {
+          console.error("Failed to parse OSINT content:", e)
+        }
+      } else {
+        console.log("what the fuck")
       }
-    }
-  }, [selectedItem]) // Add selectedItem as dependency
+    },
+    [selectedItem],
+  ) // Add selectedItem as dependency
 
   // Cleanup effect
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { ScrollView, View, TextInput, Platform, ViewStyle } from "react-native"
+import { Platform, Pressable, ScrollView, TextInput, View, ViewStyle } from "react-native"
 import {
   Card,
   CardContent,
@@ -9,33 +9,35 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Message as MessageComponent } from "./components/Message"
-import { Message } from "./types"
-import { styles } from "./styles"
-import { typography } from "@/theme"
 import { Text } from "@/components/ui/text"
-import { OSINTEvent, relatedOSINTEvents } from "./data"
+import { typography } from "@/theme"
 import { Inspector3D } from "./components/Inspector3D"
+import { Message as MessageComponent } from "./components/Message"
+import { OSINTEvent, relatedOSINTEvents } from "./data"
+import { styles } from "./styles"
+import { Message } from "./types"
 
 const initialMessages = [
   {
     id: 1,
     text: "Hello, let's discuss the drone sightings from last night.",
     user: "Alice",
-    osintData: relatedOSINTEvents[0]
+    osintData: relatedOSINTEvents[0],
   },
   {
     id: 2,
     text: "I've got some interesting data about government involvement.",
     user: "Bob",
-    osintData: relatedOSINTEvents[1]
+    osintData: relatedOSINTEvents[1],
   },
 ]
 
 const getMessageStyle = (hasOsintData: boolean): ViewStyle => {
-  if (Platform.OS === 'web') {
+  if (Platform.OS === "web") {
     return {
-      cursor: hasOsintData ? ('pointer' as ViewStyle['cursor']) : ('default' as ViewStyle['cursor'])
+      cursor: hasOsintData
+        ? ("pointer" as ViewStyle["cursor"])
+        : ("default" as ViewStyle["cursor"]),
     }
   }
   return {}
@@ -43,10 +45,13 @@ const getMessageStyle = (hasOsintData: boolean): ViewStyle => {
 
 export function ChatDemo() {
   const [value, setValue] = useState("")
-  const [messages, setMessages] = useState<(Message & { osintData?: OSINTEvent })[]>(initialMessages)
+  const [messages, setMessages] =
+    useState<(Message & { osintData?: OSINTEvent })[]>(initialMessages)
   const [selectedItem, setSelectedItem] = useState<OSINTEvent | null>(null)
   const inputRef = useRef<TextInput>(null)
   const scrollViewRef = useRef<ScrollView>(null)
+
+  console.log(selectedItem)
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -65,9 +70,9 @@ export function ChatDemo() {
           text: value.trim(),
           user: "You",
         }
-        setMessages(prev => [...prev, newMessage])
+        setMessages((prev) => [...prev, newMessage])
         setValue("")
-        
+
         requestAnimationFrame(() => {
           scrollViewRef.current?.scrollToEnd({ animated: true })
         })
@@ -80,12 +85,14 @@ export function ChatDemo() {
   }
 
   return (
-    <View style={{ 
-      flexDirection: "row", 
-      flex: 1,
-      padding: 20,
-      gap: 20,
-    }}>
+    <View
+      style={{
+        flexDirection: "row",
+        flex: 1,
+        padding: 20,
+        gap: 20,
+      }}
+    >
       {/* Chat Panel */}
       <View style={{ flex: 1 }}>
         <Card style={{ flex: 1, display: "flex", flexDirection: "column" }}>
@@ -94,15 +101,15 @@ export function ChatDemo() {
             <CardDescription>Nostr NIP-28 Chat Channel</CardDescription>
           </CardHeader>
           <CardContent style={styles.messagesContainer}>
-            <ScrollView 
+            <ScrollView
               ref={scrollViewRef}
               style={styles.scrollView}
               contentContainerStyle={{ flexGrow: 1 }}
             >
               {messages.map((message) => (
-                <View 
+                <Pressable
                   key={message.id}
-                  onTouchEnd={() => message.osintData && setSelectedItem(message.osintData)}
+                  onPress={() => setSelectedItem(message.osintData || null)}
                   style={getMessageStyle(!!message.osintData)}
                 >
                   <MessageComponent message={message} />
@@ -111,7 +118,7 @@ export function ChatDemo() {
                       Click to inspect OSINT data
                     </Text>
                   )}
-                </View>
+                </Pressable>
               ))}
             </ScrollView>
           </CardContent>
@@ -124,9 +131,9 @@ export function ChatDemo() {
               onKeyPress={handleSubmit}
               aria-labelledby="inputLabel"
               aria-errormessage="inputError"
-              style={{ 
+              style={{
                 borderWidth: 0,
-                fontFamily: typography.primary.normal 
+                fontFamily: typography.primary.normal,
               }}
             />
           </CardFooter>
