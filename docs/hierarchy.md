@@ -8,6 +8,9 @@
 ├── app
   ├── agentgraph
     ├── AgentGraph.ts
+    ├── EdgeRenderer.ts
+    ├── NodeRenderer.ts
+    ├── types.ts
   ├── app.tsx
   ├── canvas
     ├── Canvas.tsx
@@ -235,6 +238,7 @@
 ├── components.json
 ├── dist
 ├── docs
+  ├── agentgraph.md
   ├── ai-design-language.md
   ├── aiur.md
   ├── chat-persistence.md
