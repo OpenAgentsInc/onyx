@@ -36,11 +36,12 @@ export class AgentGraph {
         toDataURL: (type?: string) => '',
         toBlob: (callback: BlobCallback) => {},
         captureStream: (frameRate?: number) => new MediaStream(),
-      } as unknown as HTMLCanvasElement, // Cast to HTMLCanvasElement via unknown
+      } as unknown as HTMLCanvasElement,
       context: gl,
+      alpha: true,
     })
     this.renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight)
-    this.renderer.setClearColor(0x09090b)
+    this.renderer.setClearColor(0x09090b, 1)
 
     // Initialize scene
     this.scene = new THREE.Scene()
@@ -80,6 +81,8 @@ export class AgentGraph {
       clearcoat: 1.0,
       clearcoatRoughness: 0.2,
       envMapIntensity: 2.0,
+      transparent: true,
+      opacity: 0.9,
     })
 
     // Create mesh and position it
@@ -127,6 +130,7 @@ export class AgentGraph {
         map: texture,
         transparent: true,
         opacity: 0.9,
+        sizeAttenuation: true,
       })
 
       const sprite = new THREE.Sprite(spriteMaterial)
