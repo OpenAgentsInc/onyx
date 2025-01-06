@@ -7,7 +7,7 @@
 ├── android
 ├── app
   ├── agentgraph
-    ├── AgentGraph.tsx
+    ├── AgentGraph.ts
   ├── app.tsx
   ├── canvas
     ├── Canvas.tsx
