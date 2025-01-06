@@ -40,7 +40,7 @@ const ContextMenuSubTrigger = React.forwardRef<
         )}
         {...props}
       >
-        <>{children}</>
+        {typeof children === 'function' ? children({}) : children}
         <Icon size={18} className="ml-auto text-foreground" />
       </ContextMenuPrimitive.SubTrigger>
     </TextClassContext.Provider>
@@ -51,7 +51,7 @@ ContextMenuSubTrigger.displayName = ContextMenuPrimitive.SubTrigger.displayName
 const ContextMenuSubContent = React.forwardRef<
   ContextMenuPrimitive.SubContentRef,
   ContextMenuPrimitive.SubContentProps
->(({ className, ...props }, ref) => {
+>(({ className, children, ...props }, ref) => {
   const { open } = ContextMenuPrimitive.useSubContext()
   return (
     <ContextMenuPrimitive.SubContent
@@ -64,7 +64,9 @@ const ContextMenuSubContent = React.forwardRef<
         className,
       )}
       {...props}
-    />
+    >
+      {typeof children === 'function' ? children({}) : children}
+    </ContextMenuPrimitive.SubContent>
   )
 })
 ContextMenuSubContent.displayName = ContextMenuPrimitive.SubContent.displayName
@@ -76,7 +78,7 @@ const ContextMenuContent = React.forwardRef<
     overlayClassName?: string
     portalHost?: string
   }
->(({ className, overlayClassName, overlayStyle, portalHost, ...props }, ref) => {
+>(({ className, overlayClassName, overlayStyle, portalHost, children, ...props }, ref) => {
   const { open } = ContextMenuPrimitive.useRootContext()
   return (
     <ContextMenuPrimitive.Portal hostName={portalHost}>
@@ -103,7 +105,9 @@ const ContextMenuContent = React.forwardRef<
             className,
           )}
           {...props}
-        />
+        >
+          {typeof children === 'function' ? children({}) : children}
+        </ContextMenuPrimitive.Content>
       </ContextMenuPrimitive.Overlay>
     </ContextMenuPrimitive.Portal>
   )
@@ -114,8 +118,9 @@ const ContextMenuItem = React.forwardRef<
   ContextMenuPrimitive.ItemRef,
   ContextMenuPrimitive.ItemProps & {
     inset?: boolean
+    onSelect?: () => void
   }
->(({ className, inset, ...props }, ref) => (
+>(({ className, inset, children, ...props }, ref) => (
   <TextClassContext.Provider value="select-none text-sm native:text-lg text-popover-foreground web:group-focus:text-accent-foreground">
     <ContextMenuPrimitive.Item
       ref={ref}
@@ -126,7 +131,9 @@ const ContextMenuItem = React.forwardRef<
         className,
       )}
       {...props}
-    />
+    >
+      {typeof children === 'function' ? children({}) : children}
+    </ContextMenuPrimitive.Item>
   </TextClassContext.Provider>
 ))
 ContextMenuItem.displayName = ContextMenuPrimitive.Item.displayName
@@ -149,20 +156,23 @@ const ContextMenuCheckboxItem = React.forwardRef<
         <Check size={14} strokeWidth={3} className="text-foreground" />
       </ContextMenuPrimitive.ItemIndicator>
     </View>
-    <>{children}</>
+    {typeof children === 'function' ? children({}) : children}
   </ContextMenuPrimitive.CheckboxItem>
 ))
 ContextMenuCheckboxItem.displayName = ContextMenuPrimitive.CheckboxItem.displayName
 
 const ContextMenuRadioItem = React.forwardRef<
   ContextMenuPrimitive.RadioItemRef,
-  ContextMenuPrimitive.RadioItemProps
->(({ className, children, ...props }, ref) => (
+  ContextMenuPrimitive.RadioItemProps & {
+    inset?: boolean
+  }
+>(({ className, children, inset, ...props }, ref) => (
   <ContextMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
       "relative flex flex-row web:cursor-default web:group items-center rounded-sm py-1.5 native:py-2 pl-8 pr-2 web:outline-none web:focus:bg-accent active:bg-accent",
       props.disabled && "web:pointer-events-none opacity-50",
+      inset && "pl-8",
       className,
     )}
     {...props}
@@ -172,7 +182,7 @@ const ContextMenuRadioItem = React.forwardRef<
         <View className="bg-foreground h-2 w-2 rounded-full" />
       </ContextMenuPrimitive.ItemIndicator>
     </View>
-    <>{children}</>
+    {typeof children === 'function' ? children({}) : children}
   </ContextMenuPrimitive.RadioItem>
 ))
 ContextMenuRadioItem.displayName = ContextMenuPrimitive.RadioItem.displayName
