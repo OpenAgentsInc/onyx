@@ -9,11 +9,20 @@ import { cn } from "@/lib/utils"
 import { typography } from "@/theme"
 import * as ContextMenuPrimitive from "@rn-primitives/context-menu"
 
+type ChildrenType = React.ReactNode | ((state: any) => React.ReactNode)
+
 const ContextMenu = ContextMenuPrimitive.Root
 const ContextMenuTrigger = ContextMenuPrimitive.Trigger
 const ContextMenuGroup = ContextMenuPrimitive.Group
 const ContextMenuSub = ContextMenuPrimitive.Sub
 const ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup
+
+const renderChildren = (children: ChildrenType) => {
+  if (typeof children === 'function') {
+    return children({})
+  }
+  return children
+}
 
 const ContextMenuSubTrigger = React.forwardRef<
   ContextMenuPrimitive.SubTriggerRef,
@@ -40,7 +49,7 @@ const ContextMenuSubTrigger = React.forwardRef<
         )}
         {...props}
       >
-        {children}
+        {renderChildren(children)}
         <Icon size={18} className="ml-auto text-foreground" />
       </ContextMenuPrimitive.SubTrigger>
     </TextClassContext.Provider>
@@ -65,7 +74,7 @@ const ContextMenuSubContent = React.forwardRef<
       )}
       {...props}
     >
-      {children}
+      {renderChildren(children)}
     </ContextMenuPrimitive.SubContent>
   )
 })
@@ -106,7 +115,7 @@ const ContextMenuContent = React.forwardRef<
           )}
           {...props}
         >
-          {children}
+          {renderChildren(children)}
         </ContextMenuPrimitive.Content>
       </ContextMenuPrimitive.Overlay>
     </ContextMenuPrimitive.Portal>
@@ -132,7 +141,7 @@ const ContextMenuItem = React.forwardRef<
       )}
       {...props}
     >
-      {children}
+      {renderChildren(children)}
     </ContextMenuPrimitive.Item>
   </TextClassContext.Provider>
 ))
@@ -156,7 +165,7 @@ const ContextMenuCheckboxItem = React.forwardRef<
         <Check size={14} strokeWidth={3} className="text-foreground" />
       </ContextMenuPrimitive.ItemIndicator>
     </View>
-    {children}
+    {renderChildren(children)}
   </ContextMenuPrimitive.CheckboxItem>
 ))
 ContextMenuCheckboxItem.displayName = ContextMenuPrimitive.CheckboxItem.displayName
@@ -182,7 +191,7 @@ const ContextMenuRadioItem = React.forwardRef<
         <View className="bg-foreground h-2 w-2 rounded-full" />
       </ContextMenuPrimitive.ItemIndicator>
     </View>
-    {children}
+    {renderChildren(children)}
   </ContextMenuPrimitive.RadioItem>
 ))
 ContextMenuRadioItem.displayName = ContextMenuPrimitive.RadioItem.displayName
