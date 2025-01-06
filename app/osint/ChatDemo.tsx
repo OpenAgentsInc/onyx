@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Message as MessageComponent } from "./components/Message"
 import { Message } from "./types"
 import { styles } from "./styles"
+import { typography } from "@/theme"
 
 const initialMessages = [
   {
@@ -41,26 +42,29 @@ export function ChatDemo() {
     setValue(text)
   }
 
-  const handleSubmit = (e?: any) => {
+  const handleSubmit = async (e?: any) => {
     if (e?.key === "Enter" || !e) {
+      e?.preventDefault?.() // Prevent any default behavior
       if (value.trim()) {
         const newMessage: Message = {
           id: messages.length + 1,
           text: value.trim(),
           user: "You",
         }
-        setMessages([...messages, newMessage])
+        
+        // Update messages and clear input
+        setMessages(prev => [...prev, newMessage])
         setValue("")
         
-        // Scroll to bottom after message is added
-        setTimeout(() => {
-          scrollViewRef.current?.scrollToEnd({ animated: true })
-        }, 100)
-
-        // Force focus back to input
-        setTimeout(() => {
+        // Ensure input stays focused
+        requestAnimationFrame(() => {
           inputRef.current?.focus()
-        }, 0)
+        })
+        
+        // Scroll to bottom after message is added
+        requestAnimationFrame(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true })
+        })
       }
     }
   }
@@ -92,7 +96,10 @@ export function ChatDemo() {
             onKeyPress={handleSubmit}
             aria-labelledby="inputLabel"
             aria-errormessage="inputError"
-            style={{ borderWidth: 0 }}
+            style={{ 
+              borderWidth: 0,
+              fontFamily: typography.primary.normal 
+            }}
           />
         </CardFooter>
       </Card>
