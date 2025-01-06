@@ -35,7 +35,7 @@ const initialMessages = [
 const getMessageStyle = (hasOsintData: boolean): ViewStyle => {
   if (Platform.OS === 'web') {
     return {
-      cursor: hasOsintData ? 'pointer' as const : 'default' as const
+      cursor: hasOsintData ? ('pointer' as ViewStyle['cursor']) : ('default' as ViewStyle['cursor'])
     }
   }
   return {}
