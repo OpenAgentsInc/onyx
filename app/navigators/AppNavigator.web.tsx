@@ -1,16 +1,15 @@
 import { observer } from "mobx-react-lite"
 import { ComponentProps } from "react"
-import { Test } from "@/osint/Test"
-import * as Screens from "@/screens"
+import { ChatDemo } from "@/osint/ChatDemo"
+import { Test as OSINTDemo } from "@/osint/Test"
 import { useAppTheme, useThemeProvider } from "@/utils/useAppTheme"
 import { NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
 import Config from "../config"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
-import { SettingsNavigator } from "./SettingsNavigator"
-import { WalletNavigator } from "./WalletNavigator"
 
 export type AppStackParamList = {
+  ChatDemo: undefined
   OSINT: undefined
 }
 
@@ -37,9 +36,10 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={"OSINT"}
+      initialRouteName={"ChatDemo"}
     >
-      <Stack.Screen name="OSINT" component={Test} />
+      <Stack.Screen name="ChatDemo" component={ChatDemo} />
+      <Stack.Screen name="OSINT" component={OSINTDemo} />
     </Stack.Navigator>
   )
 })
