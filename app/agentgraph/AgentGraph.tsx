@@ -33,6 +33,9 @@ export class AgentGraph {
         removeEventListener: () => {},
         clientHeight: gl.drawingBufferHeight,
         getContext: () => gl,
+        toDataURL: (type?: string) => '',
+        toBlob: (callback: BlobCallback) => {},
+        captureStream: (frameRate?: number) => new MediaStream(),
       } as MinimalCanvas,
       context: gl,
     })
@@ -249,7 +252,12 @@ export class AgentGraph {
       if (node.edges) {
         node.edges.forEach((edge) => {
           edge.geometry.dispose()
-          edge.material.dispose()
+          // Type check before calling dispose
+          if (edge.material instanceof THREE.Material) {
+            edge.material.dispose()
+          } else if (Array.isArray(edge.material)) {
+            edge.material.forEach(m => m.dispose())
+          }
         })
       }
     })
