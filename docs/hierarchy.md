@@ -6,6 +6,8 @@
 ├── README.md
 ├── android
 ├── app
+  ├── agentgraph
+    ├── AgentGraph.tsx
   ├── app.tsx
   ├── canvas
     ├── Canvas.tsx
@@ -126,6 +128,7 @@
     ├── Test copy.tsx
     ├── Test.tsx
     ├── components
+      ├── Inspector3D.tsx
       ├── Message.tsx
     ├── data.ts
     ├── styles.ts
