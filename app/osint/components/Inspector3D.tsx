@@ -1,5 +1,5 @@
 import { ExpoWebGLRenderingContext, GLView } from "expo-gl"
-import React, { useCallback, useEffect, useRef } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Platform, StyleSheet, View } from "react-native"
 import * as THREE from "three"
 import { AgentGraph } from "@/agentgraph/AgentGraph"
@@ -23,7 +23,7 @@ interface OSINTContent {
 export function Inspector3D({ selectedItem }: Inspector3DProps) {
   const isFocused = useIsFocused()
   const graphRef = useRef<AgentGraph>()
-  const glViewRef = useRef<GLView>(null)
+  const [glCanvas, setGLCanvas] = useState<HTMLCanvasElement | null>(null)
 
   if (isEmulator()) {
     return <View style={styles.container} />
@@ -37,6 +37,12 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
         animate: false,
         nodeSpacing: 3
       })
+
+      // Store canvas reference for web
+      if (Platform.OS === "web") {
+        const canvas = gl.canvas as HTMLCanvasElement
+        setGLCanvas(canvas)
+      }
 
       if (selectedItem) {
         try {
@@ -81,6 +87,7 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
   )
 
   const handleWheel = useCallback((event: WheelEvent) => {
+    event.preventDefault()
     if (graphRef.current) {
       graphRef.current.handleWheel(event)
     }
@@ -127,37 +134,33 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
   }, [])
 
   useEffect(() => {
-    if (Platform.OS === "web" && glViewRef.current?.canvas) {
-      const canvas = glViewRef.current.canvas as HTMLCanvasElement
-      
+    if (Platform.OS === "web" && glCanvas) {
       // Add event listeners for mouse/touch interactions
-      canvas.addEventListener("wheel", handleWheel, { passive: false })
-      canvas.addEventListener("mousedown", handleMouseDown)
-      canvas.addEventListener("mousemove", handleMouseMove)
-      canvas.addEventListener("mouseup", handleMouseUp)
-      canvas.addEventListener("mouseleave", handleMouseUp)
+      glCanvas.addEventListener("wheel", handleWheel, { passive: false })
+      glCanvas.addEventListener("mousedown", handleMouseDown)
+      window.addEventListener("mousemove", handleMouseMove)
+      window.addEventListener("mouseup", handleMouseUp)
       
       // Touch events
-      canvas.addEventListener("touchstart", handleTouchStart, { passive: false })
-      canvas.addEventListener("touchmove", handleTouchMove, { passive: false })
-      canvas.addEventListener("touchend", handleTouchEnd)
-      canvas.addEventListener("touchcancel", handleTouchEnd)
+      glCanvas.addEventListener("touchstart", handleTouchStart, { passive: false })
+      glCanvas.addEventListener("touchmove", handleTouchMove, { passive: false })
+      glCanvas.addEventListener("touchend", handleTouchEnd)
+      glCanvas.addEventListener("touchcancel", handleTouchEnd)
 
       return () => {
         // Clean up event listeners
-        canvas.removeEventListener("wheel", handleWheel)
-        canvas.removeEventListener("mousedown", handleMouseDown)
-        canvas.removeEventListener("mousemove", handleMouseMove)
-        canvas.removeEventListener("mouseup", handleMouseUp)
-        canvas.removeEventListener("mouseleave", handleMouseUp)
+        glCanvas.removeEventListener("wheel", handleWheel)
+        glCanvas.removeEventListener("mousedown", handleMouseDown)
+        window.removeEventListener("mousemove", handleMouseMove)
+        window.removeEventListener("mouseup", handleMouseUp)
         
-        canvas.removeEventListener("touchstart", handleTouchStart)
-        canvas.removeEventListener("touchmove", handleTouchMove)
-        canvas.removeEventListener("touchend", handleTouchEnd)
-        canvas.removeEventListener("touchcancel", handleTouchEnd)
+        glCanvas.removeEventListener("touchstart", handleTouchStart)
+        glCanvas.removeEventListener("touchmove", handleTouchMove)
+        glCanvas.removeEventListener("touchend", handleTouchEnd)
+        glCanvas.removeEventListener("touchcancel", handleTouchEnd)
       }
     }
-  }, [handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, 
+  }, [glCanvas, handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, 
       handleTouchStart, handleTouchMove, handleTouchEnd])
 
   useEffect(() => {
@@ -188,7 +191,6 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
       <CardContent style={{ flex: 1 }}>
         <View style={styles.container}>
           <GLView
-            ref={glViewRef}
             key={`${isFocused ? "focused" : "unfocused"}-${selectedItem.id}`}
             style={styles.canvas}
             onContextCreate={onContextCreate}
@@ -209,6 +211,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     height: "100%",
-    minHeight: 300
+    minHeight: 300,
+    cursor: "grab"
   }
 })
