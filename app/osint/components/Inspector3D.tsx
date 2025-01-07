@@ -1,6 +1,6 @@
 import { ExpoWebGLRenderingContext, GLView } from "expo-gl"
 import React, { useCallback, useEffect, useRef } from "react"
-import { StyleSheet, View } from "react-native"
+import { Platform, StyleSheet, View } from "react-native"
 import * as THREE from "three"
 import { AgentGraph } from "@/agentgraph/AgentGraph"
 import { KnowledgeNode } from "@/agentgraph/types"
@@ -23,6 +23,7 @@ interface OSINTContent {
 export function Inspector3D({ selectedItem }: Inspector3DProps) {
   const isFocused = useIsFocused()
   const graphRef = useRef<AgentGraph>()
+  const glViewRef = useRef<GLView>(null)
 
   if (isEmulator()) {
     return <View style={styles.container} />
@@ -79,6 +80,86 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
     [selectedItem]
   )
 
+  const handleWheel = useCallback((event: WheelEvent) => {
+    if (graphRef.current) {
+      graphRef.current.handleWheel(event)
+    }
+  }, [])
+
+  const handleMouseDown = useCallback((event: MouseEvent) => {
+    if (graphRef.current) {
+      graphRef.current.handlePanStart(event.clientX, event.clientY)
+    }
+  }, [])
+
+  const handleMouseMove = useCallback((event: MouseEvent) => {
+    if (graphRef.current) {
+      graphRef.current.handlePanMove(event.clientX, event.clientY)
+    }
+  }, [])
+
+  const handleMouseUp = useCallback(() => {
+    if (graphRef.current) {
+      graphRef.current.handlePanEnd()
+    }
+  }, [])
+
+  const handleTouchStart = useCallback((event: TouchEvent) => {
+    if (graphRef.current && event.touches.length === 1) {
+      event.preventDefault()
+      const touch = event.touches[0]
+      graphRef.current.handlePanStart(touch.clientX, touch.clientY)
+    }
+  }, [])
+
+  const handleTouchMove = useCallback((event: TouchEvent) => {
+    if (graphRef.current && event.touches.length === 1) {
+      event.preventDefault()
+      const touch = event.touches[0]
+      graphRef.current.handlePanMove(touch.clientX, touch.clientY)
+    }
+  }, [])
+
+  const handleTouchEnd = useCallback(() => {
+    if (graphRef.current) {
+      graphRef.current.handlePanEnd()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (Platform.OS === "web" && glViewRef.current?.canvas) {
+      const canvas = glViewRef.current.canvas as HTMLCanvasElement
+      
+      // Add event listeners for mouse/touch interactions
+      canvas.addEventListener("wheel", handleWheel, { passive: false })
+      canvas.addEventListener("mousedown", handleMouseDown)
+      canvas.addEventListener("mousemove", handleMouseMove)
+      canvas.addEventListener("mouseup", handleMouseUp)
+      canvas.addEventListener("mouseleave", handleMouseUp)
+      
+      // Touch events
+      canvas.addEventListener("touchstart", handleTouchStart, { passive: false })
+      canvas.addEventListener("touchmove", handleTouchMove, { passive: false })
+      canvas.addEventListener("touchend", handleTouchEnd)
+      canvas.addEventListener("touchcancel", handleTouchEnd)
+
+      return () => {
+        // Clean up event listeners
+        canvas.removeEventListener("wheel", handleWheel)
+        canvas.removeEventListener("mousedown", handleMouseDown)
+        canvas.removeEventListener("mousemove", handleMouseMove)
+        canvas.removeEventListener("mouseup", handleMouseUp)
+        canvas.removeEventListener("mouseleave", handleMouseUp)
+        
+        canvas.removeEventListener("touchstart", handleTouchStart)
+        canvas.removeEventListener("touchmove", handleTouchMove)
+        canvas.removeEventListener("touchend", handleTouchEnd)
+        canvas.removeEventListener("touchcancel", handleTouchEnd)
+      }
+    }
+  }, [handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, 
+      handleTouchStart, handleTouchMove, handleTouchEnd])
+
   useEffect(() => {
     return () => {
       if (graphRef.current) {
@@ -102,11 +183,12 @@ export function Inspector3D({ selectedItem }: Inspector3DProps) {
     <Card style={{ height: "100%" }}>
       <CardHeader>
         <CardTitle>Knowledge Graph</CardTitle>
-        <CardDescription>OSINT Event Connections</CardDescription>
+        <CardDescription>OSINT Event Connections (Use mouse wheel to zoom, drag to pan)</CardDescription>
       </CardHeader>
       <CardContent style={{ flex: 1 }}>
         <View style={styles.container}>
           <GLView
+            ref={glViewRef}
             key={`${isFocused ? "focused" : "unfocused"}-${selectedItem.id}`}
             style={styles.canvas}
             onContextCreate={onContextCreate}
