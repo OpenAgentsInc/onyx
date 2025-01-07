@@ -116,21 +116,29 @@ export class AgentGraph {
   }
 
   public handleWheel = (event: WheelEvent) => {
-    event.preventDefault()
-    const zoomSpeed = 0.1
-    const delta = -Math.sign(event.deltaY) * zoomSpeed
-    this.zoomLevel = Math.max(0.1, Math.min(5, this.zoomLevel + delta))
+    const zoomSpeed = 0.001
+    const delta = event.deltaY * zoomSpeed
+    const newZoom = Math.max(0.1, Math.min(5, this.zoomLevel * (1 - delta)))
     
-    // Update camera zoom
-    const aspect = this.gl.drawingBufferWidth / this.gl.drawingBufferHeight
-    const frustumSize = 5 / this.zoomLevel
-    this.camera.left = frustumSize * aspect / -2
-    this.camera.right = frustumSize * aspect / 2
-    this.camera.top = frustumSize / 2
-    this.camera.bottom = frustumSize / -2
-    this.camera.updateProjectionMatrix()
+    // Calculate zoom center point in world coordinates
+    const rect = (event.target as HTMLElement).getBoundingClientRect()
+    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1
     
-    this.render()
+    // Convert screen coordinates to world coordinates
+    const worldX = x * (this.camera.right - this.camera.left) / 2
+    const worldY = y * (this.camera.top - this.camera.bottom) / 2
+    
+    // Calculate the zoom factor
+    const zoomFactor = newZoom / this.zoomLevel
+    
+    // Update camera position to zoom towards mouse point
+    this.cameraPosition.x += worldX * (1 - zoomFactor)
+    this.cameraPosition.y += worldY * (1 - zoomFactor)
+    
+    // Update zoom level and camera
+    this.zoomLevel = newZoom
+    this.updateCamera()
   }
 
   public handlePanStart = (x: number, y: number) => {
@@ -141,27 +149,46 @@ export class AgentGraph {
   public handlePanMove = (x: number, y: number) => {
     if (!this.isDragging) return
 
-    const deltaX = x - this.previousTouch.x
-    const deltaY = y - this.previousTouch.y
+    const rect = (this.gl.canvas as HTMLCanvasElement).getBoundingClientRect()
+    const deltaX = (x - this.previousTouch.x) / rect.width
+    const deltaY = (y - this.previousTouch.y) / rect.height
 
     // Scale the movement based on zoom level and viewport size
-    const movementScale = (5 / this.zoomLevel) / this.gl.drawingBufferWidth
+    const movementScale = 5 / this.zoomLevel
     this.cameraPosition.x -= deltaX * movementScale
     this.cameraPosition.y += deltaY * movementScale
 
-    // Update camera position
-    this.camera.position.x = this.cameraPosition.x
-    this.camera.position.y = this.cameraPosition.y
-
+    this.updateCamera()
     this.previousTouch = { x, y }
-    this.render()
   }
 
   public handlePanEnd = () => {
     this.isDragging = false
   }
 
+  private updateCamera = () => {
+    // Update camera position
+    this.camera.position.x = this.cameraPosition.x
+    this.camera.position.y = this.cameraPosition.y
+
+    // Update camera frustum
+    const aspect = this.gl.drawingBufferWidth / this.gl.drawingBufferHeight
+    const frustumSize = 5 / this.zoomLevel
+    this.camera.left = frustumSize * aspect / -2
+    this.camera.right = frustumSize * aspect / 2
+    this.camera.top = frustumSize / 2
+    this.camera.bottom = frustumSize / -2
+    this.camera.updateProjectionMatrix()
+
+    this.render()
+  }
+
   public setNodes(nodes: KnowledgeNode[]) {
+    // Reset camera position and zoom
+    this.zoomLevel = 1
+    this.cameraPosition = { x: 0, y: 0 }
+    this.updateCamera()
+
     // Clear existing nodes
     this.nodes.forEach((node) => {
       if (node.mesh) {
@@ -206,19 +233,7 @@ export class AgentGraph {
 
   public resize(width: number, height: number) {
     this.renderer.setSize(width, height)
-
-    // Update orthographic camera aspect ratio
-    const aspect = width / height
-    const frustumSize = 5 / this.zoomLevel
-    this.camera.left = frustumSize * aspect / -2
-    this.camera.right = frustumSize * aspect / 2
-    this.camera.top = frustumSize / 2
-    this.camera.bottom = frustumSize / -2
-    this.camera.updateProjectionMatrix()
-
-    if (!this.options.animate) {
-      this.render()
-    }
+    this.updateCamera()
   }
 
   public dispose() {
