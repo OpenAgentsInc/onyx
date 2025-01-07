@@ -3,13 +3,24 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": ["./app/*"]
+      "@/*": [
+        "./app/*"
+      ],
+      "~/*": [
+        "./app/*"
+      ]
     },
     "module": "esnext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["app/old/**"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "app/old/**"
+  ]
 }

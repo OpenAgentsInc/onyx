@@ -6,6 +6,11 @@
 ├── README.md
 ├── android
 ├── app
+  ├── agentgraph
+    ├── AgentGraph.ts
+    ├── EdgeRenderer.ts
+    ├── NodeRenderer.ts
+    ├── types.ts
   ├── app.tsx
   ├── canvas
     ├── Canvas.tsx
@@ -41,6 +46,13 @@
     ├── Text.tsx
     ├── ThinkingAnimation.tsx
     ├── index.ts
+    ├── ui
+      ├── button.tsx
+      ├── card.tsx
+      ├── context-menu.tsx
+      ├── dialog.tsx
+      ├── input.tsx
+      ├── text.tsx
   ├── config
     ├── config.base.ts
     ├── config.dev.ts
@@ -51,6 +63,7 @@
     ├── ReactotronClient.ts
     ├── ReactotronClient.web.ts
     ├── ReactotronConfig.ts
+  ├── global.css
   ├── hooks
     ├── useAutoUpdate.ts
     ├── useChat.ts
@@ -59,6 +72,17 @@
     ├── useNotifications.ts
     ├── useVoicePermissions.ts
     ├── useVoiceRecording.ts
+  ├── lib
+    ├── constants.ts
+    ├── icons
+      ├── Check.tsx
+      ├── ChevronDown.tsx
+      ├── ChevronRight.tsx
+      ├── ChevronUp.tsx
+      ├── X.tsx
+      ├── iconWithClassName.ts
+    ├── useColorScheme.tsx
+    ├── utils.ts
   ├── models
     ├── RootStore.ts
     ├── _helpers
@@ -67,7 +91,9 @@
       ├── useStores.ts
       ├── withSetPropAction.ts
     ├── chat
+      ├── ChatStorage.native.ts
       ├── ChatStorage.ts
+      ├── ChatStorage.web.ts
       ├── ChatStore.ts
       ├── index.ts
     ├── coder
@@ -91,12 +117,25 @@
       ├── models.ts
       ├── types.ts
       ├── views.ts
+  ├── nativewind-env.d.ts
   ├── navigators
     ├── AppNavigator.tsx
+    ├── AppNavigator.web.tsx
     ├── SettingsNavigator.tsx
     ├── WalletNavigator.tsx
     ├── index.ts
     ├── navigationUtilities.ts
+  ├── osint
+    ├── ChatDemo.tsx
+    ├── OSINTCard.tsx
+    ├── Test copy.tsx
+    ├── Test.tsx
+    ├── components
+      ├── Inspector3D.tsx
+      ├── Message.tsx
+    ├── data.ts
+    ├── styles.ts
+    ├── types.ts
   ├── screens
     ├── ChatScreen
       ├── ChatScreen.tsx
@@ -147,7 +186,9 @@
       ├── apiProblem.ts
       ├── index.ts
     ├── breez
+      ├── breezService.native.ts
       ├── breezService.ts
+      ├── breezService.web.ts
       ├── index.ts
       ├── types.ts
     ├── groq
@@ -160,7 +201,9 @@
     ├── notifications
       ├── index.ts
     ├── storage
+      ├── secureStorage.native.ts
       ├── secureStorage.ts
+      ├── secureStorage.web.ts
   ├── theme
     ├── colors.ts
     ├── colorsDark.ts
@@ -191,8 +234,11 @@
 ├── app.config.ts
 ├── app.json
 ├── assets
+├── babel.config.js
+├── components.json
 ├── dist
 ├── docs
+  ├── agentgraph.md
   ├── ai-design-language.md
   ├── aiur.md
   ├── chat-persistence.md
@@ -203,6 +249,8 @@
   ├── init.md
   ├── markdown.md
   ├── onboarding.md
+  ├── osint-chat.md
+  ├── osint-nostr.md
   ├── permissions.md
   ├── pro.md
   ├── roadmap-brainstorming.md
@@ -210,9 +258,12 @@
   ├── wallet-store.md
 ├── eas.json
 ├── ios
+├── metro.config.js
+├── nativewind-env.d.ts
 ├── package.json
 ├── scripts
   ├── deepseek_test_fixer.sh
+├── tailwind.config.js
 ├── tsconfig.json
 ├── yarn.lock
 ```

@@ -16,8 +16,8 @@ import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
 import { AppNavigator, useNavigationPersistence } from "./navigators"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
-import * as storage from "./utils/storage"
 import NotificationService from "./services/notifications"
+import * as storage from "./utils/storage"
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
@@ -66,6 +66,13 @@ function App(props: AppProps) {
   )
 }
 
+// Register the app for web
 AppRegistry.registerComponent("main", () => App)
+
+// Setup web specific code
+if (typeof document !== "undefined") {
+  const rootTag = document.getElementById("root") || document.getElementById("main")
+  AppRegistry.runApplication("main", { rootTag })
+}
 
 export default App
