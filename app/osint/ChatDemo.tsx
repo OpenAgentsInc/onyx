@@ -20,16 +20,22 @@ import { Message } from "./types"
 const initialMessages = [
   {
     id: 1,
-    text: "Hello, let's discuss the drone sightings from last night.",
+    text: "Let's analyze the claims made in the Shawn Ryan Show interview with Sam Shoemate.",
     user: "Alice",
     osintData: relatedOSINTEvents[0],
   },
   {
     id: 2,
-    text: "I've got some interesting data about government involvement.",
+    text: "I've found some technical inconsistencies in the email authentication claims.",
     user: "Bob",
     osintData: relatedOSINTEvents[1],
   },
+  {
+    id: 3,
+    text: "The drone technology claims seem to contradict known physics principles.",
+    user: "Charlie",
+    osintData: relatedOSINTEvents[2],
+  }
 ]
 
 const getMessageStyle = (hasOsintData: boolean): ViewStyle => {
@@ -95,8 +101,8 @@ export function ChatDemo() {
       <View style={{ flex: 1 }}>
         <Card style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <CardHeader>
-            <CardTitle>UAP Sensemaking</CardTitle>
-            <CardDescription>Nostr NIP-28 Chat Channel</CardDescription>
+            <CardTitle>Claim Analysis</CardTitle>
+            <CardDescription>Shawn Ryan Show - Sam Shoemate Interview</CardDescription>
           </CardHeader>
           <CardContent style={styles.messagesContainer}>
             <ScrollView
