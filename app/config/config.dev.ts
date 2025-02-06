@@ -6,7 +6,7 @@
  * https://reactnative.dev/docs/security#storing-sensitive-info
  */
 export default {
-  API_URL: "https://api.rss2json.com/v1/",
+  API_URL: "http://localhost:8000",
   AIUR_API_URL: "http://localhost:8000",
   NEXUS_URL: "http://localhost:3000/chat",
 }
