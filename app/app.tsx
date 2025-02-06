@@ -18,7 +18,7 @@ import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import NotificationService from "./services/notifications"
 import Hyperview from "hyperview"
 import * as behaviors from "./hyperview/behaviors"
-import Components from "./hyperview/components"
+import { Registry } from "./hyperview/components"
 import { Logger, fetchWrapper } from "./hyperview/helpers"
 
 interface AppProps {
@@ -65,7 +65,7 @@ function App(props: AppProps) {
           <View style={{ flex: 1 }}>
             <Hyperview
               behaviors={behaviors.getRegistry()}
-              components={new Components()}
+              components={new Registry()}
               entrypointUrl={`${apiUrl}/hyperview`}
               fetch={fetchWrapper}
               formatDate={(date, format) => date?.toLocaleDateString()}
