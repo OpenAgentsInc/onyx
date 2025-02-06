@@ -7,44 +7,53 @@ import "@/utils/ignore-warnings"
 import "@/utils/polyfills"
 import { useFonts } from "expo-font"
 import * as React from "react"
-import { ActivityIndicator, AppRegistry, View } from "react-native"
+import { ActivityIndicator, AppRegistry, Text, View } from "react-native"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { customFontsToLoad } from "@/theme/typography"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
-import { AppNavigator, useNavigationPersistence } from "./navigators"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import NotificationService from "./services/notifications"
-import * as storage from "./utils/storage"
+import Hyperview from "hyperview"
+import { Logger, fetchWrapper } from "./hyperview/helpers"
+import Behaviors from './hyperview/behaviors'
+import Components from './hyperview/components/'
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
 }
 
-export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
-
 function App(props: AppProps) {
+  console.log("App starting...")
   useAutoUpdate()
   const { hideSplashScreen } = props
-  const {
-    initialNavigationState,
-    onNavigationStateChange,
-    isRestored: isNavigationStateRestored,
-  } = useNavigationPersistence(storage, NAVIGATION_PERSISTENCE_KEY)
   const [loaded] = useFonts(customFontsToLoad)
-  const { rehydrated } = useInitialRootStore(() => {
-    // This runs after the root store has been initialized and rehydrated.
+
+  const { rehydrated, config } = useInitialRootStore(() => {
+    console.log("Root store initialized")
     setTimeout(hideSplashScreen, 500)
   })
 
+  // if you want to force this to skip store init in dev
+  // const rehydrated = true
+  // const config = {
+  // API_URL: "http://localhost:8000"
+  // }
+
   // Initialize notifications
   React.useEffect(() => {
+    console.log("Initializing notifications...")
     NotificationService.init().catch(console.error)
   }, [])
 
-  if (!loaded || !rehydrated || !isNavigationStateRestored) {
+  console.log("Loaded:", loaded)
+  console.log("Rehydrated:", rehydrated)
+  console.log("Config:", config)
+
+  if (!loaded || !rehydrated && false) {
+    console.log("Showing loading screen...")
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#fff" />
@@ -52,14 +61,24 @@ function App(props: AppProps) {
     )
   }
 
+  // Get the API URL from config
+  const apiUrl = config?.API_URL || "http://localhost:8000"
+  console.log("API URL:", apiUrl)
+
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <KeyboardProvider>
-          <AppNavigator
-            initialState={initialNavigationState}
-            onStateChange={onNavigationStateChange}
-          />
+          <View style={{ flex: 1, backgroundColor: 'black' }}>
+            <Hyperview
+              behaviors={Behaviors}
+              components={Components}
+              entrypointUrl={`${apiUrl}/hyperview`}
+              fetch={fetchWrapper}
+              formatDate={(date, format) => date?.toLocaleDateString()}
+              logger={new Logger(Logger.Level.log)}
+            />
+          </View>
         </KeyboardProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
