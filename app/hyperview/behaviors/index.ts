@@ -3,5 +3,8 @@ import WebSocketBehavior from './WebSocket'
 
 export default [
   AddStyles,
-  WebSocketBehavior
+  ...Object.entries(WebSocketBehavior).map(([action, handler]) => ({
+    action,
+    handler
+  }))
 ]
