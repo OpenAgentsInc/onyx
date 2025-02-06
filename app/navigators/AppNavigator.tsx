@@ -1,34 +1,40 @@
-import { observer } from "mobx-react-lite"
-import { ComponentProps } from "react"
-import * as Screens from "@/screens"
-import { useAppTheme, useThemeProvider } from "@/utils/useAppTheme"
-import { NavigationContainer } from "@react-navigation/native"
-import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
-import Config from "../config"
-import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
-import { SettingsNavigator } from "./SettingsNavigator"
-import { WalletNavigator } from "./WalletNavigator"
+import { observer } from "mobx-react-lite";
+import { ComponentProps } from "react";
+import * as Screens from "@/screens";
+import { useAppTheme, useThemeProvider } from "@/utils/useAppTheme";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack";
+import Config from "../config";
+import { navigationRef, useBackButtonHandler } from "./navigationUtilities";
+import { SettingsNavigator } from "./SettingsNavigator";
+import { WalletNavigator } from "./WalletNavigator";
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { AuthCallback } from '../screens/AuthCallback';
+import { LoginScreen } from '../screens/LoginScreen';
 
 export type AppStackParamList = {
-  Chat: undefined
-  Settings: undefined
-  Wallet: undefined
-  Profile: undefined
-}
+  Chat: undefined;
+  Settings: undefined;
+  Wallet: undefined;
+  Profile: undefined;
+  Login: undefined;
+  AuthCallback: { code?: string };
+};
 
-const exitRoutes = Config.exitRoutes
+const exitRoutes = Config.exitRoutes;
 
 export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStackScreenProps<
   AppStackParamList,
   T
->
+>;
 
-const Stack = createNativeStackNavigator<AppStackParamList>()
+const Stack = createNativeStackNavigator<AppStackParamList>();
 
 const AppStack = observer(function AppStack() {
   const {
     theme: { colors },
-  } = useAppTheme()
+  } = useAppTheme();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Stack.Navigator
@@ -39,30 +45,59 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={"Chat"}
+      initialRouteName={isAuthenticated ? "Chat" : "Login"}
     >
-      <Stack.Screen name="Chat" component={Screens.ChatScreen} />
-      <Stack.Screen name="Settings" component={SettingsNavigator} />
-      <Stack.Screen name="Profile" component={Screens.ProfileScreen} />
-      <Stack.Screen name="Wallet" component={WalletNavigator} />
+      {isAuthenticated ? (
+        // Authenticated stack
+        <>
+          <Stack.Screen name="Chat" component={Screens.ChatScreen} />
+          <Stack.Screen name="Settings" component={SettingsNavigator} />
+          <Stack.Screen name="Profile" component={Screens.ProfileScreen} />
+          <Stack.Screen name="Wallet" component={WalletNavigator} />
+        </>
+      ) : (
+        // Auth stack
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="AuthCallback" component={AuthCallback} />
+        </>
+      )}
     </Stack.Navigator>
-  )
-})
+  );
+});
 
 export interface NavigationProps extends Partial<ComponentProps<typeof NavigationContainer>> {}
 
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
   const { themeScheme, navigationTheme, setThemeContextOverride, ThemeProvider } =
-    useThemeProvider("dark")
+    useThemeProvider("dark");
 
-  useBackButtonHandler((routeName) => exitRoutes.includes(routeName))
+  useBackButtonHandler((routeName) => exitRoutes.includes(routeName));
 
   return (
     <ThemeProvider value={{ themeScheme, setThemeContextOverride }}>
-      {/* @ts-ignore */}
-      <NavigationContainer ref={navigationRef} theme={navigationTheme} {...props}>
-        <AppStack />
-      </NavigationContainer>
+      <AuthProvider>
+        <NavigationContainer 
+          ref={navigationRef} 
+          theme={navigationTheme} 
+          {...props}
+          linking={{
+            prefixes: ['onyx://', 'https://onyx.openagents.com'],
+            config: {
+              screens: {
+                AuthCallback: 'auth/github/callback',
+                Login: 'login',
+                Chat: 'chat',
+                Settings: 'settings',
+                Profile: 'profile',
+                Wallet: 'wallet',
+              },
+            },
+          }}
+        >
+          <AppStack />
+        </NavigationContainer>
+      </AuthProvider>
     </ThemeProvider>
-  )
-})
+  );
+});
