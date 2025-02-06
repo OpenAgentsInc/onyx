@@ -17,9 +17,9 @@ import { useInitialRootStore } from "./models"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import NotificationService from "./services/notifications"
 import Hyperview from "hyperview"
-import * as behaviors from "./hyperview/behaviors"
-import { Registry } from "./hyperview/components"
 import { Logger, fetchWrapper } from "./hyperview/helpers"
+import Behaviors from './hyperview/behaviors'
+import Components from './hyperview/components/'
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
@@ -64,8 +64,8 @@ function App(props: AppProps) {
         <KeyboardProvider>
           <View style={{ flex: 1, backgroundColor: 'white' }}>
             <Hyperview
-              //behaviors={behaviors.getRegistry()}
-              // components={new Registry()}
+              behaviors={Behaviors}
+              components={Components}
               entrypointUrl={`${apiUrl}/hyperview`}
               fetch={fetchWrapper}
               formatDate={(date, format) => date?.toLocaleDateString()}
