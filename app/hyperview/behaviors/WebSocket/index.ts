@@ -1,13 +1,13 @@
 import { WebSocketWrapper } from './wrapper'
 import { parseHxmlFragment } from './parser'
 import { Element } from 'hyperview'
-import { EventEmitter } from 'events'
+import { SimpleEventEmitter } from './events'
 
 // Store active WebSocket connections
 const connections = new Map<string, WebSocketWrapper>()
 
 // Create event emitter for WebSocket events
-const eventEmitter = new EventEmitter()
+const eventEmitter = new SimpleEventEmitter()
 
 const wsConnect = {
   action: 'ws:connect',
