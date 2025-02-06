@@ -31,16 +31,16 @@ function App(props: AppProps) {
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
 
-  /**
   const { rehydrated, config } = useInitialRootStore(() => {
     console.log("Root store initialized")
     setTimeout(hideSplashScreen, 500)
   })
-  */
-  const rehydrated = true
-  const config = {
-    API_URL: "http://localhost:8000"
-  }
+
+  // if you want to force this to skip store init in dev
+  // const rehydrated = true
+  // const config = {
+  // API_URL: "http://localhost:8000"
+  // }
 
   // Initialize notifications
   React.useEffect(() => {
