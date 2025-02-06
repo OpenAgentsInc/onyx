@@ -45,7 +45,7 @@ function App(props: AppProps) {
   console.log("Rehydrated:", rehydrated)
   console.log("Config:", config)
 
-  if (!loaded || !rehydrated) {
+  if (!loaded || !rehydrated && false) {
     console.log("Showing loading screen...")
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -62,10 +62,10 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <KeyboardProvider>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, backgroundColor: 'white' }}>
             <Hyperview
-              behaviors={behaviors.getRegistry()}
-              components={new Registry()}
+              //behaviors={behaviors.getRegistry()}
+              // components={new Registry()}
               entrypointUrl={`${apiUrl}/hyperview`}
               fetch={fetchWrapper}
               formatDate={(date, format) => date?.toLocaleDateString()}
