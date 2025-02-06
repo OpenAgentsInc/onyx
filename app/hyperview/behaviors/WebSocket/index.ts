@@ -1,13 +1,13 @@
 import { WebSocketWrapper } from './wrapper'
 import { parseHxmlFragment } from './parser'
 import { Element } from 'hyperview'
-import { NativeEventEmitter } from 'react-native'
+import { EventEmitter } from 'events'
 
 // Store active WebSocket connections
 const connections = new Map<string, WebSocketWrapper>()
 
 // Create event emitter for WebSocket events
-const eventEmitter = new NativeEventEmitter()
+const eventEmitter = new EventEmitter()
 
 const wsConnect = {
   action: 'ws:connect',
@@ -81,7 +81,7 @@ const wsDisconnect = {
 }
 
 // Add event listeners for behavior triggers
-eventEmitter.addListener('ws:open', (event) => {
+eventEmitter.on('ws:open', (event) => {
   // Trigger any behaviors with trigger="ws:open"
   const behaviors = event.target.getElementsByTagName('behavior')
   for (const behavior of behaviors) {
@@ -95,7 +95,7 @@ eventEmitter.addListener('ws:open', (event) => {
   }
 })
 
-eventEmitter.addListener('ws:close', (event) => {
+eventEmitter.on('ws:close', (event) => {
   // Trigger any behaviors with trigger="ws:close"
   const behaviors = event.target.getElementsByTagName('behavior')
   for (const behavior of behaviors) {
