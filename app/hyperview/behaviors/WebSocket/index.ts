@@ -1,9 +1,13 @@
 import { WebSocketWrapper } from './wrapper'
 import { parseHxmlFragment } from './parser'
 import { Element } from 'hyperview'
+import { NativeEventEmitter } from 'react-native'
 
 // Store active WebSocket connections
 const connections = new Map<string, WebSocketWrapper>()
+
+// Create event emitter for WebSocket events
+const eventEmitter = new NativeEventEmitter()
 
 const wsConnect = {
   action: 'ws:connect',
@@ -24,13 +28,11 @@ const wsConnect = {
       
       // Set up event handlers
       ws.on('open', () => {
-        const event = new CustomEvent('ws:open')
-        element.dispatchEvent(event)
+        eventEmitter.emit('ws:open', { target: element })
       })
       
       ws.on('close', () => {
-        const event = new CustomEvent('ws:close')
-        element.dispatchEvent(event)
+        eventEmitter.emit('ws:close', { target: element })
       })
       
       ws.on('message', (data) => {
@@ -77,5 +79,34 @@ const wsDisconnect = {
     }
   }
 }
+
+// Add event listeners for behavior triggers
+eventEmitter.addListener('ws:open', (event) => {
+  // Trigger any behaviors with trigger="ws:open"
+  const behaviors = event.target.getElementsByTagName('behavior')
+  for (const behavior of behaviors) {
+    if (behavior.getAttribute('trigger') === 'ws:open') {
+      // Execute the behavior
+      const href = behavior.getAttribute('href')
+      if (href) {
+        // TODO: Handle navigation/loading new content
+      }
+    }
+  }
+})
+
+eventEmitter.addListener('ws:close', (event) => {
+  // Trigger any behaviors with trigger="ws:close"
+  const behaviors = event.target.getElementsByTagName('behavior')
+  for (const behavior of behaviors) {
+    if (behavior.getAttribute('trigger') === 'ws:close') {
+      // Execute the behavior
+      const href = behavior.getAttribute('href')
+      if (href) {
+        // TODO: Handle navigation/loading new content
+      }
+    }
+  }
+})
 
 export default [wsConnect, wsSend, wsDisconnect]
