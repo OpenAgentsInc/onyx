@@ -25,26 +25,37 @@ interface AppProps {
 }
 
 function App(props: AppProps) {
+  console.log("App starting...")
   useAutoUpdate()
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
   const { rehydrated, config } = useInitialRootStore(() => {
+    console.log("Root store initialized")
     // This runs after the root store has been initialized and rehydrated.
     setTimeout(hideSplashScreen, 500)
   })
 
   // Initialize notifications
   React.useEffect(() => {
+    console.log("Initializing notifications...")
     NotificationService.init().catch(console.error)
   }, [])
 
+  console.log("Loaded:", loaded)
+  console.log("Rehydrated:", rehydrated)
+  console.log("Config:", config)
+
   if (!loaded || !rehydrated) {
+    console.log("Showing loading screen...")
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#fff" />
       </View>
     )
   }
+
+  console.log("Rendering main app...")
+  console.log("API URL:", config.api.url)
 
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
