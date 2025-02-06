@@ -1,6 +1,6 @@
 import { Linking } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
-import { API_URL } from '@env';
+import Config from '../../config';
 
 interface AuthTokens {
   accessToken: string;
@@ -37,7 +37,7 @@ class GitHubAuthService {
   // Handle OAuth callback
   async handleCallback(code: string): Promise<SessionResponse> {
     // Exchange code for session via OpenAgents
-    const response = await fetch(`${API_URL}/auth/github/callback`, {
+    const response = await fetch(`${Config.API_URL}/auth/github/callback`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
