@@ -17,7 +17,8 @@ import { useInitialRootStore } from "./models"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import NotificationService from "./services/notifications"
 import Hyperview from "hyperview"
-import { behaviors, components } from "./hyperview"
+import * as behaviors from "./hyperview/behaviors"
+import Components from "./hyperview/components"
 import { Logger, fetchWrapper } from "./hyperview/helpers"
 
 interface AppProps {
@@ -26,7 +27,6 @@ interface AppProps {
 
 function App(props: AppProps) {
   console.log("App starting...")
-  console.log(Hyperview)
   useAutoUpdate()
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
@@ -62,10 +62,10 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <KeyboardProvider>
-          <View style={{ flex: 1, backgroundColor: 'white' }}>
+          <View style={{ flex: 1 }}>
             <Hyperview
-              // behaviors={behaviors}
-              // components={components}
+              behaviors={behaviors.getRegistry()}
+              components={new Components()}
               entrypointUrl={`${apiUrl}/hyperview`}
               fetch={fetchWrapper}
               formatDate={(date, format) => date?.toLocaleDateString()}
