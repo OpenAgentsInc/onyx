@@ -1,13 +1,28 @@
-import { Behavior } from 'hyperview/src/types'
+import { HvBehavior, BehaviorRegistry } from 'hyperview/src/types'
 
-const behaviors: Record<string, Behavior> = {
-  'hv-alert': (element, context) => {
-    const message = element.getAttribute('message') || 'Alert'
-    alert(message)
+const HYPERVIEW_BEHAVIORS: HvBehavior[] = [
+  {
+    action: 'alert',
+    callback: (element, context) => {
+      const message = element.getAttribute('message') || 'Alert'
+      alert(message)
+    },
   },
-}
+]
 
-export const getRegistry = (customBehaviors: Record<string, Behavior> = {}) => ({
-  ...behaviors,
-  ...customBehaviors,
-})
+export const getRegistry = (behaviors: HvBehavior[] = []): BehaviorRegistry =>
+  [...HYPERVIEW_BEHAVIORS, ...behaviors].reduce(
+    (registry: BehaviorRegistry, behavior: HvBehavior) => ({
+      ...registry,
+      [behavior.action]: behavior.callback,
+    }),
+    {},
+  )
+
+export {
+  setIndicatorsBeforeLoad,
+  performUpdate,
+  setIndicatorsAfterLoad,
+  isOncePreviouslyApplied,
+  setRanOnce,
+} from 'hyperview/src/services/behaviors'
