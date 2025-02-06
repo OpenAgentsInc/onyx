@@ -7,7 +7,7 @@ import "@/utils/ignore-warnings"
 import "@/utils/polyfills"
 import { useFonts } from "expo-font"
 import * as React from "react"
-import { ActivityIndicator, AppRegistry, View } from "react-native"
+import { ActivityIndicator, AppRegistry, Text, View } from "react-native"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { customFontsToLoad } from "@/theme/typography"
@@ -31,7 +31,6 @@ function App(props: AppProps) {
   const [loaded] = useFonts(customFontsToLoad)
   const { rehydrated, config } = useInitialRootStore(() => {
     console.log("Root store initialized")
-    // This runs after the root store has been initialized and rehydrated.
     setTimeout(hideSplashScreen, 500)
   })
 
@@ -45,11 +44,22 @@ function App(props: AppProps) {
   console.log("Rehydrated:", rehydrated)
   console.log("Config:", config)
 
-  if (!loaded || !rehydrated) {
+  if (!loaded || !rehydrated || !config) {
     console.log("Showing loading screen...")
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#fff" />
+        {!config && <Text style={{ color: '#fff', marginTop: 10 }}>Loading config...</Text>}
+      </View>
+    )
+  }
+
+  // Ensure config.api exists
+  if (!config.api?.url) {
+    console.error("Missing config.api.url")
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ color: '#fff' }}>Error: Missing API configuration</Text>
       </View>
     )
   }
