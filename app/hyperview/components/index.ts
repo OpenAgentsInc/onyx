@@ -1,7 +1,18 @@
-import { ComponentRegistry } from 'hyperview'
+import { ComponentRegistry } from 'hyperview/src/types'
 
-const components: ComponentRegistry = {
-  // We'll add custom components here later
+class Registry {
+  private components: ComponentRegistry = {}
+
+  constructor(customComponents: ComponentRegistry = {}) {
+    this.components = {
+      ...customComponents,
+    }
+  }
+
+  get(namespace: string, localName: string) {
+    const key = `${namespace}:${localName}`
+    return this.components[key]
+  }
 }
 
-export default components
+export default Registry
