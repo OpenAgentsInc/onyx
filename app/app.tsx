@@ -14,27 +14,21 @@ import { customFontsToLoad } from "@/theme/typography"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
-import { AppNavigator, useNavigationPersistence } from "./navigators"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import NotificationService from "./services/notifications"
-import * as storage from "./utils/storage"
+import Hyperview from "hyperview"
+import { behaviors, components } from "./hyperview"
+import { Logger, fetchWrapper } from "./hyperview/helpers"
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
 }
 
-export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
-
 function App(props: AppProps) {
   useAutoUpdate()
   const { hideSplashScreen } = props
-  const {
-    initialNavigationState,
-    onNavigationStateChange,
-    isRestored: isNavigationStateRestored,
-  } = useNavigationPersistence(storage, NAVIGATION_PERSISTENCE_KEY)
   const [loaded] = useFonts(customFontsToLoad)
-  const { rehydrated } = useInitialRootStore(() => {
+  const { rehydrated, config } = useInitialRootStore(() => {
     // This runs after the root store has been initialized and rehydrated.
     setTimeout(hideSplashScreen, 500)
   })
@@ -44,7 +38,7 @@ function App(props: AppProps) {
     NotificationService.init().catch(console.error)
   }, [])
 
-  if (!loaded || !rehydrated || !isNavigationStateRestored) {
+  if (!loaded || !rehydrated) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#fff" />
@@ -56,10 +50,16 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <KeyboardProvider>
-          <AppNavigator
-            initialState={initialNavigationState}
-            onStateChange={onNavigationStateChange}
-          />
+          <View style={{ flex: 1 }}>
+            <Hyperview
+              behaviors={behaviors}
+              components={components}
+              entrypointUrl={`${config.api.url}/hyperview`}
+              fetch={fetchWrapper}
+              formatDate={(date, format) => date?.toLocaleDateString()}
+              logger={new Logger(Logger.Level.log)}
+            />
+          </View>
         </KeyboardProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
