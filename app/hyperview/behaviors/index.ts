@@ -1,4 +1,7 @@
-import { AddStyles } from './AddStyles';
+import { AddStyles } from './AddStyles'
+import WebSocketBehaviors from './WebSocket'
 
-export default [AddStyles];
-
+export default [
+  AddStyles,
+  ...WebSocketBehaviors
+]
