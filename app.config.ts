@@ -22,6 +22,7 @@ module.exports = ({ config }: ConfigContext): Partial<ExpoConfig> => {
       'expo-localization',
       'expo-sqlite',
       'expo-notifications',
+      'expo-build-properties',
     ],
     extra: {
       ...config.extra,
