@@ -44,28 +44,18 @@ function App(props: AppProps) {
   console.log("Rehydrated:", rehydrated)
   console.log("Config:", config)
 
-  if (!loaded || !rehydrated || !config) {
+  if (!loaded || !rehydrated) {
     console.log("Showing loading screen...")
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#fff" />
-        {!config && <Text style={{ color: '#fff', marginTop: 10 }}>Loading config...</Text>}
       </View>
     )
   }
 
-  // Ensure config.api exists
-  if (!config.api?.url) {
-    console.error("Missing config.api.url")
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: '#fff' }}>Error: Missing API configuration</Text>
-      </View>
-    )
-  }
-
-  console.log("Rendering main app...")
-  console.log("API URL:", config.api.url)
+  // Get the API URL from config
+  const apiUrl = config?.API_URL || "http://localhost:8000"
+  console.log("API URL:", apiUrl)
 
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
@@ -75,7 +65,7 @@ function App(props: AppProps) {
             <Hyperview
               behaviors={behaviors}
               components={components}
-              entrypointUrl={`${config.api.url}/hyperview`}
+              entrypointUrl={`${apiUrl}/hyperview`}
               fetch={fetchWrapper}
               formatDate={(date, format) => date?.toLocaleDateString()}
               logger={new Logger(Logger.Level.log)}
