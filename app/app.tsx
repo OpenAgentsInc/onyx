@@ -26,6 +26,7 @@ interface AppProps {
 
 function App(props: AppProps) {
   console.log("App starting...")
+  console.log(Hyperview)
   useAutoUpdate()
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
@@ -61,10 +62,10 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <KeyboardProvider>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, backgroundColor: 'white' }}>
             <Hyperview
-              behaviors={behaviors}
-              components={components}
+              // behaviors={behaviors}
+              // components={components}
               entrypointUrl={`${apiUrl}/hyperview`}
               fetch={fetchWrapper}
               formatDate={(date, format) => date?.toLocaleDateString()}
