@@ -1,21 +1,17 @@
 import { WebSocketWrapper } from './wrapper'
 import { parseHxmlFragment } from './parser'
-import { BehaviorOptions } from 'hyperview'
-
-type WebSocketBehaviorOptions = BehaviorOptions & {
-  wsUrl?: string
-  wsProtocols?: string
-  wsMessage?: string
-  wsTarget?: string
-  wsSwap?: 'replace' | 'append' | 'prepend'
-}
+import { Element } from 'hyperview'
 
 // Store active WebSocket connections
 const connections = new Map<string, WebSocketWrapper>()
 
-export default {
-  'ws:connect': async (options: WebSocketBehaviorOptions) => {
-    const { wsUrl, wsProtocols, element } = options
+const wsConnect = {
+  action: 'ws:connect',
+  callback: (element: Element) => {
+    const NAMESPACE_URI = 'https://openagents.com/hyperview-websocket'
+    const wsUrl = element.getAttributeNS(NAMESPACE_URI, 'url')
+    const wsProtocols = element.getAttributeNS(NAMESPACE_URI, 'protocols')
+    
     if (!wsUrl) return
 
     // Create unique connection ID for the element
@@ -39,20 +35,24 @@ export default {
       
       ws.on('message', (data) => {
         // Parse HXML fragment and update target element
-        const target = options.wsTarget ? 
-          document.getElementById(options.wsTarget) :
+        const target = element.getAttributeNS(NAMESPACE_URI, 'target') ? 
+          document.getElementById(element.getAttributeNS(NAMESPACE_URI, 'target')!) :
           element
           
         if (target) {
-          const swap = options.wsSwap || 'replace'
-          parseHxmlFragment(data, target, swap)
+          const swap = element.getAttributeNS(NAMESPACE_URI, 'swap') || 'replace'
+          parseHxmlFragment(data, target, swap as 'replace' | 'append' | 'prepend')
         }
       })
     }
-  },
+  }
+}
 
-  'ws:send': async (options: WebSocketBehaviorOptions) => {
-    const { element, wsMessage } = options
+const wsSend = {
+  action: 'ws:send',
+  callback: (element: Element) => {
+    const NAMESPACE_URI = 'https://openagents.com/hyperview-websocket'
+    const wsMessage = element.getAttributeNS(NAMESPACE_URI, 'message')
     if (!wsMessage) return
     
     // Get connection ID from element
@@ -62,10 +62,12 @@ export default {
     if (ws) {
       ws.send(wsMessage)
     }
-  },
+  }
+}
 
-  'ws:disconnect': async (options: WebSocketBehaviorOptions) => {
-    const { element } = options
+const wsDisconnect = {
+  action: 'ws:disconnect',
+  callback: (element: Element) => {
     const connId = element.getAttribute('id') || ''
     const ws = connections.get(connId)
     
@@ -75,3 +77,5 @@ export default {
     }
   }
 }
+
+export default [wsConnect, wsSend, wsDisconnect]
