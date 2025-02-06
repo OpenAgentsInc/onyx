@@ -1,10 +1,7 @@
 import { AddStyles } from './AddStyles'
-import WebSocketBehavior from './WebSocket'
+import WebSocketBehaviors from './WebSocket'
 
 export default [
   AddStyles,
-  ...Object.entries(WebSocketBehavior).map(([action, handler]) => ({
-    action,
-    handler
-  }))
+  ...WebSocketBehaviors
 ]
