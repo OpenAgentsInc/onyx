@@ -30,10 +30,17 @@ function App(props: AppProps) {
   useAutoUpdate()
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
+
+  /**
   const { rehydrated, config } = useInitialRootStore(() => {
     console.log("Root store initialized")
     setTimeout(hideSplashScreen, 500)
   })
+  */
+  const rehydrated = true
+  const config = {
+    API_URL: "http://localhost:8000"
+  }
 
   // Initialize notifications
   React.useEffect(() => {
@@ -62,7 +69,7 @@ function App(props: AppProps) {
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <KeyboardProvider>
-          <View style={{ flex: 1, backgroundColor: 'white' }}>
+          <View style={{ flex: 1, backgroundColor: 'black' }}>
             <Hyperview
               behaviors={Behaviors}
               components={Components}
