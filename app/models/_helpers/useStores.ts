@@ -4,6 +4,7 @@ import {
   createRootStoreDefaultModel, RootStore, RootStoreModel
 } from "../RootStore"
 import { setupRootStore } from "./setupRootStore"
+import Config from "../../config"
 
 /**
  * Create the initial (empty) global RootStore instance here.
@@ -33,6 +34,7 @@ export const useStores = () => useContext(RootStoreContext)
 export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
   const rootStore = useStores()
   const [rehydrated, setRehydrated] = useState(false)
+  const [config, setConfig] = useState(Config)
 
   // Kick off initial async loading actions, like loading fonts and rehydrating RootStore
   useEffect(() => {
@@ -71,5 +73,5 @@ export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
     }
   }, []) // Empty dependency array since we only want this to run once on mount
 
-  return { rehydrated }
+  return { rehydrated, config }
 }
