@@ -1,5 +1,6 @@
 import * as Linking from 'expo-linking';
 import type { HvBehavior } from '@hyperview/core';
+import * as Dom from 'hyperview/src/services/dom';
 import Config from '@/config';
 
 export const OpenUrlBehavior: HvBehavior = {
@@ -34,20 +35,28 @@ export const OpenUrlBehavior: HvBehavior = {
         throw new Error(`Cannot open URL: ${fullUrl}`);
       }
 
+      // Get root element for DOM operations
+      const root = context.getDoc();
+      console.log('[OpenUrl] Got root element');
+
       // Show loading state
       if (showDuringLoad) {
-        const loadingElement = element.ownerDocument.getElementById(showDuringLoad);
+        const loadingElement = Dom.getElementById(root, showDuringLoad);
         if (loadingElement) {
           console.log('[OpenUrl] Showing loading element:', showDuringLoad);
-          loadingElement.style.display = 'flex';
+          loadingElement.setAttribute('style', 'loading display="flex"');
+        } else {
+          console.warn('[OpenUrl] Loading element not found:', showDuringLoad);
         }
       }
 
       if (hideDuringLoad) {
-        const buttonElement = element.ownerDocument.getElementById(hideDuringLoad);
+        const buttonElement = Dom.getElementById(root, hideDuringLoad);
         if (buttonElement) {
           console.log('[OpenUrl] Hiding element:', hideDuringLoad);
-          buttonElement.style.display = 'none';
+          buttonElement.setAttribute('style', 'button display="none"');
+        } else {
+          console.warn('[OpenUrl] Button element not found:', hideDuringLoad);
         }
       }
       
@@ -57,25 +66,27 @@ export const OpenUrlBehavior: HvBehavior = {
     } catch (error) {
       console.error('[OpenUrl] Error:', error);
       
+      const root = context.getDoc();
+
       // Show error message if available
-      const errorElement = element.ownerDocument.getElementById('error-message');
+      const errorElement = Dom.getElementById(root, 'error-message');
       if (errorElement) {
-        errorElement.style.display = 'flex';
+        errorElement.setAttribute('style', 'error display="flex"');
         errorElement.textContent = `Failed to open GitHub login: ${error.message}`;
       }
 
       // Reset loading state
       if (showDuringLoad) {
-        const loadingElement = element.ownerDocument.getElementById(showDuringLoad);
+        const loadingElement = Dom.getElementById(root, showDuringLoad);
         if (loadingElement) {
-          loadingElement.style.display = 'none';
+          loadingElement.setAttribute('style', 'loading display="none"');
         }
       }
 
       if (hideDuringLoad) {
-        const buttonElement = element.ownerDocument.getElementById(hideDuringLoad);
+        const buttonElement = Dom.getElementById(root, hideDuringLoad);
         if (buttonElement) {
-          buttonElement.style.display = 'flex';
+          buttonElement.setAttribute('style', 'button display="flex"');
         }
       }
     }
