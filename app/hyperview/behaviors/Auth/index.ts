@@ -3,7 +3,7 @@ import { events } from '../../../services/events';
 
 export const AuthBehavior: HvBehavior = {
   action: 'auth',
-  callback: async (behaviorElement, onUpdate, getRoot) => {
+  callback: async (behaviorElement, onUpdate) => {
     if (!behaviorElement) {
       console.error('[Auth] Error: behaviorElement is required');
       return;
@@ -35,12 +35,12 @@ export const AuthBehavior: HvBehavior = {
       }
     } else if (action === 'logout') {
       try {
-        // Emit logout event and wait for it to complete
+        // Emit logout event
         events.emit('auth:logout');
         console.log('[Auth] Logout event emitted');
 
-        // Small delay to ensure logout completes
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Wait for logout to complete
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // Navigate after logout if href provided
         if (href) {
@@ -48,7 +48,6 @@ export const AuthBehavior: HvBehavior = {
           onUpdate(behaviorElement, { 
             href, 
             action: 'replace',
-            // Force reload to ensure clean state
             reload: true 
           });
         }
