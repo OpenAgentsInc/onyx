@@ -1,7 +1,7 @@
 import type { HvBehavior } from '@hyperview/core';
 import Config from '@/config';
 
-export const fetch: HvBehavior = {
+export const FetchBehavior: HvBehavior = {
   action: 'fetch',
   callback: async (element, context) => {
     console.log('[Fetch] Triggered');
@@ -42,7 +42,7 @@ export const fetch: HvBehavior = {
       const fullUrl = href.startsWith('http') ? href : `${Config.API_URL}${href}`;
       console.log('[Fetch] Fetching URL:', fullUrl);
       
-      const response = await window.fetch(fullUrl, {
+      const response = await fetch(fullUrl, {
         method: verb,
         headers: {
           'Accept': 'application/xml',
@@ -87,5 +87,3 @@ export const fetch: HvBehavior = {
     }
   },
 };
-
-export default [fetch];
