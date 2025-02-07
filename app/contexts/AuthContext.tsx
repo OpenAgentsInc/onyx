@@ -34,7 +34,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = await SecureStore.getItemAsync('session_token');
       console.log('[Auth] Checking auth state, token:', token);
       
-      if (token) {
+      // Only set authenticated if token is valid (not $params.token)
+      if (token && !token.includes('$params')) {
         setIsAuthenticated(true);
         const userJson = await SecureStore.getItemAsync('github_user');
         if (userJson) {
@@ -42,10 +43,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         console.log('[Auth] Restored auth state:', { isAuthenticated: true });
       } else {
-        console.log('[Auth] No token found');
+        console.log('[Auth] No valid token found');
+        // Clear any invalid tokens
+        await SecureStore.deleteItemAsync('session_token');
+        await SecureStore.deleteItemAsync('github_user');
+        setIsAuthenticated(false);
+        setUser(null);
       }
     } catch (error) {
       console.error('[Auth] Error checking auth state:', error);
+      setIsAuthenticated(false);
+      setUser(null);
     }
   }
 
@@ -56,7 +64,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function logout() {
     console.log('[Auth] Logging out');
-    await githubAuth.logout();
+    await SecureStore.deleteItemAsync('session_token');
+    await SecureStore.deleteItemAsync('github_user');
     setIsAuthenticated(false);
     setUser(null);
     console.log('[Auth] Logged out');
@@ -65,6 +74,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function handleAuthCallback(token: string) {
     console.log('[Auth] Handling auth callback with token:', token);
     try {
+      if (!token || token.includes('$params')) {
+        throw new Error('Invalid token');
+      }
+
       // Store session token
       await SecureStore.setItemAsync('session_token', token);
       setIsAuthenticated(true);
