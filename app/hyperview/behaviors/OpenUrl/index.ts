@@ -1,6 +1,6 @@
 import { Linking } from 'react-native';
 import { HvBehavior } from '@hyperview/core';
-import { BASE_URL } from '@/config/constants';
+import Config from '@/config';
 
 export const OpenUrlBehavior: HvBehavior = {
   action: 'open-url',
@@ -28,7 +28,7 @@ export const OpenUrlBehavior: HvBehavior = {
 
     try {
       // Construct full URL
-      const fullUrl = href.startsWith('http') ? href : `${BASE_URL}${href}`;
+      const fullUrl = href.startsWith('http') ? href : `${Config.API_URL}${href}`;
       await Linking.openURL(fullUrl);
     } catch (error) {
       // Show error message if available
