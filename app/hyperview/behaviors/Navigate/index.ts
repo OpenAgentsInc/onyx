@@ -1,5 +1,5 @@
 import { HvBehavior } from '@hyperview/core';
-import { BASE_URL } from '@/config/constants';
+import Config from '@/config';
 
 export const NavigateBehavior: HvBehavior = {
   action: 'navigate',
@@ -11,7 +11,7 @@ export const NavigateBehavior: HvBehavior = {
     
     try {
       // Construct full URL
-      const fullUrl = href.startsWith('http') ? href : `${BASE_URL}${href}`;
+      const fullUrl = href.startsWith('http') ? href : `${Config.API_URL}${href}`;
       
       // Use Hyperview's navigation system
       await context.navigation.navigate(fullUrl, {
