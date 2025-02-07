@@ -1,10 +1,13 @@
-import { OpenUrlBehavior } from './OpenUrl';
-import { NavigateBehavior } from './Navigate';
-import { FetchBehavior } from './Fetch';
+import { AddStyles } from './AddStyles';
+import WebSocketBehaviors from './WebSocket';
+import OpenUrlBehaviors from './OpenUrl';
+import NavigateBehaviors from './Navigate';
+import FetchBehaviors from './Fetch';
 
-// Export behaviors in the format Hyperview expects
-export default {
-  'open-url': OpenUrlBehavior.callback,
-  'navigate': NavigateBehavior.callback,
-  'fetch': FetchBehavior.callback,
-};
+export default [
+  AddStyles,
+  ...WebSocketBehaviors,
+  ...OpenUrlBehaviors,
+  ...NavigateBehaviors,
+  ...FetchBehaviors,
+];
