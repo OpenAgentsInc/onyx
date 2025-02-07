@@ -1,4 +1,4 @@
-import { Linking } from 'react-native';
+import * as Linking from 'expo-linking';
 import type { HvBehavior } from '@hyperview/core';
 import Config from '@/config';
 
@@ -26,20 +26,28 @@ export const OpenUrlBehavior: HvBehavior = {
       const fullUrl = href.startsWith('http') ? href : `${Config.API_URL}${href}`;
       console.log('[OpenUrl] Opening URL:', fullUrl);
 
-      // Show loading state only after URL is constructed
+      // Check if URL can be opened
+      const canOpen = await Linking.canOpenURL(fullUrl);
+      console.log('[OpenUrl] Can open URL:', canOpen);
+
+      if (!canOpen) {
+        throw new Error(`Cannot open URL: ${fullUrl}`);
+      }
+
+      // Show loading state
       if (showDuringLoad) {
-        const showElement = document.getElementById(showDuringLoad);
-        if (showElement) {
+        const loadingElement = element.ownerDocument.getElementById(showDuringLoad);
+        if (loadingElement) {
           console.log('[OpenUrl] Showing loading element:', showDuringLoad);
-          showElement.style.display = 'flex';
+          loadingElement.style.display = 'flex';
         }
       }
 
       if (hideDuringLoad) {
-        const hideElement = document.getElementById(hideDuringLoad);
-        if (hideElement) {
+        const buttonElement = element.ownerDocument.getElementById(hideDuringLoad);
+        if (buttonElement) {
           console.log('[OpenUrl] Hiding element:', hideDuringLoad);
-          hideElement.style.display = 'none';
+          buttonElement.style.display = 'none';
         }
       }
       
@@ -50,7 +58,7 @@ export const OpenUrlBehavior: HvBehavior = {
       console.error('[OpenUrl] Error:', error);
       
       // Show error message if available
-      const errorElement = document.getElementById('error-message');
+      const errorElement = element.ownerDocument.getElementById('error-message');
       if (errorElement) {
         errorElement.style.display = 'flex';
         errorElement.textContent = `Failed to open GitHub login: ${error.message}`;
@@ -58,16 +66,16 @@ export const OpenUrlBehavior: HvBehavior = {
 
       // Reset loading state
       if (showDuringLoad) {
-        const showElement = document.getElementById(showDuringLoad);
-        if (showElement) {
-          showElement.style.display = 'none';
+        const loadingElement = element.ownerDocument.getElementById(showDuringLoad);
+        if (loadingElement) {
+          loadingElement.style.display = 'none';
         }
       }
 
       if (hideDuringLoad) {
-        const hideElement = document.getElementById(hideDuringLoad);
-        if (hideElement) {
-          hideElement.style.display = 'flex';
+        const buttonElement = element.ownerDocument.getElementById(hideDuringLoad);
+        if (buttonElement) {
+          buttonElement.style.display = 'flex';
         }
       }
     }
