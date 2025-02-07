@@ -1,5 +1,6 @@
 import type { HvBehavior } from '@hyperview/core';
 import { events } from '../../../services/events';
+import Config from '../../../config';
 
 export const AuthBehavior: HvBehavior = {
   action: 'auth',
@@ -35,8 +36,14 @@ export const AuthBehavior: HvBehavior = {
       }
     } else if (action === 'logout') {
       try {
-        // First navigate to logout endpoint
-        await fetch('/hyperview/auth/logout?platform=mobile');
+        // First call server logout endpoint
+        const logoutUrl = `${Config.API_URL}/hyperview/auth/logout?platform=mobile`;
+        console.log('[Auth] Calling logout URL:', logoutUrl);
+        
+        const response = await fetch(logoutUrl);
+        if (!response.ok) {
+          throw new Error(`Logout failed: ${response.status}`);
+        }
         console.log('[Auth] Server logout completed');
 
         // Emit logout event
@@ -57,6 +64,15 @@ export const AuthBehavior: HvBehavior = {
         }
       } catch (error) {
         console.error('[Auth] Error during logout:', error);
+        // Still try to navigate to login on error
+        if (href) {
+          console.log('[Auth] Error occurred, still navigating to:', href);
+          onUpdate(behaviorElement, { 
+            href, 
+            action: 'replace',
+            reload: true 
+          });
+        }
       }
     }
   },
