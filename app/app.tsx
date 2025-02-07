@@ -36,8 +36,8 @@ function AppContent() {
 
   // Set entrypoint based on auth status
   const entrypointUrl = isAuthenticated 
-    ? `${apiUrl}/hyperview`
-    : `${apiUrl}/auth/login`
+    ? `${apiUrl}/hyperview/main`
+    : `${apiUrl}/templates/pages/auth/login.xml`
 
   return (
     <View style={{ flex: 1, backgroundColor: 'black' }}>
