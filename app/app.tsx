@@ -22,19 +22,34 @@ import Behaviors from './hyperview/behaviors'
 import Components from './hyperview/components/'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import * as Linking from 'expo-linking'
+import { events } from './services/events'
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
 }
 
 function AppContent() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, handleAuthCallback } = useAuth()
   const { config } = useInitialRootStore()
   const hyperviewRef = React.useRef<any>(null)
   
   // Get the API URL from config
   const apiUrl = config?.API_URL || "http://localhost:8000"
   console.log("API URL:", apiUrl)
+
+  // Listen for auth events
+  React.useEffect(() => {
+    const unsubscribe = events.on('auth:set-token', async ({ token }) => {
+      console.log('Auth token event received:', token)
+      try {
+        await handleAuthCallback(token)
+        console.log('Auth token set successfully')
+      } catch (error) {
+        console.error('Error handling auth token:', error)
+      }
+    })
+    return () => unsubscribe()
+  }, [handleAuthCallback])
 
   // Handle deep links
   React.useEffect(() => {
@@ -69,9 +84,10 @@ function AppContent() {
         console.log('Navigating to login with token')
         const loginUrl = `${apiUrl}/templates/pages/auth/login.xml`
         hyperviewRef.current.navigate('replace', loginUrl, {
-          'open-url': {
-            'auth-mode': 'set-token',
+          'auth': {
+            'auth-action': 'set-token',
             'token': queryParams.token,
+            'href': `${apiUrl}/hyperview/main`,
           }
         })
       } else {
