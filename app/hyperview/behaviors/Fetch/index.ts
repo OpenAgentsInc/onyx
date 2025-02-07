@@ -1,20 +1,30 @@
-import { HvBehavior } from '@hyperview/core';
+import type { HvBehavior } from '@hyperview/core';
 import Config from '@/config';
 
-export const FetchBehavior: HvBehavior = {
+export const fetch: HvBehavior = {
   action: 'fetch',
   callback: async (element, context) => {
+    console.log('[Fetch] Triggered');
+    
     const href = element.getAttribute('href');
-    if (!href) return;
+    console.log('[Fetch] href:', href);
+    
+    if (!href) {
+      console.warn('[Fetch] No href attribute found');
+      return;
+    }
 
     const verb = element.getAttribute('verb') || 'GET';
     const showDuringLoad = element.getAttribute('show-during-load');
     const hideDuringLoad = element.getAttribute('hide-during-load');
     
+    console.log('[Fetch] Loading states:', { showDuringLoad, hideDuringLoad });
+    
     // Show/hide loading states
     if (showDuringLoad) {
       const showElement = context.getElementByID(showDuringLoad);
       if (showElement) {
+        console.log('[Fetch] Showing loading element:', showDuringLoad);
         showElement.removeAttribute('hidden');
       }
     }
@@ -22,6 +32,7 @@ export const FetchBehavior: HvBehavior = {
     if (hideDuringLoad) {
       const hideElement = context.getElementByID(hideDuringLoad);
       if (hideElement) {
+        console.log('[Fetch] Hiding element:', hideDuringLoad);
         hideElement.setAttribute('hidden', 'true');
       }
     }
@@ -29,8 +40,9 @@ export const FetchBehavior: HvBehavior = {
     try {
       // Construct full URL
       const fullUrl = href.startsWith('http') ? href : `${Config.API_URL}${href}`;
+      console.log('[Fetch] Fetching URL:', fullUrl);
       
-      const response = await fetch(fullUrl, {
+      const response = await window.fetch(fullUrl, {
         method: verb,
         headers: {
           'Accept': 'application/xml',
@@ -43,10 +55,14 @@ export const FetchBehavior: HvBehavior = {
       }
 
       const xmlString = await response.text();
+      console.log('[Fetch] Received response');
       
       // Update the screen with new XML
       await context.parser.update(xmlString);
+      console.log('[Fetch] Updated screen content');
     } catch (error) {
+      console.error('[Fetch] Error:', error);
+      
       // Show error message if available
       const errorElement = context.getElementByID('error-message');
       if (errorElement) {
@@ -71,3 +87,5 @@ export const FetchBehavior: HvBehavior = {
     }
   },
 };
+
+export default [fetch];
