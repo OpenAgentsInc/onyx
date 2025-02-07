@@ -25,13 +25,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
+    console.log("[Auth] Initializing auth state")
     checkAuthState();
   }, []);
 
   async function checkAuthState() {
     try {
       const token = await SecureStore.getItemAsync('session_token');
-      console.log('Checking auth state, token:', token);
+      console.log('[Auth] Checking auth state, token:', token);
       
       if (token) {
         setIsAuthenticated(true);
@@ -39,53 +40,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (userJson) {
           setUser(JSON.parse(userJson));
         }
+        console.log('[Auth] Restored auth state:', { isAuthenticated: true });
+      } else {
+        console.log('[Auth] No token found');
       }
     } catch (error) {
-      console.error('Error checking auth state:', error);
+      console.error('[Auth] Error checking auth state:', error);
     }
   }
 
   async function login() {
+    console.log('[Auth] Starting login flow');
     await githubAuth.login();
   }
 
   async function logout() {
+    console.log('[Auth] Logging out');
     await githubAuth.logout();
     setIsAuthenticated(false);
     setUser(null);
+    console.log('[Auth] Logged out');
   }
 
   async function handleAuthCallback(token: string) {
-    console.log('Handling auth callback with token:', token);
+    console.log('[Auth] Handling auth callback with token:', token);
     try {
       // Store session token
       await SecureStore.setItemAsync('session_token', token);
       setIsAuthenticated(true);
+      console.log('[Auth] Token stored, auth state updated');
 
       // Get user info from token (if available)
       const userJson = await SecureStore.getItemAsync('github_user');
       if (userJson) {
         const user = JSON.parse(userJson);
         setUser(user);
+        console.log('[Auth] User info restored');
       }
 
-      console.log('Auth callback handled successfully');
+      console.log('[Auth] Auth callback handled successfully');
     } catch (error) {
-      console.error('Error handling auth callback:', error);
+      console.error('[Auth] Error handling auth callback:', error);
       throw error;
     }
   }
 
+  const value = {
+    isAuthenticated,
+    user,
+    login,
+    logout,
+    handleAuthCallback,
+  };
+
+  console.log('[Auth] Providing auth context:', { isAuthenticated });
+
   return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        user,
-        login,
-        logout,
-        handleAuthCallback,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
