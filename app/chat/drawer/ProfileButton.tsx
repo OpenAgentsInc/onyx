@@ -2,7 +2,6 @@ import { observer } from "mobx-react-lite"
 import React from "react"
 import { Text, TouchableOpacity } from "react-native"
 import { useStores } from "@/models"
-import { navigate } from "@/navigators"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { styles } from "./styles"
 
@@ -15,8 +14,8 @@ export const ProfileButton = observer(({ setOpen }: ProfileButtonProps) => {
   const npub = walletStore.nostrKeys?.npub
 
   const handleProfilePress = () => {
+    // TODO: Navigate via HXML
     setOpen(false)
-    navigate("Profile")
   }
 
   return (

@@ -7,7 +7,7 @@ import "@/utils/ignore-warnings"
 import "@/utils/polyfills"
 import { useFonts } from "expo-font"
 import * as React from "react"
-import { ActivityIndicator, AppRegistry, Text, View } from "react-native"
+import { ActivityIndicator, AppRegistry, View } from "react-native"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { customFontsToLoad } from "@/theme/typography"
@@ -20,40 +20,77 @@ import Hyperview from "hyperview"
 import { Logger, fetchWrapper } from "./hyperview/helpers"
 import Behaviors from './hyperview/behaviors'
 import Components from './hyperview/components/'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import * as Linking from 'expo-linking'
+import { events } from './services/events'
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
 }
 
-function App(props: AppProps) {
-  console.log("App starting...")
-  useAutoUpdate()
-  const { hideSplashScreen } = props
-  const [loaded] = useFonts(customFontsToLoad)
+function AppContent() {
+  const { isAuthenticated, handleAuthCallback } = useAuth()
+  const { config } = useInitialRootStore()
+  const [entrypointUrl, setEntrypointUrl] = React.useState<string>('')
+  
+  // Get the API URL from config
+  const apiUrl = config?.API_URL || "http://localhost:8000"
+  console.log("[App] API URL:", apiUrl)
+  console.log("[App] Initial auth state:", { isAuthenticated })
 
-  const { rehydrated, config } = useInitialRootStore(() => {
-    console.log("Root store initialized")
-    setTimeout(hideSplashScreen, 500)
-  })
-
-  // if you want to force this to skip store init in dev
-  // const rehydrated = true
-  // const config = {
-  // API_URL: "http://localhost:8000"
-  // }
-
-  // Initialize notifications
+  // Update entrypoint when auth state changes
   React.useEffect(() => {
-    console.log("Initializing notifications...")
-    NotificationService.init().catch(console.error)
+    const url = isAuthenticated 
+      ? `${apiUrl}/hyperview/main`
+      : `${apiUrl}/templates/pages/auth/login.xml`
+    console.log('[App] Setting entrypoint:', url)
+    setEntrypointUrl(url)
+  }, [isAuthenticated, apiUrl])
+
+  // Handle deep links
+  React.useEffect(() => {
+    console.log("[App] Setting up deep link handlers")
+    
+    // Handle initial URL
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        console.log("[App] Got initial URL:", url)
+        handleDeepLink(url)
+      }
+    })
+
+    // Handle deep links when app is running
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      console.log("[App] Got deep link:", url)
+      handleDeepLink(url)
+    })
+
+    return () => {
+      console.log("[App] Cleaning up deep link listener")
+      subscription.remove()
+    }
   }, [])
 
-  console.log("Loaded:", loaded)
-  console.log("Rehydrated:", rehydrated)
-  console.log("Config:", config)
+  // Deep link handler
+  const handleDeepLink = async (url: string) => {
+    console.log('[App] Handling deep link:', url)
+    const { path, queryParams } = Linking.parse(url)
+    console.log('[App] Parsed deep link:', { path, queryParams })
 
-  if (!loaded || !rehydrated && false) {
-    console.log("Showing loading screen...")
+    // Handle auth success
+    if (path === 'auth/success' && queryParams?.token) {
+      console.log('[App] Processing auth success with token:', queryParams.token)
+      
+      try {
+        await handleAuthCallback(queryParams.token)
+        console.log('[App] Auth callback handled successfully')
+      } catch (error) {
+        console.error('[App] Error handling auth callback:', error)
+      }
+    }
+  }
+
+  if (!entrypointUrl) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#fff" />
@@ -61,24 +98,59 @@ function App(props: AppProps) {
     )
   }
 
-  // Get the API URL from config
-  const apiUrl = config?.API_URL || "http://localhost:8000"
-  console.log("API URL:", apiUrl)
+  console.log('[App] Rendering with entrypoint:', entrypointUrl)
+  console.log('[App] Current auth state:', { isAuthenticated })
+
+  return (
+    <View style={{ flex: 1, backgroundColor: 'black' }}>
+      <Hyperview
+        behaviors={Behaviors}
+        components={Components}
+        entrypointUrl={entrypointUrl}
+        fetch={fetchWrapper}
+        formatDate={(date, format) => date?.toLocaleDateString()}
+        logger={new Logger(Logger.Level.log)}
+      />
+    </View>
+  )
+}
+
+function App(props: AppProps) {
+  console.log("[App] Starting...")
+  useAutoUpdate()
+  const { hideSplashScreen } = props
+  const [loaded] = useFonts(customFontsToLoad)
+
+  const { rehydrated } = useInitialRootStore(() => {
+    console.log("[App] Root store initialized")
+    setTimeout(hideSplashScreen, 500)
+  })
+
+  // Initialize notifications
+  React.useEffect(() => {
+    console.log("[App] Initializing notifications...")
+    NotificationService.init().catch(console.error)
+  }, [])
+
+  console.log("[App] Loaded:", loaded)
+  console.log("[App] Rehydrated:", rehydrated)
+
+  if (!loaded || !rehydrated && false) {
+    console.log("[App] Showing loading screen...")
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    )
+  }
 
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <KeyboardProvider>
-          <View style={{ flex: 1, backgroundColor: 'black' }}>
-            <Hyperview
-              behaviors={Behaviors}
-              components={Components}
-              entrypointUrl={`${apiUrl}/hyperview`}
-              fetch={fetchWrapper}
-              formatDate={(date, format) => date?.toLocaleDateString()}
-              logger={new Logger(Logger.Level.log)}
-            />
-          </View>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
         </KeyboardProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
