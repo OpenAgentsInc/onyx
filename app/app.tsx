@@ -20,10 +20,37 @@ import Hyperview from "hyperview"
 import { Logger, fetchWrapper } from "./hyperview/helpers"
 import Behaviors from './hyperview/behaviors'
 import Components from './hyperview/components/'
-import { useAuth } from './contexts/AuthContext'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
+}
+
+function AppContent() {
+  const { isAuthenticated } = useAuth()
+  const { config } = useInitialRootStore()
+  
+  // Get the API URL from config
+  const apiUrl = config?.API_URL || "http://localhost:8000"
+  console.log("API URL:", apiUrl)
+
+  // Set entrypoint based on auth status
+  const entrypointUrl = isAuthenticated 
+    ? `${apiUrl}/hyperview`
+    : `${apiUrl}/auth/login`
+
+  return (
+    <View style={{ flex: 1, backgroundColor: 'black' }}>
+      <Hyperview
+        behaviors={Behaviors}
+        components={Components}
+        entrypointUrl={entrypointUrl}
+        fetch={fetchWrapper}
+        formatDate={(date, format) => date?.toLocaleDateString()}
+        logger={new Logger(Logger.Level.log)}
+      />
+    </View>
+  )
 }
 
 function App(props: AppProps) {
@@ -31,9 +58,8 @@ function App(props: AppProps) {
   useAutoUpdate()
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
-  const { isAuthenticated } = useAuth()
 
-  const { rehydrated, config } = useInitialRootStore(() => {
+  const { rehydrated } = useInitialRootStore(() => {
     console.log("Root store initialized")
     setTimeout(hideSplashScreen, 500)
   })
@@ -46,7 +72,6 @@ function App(props: AppProps) {
 
   console.log("Loaded:", loaded)
   console.log("Rehydrated:", rehydrated)
-  console.log("Config:", config)
 
   if (!loaded || !rehydrated && false) {
     console.log("Showing loading screen...")
@@ -57,29 +82,13 @@ function App(props: AppProps) {
     )
   }
 
-  // Get the API URL from config
-  const apiUrl = config?.API_URL || "http://localhost:8000"
-  console.log("API URL:", apiUrl)
-
-  // Set entrypoint based on auth status
-  const entrypointUrl = isAuthenticated 
-    ? `${apiUrl}/hyperview`
-    : `${apiUrl}/auth/login`
-
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
         <KeyboardProvider>
-          <View style={{ flex: 1, backgroundColor: 'black' }}>
-            <Hyperview
-              behaviors={Behaviors}
-              components={Components}
-              entrypointUrl={entrypointUrl}
-              fetch={fetchWrapper}
-              formatDate={(date, format) => date?.toLocaleDateString()}
-              logger={new Logger(Logger.Level.log)}
-            />
-          </View>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
         </KeyboardProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
