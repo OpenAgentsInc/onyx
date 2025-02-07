@@ -1,7 +1,7 @@
 import type { HvBehavior } from '@hyperview/core';
 import Config from '@/config';
 
-export const navigate: HvBehavior = {
+export const NavigateBehavior: HvBehavior = {
   action: 'navigate',
   callback: async (element, context) => {
     console.log('[Navigate] Triggered');
@@ -28,7 +28,6 @@ export const navigate: HvBehavior = {
         const showElement = context.getElementByID(showDuringLoad);
         if (showElement) {
           console.log('[Navigate] Showing element:', showDuringLoad);
-          showElement.setAttribute('display', 'flex');
           showElement.removeAttribute('hidden');
         } else {
           console.warn('[Navigate] Could not find element to show:', showDuringLoad);
@@ -39,7 +38,7 @@ export const navigate: HvBehavior = {
         const hideElement = context.getElementByID(hideDuringLoad);
         if (hideElement) {
           console.log('[Navigate] Hiding element:', hideDuringLoad);
-          hideElement.setAttribute('display', 'none');
+          hideElement.setAttribute('hidden', 'true');
         } else {
           console.warn('[Navigate] Could not find element to hide:', hideDuringLoad);
         }
@@ -63,27 +62,23 @@ export const navigate: HvBehavior = {
       if (showDuringLoad) {
         const showElement = context.getElementByID(showDuringLoad);
         if (showElement) {
-          console.log('[Navigate] Hiding loading element:', showDuringLoad);
-          showElement.setAttribute('display', 'none');
+          showElement.setAttribute('hidden', 'true');
         }
       }
 
       if (hideDuringLoad) {
         const hideElement = context.getElementByID(hideDuringLoad);
         if (hideElement) {
-          console.log('[Navigate] Showing button:', hideDuringLoad);
-          hideElement.setAttribute('display', 'flex');
+          hideElement.removeAttribute('hidden');
         }
       }
 
       // Show error message
       const errorElement = context.getElementByID('error-message');
       if (errorElement) {
-        errorElement.setAttribute('display', 'flex');
+        errorElement.removeAttribute('hidden');
         errorElement.textContent = `Navigation failed: ${error.message}`;
       }
     }
   },
 };
-
-export default [navigate];
