@@ -35,6 +35,10 @@ export const AuthBehavior: HvBehavior = {
       }
     } else if (action === 'logout') {
       try {
+        // First navigate to logout endpoint
+        await fetch('/hyperview/auth/logout?platform=mobile');
+        console.log('[Auth] Server logout completed');
+
         // Emit logout event
         events.emit('auth:logout');
         console.log('[Auth] Logout event emitted');
