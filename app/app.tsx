@@ -30,7 +30,6 @@ interface AppProps {
 function AppContent() {
   const { isAuthenticated } = useAuth()
   const { config } = useInitialRootStore()
-  const { handleAuthCallback } = useAuth()
   const hyperviewRef = React.useRef<any>(null)
   
   // Get the API URL from config
@@ -64,20 +63,14 @@ function AppContent() {
     // Handle auth success
     if (path === 'auth/success' && queryParams?.token) {
       console.log('Auth success, token:', queryParams.token)
-      try {
-        await handleAuthCallback(queryParams.token as string)
-        console.log('Auth callback handled, authenticated:', isAuthenticated)
-        
-        // Force navigation to main screen
-        if (hyperviewRef.current) {
-          console.log('Navigating to main screen')
-          const mainUrl = `${apiUrl}/hyperview/main`
-          hyperviewRef.current.navigate('push', mainUrl)
-        } else {
-          console.warn('No hyperview ref available')
-        }
-      } catch (error) {
-        console.error('Error handling auth callback:', error)
+      
+      // Navigate back to login screen with token parameter
+      if (hyperviewRef.current) {
+        console.log('Navigating to login with token')
+        const loginUrl = `${apiUrl}/templates/pages/auth/login.xml?token=${queryParams.token}`
+        hyperviewRef.current.navigate('replace', loginUrl)
+      } else {
+        console.warn('No hyperview ref available')
       }
     }
   }
