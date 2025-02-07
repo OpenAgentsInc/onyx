@@ -67,8 +67,13 @@ function AppContent() {
       // Navigate back to login screen with token parameter
       if (hyperviewRef.current) {
         console.log('Navigating to login with token')
-        const loginUrl = `${apiUrl}/templates/pages/auth/login.xml?token=${queryParams.token}`
-        hyperviewRef.current.navigate('replace', loginUrl)
+        const loginUrl = `${apiUrl}/templates/pages/auth/login.xml`
+        hyperviewRef.current.navigate('replace', loginUrl, {
+          'open-url': {
+            'auth-mode': 'set-token',
+            'token': queryParams.token,
+          }
+        })
       } else {
         console.warn('No hyperview ref available')
       }
