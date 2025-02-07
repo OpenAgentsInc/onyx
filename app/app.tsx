@@ -7,7 +7,7 @@ import "@/utils/ignore-warnings"
 import "@/utils/polyfills"
 import { useFonts } from "expo-font"
 import * as React from "react"
-import { ActivityIndicator, AppRegistry, Text, View } from "react-native"
+import { ActivityIndicator, AppRegistry, View } from "react-native"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { customFontsToLoad } from "@/theme/typography"
@@ -20,6 +20,7 @@ import Hyperview from "hyperview"
 import { Logger, fetchWrapper } from "./hyperview/helpers"
 import Behaviors from './hyperview/behaviors'
 import Components from './hyperview/components/'
+import { useAuth } from './contexts/AuthContext'
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
@@ -30,17 +31,12 @@ function App(props: AppProps) {
   useAutoUpdate()
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
+  const { isAuthenticated } = useAuth()
 
   const { rehydrated, config } = useInitialRootStore(() => {
     console.log("Root store initialized")
     setTimeout(hideSplashScreen, 500)
   })
-
-  // if you want to force this to skip store init in dev
-  // const rehydrated = true
-  // const config = {
-  // API_URL: "http://localhost:8000"
-  // }
 
   // Initialize notifications
   React.useEffect(() => {
@@ -65,6 +61,11 @@ function App(props: AppProps) {
   const apiUrl = config?.API_URL || "http://localhost:8000"
   console.log("API URL:", apiUrl)
 
+  // Set entrypoint based on auth status
+  const entrypointUrl = isAuthenticated 
+    ? `${apiUrl}/hyperview`
+    : `${apiUrl}/auth/login`
+
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
@@ -73,7 +74,7 @@ function App(props: AppProps) {
             <Hyperview
               behaviors={Behaviors}
               components={Components}
-              entrypointUrl={`${apiUrl}/hyperview`}
+              entrypointUrl={entrypointUrl}
               fetch={fetchWrapper}
               formatDate={(date, format) => date?.toLocaleDateString()}
               logger={new Logger(Logger.Level.log)}
