@@ -16,7 +16,7 @@ import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { useInitialRootStore } from "./models"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import NotificationService from "./services/notifications"
-import Hyperview from "hyperview"
+import Hyperview, { type HyperviewProps } from "hyperview"
 import { Logger, fetchWrapper } from "./hyperview/helpers"
 import Behaviors from './hyperview/behaviors'
 import Components from './hyperview/components/'
@@ -32,7 +32,7 @@ function AppContent() {
   const { isAuthenticated, handleAuthCallback, logout } = useAuth()
   const { config } = useInitialRootStore()
   const [entrypointUrl, setEntrypointUrl] = React.useState<string>('')
-  const hyperviewRef = React.useRef<any>(null)
+  const hyperviewRef = React.useRef<Hyperview>(null)
   
   // Get the API URL from config
   const apiUrl = config?.API_URL || "http://localhost:8000"
@@ -112,7 +112,8 @@ function AppContent() {
         // Force navigation to main screen
         if (hyperviewRef.current) {
           console.log('[App] Forcing navigation to main screen')
-          hyperviewRef.current.navigate('replace', `${apiUrl}/hyperview/main`)
+          const mainUrl = `${apiUrl}/hyperview/main`
+          hyperviewRef.current.goToLocation(mainUrl, 'replace')
         }
       } catch (error) {
         console.error('[App] Error handling auth callback:', error)
