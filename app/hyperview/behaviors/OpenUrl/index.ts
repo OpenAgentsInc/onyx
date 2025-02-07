@@ -21,27 +21,29 @@ export const OpenUrlBehavior: HvBehavior = {
 
     console.log('[OpenUrl] Loading states:', { showDuringLoad, hideDuringLoad });
 
-    if (showDuringLoad) {
-      const showElement = context.getElementByID(showDuringLoad);
-      if (showElement) {
-        console.log('[OpenUrl] Showing loading element:', showDuringLoad);
-        showElement.removeAttribute('hidden');
-      }
-    }
-
-    if (hideDuringLoad) {
-      const hideElement = context.getElementByID(hideDuringLoad);
-      if (hideElement) {
-        console.log('[OpenUrl] Hiding element:', hideDuringLoad);
-        hideElement.setAttribute('hidden', 'true');
-      }
-    }
-
     try {
-      // Construct full URL
+      // Construct full URL first before showing loading state
       const fullUrl = href.startsWith('http') ? href : `${Config.API_URL}${href}`;
       console.log('[OpenUrl] Opening URL:', fullUrl);
+
+      // Show loading state only after URL is constructed
+      if (showDuringLoad) {
+        const showElement = context.getElementByID(showDuringLoad);
+        if (showElement) {
+          console.log('[OpenUrl] Showing loading element:', showDuringLoad);
+          showElement.style.display = 'flex';
+        }
+      }
+
+      if (hideDuringLoad) {
+        const hideElement = context.getElementByID(hideDuringLoad);
+        if (hideElement) {
+          console.log('[OpenUrl] Hiding element:', hideDuringLoad);
+          hideElement.style.display = 'none';
+        }
+      }
       
+      // Now try to open the URL
       await Linking.openURL(fullUrl);
       console.log('[OpenUrl] URL opened successfully');
     } catch (error) {
@@ -50,22 +52,22 @@ export const OpenUrlBehavior: HvBehavior = {
       // Show error message if available
       const errorElement = context.getElementByID('error-message');
       if (errorElement) {
-        errorElement.removeAttribute('hidden');
-        errorElement.textContent = 'Failed to open GitHub login. Please try again.';
+        errorElement.style.display = 'flex';
+        errorElement.textContent = `Failed to open GitHub login: ${error.message}`;
       }
 
       // Reset loading state
       if (showDuringLoad) {
         const showElement = context.getElementByID(showDuringLoad);
         if (showElement) {
-          showElement.setAttribute('hidden', 'true');
+          showElement.style.display = 'none';
         }
       }
 
       if (hideDuringLoad) {
         const hideElement = context.getElementByID(hideDuringLoad);
         if (hideElement) {
-          hideElement.removeAttribute('hidden');
+          hideElement.style.display = 'flex';
         }
       }
     }
