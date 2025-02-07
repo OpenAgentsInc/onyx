@@ -23,9 +23,9 @@
     "doctor": "npx expo-doctor",
     "copyrepo": "cd ~/code && node md.js ./onyx && cat combined.md | pbcopy",
     "copy2": "cd ~/code && node md2.js ./onyx && cat model-system-docs.md | pbcopy",
-    "update:both": "eas update --channel v0.1.0 --environment production --message",
-    "update:ios": "eas update --channel v0.1.0 --environment production --platform ios --message",
-    "update:android": "eas update --channel v0.1.0 -environment production --platform android --message",
+    "update:both": "eas update --channel v0.2.0 --environment production --message",
+    "update:ios": "eas update --channel v0.2.0 --environment production --platform ios --message",
+    "update:android": "eas update --channel v0.2.0 -environment production --platform android --message",
     "hierarchy": "node scripts/generate-hierarchy.js"
   },
   "jest": {
