@@ -32,6 +32,7 @@ function AppContent() {
   const { isAuthenticated, handleAuthCallback, logout } = useAuth()
   const { config } = useInitialRootStore()
   const [entrypointUrl, setEntrypointUrl] = React.useState<string>('')
+  const hyperviewRef = React.useRef<Hyperview>(null)
   
   // Get the API URL from config
   const apiUrl = config?.API_URL || "http://localhost:8000"
@@ -45,6 +46,12 @@ function AppContent() {
       : `${apiUrl}/templates/pages/auth/login.xml`
     console.log('[App] Setting entrypoint:', url)
     setEntrypointUrl(url)
+
+    // Force reload when auth state changes
+    if (hyperviewRef.current) {
+      console.log('[App] Forcing reload of:', url)
+      hyperviewRef.current.reload()
+    }
   }, [isAuthenticated, apiUrl])
 
   // Handle auth events
@@ -137,6 +144,7 @@ function AppContent() {
   return (
     <View style={{ flex: 1, backgroundColor: 'black' }}>
       <Hyperview
+        ref={hyperviewRef}
         behaviors={Behaviors}
         components={Components}
         entrypointUrl={entrypointUrl}
