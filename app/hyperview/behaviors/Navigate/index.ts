@@ -1,5 +1,5 @@
 import { HvBehavior } from '@hyperview/core';
-import { BASE_URL } from '../../constants';
+import { BASE_URL } from '@/config/constants';
 
 export const NavigateBehavior: HvBehavior = {
   action: 'navigate',
