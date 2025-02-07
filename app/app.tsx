@@ -32,6 +32,7 @@ function AppContent() {
   const { isAuthenticated, handleAuthCallback, logout } = useAuth()
   const { config } = useInitialRootStore()
   const [entrypointUrl, setEntrypointUrl] = React.useState<string>('')
+  const hyperviewRef = React.useRef<any>(null)
   
   // Get the API URL from config
   const apiUrl = config?.API_URL || "http://localhost:8000"
@@ -107,6 +108,12 @@ function AppContent() {
       try {
         await handleAuthCallback(queryParams.token)
         console.log('[App] Auth callback handled successfully')
+        
+        // Force navigation to main screen
+        if (hyperviewRef.current) {
+          console.log('[App] Forcing navigation to main screen')
+          hyperviewRef.current.navigate('replace', `${apiUrl}/hyperview/main`)
+        }
       } catch (error) {
         console.error('[App] Error handling auth callback:', error)
       }
@@ -137,6 +144,7 @@ function AppContent() {
   return (
     <View style={{ flex: 1, backgroundColor: 'black' }}>
       <Hyperview
+        ref={hyperviewRef}
         behaviors={Behaviors}
         components={Components}
         entrypointUrl={entrypointUrl}
