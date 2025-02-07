@@ -1,5 +1,5 @@
 import type { HvBehavior } from '@hyperview/core';
-import { useAuth } from '../../../contexts/AuthContext';
+import { events } from '../../../services/events';
 
 export const AuthBehavior: HvBehavior = {
   action: 'auth',
@@ -14,9 +14,9 @@ export const AuthBehavior: HvBehavior = {
 
     if (action === 'set-token' && token) {
       try {
-        const { handleAuthCallback } = useAuth();
-        await handleAuthCallback(token);
-        console.log('[Auth] Token set successfully');
+        // Emit event for token handling
+        events.emit('auth:set-token', { token });
+        console.log('[Auth] Token event emitted');
 
         // Get href for navigation after auth
         const href = element.getAttribute('href');
@@ -25,7 +25,7 @@ export const AuthBehavior: HvBehavior = {
           onUpdate(element, { href, action: 'replace' });
         }
       } catch (error) {
-        console.error('[Auth] Error setting token:', error);
+        console.error('[Auth] Error:', error);
       }
     }
   },
