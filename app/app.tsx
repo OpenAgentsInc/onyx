@@ -29,9 +29,10 @@ interface AppProps {
 }
 
 function AppContent() {
-  const { isAuthenticated, handleAuthCallback } = useAuth()
+  const { isAuthenticated, handleAuthCallback, logout } = useAuth()
   const { config } = useInitialRootStore()
   const [entrypointUrl, setEntrypointUrl] = React.useState<string>('')
+  const hyperviewRef = React.useRef<Hyperview>(null)
   
   // Get the API URL from config
   const apiUrl = config?.API_URL || "http://localhost:8000"
@@ -45,7 +46,36 @@ function AppContent() {
       : `${apiUrl}/templates/pages/auth/login.xml`
     console.log('[App] Setting entrypoint:', url)
     setEntrypointUrl(url)
+
+    // Force reload when auth state changes
+    if (hyperviewRef.current) {
+      console.log('[App] Forcing reload of:', url)
+      hyperviewRef.current.reload()
+    }
   }, [isAuthenticated, apiUrl])
+
+  // Handle auth events
+  React.useEffect(() => {
+    console.log("[App] Setting up auth event handlers")
+    
+    // Handle logout event
+    const handleLogout = async () => {
+      console.log('[App] Handling logout event')
+      try {
+        await logout()
+        console.log('[App] Logout successful')
+      } catch (error) {
+        console.error('[App] Error during logout:', error)
+      }
+    }
+
+    events.on('auth:logout', handleLogout)
+
+    return () => {
+      console.log("[App] Cleaning up auth event handlers")
+      events.off('auth:logout', handleLogout)
+    }
+  }, [logout])
 
   // Handle deep links
   React.useEffect(() => {
@@ -77,8 +107,8 @@ function AppContent() {
     const { path, queryParams } = Linking.parse(url)
     console.log('[App] Parsed deep link:', { path, queryParams })
 
-    // Handle auth success
-    if (path === 'auth/success' && queryParams?.token) {
+    // Handle auth success - check both "auth/success" and just "success"
+    if ((path === 'auth/success' || path === 'success') && queryParams?.token) {
       console.log('[App] Processing auth success with token:', queryParams.token)
       
       try {
@@ -86,6 +116,16 @@ function AppContent() {
         console.log('[App] Auth callback handled successfully')
       } catch (error) {
         console.error('[App] Error handling auth callback:', error)
+      }
+    }
+    // Handle logout - check both "auth/logout" and just "logout"
+    else if (path === 'auth/logout' || path === 'logout') {
+      console.log('[App] Processing logout from deep link')
+      try {
+        await logout()
+        console.log('[App] Logout successful')
+      } catch (error) {
+        console.error('[App] Error during logout:', error)
       }
     }
   }
@@ -104,6 +144,7 @@ function AppContent() {
   return (
     <View style={{ flex: 1, backgroundColor: 'black' }}>
       <Hyperview
+        ref={hyperviewRef}
         behaviors={Behaviors}
         components={Components}
         entrypointUrl={entrypointUrl}

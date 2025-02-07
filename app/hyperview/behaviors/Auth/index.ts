@@ -28,6 +28,20 @@ export const AuthBehavior: HvBehavior = {
       } catch (error) {
         console.error('[Auth] Error:', error);
       }
+    } else if (action === 'logout') {
+      try {
+        // Emit logout event
+        events.emit('auth:logout');
+        console.log('[Auth] Logout event emitted');
+
+        // Navigate after logout if href provided
+        if (href) {
+          console.log('[Auth] Navigating to:', href);
+          onUpdate(behaviorElement, { href, action: 'replace' });
+        }
+      } catch (error) {
+        console.error('[Auth] Error during logout:', error);
+      }
     }
   },
 };

@@ -22,6 +22,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<GitHubUser | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
   // Initialize auth state
   useEffect(() => {
@@ -54,6 +55,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('[Auth] Error checking auth state:', error);
       setIsAuthenticated(false);
       setUser(null);
+    } finally {
+      setInitialized(true);
     }
   }
 
@@ -105,6 +108,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     handleAuthCallback,
   };
+
+  // Don't render children until auth state is initialized
+  if (!initialized) {
+    return null;
+  }
 
   console.log('[Auth] Providing auth context:', { isAuthenticated });
 
