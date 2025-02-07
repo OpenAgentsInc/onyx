@@ -44,7 +44,7 @@ export const OpenUrlBehavior: HvBehavior = {
         const loadingElement = Dom.getElementById(root, showDuringLoad);
         if (loadingElement) {
           console.log('[OpenUrl] Showing loading element:', showDuringLoad);
-          Dom.setDisplayAttribute(loadingElement, true);
+          loadingElement.removeAttribute('hidden');
         } else {
           console.warn('[OpenUrl] Loading element not found:', showDuringLoad);
         }
@@ -54,7 +54,7 @@ export const OpenUrlBehavior: HvBehavior = {
         const buttonElement = Dom.getElementById(root, hideDuringLoad);
         if (buttonElement) {
           console.log('[OpenUrl] Hiding element:', hideDuringLoad);
-          Dom.setDisplayAttribute(buttonElement, false);
+          buttonElement.setAttribute('hidden', 'true');
         } else {
           console.warn('[OpenUrl] Button element not found:', hideDuringLoad);
         }
@@ -71,7 +71,7 @@ export const OpenUrlBehavior: HvBehavior = {
       // Show error message if available
       const errorElement = Dom.getElementById(root, 'error-message');
       if (errorElement) {
-        Dom.setDisplayAttribute(errorElement, true);
+        errorElement.removeAttribute('hidden');
         errorElement.textContent = `Failed to open GitHub login: ${error.message}`;
       }
 
@@ -79,14 +79,14 @@ export const OpenUrlBehavior: HvBehavior = {
       if (showDuringLoad) {
         const loadingElement = Dom.getElementById(root, showDuringLoad);
         if (loadingElement) {
-          Dom.setDisplayAttribute(loadingElement, false);
+          loadingElement.setAttribute('hidden', 'true');
         }
       }
 
       if (hideDuringLoad) {
         const buttonElement = Dom.getElementById(root, hideDuringLoad);
         if (buttonElement) {
-          Dom.setDisplayAttribute(buttonElement, true);
+          buttonElement.removeAttribute('hidden');
         }
       }
     }
