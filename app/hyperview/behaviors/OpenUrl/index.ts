@@ -2,10 +2,11 @@ import * as Linking from 'expo-linking';
 import type { HvBehavior } from '@hyperview/core';
 import * as Dom from 'hyperview/src/services/dom';
 import Config from '@/config';
+import { useAuth } from '../../../contexts/AuthContext';
 
 export const OpenUrlBehavior: HvBehavior = {
   action: 'open-url',
-  callback: async (element, _onUpdate, getRoot) => {
+  callback: async (element, onUpdate, getRoot) => {
     console.log('[OpenUrl] Triggered');
     
     const href = element.getAttribute('href');
@@ -19,10 +20,27 @@ export const OpenUrlBehavior: HvBehavior = {
     // Show/hide elements during load
     const showDuringLoad = element.getAttribute('show-during-load');
     const hideDuringLoad = element.getAttribute('hide-during-load');
+    const authMode = element.getAttribute('auth-mode');
+    const token = element.getAttribute('token');
 
     console.log('[OpenUrl] Loading states:', { showDuringLoad, hideDuringLoad });
+    console.log('[OpenUrl] Auth mode:', authMode);
+    console.log('[OpenUrl] Token:', token);
 
     try {
+      // Handle auth success
+      if (authMode === 'set-token' && token) {
+        console.log('[OpenUrl] Setting token');
+        const { handleAuthCallback } = useAuth();
+        await handleAuthCallback(token);
+        
+        // Navigate to main screen
+        const mainUrl = `${Config.API_URL}/hyperview/main`;
+        console.log('[OpenUrl] Navigating to:', mainUrl);
+        onUpdate(element, { href: mainUrl, action: 'replace' });
+        return;
+      }
+
       // Construct full URL first before showing loading state
       const fullUrl = href.startsWith('http') ? href : `${Config.API_URL}${href}`;
       console.log('[OpenUrl] Opening URL:', fullUrl);
