@@ -31,6 +31,7 @@ function AppContent() {
   const { isAuthenticated } = useAuth()
   const { config } = useInitialRootStore()
   const { handleAuthCallback } = useAuth()
+  const hyperviewRef = React.useRef<any>(null)
   
   // Get the API URL from config
   const apiUrl = config?.API_URL || "http://localhost:8000"
@@ -63,7 +64,21 @@ function AppContent() {
     // Handle auth success
     if (path === 'auth/success' && queryParams?.token) {
       console.log('Auth success, token:', queryParams.token)
-      await handleAuthCallback(queryParams.token as string)
+      try {
+        await handleAuthCallback(queryParams.token as string)
+        console.log('Auth callback handled, authenticated:', isAuthenticated)
+        
+        // Force navigation to main screen
+        if (hyperviewRef.current) {
+          console.log('Navigating to main screen')
+          const mainUrl = `${apiUrl}/hyperview/main`
+          hyperviewRef.current.navigate('push', mainUrl)
+        } else {
+          console.warn('No hyperview ref available')
+        }
+      } catch (error) {
+        console.error('Error handling auth callback:', error)
+      }
     }
   }
 
@@ -72,9 +87,13 @@ function AppContent() {
     ? `${apiUrl}/hyperview/main`
     : `${apiUrl}/templates/pages/auth/login.xml`
 
+  console.log('Rendering with entrypoint:', entrypointUrl)
+  console.log('Auth state:', { isAuthenticated })
+
   return (
     <View style={{ flex: 1, backgroundColor: 'black' }}>
       <Hyperview
+        ref={hyperviewRef}
         behaviors={Behaviors}
         components={Components}
         entrypointUrl={entrypointUrl}
