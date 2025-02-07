@@ -37,7 +37,7 @@ export const AuthBehavior: HvBehavior = {
     } else if (action === 'logout') {
       try {
         // First call server logout endpoint
-        const logoutUrl = `${Config.API_URL}/hyperview/auth/logout?platform=mobile`;
+        const logoutUrl = `${Config.API_URL}/auth/logout?platform=mobile`;
         console.log('[Auth] Calling logout URL:', logoutUrl);
         
         const response = await fetch(logoutUrl);
