@@ -52,7 +52,7 @@ function AppContent() {
     console.log("[App] Setting up auth event handlers")
     
     // Handle logout event
-    const logoutSubscription = events.on('auth:logout', async () => {
+    const handleLogout = async () => {
       console.log('[App] Handling logout event')
       try {
         await logout()
@@ -60,11 +60,13 @@ function AppContent() {
       } catch (error) {
         console.error('[App] Error during logout:', error)
       }
-    })
+    }
+
+    events.on('auth:logout', handleLogout)
 
     return () => {
       console.log("[App] Cleaning up auth event handlers")
-      logoutSubscription.remove()
+      events.off('auth:logout', handleLogout)
     }
   }, [logout])
 
