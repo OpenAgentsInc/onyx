@@ -28,7 +28,7 @@ export const OpenUrlBehavior: HvBehavior = {
 
       // Show loading state only after URL is constructed
       if (showDuringLoad) {
-        const showElement = context.getElementByID(showDuringLoad);
+        const showElement = document.getElementById(showDuringLoad);
         if (showElement) {
           console.log('[OpenUrl] Showing loading element:', showDuringLoad);
           showElement.style.display = 'flex';
@@ -36,7 +36,7 @@ export const OpenUrlBehavior: HvBehavior = {
       }
 
       if (hideDuringLoad) {
-        const hideElement = context.getElementByID(hideDuringLoad);
+        const hideElement = document.getElementById(hideDuringLoad);
         if (hideElement) {
           console.log('[OpenUrl] Hiding element:', hideDuringLoad);
           hideElement.style.display = 'none';
@@ -50,7 +50,7 @@ export const OpenUrlBehavior: HvBehavior = {
       console.error('[OpenUrl] Error:', error);
       
       // Show error message if available
-      const errorElement = context.getElementByID('error-message');
+      const errorElement = document.getElementById('error-message');
       if (errorElement) {
         errorElement.style.display = 'flex';
         errorElement.textContent = `Failed to open GitHub login: ${error.message}`;
@@ -58,14 +58,14 @@ export const OpenUrlBehavior: HvBehavior = {
 
       // Reset loading state
       if (showDuringLoad) {
-        const showElement = context.getElementByID(showDuringLoad);
+        const showElement = document.getElementById(showDuringLoad);
         if (showElement) {
           showElement.style.display = 'none';
         }
       }
 
       if (hideDuringLoad) {
-        const hideElement = context.getElementByID(hideDuringLoad);
+        const hideElement = document.getElementById(hideDuringLoad);
         if (hideElement) {
           hideElement.style.display = 'flex';
         }
