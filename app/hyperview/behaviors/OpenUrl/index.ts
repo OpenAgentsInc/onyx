@@ -5,7 +5,7 @@ import Config from '@/config';
 
 export const OpenUrlBehavior: HvBehavior = {
   action: 'open-url',
-  callback: async (element, context) => {
+  callback: async (element, _onUpdate, getRoot) => {
     console.log('[OpenUrl] Triggered');
     
     const href = element.getAttribute('href');
@@ -36,7 +36,7 @@ export const OpenUrlBehavior: HvBehavior = {
       }
 
       // Get root element for DOM operations
-      const root = context.getDoc();
+      const root = getRoot();
       console.log('[OpenUrl] Got root element');
 
       // Show loading state
@@ -44,7 +44,7 @@ export const OpenUrlBehavior: HvBehavior = {
         const loadingElement = Dom.getElementById(root, showDuringLoad);
         if (loadingElement) {
           console.log('[OpenUrl] Showing loading element:', showDuringLoad);
-          loadingElement.setAttribute('style', 'loading display="flex"');
+          Dom.setDisplayAttribute(loadingElement, true);
         } else {
           console.warn('[OpenUrl] Loading element not found:', showDuringLoad);
         }
@@ -54,7 +54,7 @@ export const OpenUrlBehavior: HvBehavior = {
         const buttonElement = Dom.getElementById(root, hideDuringLoad);
         if (buttonElement) {
           console.log('[OpenUrl] Hiding element:', hideDuringLoad);
-          buttonElement.setAttribute('style', 'button display="none"');
+          Dom.setDisplayAttribute(buttonElement, false);
         } else {
           console.warn('[OpenUrl] Button element not found:', hideDuringLoad);
         }
@@ -66,12 +66,12 @@ export const OpenUrlBehavior: HvBehavior = {
     } catch (error) {
       console.error('[OpenUrl] Error:', error);
       
-      const root = context.getDoc();
+      const root = getRoot();
 
       // Show error message if available
       const errorElement = Dom.getElementById(root, 'error-message');
       if (errorElement) {
-        errorElement.setAttribute('style', 'error display="flex"');
+        Dom.setDisplayAttribute(errorElement, true);
         errorElement.textContent = `Failed to open GitHub login: ${error.message}`;
       }
 
@@ -79,14 +79,14 @@ export const OpenUrlBehavior: HvBehavior = {
       if (showDuringLoad) {
         const loadingElement = Dom.getElementById(root, showDuringLoad);
         if (loadingElement) {
-          loadingElement.setAttribute('style', 'loading display="none"');
+          Dom.setDisplayAttribute(loadingElement, false);
         }
       }
 
       if (hideDuringLoad) {
         const buttonElement = Dom.getElementById(root, hideDuringLoad);
         if (buttonElement) {
-          buttonElement.setAttribute('style', 'button display="flex"');
+          Dom.setDisplayAttribute(buttonElement, true);
         }
       }
     }
