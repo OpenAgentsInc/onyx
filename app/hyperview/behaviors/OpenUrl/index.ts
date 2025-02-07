@@ -1,17 +1,17 @@
 import { Linking } from 'react-native';
-import { HvBehavior } from '@hyperview/core';
+import type { HvBehavior } from '@hyperview/core';
 import Config from '@/config';
 
-export const OpenUrlBehavior: HvBehavior = {
+export const openUrl: HvBehavior = {
   action: 'open-url',
   callback: async (element, context) => {
-    console.log('[OpenUrlBehavior] Triggered');
+    console.log('[OpenUrl] Triggered');
     
     const href = element.getAttribute('href');
-    console.log('[OpenUrlBehavior] href:', href);
+    console.log('[OpenUrl] href:', href);
     
     if (!href) {
-      console.warn('[OpenUrlBehavior] No href attribute found');
+      console.warn('[OpenUrl] No href attribute found');
       return;
     }
 
@@ -19,12 +19,12 @@ export const OpenUrlBehavior: HvBehavior = {
     const showDuringLoad = element.getAttribute('show-during-load');
     const hideDuringLoad = element.getAttribute('hide-during-load');
 
-    console.log('[OpenUrlBehavior] Loading states:', { showDuringLoad, hideDuringLoad });
+    console.log('[OpenUrl] Loading states:', { showDuringLoad, hideDuringLoad });
 
     if (showDuringLoad) {
       const showElement = context.getElementByID(showDuringLoad);
       if (showElement) {
-        console.log('[OpenUrlBehavior] Showing loading element:', showDuringLoad);
+        console.log('[OpenUrl] Showing loading element:', showDuringLoad);
         showElement.removeAttribute('hidden');
       }
     }
@@ -32,7 +32,7 @@ export const OpenUrlBehavior: HvBehavior = {
     if (hideDuringLoad) {
       const hideElement = context.getElementByID(hideDuringLoad);
       if (hideElement) {
-        console.log('[OpenUrlBehavior] Hiding element:', hideDuringLoad);
+        console.log('[OpenUrl] Hiding element:', hideDuringLoad);
         hideElement.setAttribute('hidden', 'true');
       }
     }
@@ -40,12 +40,12 @@ export const OpenUrlBehavior: HvBehavior = {
     try {
       // Construct full URL
       const fullUrl = href.startsWith('http') ? href : `${Config.API_URL}${href}`;
-      console.log('[OpenUrlBehavior] Opening URL:', fullUrl);
+      console.log('[OpenUrl] Opening URL:', fullUrl);
       
       await Linking.openURL(fullUrl);
-      console.log('[OpenUrlBehavior] URL opened successfully');
+      console.log('[OpenUrl] URL opened successfully');
     } catch (error) {
-      console.error('[OpenUrlBehavior] Error:', error);
+      console.error('[OpenUrl] Error:', error);
       
       // Show error message if available
       const errorElement = context.getElementByID('error-message');
@@ -71,3 +71,5 @@ export const OpenUrlBehavior: HvBehavior = {
     }
   },
 };
+
+export default [openUrl];
