@@ -21,6 +21,7 @@ import { Logger, fetchWrapper } from "./hyperview/helpers"
 import Behaviors from './hyperview/behaviors'
 import Components from './hyperview/components/'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import * as Linking from 'expo-linking'
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
@@ -58,6 +59,38 @@ function App(props: AppProps) {
   useAutoUpdate()
   const { hideSplashScreen } = props
   const [loaded] = useFonts(customFontsToLoad)
+  const { handleAuthCallback } = useAuth()
+
+  // Handle deep links
+  React.useEffect(() => {
+    // Handle initial URL
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        handleDeepLink(url)
+      }
+    })
+
+    // Handle deep links when app is running
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      handleDeepLink(url)
+    })
+
+    return () => {
+      subscription.remove()
+    }
+  }, [])
+
+  // Deep link handler
+  const handleDeepLink = async (url: string) => {
+    console.log('Handling deep link:', url)
+    const { path, queryParams } = Linking.parse(url)
+
+    // Handle auth success
+    if (path === 'auth/success' && queryParams?.token) {
+      console.log('Auth success, token:', queryParams.token)
+      await handleAuthCallback(queryParams.token as string)
+    }
+  }
 
   const { rehydrated } = useInitialRootStore(() => {
     console.log("Root store initialized")
