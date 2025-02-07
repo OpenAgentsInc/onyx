@@ -1,10 +1,14 @@
 import type { HvBehavior } from '@hyperview/core';
 import Config from '@/config';
 
+console.log('[Navigate] Defining behavior...');
+
 export const NavigateBehavior: HvBehavior = {
   action: 'navigate',
   callback: async (element, context) => {
-    console.log('[Navigate] Triggered');
+    console.log('🔥 [Navigate] CALLBACK TRIGGERED 🔥');
+    console.log('[Navigate] Element:', element);
+    console.log('[Navigate] Context:', context);
     
     const href = element.getAttribute('href');
     console.log('[Navigate] href:', href);
@@ -82,3 +86,5 @@ export const NavigateBehavior: HvBehavior = {
     }
   },
 };
+
+console.log('[Navigate] Behavior defined:', NavigateBehavior);
