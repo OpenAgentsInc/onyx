@@ -31,37 +31,21 @@ interface AppProps {
 function AppContent() {
   const { isAuthenticated, handleAuthCallback } = useAuth()
   const { config } = useInitialRootStore()
-  const hyperviewRef = React.useRef<any>(null)
+  const [entrypointUrl, setEntrypointUrl] = React.useState<string>('')
   
   // Get the API URL from config
   const apiUrl = config?.API_URL || "http://localhost:8000"
   console.log("[App] API URL:", apiUrl)
   console.log("[App] Initial auth state:", { isAuthenticated })
 
-  // Listen for auth events
+  // Update entrypoint when auth state changes
   React.useEffect(() => {
-    console.log("[App] Setting up auth event listener")
-    const unsubscribe = events.on('auth:set-token', async ({ token }) => {
-      console.log('[App] Auth token event received:', token)
-      try {
-        await handleAuthCallback(token)
-        console.log('[App] Auth token set successfully, auth state:', { isAuthenticated })
-        
-        // Force navigation to main after auth
-        if (hyperviewRef.current) {
-          const mainUrl = `${apiUrl}/hyperview/main`
-          console.log('[App] Forcing navigation to:', mainUrl)
-          hyperviewRef.current.navigate('replace', mainUrl)
-        }
-      } catch (error) {
-        console.error('[App] Error handling auth token:', error)
-      }
-    })
-    return () => {
-      console.log("[App] Cleaning up auth event listener")
-      unsubscribe()
-    }
-  }, [handleAuthCallback, isAuthenticated, apiUrl])
+    const url = isAuthenticated 
+      ? `${apiUrl}/hyperview/main`
+      : `${apiUrl}/templates/pages/auth/login.xml`
+    console.log('[App] Setting entrypoint:', url)
+    setEntrypointUrl(url)
+  }, [isAuthenticated, apiUrl])
 
   // Handle deep links
   React.useEffect(() => {
@@ -98,27 +82,28 @@ function AppContent() {
       console.log('[App] Processing auth success with token:', queryParams.token)
       
       try {
-        // Emit auth event
-        console.log('[App] Emitting auth token event')
-        events.emit('auth:set-token', { token: queryParams.token })
+        await handleAuthCallback(queryParams.token)
+        console.log('[App] Auth callback handled successfully')
       } catch (error) {
-        console.error('[App] Error handling deep link:', error)
+        console.error('[App] Error handling auth callback:', error)
       }
     }
   }
 
-  // Set entrypoint based on auth status
-  const entrypointUrl = isAuthenticated 
-    ? `${apiUrl}/hyperview/main`
-    : `${apiUrl}/templates/pages/auth/login.xml`
+  if (!entrypointUrl) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    )
+  }
 
-  console.log('[App] Using entrypoint:', entrypointUrl)
+  console.log('[App] Rendering with entrypoint:', entrypointUrl)
   console.log('[App] Current auth state:', { isAuthenticated })
 
   return (
     <View style={{ flex: 1, backgroundColor: 'black' }}>
       <Hyperview
-        ref={hyperviewRef}
         behaviors={Behaviors}
         components={Components}
         entrypointUrl={entrypointUrl}
