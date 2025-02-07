@@ -30,36 +30,11 @@ interface AppProps {
 function AppContent() {
   const { isAuthenticated } = useAuth()
   const { config } = useInitialRootStore()
+  const { handleAuthCallback } = useAuth()
   
   // Get the API URL from config
   const apiUrl = config?.API_URL || "http://localhost:8000"
   console.log("API URL:", apiUrl)
-
-  // Set entrypoint based on auth status
-  const entrypointUrl = isAuthenticated 
-    ? `${apiUrl}/hyperview/main`
-    : `${apiUrl}/templates/pages/auth/login.xml`
-
-  return (
-    <View style={{ flex: 1, backgroundColor: 'black' }}>
-      <Hyperview
-        behaviors={Behaviors}
-        components={Components}
-        entrypointUrl={entrypointUrl}
-        fetch={fetchWrapper}
-        formatDate={(date, format) => date?.toLocaleDateString()}
-        logger={new Logger(Logger.Level.log)}
-      />
-    </View>
-  )
-}
-
-function App(props: AppProps) {
-  console.log("App starting...")
-  useAutoUpdate()
-  const { hideSplashScreen } = props
-  const [loaded] = useFonts(customFontsToLoad)
-  const { handleAuthCallback } = useAuth()
 
   // Handle deep links
   React.useEffect(() => {
@@ -91,6 +66,31 @@ function App(props: AppProps) {
       await handleAuthCallback(queryParams.token as string)
     }
   }
+
+  // Set entrypoint based on auth status
+  const entrypointUrl = isAuthenticated 
+    ? `${apiUrl}/hyperview/main`
+    : `${apiUrl}/templates/pages/auth/login.xml`
+
+  return (
+    <View style={{ flex: 1, backgroundColor: 'black' }}>
+      <Hyperview
+        behaviors={Behaviors}
+        components={Components}
+        entrypointUrl={entrypointUrl}
+        fetch={fetchWrapper}
+        formatDate={(date, format) => date?.toLocaleDateString()}
+        logger={new Logger(Logger.Level.log)}
+      />
+    </View>
+  )
+}
+
+function App(props: AppProps) {
+  console.log("App starting...")
+  useAutoUpdate()
+  const { hideSplashScreen } = props
+  const [loaded] = useFonts(customFontsToLoad)
 
   const { rehydrated } = useInitialRootStore(() => {
     console.log("Root store initialized")
