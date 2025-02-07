@@ -6,7 +6,7 @@ export const AuthBehavior: HvBehavior = {
   action: 'auth',
   callback: async (behaviorElement, onUpdate) => {
     if (!behaviorElement) {
-      console.error('[Auth] Error: behaviorElement is required');
+      console.error('[Auth] Error: behaviorElement is missing');
       return;
     }
 
