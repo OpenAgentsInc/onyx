@@ -1,4 +1,4 @@
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import type { HvBehavior } from '@hyperview/core';
 import Config from '@/config';
 
@@ -42,7 +42,19 @@ export const openUrl: HvBehavior = {
       const fullUrl = href.startsWith('http') ? href : `${Config.API_URL}${href}`;
       console.log('[OpenUrl] Opening URL:', fullUrl);
       
-      await Linking.openURL(fullUrl);
+      // Check if URL can be opened
+      const canOpen = await Linking.canOpenURL(fullUrl);
+      console.log('[OpenUrl] Can open URL:', canOpen);
+
+      if (!canOpen) {
+        throw new Error(`Cannot open URL: ${fullUrl}`);
+      }
+
+      // On iOS, we need to encode the URL
+      const urlToOpen = Platform.OS === 'ios' ? encodeURI(fullUrl) : fullUrl;
+      
+      // Open URL
+      await Linking.openURL(urlToOpen);
       console.log('[OpenUrl] URL opened successfully');
     } catch (error) {
       console.error('[OpenUrl] Error:', error);
@@ -51,7 +63,7 @@ export const openUrl: HvBehavior = {
       const errorElement = context.getElementByID('error-message');
       if (errorElement) {
         errorElement.removeAttribute('hidden');
-        errorElement.textContent = 'Failed to open GitHub login. Please try again.';
+        errorElement.textContent = `Failed to open GitHub login: ${error.message}`;
       }
 
       // Reset loading state
