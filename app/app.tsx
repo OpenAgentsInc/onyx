@@ -29,7 +29,7 @@ interface AppProps {
 }
 
 function AppContent() {
-  const { isAuthenticated, handleAuthCallback } = useAuth()
+  const { isAuthenticated, handleAuthCallback, logout } = useAuth()
   const { config } = useInitialRootStore()
   const [entrypointUrl, setEntrypointUrl] = React.useState<string>('')
   
@@ -46,6 +46,27 @@ function AppContent() {
     console.log('[App] Setting entrypoint:', url)
     setEntrypointUrl(url)
   }, [isAuthenticated, apiUrl])
+
+  // Handle auth events
+  React.useEffect(() => {
+    console.log("[App] Setting up auth event handlers")
+    
+    // Handle logout event
+    const logoutSubscription = events.on('auth:logout', async () => {
+      console.log('[App] Handling logout event')
+      try {
+        await logout()
+        console.log('[App] Logout successful')
+      } catch (error) {
+        console.error('[App] Error during logout:', error)
+      }
+    })
+
+    return () => {
+      console.log("[App] Cleaning up auth event handlers")
+      logoutSubscription.remove()
+    }
+  }, [logout])
 
   // Handle deep links
   React.useEffect(() => {
@@ -86,6 +107,16 @@ function AppContent() {
         console.log('[App] Auth callback handled successfully')
       } catch (error) {
         console.error('[App] Error handling auth callback:', error)
+      }
+    }
+    // Handle logout
+    else if (path === 'auth/logout') {
+      console.log('[App] Processing logout from deep link')
+      try {
+        await logout()
+        console.log('[App] Logout successful')
+      } catch (error) {
+        console.error('[App] Error during logout:', error)
       }
     }
   }
