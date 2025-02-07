@@ -9,16 +9,14 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities";
 import { SettingsNavigator } from "./SettingsNavigator";
 import { WalletNavigator } from "./WalletNavigator";
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
-import { AuthCallback } from '../screens/AuthCallback';
-import { LoginScreen } from '../screens/LoginScreen';
+import { HyperviewScreen } from '../screens/HyperviewScreen';
 
 export type AppStackParamList = {
   Chat: undefined;
   Settings: undefined;
   Wallet: undefined;
   Profile: undefined;
-  Login: undefined;
-  AuthCallback: { code?: string };
+  Auth: undefined;
 };
 
 const exitRoutes = Config.exitRoutes;
@@ -45,7 +43,7 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={isAuthenticated ? "Chat" : "Login"}
+      initialRouteName={isAuthenticated ? "Chat" : "Auth"}
     >
       {isAuthenticated ? (
         // Authenticated stack
@@ -56,11 +54,14 @@ const AppStack = observer(function AppStack() {
           <Stack.Screen name="Wallet" component={WalletNavigator} />
         </>
       ) : (
-        // Auth stack
-        <>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="AuthCallback" component={AuthCallback} />
-        </>
+        // Auth stack - using Hyperview for all auth screens
+        <Stack.Screen 
+          name="Auth" 
+          component={HyperviewScreen}
+          initialParams={{ 
+            url: `${Config.API_URL}/auth/login`
+          }} 
+        />
       )}
     </Stack.Navigator>
   );
@@ -85,8 +86,7 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
             prefixes: ['onyx://', 'https://onyx.openagents.com'],
             config: {
               screens: {
-                AuthCallback: 'auth/github/callback',
-                Login: 'login',
+                Auth: 'auth/*',
                 Chat: 'chat',
                 Settings: 'settings',
                 Profile: 'profile',
