@@ -5,6 +5,7 @@ import Config from '../../../config';
 export const AuthBehavior: HvBehavior = {
   action: 'auth',
   callback: async (behaviorElement, onUpdate, getRoot) => {
+    // Early return if no element
     if (!behaviorElement) {
       console.error('[Auth] Error: behaviorElement is missing');
       return;
@@ -12,20 +13,20 @@ export const AuthBehavior: HvBehavior = {
 
     console.log('[Auth] Behavior triggered');
     
-    const action = behaviorElement.getAttribute('auth-action');
-    const token = behaviorElement.getAttribute('token');
-    const href = behaviorElement.getAttribute('href');
-    const showDuringLoad = behaviorElement.getAttribute('show-during-load');
-    const hideDuringLoad = behaviorElement.getAttribute('hide-during-load');
+    // Keep reference to element
+    const element = behaviorElement;
+    const action = element.getAttribute('auth-action');
+    const token = element.getAttribute('token');
+    const href = element.getAttribute('href');
+    const showDuringLoad = element.getAttribute('show-during-load');
+    const hideDuringLoad = element.getAttribute('hide-during-load');
     
     console.log('[Auth] Action:', action);
     console.log('[Auth] Token:', token);
     console.log('[Auth] Href:', href);
 
-    // Get root element to find loading/error elements
+    // Get root for loading/error elements
     const root = getRoot();
-
-    // Show/hide loading states
     const showElement = showDuringLoad ? root.getElementById(showDuringLoad) : null;
     const hideElement = hideDuringLoad ? root.getElementById(hideDuringLoad) : null;
     const errorElement = root.getElementById('error-message');
@@ -59,7 +60,7 @@ export const AuthBehavior: HvBehavior = {
         // Navigate after auth if href provided
         if (href) {
           console.log('[Auth] Navigating to:', href);
-          onUpdate(behaviorElement, { href, action: 'replace' });
+          onUpdate(element, { href, action: 'replace' });
         }
       } catch (error) {
         console.error('[Auth] Error:', error);
@@ -72,7 +73,13 @@ export const AuthBehavior: HvBehavior = {
         const logoutUrl = `${Config.API_URL}/auth/logout?platform=mobile`;
         console.log('[Auth] Calling logout URL:', logoutUrl);
         
-        const response = await fetch(logoutUrl);
+        const response = await fetch(logoutUrl, {
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json'
+          }
+        });
+
         if (!response.ok) {
           throw new Error(`Logout failed: ${response.status}`);
         }
@@ -83,12 +90,12 @@ export const AuthBehavior: HvBehavior = {
         console.log('[Auth] Logout event emitted');
 
         // Wait for logout to complete
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Navigate after logout if href provided
         if (href) {
           console.log('[Auth] Navigating to:', href);
-          onUpdate(behaviorElement, { 
+          onUpdate(element, { 
             href: '/templates/pages/auth/login.xml', 
             action: 'replace',
             reload: true 
