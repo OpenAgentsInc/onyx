@@ -1,161 +1,187 @@
 # Authentication Flow Analysis
 
-## App Initialization Flow
+## Current State (As of 2025-02-08)
 
-1. App Start ([app/app.tsx](../app/app.tsx))
-   ```
-   [App] Starting...
-   [App] Loaded: false
-   [App] Rehydrated: false
-   [App] Showing loading screen...
-   ```
+### Working Components
 
-2. Notifications Setup (Non-critical)
-   ```
-   [App] Initializing notifications...
-   Must use physical device for push notifications
-   Error initializing notifications: [Error: Must use physical device for push notifications]
-   ```
+1. **Login Flow**
+   - App starts with correct auth state
+   - GitHub OAuth works
+   - Token storage works
+   - Navigation after login works
 
-3. Second Start Phase
-   ```
-   [App] Starting...
-   [App] Loaded: true
-   [App] Rehydrated: false
-   ```
+2. **Server-Side Logout**
+   - Endpoint `/auth/logout` works
+   - Session clearing works
+   - Mobile redirect works
 
-4. Auth State Initialization ([app/contexts/AuthContext.tsx](../app/contexts/AuthContext.tsx))
-   ```
-   [Auth] Initializing auth state
-   [Auth] Checking auth state, token: github_14167547
-   [Auth] Restored auth state: {"isAuthenticated": true}
-   [Auth] Providing auth context: {"isAuthenticated": true}
-   ```
+### Broken Components
 
-5. API Configuration ([app/config/index.ts](../app/config/index.ts))
-   ```
-   [App] API URL: http://localhost:8000
-   [App] Initial auth state: {"isAuthenticated": true}
-   ```
+1. **Client-Side Logout**
+   - Network request fails
+   - Behavior element errors
+   - State management issues
+   - Navigation timing issues
 
-6. Initial Navigation Setup
-   ```
-   [App] Setting entrypoint: http://localhost:8000/hyperview/main
-   [App] Setting up auth event handlers
-   [App] Setting up deep link handlers
-   ```
+## Implementation Details
 
-7. State Rehydration
-   ```
-   [App] Starting...
-   [App] Loaded: true
-   [App] Rehydrated: true
-   ```
+### Auth Context ([app/contexts/AuthContext.tsx](../app/contexts/AuthContext.tsx))
+```typescript
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<GitHubUser | null>(null);
 
-## Current Login Flow (Working)
+  // Check auth state on start
+  useEffect(() => {
+    checkAuthState();
+  }, []);
 
-1. App starts with `isAuthenticated: false`
-2. Shows login screen
-3. User clicks "Continue with GitHub"
-4. GitHub OAuth flow completes
-5. Server creates session
-6. Client stores token
-7. AuthContext updates `isAuthenticated: true`
-8. Navigates to main screen
+  // Auth state management
+  async function checkAuthState() {
+    const token = await SecureStore.getItemAsync('session_token');
+    setIsAuthenticated(!!token);
+  }
+}
+```
 
-## Current Logout Flow (Broken)
+### Auth Behavior ([app/hyperview/behaviors/Auth/index.ts](../app/hyperview/behaviors/Auth/index.ts))
+```typescript
+export const AuthBehavior: HvBehavior = {
+  action: 'auth',
+  callback: async (behaviorElement, onUpdate, getRoot) => {
+    // Current implementation has issues with element persistence
+    if (action === 'logout') {
+      try {
+        const logoutUrl = `${Config.API_URL}/auth/logout?platform=mobile`;
+        const response = await fetch(logoutUrl);
+        events.emit('auth:logout');
+        onUpdate(behaviorElement, { 
+          href: '/templates/pages/auth/login.xml', 
+          action: 'replace',
+          reload: true 
+        });
+      } catch (error) {
+        // Error handling needs improvement
+      }
+    }
+  }
+};
+```
 
-1. User clicks "Sign Out" button
-2. Fetch behavior triggers to `/auth/logout?platform=mobile`
-3. On response, triggers auth behavior with `auth-action="logout"`
-4. Auth behavior attempts to:
-   - Call `/auth/logout?platform=mobile` again (duplicate call)
-   - Emit logout event
-   - Navigate to login page
-5. **Issues**:
-   - Double logout call
-   - Network request failing
-   - Navigation error: "Custom behavior requires a behaviorElement"
-
-## Authentication Components
-
-1. Auth Context ([app/contexts/AuthContext.tsx](../app/contexts/AuthContext.tsx))
-   - Manages auth state
-   - Handles token storage
-   - Provides auth methods
-
-2. Auth Behavior ([app/hyperview/behaviors/Auth/index.ts](../app/hyperview/behaviors/Auth/index.ts))
-   - Handles auth-related actions
-   - Manages navigation after auth events
-   - **Issue**: Not properly handling navigation after logout
-
-3. Server Routes ([src/server/config.rs](../src/server/config.rs))
-   ```rust
-   .route("/auth/login", post(server::handlers::handle_login))
-   .route("/auth/logout", get(server::handlers::auth::clear_session_and_redirect))
-   .route("/auth/github/login", get(server::handlers::auth::handle_github_login))
-   .route("/auth/github/callback", get(server::handlers::auth::handle_github_callback))
-   ```
+### Server Routes ([src/server/config.rs](../src/server/config.rs))
+```rust
+.route("/auth/logout", get(server::handlers::auth::clear_session_and_redirect))
+.route("/auth/github/login", get(server::handlers::auth::handle_github_login))
+.route("/auth/github/callback", get(server::handlers::auth::handle_github_callback))
+```
 
 ## Current Issues
 
-1. **Double Logout Call**
-   - Main screen template uses fetch + auth behavior pattern
-   - Results in two calls to logout endpoint
-   - First call fails, second call never completes
+1. **Behavior Element Errors**
+   - Error: `Custom behavior requires a behaviorElement []`
+   - Occurs during async operations
+   - Element reference lost
 
-2. **Navigation Error**
-   - After logout, getting "Custom behavior requires a behaviorElement"
-   - Likely due to trying to navigate after element is removed from DOM
+2. **Network Request Failures**
+   - Error: `[TypeError: Network request failed]`
+   - Server receives request
+   - Client fails to handle response
 
-3. **Loading State Issues**
-   - Loading state shows briefly but doesn't properly hide
-   - No error state shown when logout fails
+3. **State Management**
+   - Loading states not properly handled
+   - Error states not showing
+   - Navigation timing issues
 
-4. **Network Request Failure**
-   - Logout request failing with "Network request failed"
-   - Server logs show request received but client can't complete
+## Required Changes
 
-## Required Fixes
+1. **Auth Behavior Updates**
+```typescript
+export const AuthBehavior: HvBehavior = {
+  action: 'auth',
+  callback: async (behaviorElement, onUpdate, getRoot) => {
+    // Keep reference
+    const element = behaviorElement;
+    
+    // Proper request handling
+    try {
+      const response = await fetch(logoutUrl, {
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json'
+        }
+      });
+      
+      // Handle response
+      if (response.ok) {
+        events.emit('auth:logout');
+        onUpdate(element, {
+          href: '/templates/pages/auth/login.xml',
+          action: 'replace',
+          reload: true
+        });
+      }
+    } catch (error) {
+      // Show error state
+      const root = getRoot();
+      const errorElement = root.getElementById('error-message');
+      if (errorElement) {
+        onUpdate(errorElement, { display: 'flex' });
+      }
+    }
+  }
+};
+```
 
-1. **Simplify Logout Flow**
-   - Remove fetch + auth behavior pattern
-   - Use single auth behavior for logout
-   - Handle server call and navigation in one step
+2. **Server Response Headers**
+```rust
+Response::builder()
+    .status(StatusCode::OK)
+    .header("Access-Control-Allow-Origin", "*")
+    .header("Access-Control-Allow-Credentials", "true")
+    .body(...)
+```
 
-2. **Fix Navigation**
-   - Keep behavior element in DOM until navigation completes
-   - Use proper navigation action (replace vs push)
-   - Handle navigation errors gracefully
+3. **Error Handling**
+```typescript
+const handleError = (error: Error) => {
+  console.error('[Auth] Error:', error);
+  const root = getRoot();
+  
+  // Hide loading
+  const loadingElement = root.getElementById('loading-text');
+  if (loadingElement) {
+    onUpdate(loadingElement, { display: 'none' });
+  }
+  
+  // Show error
+  const errorElement = root.getElementById('error-message');
+  if (errorElement) {
+    onUpdate(errorElement, { display: 'flex' });
+    setTimeout(() => {
+      onUpdate(errorElement, { display: 'none' });
+    }, 3000);
+  }
+};
+```
 
-3. **Improve Error Handling**
-   - Show error state when logout fails
-   - Provide retry mechanism
-   - Log detailed error information
+## Next Steps
 
-4. **Fix Network Issues**
-   - Investigate why fetch request is failing
-   - Ensure proper CORS headers
-   - Add request/response logging
+1. **Fix Element Persistence**
+   - Keep element reference
+   - Handle cleanup properly
+   - Add error boundaries
 
-## Ideal Logout Flow (Should Be)
+2. **Fix Network Requests**
+   - Add proper headers
+   - Handle CORS correctly
+   - Add request logging
 
-1. User clicks "Sign Out"
-2. Show loading state
-3. Single auth behavior:
-   - Calls server logout endpoint
-   - Waits for response
-   - Clears local storage
-   - Navigates to login page
-4. Handle errors gracefully
-5. Show appropriate loading/error states
+3. **Improve State Management**
+   - Add proper loading states
+   - Add error recovery
+   - Fix navigation timing
 
-## Server-Side Flow
-
-1. Receive logout request
-2. Clear session cookie
-3. Send response with:
-   - Success status
-   - Clear cookie header
-   - Proper CORS headers
-4. Log success/failure
+4. **Add Tests**
+   - Test logout flow
+   - Test error cases
+   - Test state management
