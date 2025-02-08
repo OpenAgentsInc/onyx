@@ -4,24 +4,34 @@
 
 ### Working Components
 
-1. **Login Flow**
-   - App starts with correct auth state
-   - GitHub OAuth works
-   - Token storage works
-   - Navigation after login works
-
-2. **Server-Side Logout**
+1. **Server-Side**
    - Endpoint `/auth/logout` works
    - Session clearing works
    - Mobile redirect works
+   - CORS configuration added
+
+2. **Client-Side**
+   - Auth context works
+   - Token storage works
+   - Event system works
+   - Deep link handling works
 
 ### Broken Components
 
-1. **Client-Side Logout**
-   - Network request fails
-   - Behavior element errors
-   - State management issues
-   - Navigation timing issues
+1. **Network Layer**
+   - Mobile app can't reach localhost
+   - Network requests failing
+   - CORS still having issues
+
+2. **UI Layer**
+   - Behavior element persistence issues
+   - Loading states not reliable
+   - Error states not showing properly
+
+3. **Navigation**
+   - Timing issues during logout
+   - State cleanup race conditions
+   - Deep link handling incomplete
 
 ## Implementation Details
 
@@ -70,118 +80,130 @@ export const AuthBehavior: HvBehavior = {
 
 ### Server Routes ([src/server/config.rs](../src/server/config.rs))
 ```rust
-.route("/auth/logout", get(server::handlers::auth::clear_session_and_redirect))
-.route("/auth/github/login", get(server::handlers::auth::handle_github_login))
-.route("/auth/github/callback", get(server::handlers::auth::handle_github_callback))
+// Configure CORS with specific origins
+let cors = CorsLayer::new()
+    .allow_origin([
+        "http://localhost:3000".parse::<HeaderValue>().unwrap(),
+        "http://localhost:8000".parse::<HeaderValue>().unwrap(),
+        "https://openagents.com".parse::<HeaderValue>().unwrap(),
+        "onyx://localhost".parse::<HeaderValue>().unwrap(),
+    ])
+    .allow_methods([
+        Method::GET,
+        Method::POST,
+        Method::OPTIONS,
+    ])
+    .allow_headers([
+        HeaderName::from_static("content-type"),
+        HeaderName::from_static("authorization"),
+        HeaderName::from_static("accept"),
+    ])
+    .allow_credentials(true);
 ```
 
 ## Current Issues
 
-1. **Behavior Element Errors**
-   - Error: `Custom behavior requires a behaviorElement []`
-   - Occurs during async operations
-   - Element reference lost
+1. **Development Environment**
+   - Mobile app can't reach localhost
+   - CORS configuration not working
+   - Network requests failing
 
-2. **Network Request Failures**
-   - Error: `[TypeError: Network request failed]`
-   - Server receives request
-   - Client fails to handle response
+2. **Behavior Element Issues**
+   - Element lost during async operations
+   - Multiple element warnings
+   - State management problems
 
-3. **State Management**
-   - Loading states not properly handled
-   - Error states not showing
-   - Navigation timing issues
+3. **Navigation Problems**
+   - Timing issues during logout
+   - State cleanup race conditions
+   - Deep link handling incomplete
 
 ## Required Changes
 
-1. **Auth Behavior Updates**
-```typescript
-export const AuthBehavior: HvBehavior = {
-  action: 'auth',
-  callback: async (behaviorElement, onUpdate, getRoot) => {
-    // Keep reference
-    const element = behaviorElement;
-    
-    // Proper request handling
-    try {
-      const response = await fetch(logoutUrl, {
-        credentials: 'include',
-        headers: {
-          Accept: 'application/json'
-        }
-      });
-      
-      // Handle response
-      if (response.ok) {
-        events.emit('auth:logout');
-        onUpdate(element, {
-          href: '/templates/pages/auth/login.xml',
-          action: 'replace',
-          reload: true
-        });
-      }
-    } catch (error) {
-      // Show error state
-      const root = getRoot();
-      const errorElement = root.getElementById('error-message');
-      if (errorElement) {
-        onUpdate(errorElement, { display: 'flex' });
-      }
-    }
-  }
-};
+1. **Environment Setup**
+```bash
+# Use proper development URLs
+API_URL=http://YOUR_MACHINE_IP:8000
+MOBILE_REDIRECT=onyx://auth/callback
 ```
 
-2. **Server Response Headers**
-```rust
-Response::builder()
-    .status(StatusCode::OK)
-    .header("Access-Control-Allow-Origin", "*")
-    .header("Access-Control-Allow-Credentials", "true")
-    .body(...)
+2. **Auth Flow Changes**
+```typescript
+// Simplified logout flow
+if (action === 'logout') {
+  // 1. Clear local state first
+  await clearLocalState();
+  
+  // 2. Show loading state
+  showLoading();
+  
+  try {
+    // 3. Call server
+    await logout();
+    
+    // 4. Navigate
+    navigate('/auth/login');
+  } catch (error) {
+    // 5. Error handling
+    showError();
+    restoreState();
+  }
+}
 ```
 
 3. **Error Handling**
 ```typescript
-const handleError = (error: Error) => {
+// Proper error recovery
+const handleError = async (error: Error) => {
+  // 1. Log error
   console.error('[Auth] Error:', error);
-  const root = getRoot();
   
-  // Hide loading
-  const loadingElement = root.getElementById('loading-text');
-  if (loadingElement) {
-    onUpdate(loadingElement, { display: 'none' });
-  }
+  // 2. Show user feedback
+  showError(error.message);
   
-  // Show error
-  const errorElement = root.getElementById('error-message');
-  if (errorElement) {
-    onUpdate(errorElement, { display: 'flex' });
-    setTimeout(() => {
-      onUpdate(errorElement, { display: 'none' });
-    }, 3000);
-  }
+  // 3. Restore state if needed
+  await restoreState();
+  
+  // 4. Reset UI
+  hideLoading();
 };
 ```
 
 ## Next Steps
 
-1. **Fix Element Persistence**
-   - Keep element reference
-   - Handle cleanup properly
-   - Add error boundaries
+1. **Fix Development Environment**
+   - Use proper mobile development URLs
+   - Configure CORS correctly
+   - Handle localhost -> device IP mapping
 
-2. **Fix Network Requests**
-   - Add proper headers
-   - Handle CORS correctly
-   - Add request logging
+2. **Improve Auth Flow**
+   - Simplify logout flow
+   - Remove unnecessary async operations
+   - Handle state cleanup properly
 
-3. **Improve State Management**
-   - Add proper loading states
-   - Add error recovery
-   - Fix navigation timing
+3. **Add Error Handling**
+   - Add proper error recovery
+   - Add state rollback
+   - Add user feedback
 
 4. **Add Tests**
+   - Test with proper development URLs
+   - Test with actual device IP
+   - Test error scenarios
+
+## Testing Plan
+
+1. **Development Setup**
+   - Configure proper development URLs
+   - Test CORS configuration
+   - Test network connectivity
+
+2. **Auth Flow**
    - Test logout flow
-   - Test error cases
-   - Test state management
+   - Test state cleanup
+   - Test navigation
+
+3. **Error Handling**
+   - Test network errors
+   - Test state recovery
+   - Test user feedback
