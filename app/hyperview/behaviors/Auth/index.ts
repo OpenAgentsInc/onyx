@@ -15,10 +15,26 @@ export const AuthBehavior: HvBehavior = {
     const action = behaviorElement.getAttribute('auth-action');
     const token = behaviorElement.getAttribute('token');
     const href = behaviorElement.getAttribute('href');
+    const showDuringLoad = behaviorElement.getAttribute('show-during-load');
+    const hideDuringLoad = behaviorElement.getAttribute('hide-during-load');
     
     console.log('[Auth] Action:', action);
     console.log('[Auth] Token:', token);
     console.log('[Auth] Href:', href);
+
+    // Show/hide loading states
+    const showElement = showDuringLoad ? document.getElementById(showDuringLoad) : null;
+    const hideElement = hideDuringLoad ? document.getElementById(hideDuringLoad) : null;
+
+    const showLoading = () => {
+      if (showElement) showElement.style.display = 'flex';
+      if (hideElement) hideElement.style.display = 'none';
+    };
+
+    const hideLoading = () => {
+      if (showElement) showElement.style.display = 'none';
+      if (hideElement) hideElement.style.display = 'flex';
+    };
 
     if (action === 'set-token' && token && !token.includes('$params')) {
       try {
@@ -36,6 +52,8 @@ export const AuthBehavior: HvBehavior = {
       }
     } else if (action === 'logout') {
       try {
+        showLoading();
+
         // First call server logout endpoint
         const logoutUrl = `${Config.API_URL}/auth/logout?platform=mobile`;
         console.log('[Auth] Calling logout URL:', logoutUrl);
@@ -64,14 +82,15 @@ export const AuthBehavior: HvBehavior = {
         }
       } catch (error) {
         console.error('[Auth] Error during logout:', error);
-        // Still try to navigate to login on error
-        if (href) {
-          console.log('[Auth] Error occurred, still navigating to:', href);
-          onUpdate(behaviorElement, { 
-            href: '/templates/pages/auth/login.xml', 
-            action: 'replace',
-            reload: true 
-          });
+        hideLoading();
+
+        // Show error message
+        const errorElement = document.getElementById('error-message');
+        if (errorElement) {
+          errorElement.style.display = 'flex';
+          setTimeout(() => {
+            errorElement.style.display = 'none';
+          }, 3000);
         }
       }
     }
