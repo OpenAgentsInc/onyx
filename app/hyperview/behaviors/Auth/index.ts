@@ -87,12 +87,20 @@ export const AuthBehavior: HvBehavior = {
         }
       } catch (error) {
         console.error('[Auth] Error:', error);
+        showError();
       }
     } else if (action === 'logout') {
       try {
         showLoading();
 
-        // First call server logout endpoint
+        // First emit logout event to clear local state
+        events.emit('auth:logout');
+        console.log('[Auth] Logout event emitted');
+
+        // Wait for local state to clear
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Then call server logout endpoint
         const logoutUrl = `${Config.API_URL}/auth/logout?platform=mobile`;
         console.log('[Auth] Calling logout URL:', logoutUrl);
         
@@ -101,7 +109,8 @@ export const AuthBehavior: HvBehavior = {
           credentials: 'include',
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
           }
         });
 
@@ -110,16 +119,12 @@ export const AuthBehavior: HvBehavior = {
         }
         console.log('[Auth] Server logout completed');
 
-        // Emit logout event
-        events.emit('auth:logout');
-        console.log('[Auth] Logout event emitted');
-
-        // Wait for logout to complete
+        // Wait for server logout to complete
         await new Promise(resolve => setTimeout(resolve, 100));
 
         // Navigate after logout if href provided
         if (href) {
-          navigate(element, '/templates/pages/auth/login.xml');
+          navigate(element, href);
         }
       } catch (error) {
         console.error('[Auth] Error during logout:', error);
