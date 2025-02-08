@@ -10,7 +10,7 @@
    [App] Showing loading screen...
    ```
 
-2. Notifications Setup
+2. Notifications Setup (Non-critical)
    ```
    [App] Initializing notifications...
    Must use physical device for push notifications
@@ -27,20 +27,20 @@
 4. Auth State Initialization ([app/contexts/AuthContext.tsx](../app/contexts/AuthContext.tsx))
    ```
    [Auth] Initializing auth state
-   [Auth] Checking auth state, token: null
-   [Auth] No valid token found
-   [Auth] Providing auth context: {"isAuthenticated": false}
+   [Auth] Checking auth state, token: github_14167547
+   [Auth] Restored auth state: {"isAuthenticated": true}
+   [Auth] Providing auth context: {"isAuthenticated": true}
    ```
 
 5. API Configuration ([app/config/index.ts](../app/config/index.ts))
    ```
    [App] API URL: http://localhost:8000
-   [App] Initial auth state: {"isAuthenticated": false}
+   [App] Initial auth state: {"isAuthenticated": true}
    ```
 
 6. Initial Navigation Setup
    ```
-   [App] Setting entrypoint: http://localhost:8000/templates/pages/auth/login.xml
+   [App] Setting entrypoint: http://localhost:8000/hyperview/main
    [App] Setting up auth event handlers
    [App] Setting up deep link handlers
    ```
@@ -52,38 +52,30 @@
    [App] Rehydrated: true
    ```
 
-## HXML Loading Flow
+## Current Login Flow (Working)
 
-1. Initial Login Page Request
-   ```
-   Fetching: http://localhost:8000/templates/pages/auth/login.xml
-   Init: {"headers": {"Accept": "application/xml, application/vnd.hyperview+xml"...}}
-   ```
+1. App starts with `isAuthenticated: false`
+2. Shows login screen
+3. User clicks "Continue with GitHub"
+4. GitHub OAuth flow completes
+5. Server creates session
+6. Client stores token
+7. AuthContext updates `isAuthenticated: true`
+8. Navigates to main screen
 
-2. Login Page Response ([templates/pages/auth/login.xml](../templates/pages/auth/login.xml))
-   - Contains:
-     - GitHub login button
-     - Loading state
-     - Error message placeholder
-     - **ISSUE: Contains auto-reload behavior that shouldn't be there:**
-     ```xml
-     <behavior
-       trigger="load"
-       action="reload"
-       href="/hyperview/main"
-     />
-     ```
+## Current Logout Flow (Broken)
 
-3. Auto-Navigation to Main (Due to reload behavior)
-   ```
-   Fetching: http://localhost:8000/hyperview/main
-   ```
-
-4. Main Page Response ([src/server/hyperview/handlers.rs](../src/server/hyperview/handlers.rs))
-   - Contains:
-     - Chat button
-     - Logout button
-     - Loading state
+1. User clicks "Sign Out" button
+2. Fetch behavior triggers to `/auth/logout?platform=mobile`
+3. On response, triggers auth behavior with `auth-action="logout"`
+4. Auth behavior attempts to:
+   - Call `/auth/logout?platform=mobile` again (duplicate call)
+   - Emit logout event
+   - Navigate to login page
+5. **Issues**:
+   - Double logout call
+   - Network request failing
+   - Navigation error: "Custom behavior requires a behaviorElement"
 
 ## Authentication Components
 
@@ -95,6 +87,7 @@
 2. Auth Behavior ([app/hyperview/behaviors/Auth/index.ts](../app/hyperview/behaviors/Auth/index.ts))
    - Handles auth-related actions
    - Manages navigation after auth events
+   - **Issue**: Not properly handling navigation after logout
 
 3. Server Routes ([src/server/config.rs](../src/server/config.rs))
    ```rust
@@ -106,41 +99,63 @@
 
 ## Current Issues
 
-1. **Auto-Navigation Bug**
-   - The login page contains a `trigger="load"` behavior that automatically navigates to `/hyperview/main`
-   - This bypasses authentication entirely
-   - Location: [templates/pages/auth/login.xml](../templates/pages/auth/login.xml)
+1. **Double Logout Call**
+   - Main screen template uses fetch + auth behavior pattern
+   - Results in two calls to logout endpoint
+   - First call fails, second call never completes
 
-2. **Auth State Inconsistency**
-   - App shows main screen even when `isAuthenticated: false`
-   - No auth state check in main screen handler
+2. **Navigation Error**
+   - After logout, getting "Custom behavior requires a behaviorElement"
+   - Likely due to trying to navigate after element is removed from DOM
 
-3. **Missing Auth Guards**
-   - Server doesn't verify authentication for protected routes
-   - Client doesn't prevent navigation to protected routes
+3. **Loading State Issues**
+   - Loading state shows briefly but doesn't properly hide
+   - No error state shown when logout fails
+
+4. **Network Request Failure**
+   - Logout request failing with "Network request failed"
+   - Server logs show request received but client can't complete
 
 ## Required Fixes
 
-1. Remove auto-reload behavior from login.xml
-2. Add auth checks to protected routes on server
-3. Add auth state verification before showing main screen
-4. Implement proper navigation guards in Hyperview handlers
+1. **Simplify Logout Flow**
+   - Remove fetch + auth behavior pattern
+   - Use single auth behavior for logout
+   - Handle server call and navigation in one step
 
-## Normal Authentication Flow (Should Be)
+2. **Fix Navigation**
+   - Keep behavior element in DOM until navigation completes
+   - Use proper navigation action (replace vs push)
+   - Handle navigation errors gracefully
 
-1. App starts with `isAuthenticated: false`
-2. Shows login screen
-3. User clicks "Continue with GitHub"
-4. GitHub OAuth flow completes
-5. Server creates session
-6. Client stores token
-7. AuthContext updates `isAuthenticated: true`
-8. Only then navigate to main screen
+3. **Improve Error Handling**
+   - Show error state when logout fails
+   - Provide retry mechanism
+   - Log detailed error information
 
-## Current Flow (Broken)
+4. **Fix Network Issues**
+   - Investigate why fetch request is failing
+   - Ensure proper CORS headers
+   - Add request/response logging
 
-1. App starts with `isAuthenticated: false`
-2. Shows login screen
-3. Login screen immediately reloads to main screen due to `trigger="load"` behavior
-4. Main screen shows without authentication
-5. Protected routes accessible without auth
+## Ideal Logout Flow (Should Be)
+
+1. User clicks "Sign Out"
+2. Show loading state
+3. Single auth behavior:
+   - Calls server logout endpoint
+   - Waits for response
+   - Clears local storage
+   - Navigates to login page
+4. Handle errors gracefully
+5. Show appropriate loading/error states
+
+## Server-Side Flow
+
+1. Receive logout request
+2. Clear session cookie
+3. Send response with:
+   - Success status
+   - Clear cookie header
+   - Proper CORS headers
+4. Log success/failure
