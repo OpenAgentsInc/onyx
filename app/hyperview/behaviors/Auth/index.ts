@@ -57,7 +57,7 @@ export const AuthBehavior: HvBehavior = {
         if (href) {
           console.log('[Auth] Navigating to:', href);
           onUpdate(behaviorElement, { 
-            href, 
+            href: '/templates/pages/auth/login.xml', 
             action: 'replace',
             reload: true 
           });
@@ -68,7 +68,7 @@ export const AuthBehavior: HvBehavior = {
         if (href) {
           console.log('[Auth] Error occurred, still navigating to:', href);
           onUpdate(behaviorElement, { 
-            href, 
+            href: '/templates/pages/auth/login.xml', 
             action: 'replace',
             reload: true 
           });
