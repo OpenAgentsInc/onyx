@@ -4,7 +4,7 @@ import Config from '../../../config';
 
 export const AuthBehavior: HvBehavior = {
   action: 'auth',
-  callback: async (behaviorElement, onUpdate) => {
+  callback: async (behaviorElement, onUpdate, getRoot) => {
     if (!behaviorElement) {
       console.error('[Auth] Error: behaviorElement is missing');
       return;
@@ -22,18 +22,32 @@ export const AuthBehavior: HvBehavior = {
     console.log('[Auth] Token:', token);
     console.log('[Auth] Href:', href);
 
+    // Get root element to find loading/error elements
+    const root = getRoot();
+
     // Show/hide loading states
-    const showElement = showDuringLoad ? document.getElementById(showDuringLoad) : null;
-    const hideElement = hideDuringLoad ? document.getElementById(hideDuringLoad) : null;
+    const showElement = showDuringLoad ? root.getElementById(showDuringLoad) : null;
+    const hideElement = hideDuringLoad ? root.getElementById(hideDuringLoad) : null;
+    const errorElement = root.getElementById('error-message');
 
     const showLoading = () => {
-      if (showElement) showElement.style.display = 'flex';
-      if (hideElement) hideElement.style.display = 'none';
+      if (showElement) onUpdate(showElement, { display: 'flex' });
+      if (hideElement) onUpdate(hideElement, { display: 'none' });
+      if (errorElement) onUpdate(errorElement, { display: 'none' });
     };
 
     const hideLoading = () => {
-      if (showElement) showElement.style.display = 'none';
-      if (hideElement) hideElement.style.display = 'flex';
+      if (showElement) onUpdate(showElement, { display: 'none' });
+      if (hideElement) onUpdate(hideElement, { display: 'flex' });
+    };
+
+    const showError = () => {
+      if (errorElement) {
+        onUpdate(errorElement, { display: 'flex' });
+        setTimeout(() => {
+          onUpdate(errorElement, { display: 'none' });
+        }, 3000);
+      }
     };
 
     if (action === 'set-token' && token && !token.includes('$params')) {
@@ -83,15 +97,7 @@ export const AuthBehavior: HvBehavior = {
       } catch (error) {
         console.error('[Auth] Error during logout:', error);
         hideLoading();
-
-        // Show error message
-        const errorElement = document.getElementById('error-message');
-        if (errorElement) {
-          errorElement.style.display = 'flex';
-          setTimeout(() => {
-            errorElement.style.display = 'none';
-          }, 3000);
-        }
+        showError();
       }
     }
   },
