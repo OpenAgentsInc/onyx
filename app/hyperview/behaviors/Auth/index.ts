@@ -31,23 +31,47 @@ export const AuthBehavior: HvBehavior = {
     const hideElement = hideDuringLoad ? root.getElementById(hideDuringLoad) : null;
     const errorElement = root.getElementById('error-message');
 
+    // Create update functions that use the captured element reference
+    const updateElement = (el: Element | null, updates: any) => {
+      if (el) {
+        try {
+          onUpdate(el, updates);
+        } catch (error) {
+          console.error('[Auth] Error updating element:', error);
+        }
+      }
+    };
+
     const showLoading = () => {
-      if (showElement) onUpdate(showElement, { display: 'flex' });
-      if (hideElement) onUpdate(hideElement, { display: 'none' });
-      if (errorElement) onUpdate(errorElement, { display: 'none' });
+      updateElement(showElement, { display: 'flex' });
+      updateElement(hideElement, { display: 'none' });
+      updateElement(errorElement, { display: 'none' });
     };
 
     const hideLoading = () => {
-      if (showElement) onUpdate(showElement, { display: 'none' });
-      if (hideElement) onUpdate(hideElement, { display: 'flex' });
+      updateElement(showElement, { display: 'none' });
+      updateElement(hideElement, { display: 'flex' });
     };
 
     const showError = () => {
       if (errorElement) {
-        onUpdate(errorElement, { display: 'flex' });
+        updateElement(errorElement, { display: 'flex' });
         setTimeout(() => {
-          onUpdate(errorElement, { display: 'none' });
+          updateElement(errorElement, { display: 'none' });
         }, 3000);
+      }
+    };
+
+    const navigate = (el: Element, navHref: string) => {
+      try {
+        console.log('[Auth] Navigating to:', navHref);
+        onUpdate(el, { 
+          href: navHref, 
+          action: 'replace',
+          reload: true 
+        });
+      } catch (error) {
+        console.error('[Auth] Navigation error:', error);
       }
     };
 
@@ -59,8 +83,7 @@ export const AuthBehavior: HvBehavior = {
 
         // Navigate after auth if href provided
         if (href) {
-          console.log('[Auth] Navigating to:', href);
-          onUpdate(element, { href, action: 'replace' });
+          navigate(element, href);
         }
       } catch (error) {
         console.error('[Auth] Error:', error);
@@ -74,9 +97,11 @@ export const AuthBehavior: HvBehavior = {
         console.log('[Auth] Calling logout URL:', logoutUrl);
         
         const response = await fetch(logoutUrl, {
+          method: 'GET',
           credentials: 'include',
           headers: {
-            Accept: 'application/json'
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
           }
         });
 
@@ -94,12 +119,7 @@ export const AuthBehavior: HvBehavior = {
 
         // Navigate after logout if href provided
         if (href) {
-          console.log('[Auth] Navigating to:', href);
-          onUpdate(element, { 
-            href: '/templates/pages/auth/login.xml', 
-            action: 'replace',
-            reload: true 
-          });
+          navigate(element, '/templates/pages/auth/login.xml');
         }
       } catch (error) {
         console.error('[Auth] Error during logout:', error);
