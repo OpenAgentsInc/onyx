@@ -6,7 +6,8 @@
  * https://reactnative.dev/docs/security#storing-sensitive-info
  */
 export default {
-  API_URL: "http://localhost:8000",
-  AIUR_API_URL: "http://localhost:8000",
-  NEXUS_URL: "http://localhost:3000/chat",
+  // Use machine IP instead of localhost for mobile development
+  API_URL: "http://192.168.1.100:8000",
+  AIUR_API_URL: "http://192.168.1.100:8000",
+  NEXUS_URL: "http://192.168.1.100:3000/chat",
 }
