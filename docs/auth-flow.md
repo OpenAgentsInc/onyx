@@ -207,3 +207,54 @@ const handleError = async (error: Error) => {
    - Test network errors
    - Test state recovery
    - Test user feedback
+
+
+
+Here's the complete list of relevant files for the logout functionality:
+
+OpenAgentsInc/onyx (Branch: feature/logout):
+```
+app/
+├── app.tsx                           # Main app component
+├── contexts/
+│   └── AuthContext.tsx              # Auth state management
+├── hyperview/
+│   └── behaviors/
+│       ├── Auth/
+│       │   └── index.ts             # Auth behavior implementation
+│       └── index.ts                 # Behavior registration
+├── services/
+│   └── events.ts                    # Event system
+└── config/
+    └── index.ts                     # App configuration
+```
+
+OpenAgentsInc/openagents (Branch: logout):
+```
+src/
+├── server/
+│   ├── config.rs                    # Server configuration and CORS
+│   └── handlers/
+│       └── auth/
+│           ├── mod.rs               # Auth handler exports
+│           ├── session.rs           # Session management
+│           └── github.rs            # GitHub auth handlers
+templates/
+├── pages/
+│   ├── main.xml                     # Main app template
+│   └── auth/
+│       ├── login.xml                # Login screen template
+│       ├── callback.xml             # Auth callback template
+│       ├── error.xml                # Error screen template
+│       └── loading.xml              # Loading screen template
+```
+
+Key files that need changes:
+1. `app/hyperview/behaviors/Auth/index.ts` - Fix behavior element persistence
+2. `src/server/config.rs` - Fix CORS configuration
+3. `templates/pages/main.xml` - Update logout button behavior
+4. `templates/pages/auth/login.xml` - Update login screen
+5. `app/contexts/AuthContext.tsx` - Improve state management
+6. `src/server/handlers/auth/session.rs` - Update session handling
+
+These files form the core of the auth system and need to be modified to fix the logout functionality. Let me know if you need details about any specific file or its current implementation.
