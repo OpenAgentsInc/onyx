@@ -14,6 +14,10 @@ export class Drawer extends React.PureComponent<Props> {
   static namespaceURI = 'https://openagents.com/hyperview-local'
   static localName = 'drawer'
 
+  state = {
+    open: false
+  }
+
   componentDidMount() {
     console.log("Drawer mounted", {
       element: this.props.element,
@@ -21,25 +25,33 @@ export class Drawer extends React.PureComponent<Props> {
     })
   }
 
+  handleBehavior = (behavior: any) => {
+    console.log("Drawer handling behavior", behavior)
+    if (behavior?.action === 'set-drawer-state') {
+      const newState = behavior.state === 'open'
+      console.log("Setting drawer state to:", newState)
+      this.setState({ open: newState }, () => {
+        console.log("Drawer state updated to:", this.state)
+      })
+    }
+  }
+
   componentDidUpdate(prevProps: Props) {
     console.log("Drawer componentDidUpdate", {
       prevBehavior: prevProps.options?.behavior,
       newBehavior: this.props.options?.behavior,
-      currentState: this.props.options?.drawerOpen
+      currentState: this.state
     })
 
     const behavior = this.props.options?.behavior
     if (behavior?.action === 'set-drawer-state') {
-      console.log("Processing drawer behavior", behavior)
-      const newState = behavior.state === 'open'
-      console.log("Setting drawer state to:", newState)
-      this.props.options?.setDrawerOpen?.(newState)
+      this.handleBehavior(behavior)
     }
   }
 
   render() {
     console.log("Drawer render", {
-      drawerOpen: this.props.options?.drawerOpen,
+      state: this.state,
       element: this.props.element,
       options: this.props.options
     })
@@ -65,14 +77,18 @@ export class Drawer extends React.PureComponent<Props> {
 
     return (
       <RNDrawer
-        open={this.props.options?.drawerOpen}
+        open={this.state.open}
         onOpen={() => {
           console.log("Drawer onOpen triggered")
-          this.props.options?.setDrawerOpen?.(true)
+          this.setState({ open: true }, () => {
+            console.log("Drawer state after onOpen:", this.state)
+          })
         }}
         onClose={() => {
           console.log("Drawer onClose triggered")
-          this.props.options?.setDrawerOpen?.(false)
+          this.setState({ open: false }, () => {
+            console.log("Drawer state after onClose:", this.state)
+          })
         }}
         drawerType="slide"
         drawerPosition="left"
