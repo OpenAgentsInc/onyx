@@ -23,6 +23,7 @@ import Components from './hyperview/components/'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import * as Linking from 'expo-linking'
 import { events } from './services/events'
+import { Drawer } from "react-native-drawer-layout"
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
@@ -32,6 +33,7 @@ function AppContent() {
   const { isAuthenticated, handleAuthCallback } = useAuth()
   const { config } = useInitialRootStore()
   const [entrypointUrl, setEntrypointUrl] = React.useState<string>('')
+  const [drawerOpen, setDrawerOpen] = React.useState(false)
   
   // Get the API URL from config
   const apiUrl = config?.API_URL || "http://localhost:8000"
@@ -102,16 +104,18 @@ function AppContent() {
   console.log('[App] Current auth state:', { isAuthenticated })
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'black' }}>
-      <Hyperview
-        behaviors={Behaviors}
-        components={Components}
-        entrypointUrl={entrypointUrl}
-        fetch={fetchWrapper}
-        formatDate={(date, format) => date?.toLocaleDateString()}
-        logger={new Logger(Logger.Level.log)}
-      />
-    </View>
+    <Hyperview
+      behaviors={Behaviors}
+      components={Components}
+      entrypointUrl={entrypointUrl}
+      fetch={fetchWrapper}
+      formatDate={(date, format) => date?.toLocaleDateString()}
+      logger={new Logger(Logger.Level.log)}
+      componentProps={{
+        drawerOpen,
+        setDrawerOpen
+      }}
+    />
   )
 }
 
