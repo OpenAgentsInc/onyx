@@ -42,11 +42,9 @@ const DrawerBehavior = {
       console.log("Found drawer element at depth", depth)
       return {
         action: 'set-drawer-state',
-        options: {
-          behavior: {
-            action: 'set-drawer-state',
-            state: 'open'
-          }
+        behavior: {
+          action: 'set-drawer-state',
+          state: element.getAttribute('state')
         }
       }
     } else {
