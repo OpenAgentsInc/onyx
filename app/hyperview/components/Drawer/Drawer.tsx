@@ -14,8 +14,22 @@ export class Drawer extends React.PureComponent<Props> {
   static namespaceURI = 'https://openagents.com/hyperview-local'
   static localName = 'drawer'
 
+  static behaviorRegistry = {
+    'set-drawer-state': (element: Element, args: any) => ({
+      action: 'set-drawer-state',
+      state: element.getAttribute('state'),
+    }),
+  }
+
   state = {
     open: false
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const behavior = this.props.options?.behavior
+    if (behavior?.action === 'set-drawer-state' && behavior?.state) {
+      this.setState({ open: behavior.state === 'open' })
+    }
   }
 
   render() {
@@ -41,9 +55,24 @@ export class Drawer extends React.PureComponent<Props> {
     return (
       <RNDrawer
         open={this.state.open}
-        onOpen={() => this.setState({ open: true })}
-        onClose={() => this.setState({ open: false })}
-        drawerType="slide"
+        onOpen={() => {
+          this.setState({ open: true })
+          this.props.onUpdate({
+            type: 'behavior',
+            name: props.onOpen,
+            trigger: 'on-drawer-open',
+          })
+        }}
+        onClose={() => {
+          this.setState({ open: false })
+          this.props.onUpdate({
+            type: 'behavior',
+            name: props.onClose,
+            trigger: 'on-drawer-close',
+          })
+        }}
+        drawerType={props.drawerType || "slide"}
+        drawerPosition={props.drawerPosition || "left"}
         renderDrawerContent={() => (
           <View style={styles.drawerContent}>
             {Hyperview.renderElement(
