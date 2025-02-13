@@ -18,6 +18,7 @@ export class LocalSvg extends React.PureComponent<HvComponentProps> {
     const src = this.props.element.getAttribute('src') || '';
     const width = this.props.element.getAttribute('width') || '24';
     const height = this.props.element.getAttribute('height') || '24';
+    const color = this.props.element.getAttribute('color');
 
     try {
       const svgData = SVG_CONTENT[src as keyof typeof SVG_CONTENT] as SvgData;
@@ -26,7 +27,16 @@ export class LocalSvg extends React.PureComponent<HvComponentProps> {
         return null;
       }
 
-      const { viewBox, path, ...pathProps } = svgData;
+      const { viewBox, path, fill, stroke, ...pathProps } = svgData;
+
+      // If color is specified, use it for both fill and stroke if they exist in the original
+      const colorProps = color ? {
+        ...(fill && { fill: color }),
+        ...(stroke && { stroke: color })
+      } : {
+        fill,
+        stroke
+      };
 
       return (
         <Svg
@@ -36,6 +46,7 @@ export class LocalSvg extends React.PureComponent<HvComponentProps> {
         >
           <Path
             d={path}
+            {...colorProps}
             {...pathProps}
           />
         </Svg>

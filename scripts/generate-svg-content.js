@@ -12,20 +12,33 @@ files.forEach(file => {
   // Extract viewBox
   const viewBox = content.match(/viewBox="([^"]+)"/)?.[1] || "0 0 24 24";
 
-  // Extract path data
-  const pathData = content.match(/<path[^>]*d="([^"]+)"[^>]*>/)?.[1];
+  // First try to find path in a group with FILL
+  let pathData = content.match(/id="[^"]*FILL[^"]*">\s*<path[^>]*d="([^"]+)"/)?.[1];
 
-  // Extract other attributes from path
-  const fill = content.match(/fill="([^"]+)"/)?.[1] || "#666666";
-  const stroke = content.match(/stroke="([^"]+)"/)?.[1];
-  const strokeWidth = content.match(/stroke-width="([^"]+)"/)?.[1];
-  const strokeLinecap = content.match(/stroke-linecap="([^"]+)"/)?.[1];
-  const strokeLinejoin = content.match(/stroke-linejoin="([^"]+)"/)?.[1];
-  const strokeOpacity = content.match(/stroke-opacity="([^"]+)"/)?.[1];
+  // If not found, try regular path
+  if (!pathData) {
+    pathData = content.match(/<path[^>]*d="([^"]+)"[^>]*>/)?.[1];
+  }
+
+  // Extract other attributes, prioritizing those from FILL group
+  const fillGroupMatch = content.match(/id="[^"]*FILL[^"]*">\s*<path([^>]*)>/);
+  const regularPathMatch = content.match(/<path([^>]*)>/);
+  const pathAttributes = fillGroupMatch?.[1] || regularPathMatch?.[1] || "";
+
+  const fill = pathAttributes.match(/fill="([^"]+)"/)?.[1] || "#666666";
+  const stroke = pathAttributes.match(/stroke="([^"]+)"/)?.[1];
+  const strokeWidth = pathAttributes.match(/stroke-width="([^"]+)"/)?.[1];
+  const strokeLinecap = pathAttributes.match(/stroke-linecap="([^"]+)"/)?.[1];
+  const strokeLinejoin = pathAttributes.match(/stroke-linejoin="([^"]+)"/)?.[1];
+  const strokeOpacity = pathAttributes.match(/stroke-opacity="([^"]+)"/)?.[1];
+
+  // Get original width and height for scaling calculation
+  const originalWidth = parseFloat(content.match(/width="([^"]+)px"/)?.[1] || "24");
+  const originalHeight = parseFloat(content.match(/height="([^"]+)px"/)?.[1] || "24");
 
   if (pathData) {
     svgContent[name] = {
-      viewBox,
+      viewBox: `0 0 ${originalWidth} ${originalHeight}`,
       path: pathData,
       ...(fill && { fill }),
       ...(stroke && { stroke }),
