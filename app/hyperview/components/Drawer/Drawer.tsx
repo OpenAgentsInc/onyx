@@ -16,7 +16,7 @@ export class Drawer extends React.PureComponent<Props> {
 
   static behaviorRegistry = {
     'set-drawer-state': (element: Element, args: any) => {
-      console.log("Drawer behavior triggered", { element, args })
+      console.log("Drawer behaviorRegistry triggered", { element, args })
       return {
         action: 'set-drawer-state',
         state: element.getAttribute('state'),
@@ -28,18 +28,35 @@ export class Drawer extends React.PureComponent<Props> {
     open: false
   }
 
+  componentDidMount() {
+    console.log("Drawer mounted", {
+      element: this.props.element,
+      options: this.props.options
+    })
+  }
+
   componentDidUpdate(prevProps: Props) {
+    console.log("Drawer componentDidUpdate", {
+      prevOptions: prevProps.options,
+      newOptions: this.props.options,
+      currentState: this.state
+    })
+
     const behavior = this.props.options?.behavior
-    console.log("Drawer componentDidUpdate", { behavior, prevProps })
     if (behavior?.action === 'set-drawer-state') {
       const newState = behavior.state === 'open'
-      console.log("Setting drawer state", { newState })
+      console.log("Setting drawer state", { newState, behavior })
       this.setState({ open: newState })
     }
   }
 
   render() {
-    console.log("Drawer render", { state: this.state, props: this.props })
+    console.log("Drawer render", {
+      state: this.state,
+      element: this.props.element,
+      options: this.props.options
+    })
+
     const props = Hyperview.createProps(
       this.props.element,
       this.props.stylesheets,
@@ -63,7 +80,7 @@ export class Drawer extends React.PureComponent<Props> {
       <RNDrawer
         open={this.state.open}
         onOpen={() => {
-          console.log("Drawer onOpen")
+          console.log("Drawer onOpen triggered")
           this.setState({ open: true })
           if (props.onOpen) {
             this.props.onUpdate({
@@ -74,7 +91,7 @@ export class Drawer extends React.PureComponent<Props> {
           }
         }}
         onClose={() => {
-          console.log("Drawer onClose")
+          console.log("Drawer onClose triggered")
           this.setState({ open: false })
           if (props.onClose) {
             this.props.onUpdate({
