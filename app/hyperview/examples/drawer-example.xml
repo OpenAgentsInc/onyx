@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<doc xmlns="https://hyperview.org/hyperview"
+     xmlns:local="https://openagents.com/hyperview-local">
+
+  <!-- Main screen with drawer -->
+  <screen>
+    <styles>
+      <style id="Container"
+             backgroundColor="white"
+             flex="1" />
+      <style id="Header"
+             height="64"
+             backgroundColor="#f5f5f5"
+             padding="16"
+             flexDirection="row"
+             alignItems="center" />
+      <style id="HeaderTitle"
+             fontSize="20"
+             fontWeight="600"
+             color="#333" />
+      <style id="DrawerItem"
+             padding="16"
+             borderBottomWidth="1"
+             borderBottomColor="#eee" />
+      <style id="DrawerItemText"
+             fontSize="16"
+             color="#333" />
+      <style id="Content"
+             flex="1"
+             padding="16" />
+    </styles>
+
+    <local:drawer>
+      <!-- Drawer content -->
+      <view slot="drawer-content">
+        <view style="Container">
+          <!-- Profile Section -->
+          <view style="DrawerItem">
+            <local:image src="logo" style="width: 48; height: 48; marginBottom: 8" />
+            <text style="DrawerItemText">John Doe</text>
+          </view>
+
+          <!-- Navigation Items -->
+          <view style="DrawerItem">
+            <text style="DrawerItemText"
+                  href="/chats"
+                  action="push">Chats</text>
+          </view>
+          <view style="DrawerItem">
+            <text style="DrawerItemText"
+                  href="/wallet"
+                  action="push">Wallet</text>
+          </view>
+          <view style="DrawerItem">
+            <text style="DrawerItemText"
+                  href="/settings"
+                  action="push">Settings</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- Main content -->
+      <view slot="main-content">
+        <view style="Container">
+          <view style="Header">
+            <text style="HeaderTitle">Onyx Chat</text>
+          </view>
+          <view style="Content">
+            <text>Main content goes here</text>
+          </view>
+        </view>
+      </view>
+    </local:drawer>
+  </screen>
+</doc>
