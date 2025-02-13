@@ -7,10 +7,25 @@ import WebSocketBehaviors from "./WebSocket"
 // Convert drawer behavior registry to array format
 const DrawerBehavior = {
   action: 'set-drawer-state',
-  callback: (element: Element, args: any) => ({
-    action: 'set-drawer-state',
-    state: element.getAttribute('state'),
-  })
+  callback: (element: Element, args: any, context: any) => {
+    console.log("DrawerBehavior callback", { element, args, context })
+    // Find the nearest parent drawer element
+    let current = element
+    while (current && current.tagName.toLowerCase() !== 'drawer') {
+      current = current.parentElement
+    }
+    
+    if (current) {
+      console.log("Found drawer element", current)
+      return {
+        action: 'set-drawer-state',
+        state: element.getAttribute('state'),
+      }
+    } else {
+      console.error("No drawer element found")
+      return null
+    }
+  }
 }
 
 export default [
