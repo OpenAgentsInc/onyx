@@ -1,0 +1,1 @@
+export { LocalSvg } from './LocalSvg';

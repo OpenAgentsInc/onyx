@@ -1,1 +1,1 @@
- 
+export { LocalImage } from './LocalImage';
