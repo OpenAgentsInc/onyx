@@ -15,10 +15,13 @@ export class Drawer extends React.PureComponent<Props> {
   static localName = 'drawer'
 
   static behaviorRegistry = {
-    'set-drawer-state': (element: Element, args: any) => ({
-      action: 'set-drawer-state',
-      state: element.getAttribute('state'),
-    }),
+    'set-drawer-state': (element: Element, args: any) => {
+      console.log("Drawer behavior triggered", { element, args })
+      return {
+        action: 'set-drawer-state',
+        state: element.getAttribute('state'),
+      }
+    },
   }
 
   state = {
@@ -27,12 +30,16 @@ export class Drawer extends React.PureComponent<Props> {
 
   componentDidUpdate(prevProps: Props) {
     const behavior = this.props.options?.behavior
-    if (behavior?.action === 'set-drawer-state' && behavior?.state) {
-      this.setState({ open: behavior.state === 'open' })
+    console.log("Drawer componentDidUpdate", { behavior, prevProps })
+    if (behavior?.action === 'set-drawer-state') {
+      const newState = behavior.state === 'open'
+      console.log("Setting drawer state", { newState })
+      this.setState({ open: newState })
     }
   }
 
   render() {
+    console.log("Drawer render", { state: this.state, props: this.props })
     const props = Hyperview.createProps(
       this.props.element,
       this.props.stylesheets,
@@ -56,20 +63,26 @@ export class Drawer extends React.PureComponent<Props> {
       <RNDrawer
         open={this.state.open}
         onOpen={() => {
+          console.log("Drawer onOpen")
           this.setState({ open: true })
-          this.props.onUpdate({
-            type: 'behavior',
-            name: props.onOpen,
-            trigger: 'on-drawer-open',
-          })
+          if (props.onOpen) {
+            this.props.onUpdate({
+              type: 'behavior',
+              name: props.onOpen,
+              trigger: 'on-drawer-open',
+            })
+          }
         }}
         onClose={() => {
+          console.log("Drawer onClose")
           this.setState({ open: false })
-          this.props.onUpdate({
-            type: 'behavior',
-            name: props.onClose,
-            trigger: 'on-drawer-close',
-          })
+          if (props.onClose) {
+            this.props.onUpdate({
+              type: 'behavior',
+              name: props.onClose,
+              trigger: 'on-drawer-close',
+            })
+          }
         }}
         drawerType={props.drawerType || "slide"}
         drawerPosition={props.drawerPosition || "left"}
