@@ -45,8 +45,14 @@ export class Drawer extends React.PureComponent<Props> {
     const behavior = this.props.options?.behavior
     if (behavior?.action === 'set-drawer-state') {
       const newState = behavior.state === 'open'
-      console.log("Setting drawer state", { newState, behavior })
-      this.setState({ open: newState })
+      console.log("Setting drawer state from behavior", { 
+        newState, 
+        behaviorState: behavior.state,
+        currentlyOpen: this.state.open 
+      })
+      if (newState !== this.state.open) {
+        this.setState({ open: newState })
+      }
     }
   }
 
@@ -81,7 +87,9 @@ export class Drawer extends React.PureComponent<Props> {
         open={this.state.open}
         onOpen={() => {
           console.log("Drawer onOpen triggered")
-          this.setState({ open: true })
+          this.setState({ open: true }, () => {
+            console.log("Drawer state after onOpen:", this.state)
+          })
           if (props.onOpen) {
             this.props.onUpdate({
               type: 'behavior',
@@ -92,7 +100,9 @@ export class Drawer extends React.PureComponent<Props> {
         }}
         onClose={() => {
           console.log("Drawer onClose triggered")
-          this.setState({ open: false })
+          this.setState({ open: false }, () => {
+            console.log("Drawer state after onClose:", this.state)
+          })
           if (props.onClose) {
             this.props.onUpdate({
               type: 'behavior',
