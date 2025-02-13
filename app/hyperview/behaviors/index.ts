@@ -11,8 +11,12 @@ const DrawerBehavior = {
     console.log("DrawerBehavior callback", { element, args, context })
     // Find the nearest parent drawer element
     let current = element
-    while (current && current.tagName.toLowerCase() !== 'drawer') {
+    while (current && !(
+      current.namespaceURI === 'https://openagents.com/hyperview-local' && 
+      current.localName === 'drawer'
+    )) {
       current = current.parentElement
+      console.log("Traversing up:", current?.tagName, current?.namespaceURI, current?.localName)
     }
     
     if (current) {
