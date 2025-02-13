@@ -37,9 +37,11 @@ export class Drawer extends React.PureComponent<Props> {
       console.log("Processing drawer behavior", behavior)
       const newState = behavior.state === 'open'
       console.log("Setting drawer state to:", newState)
-      this.setState({ open: newState }, () => {
-        console.log("Drawer state updated to:", this.state)
-      })
+      if (newState !== this.state.open) {
+        this.setState({ open: newState }, () => {
+          console.log("Drawer state updated to:", this.state)
+        })
+      }
     }
   }
 
@@ -100,6 +102,7 @@ export class Drawer extends React.PureComponent<Props> {
         }}
         drawerType="slide"
         drawerPosition="left"
+        drawerStyle={styles.drawerContent}
         renderDrawerContent={() => (
           <View style={styles.drawerContent}>
             {Hyperview.renderElement(
@@ -127,6 +130,7 @@ export class Drawer extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
+    backgroundColor: '#000',
   },
   mainContent: {
     flex: 1,
