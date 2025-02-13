@@ -4,7 +4,7 @@ export const fetchWrapper = async (
 ): Promise<Response> => {
   console.log("Fetching:", input)
   console.log("Init:", init)
-  
+
   try {
     const response = await fetch(input, {
       ...init,
@@ -14,11 +14,11 @@ export const fetchWrapper = async (
       },
       mode: 'cors',
     })
-    
+
     console.log("Response status:", response.status)
     const text = await response.text()
-    console.log("Response body:", text)
-    
+    // console.log("Response body:", text)
+
     // Create a new response with the logged body
     return new Response(text, {
       status: response.status,
