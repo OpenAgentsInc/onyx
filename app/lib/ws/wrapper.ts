@@ -46,8 +46,21 @@ export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
       };
 
       this.ws.onmessage = (event) => {
+        const msg = event.data;
+        // Check if message length is unusually high or if it has many newlines
+        const newlineCount = (msg.match(/\n/g) || []).length;
+        if (msg.length > 500 || newlineCount > 10) {
+          console.warn(
+            "[WebSocket] Weird message detected (length:",
+            msg.length,
+            "newlines:",
+            newlineCount,
+            "):",
+            msg.slice(0, 200) + "..."
+          );
+        }
         console.log("[WebSocket] Message received");
-        this.emit("message", event.data);
+        this.emit("message", msg);
       };
 
       this.ws.onclose = (event) => {
@@ -56,8 +69,7 @@ export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
 
         if (event.code !== 4001 && this.retryCount < this.maxRetries) {
           console.log(
-            `[WebSocket] Retrying connection (${this.retryCount + 1}/${this.maxRetries
-            })`
+            `[WebSocket] Retrying connection (${this.retryCount + 1}/${this.maxRetries})`
           );
           this.retryCount++;
           setTimeout(() => this.connect(), 1000 * Math.pow(2, this.retryCount));

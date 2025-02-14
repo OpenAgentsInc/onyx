@@ -34,14 +34,10 @@ export default function App() {
   };
 
   const setupDeepLinks = () => {
-    // Handle initial URL
     Linking.getInitialURL().then(handleDeepLink);
-
-    // Handle deep links while app is running
     const subscription = Linking.addEventListener("url", ({ url }) => {
       handleDeepLink(url);
     });
-
     return () => {
       subscription.remove();
     };
@@ -51,8 +47,6 @@ export default function App() {
     if (!url) return;
     console.log("[App] Handling deep link:", url);
     const { queryParams } = Linking.parse(url);
-
-    // Handle direct token
     if (queryParams?.token) {
       try {
         await githubAuth.setToken(queryParams.token as string);
@@ -79,27 +73,32 @@ export default function App() {
     if (Config.WS_URL) {
       wsManager.initialize(Config.WS_URL);
 
-      // Set up message handler with chunk aggregation
       const unsubscribeMessage = wsManager.onMessage((data: string) => {
-        console.log("Received message:", data);
+        console.log("[App] Raw received message:", data);
+
+        // If the message appears unusually empty or with too many CHUNK markers, log a warning.
+        if (!data.trim()) {
+          console.warn("[App] Received an empty or whitespace-only message.");
+        } else if ((data.match(/CHUNK\s*#/gi) || []).length > 2) {
+          console.warn("[App] Received message with multiple CHUNK markers:", data);
+        }
+
+        // Existing aggregation logic:
         const chunkRegex = /^CHUNK\s*#\d+:\s*/i;
         setMessages((prev) => {
           if (chunkRegex.test(data)) {
-            // Remove the "CHUNK #x:" prefix
             const chunkText = data.replace(chunkRegex, "");
             if (prev.length > 0) {
-              // Append the chunk text to the last message
               const lastMessage = prev[prev.length - 1];
               return [...prev.slice(0, -1), lastMessage + chunkText];
             } else {
               return [chunkText];
             }
           } else {
-            // Regular message: add new entry
             return [...prev, data];
           }
         });
-        // Scroll to the bottom after updating messages
+
         setTimeout(() => {
           scrollViewRef.current?.scrollToEnd({ animated: true });
         }, 100);
@@ -107,14 +106,13 @@ export default function App() {
       });
 
       const unsubscribeError = wsManager.onError((error: string) => {
-        console.error("WebSocket error:", error);
+        console.error("[App] WebSocket error:", error);
         setError(error);
         if (error.includes("Authentication failed")) {
           setIsAuthenticated(false);
         }
       });
 
-      // Return cleanup function if needed later
       return () => {
         unsubscribeMessage();
         unsubscribeError();
@@ -135,7 +133,6 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>WebSocket App</Text>
-
       {error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
@@ -151,7 +148,6 @@ export default function App() {
           ))}
         </ScrollView>
       )}
-
       {!isAuthenticated ? (
         <Button title="Login with GitHub" onPress={handleLogin} />
       ) : (
