@@ -1,7 +1,8 @@
 import Hyperview from "hyperview"
-import React, { useState } from "react"
-import { StyleSheet, View } from "react-native"
-import { Drawer as RNDrawer } from "react-native-drawer-layout"
+import React from "react"
+import { StyleSheet, View, Dimensions } from "react-native"
+
+const DRAWER_WIDTH = Dimensions.get('window').width * 0.8
 
 interface Props {
   element: Element
@@ -14,18 +15,8 @@ export class Drawer extends React.PureComponent<Props> {
   static namespaceURI = 'https://openagents.com/hyperview-local'
   static localName = 'drawer'
 
-  static behaviorRegistry = {
-    'set-drawer-state': (element: Element, args: any) => {
-      console.log("Drawer behaviorRegistry triggered", { element, args })
-      return {
-        action: 'set-drawer-state',
-        state: args.state || 'open'
-      }
-    },
-  }
-
   state = {
-    open: false
+    isOpen: false
   }
 
   componentDidMount() {
@@ -35,27 +26,18 @@ export class Drawer extends React.PureComponent<Props> {
     })
   }
 
-  handleBehavior = (behavior: any) => {
-    console.log("Drawer handling behavior", behavior)
-    if (behavior?.action === 'set-drawer-state') {
-      const newState = behavior.state === 'open'
-      console.log("Setting drawer state to:", newState)
-      this.setState({ open: newState }, () => {
-        console.log("Drawer state updated to:", this.state)
-      })
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
     console.log("Drawer componentDidUpdate", {
-      prevBehavior: prevProps.options?.behavior,
-      newBehavior: this.props.options?.behavior,
+      prevOptions: prevProps.options,
+      newOptions: this.props.options,
       currentState: this.state
     })
 
+    // Handle behavior
     const behavior = this.props.options?.behavior
-    if (behavior?.action === 'set-drawer-state') {
-      this.handleBehavior(behavior)
+    if (behavior?.action === 'toggle-drawer') {
+      console.log("Toggling drawer", { behavior })
+      this.setState({ isOpen: !this.state.isOpen })
     }
   }
 
@@ -65,12 +47,6 @@ export class Drawer extends React.PureComponent<Props> {
       element: this.props.element,
       options: this.props.options
     })
-
-    const props = Hyperview.createProps(
-      this.props.element,
-      this.props.stylesheets,
-      this.props.options,
-    )
 
     // Get drawer content and main content from child elements
     const drawerContent = Array.from(this.props.element.children).find(
@@ -86,34 +62,8 @@ export class Drawer extends React.PureComponent<Props> {
     }
 
     return (
-      <RNDrawer
-        open={this.state.open}
-        onOpen={() => {
-          console.log("Drawer onOpen triggered")
-          this.setState({ open: true }, () => {
-            console.log("Drawer state after onOpen:", this.state)
-          })
-        }}
-        onClose={() => {
-          console.log("Drawer onClose triggered")
-          this.setState({ open: false }, () => {
-            console.log("Drawer state after onClose:", this.state)
-          })
-        }}
-        drawerType="slide"
-        drawerPosition="left"
-        drawerStyle={styles.drawerContent}
-        renderDrawerContent={() => (
-          <View style={styles.drawerContent}>
-            {Hyperview.renderElement(
-              drawerContent,
-              this.props.stylesheets,
-              this.props.onUpdate,
-              this.props.options,
-            )}
-          </View>
-        )}
-      >
+      <View style={styles.container}>
+        {/* Main Content */}
         <View style={styles.mainContent}>
           {Hyperview.renderElement(
             mainContent,
@@ -122,17 +72,43 @@ export class Drawer extends React.PureComponent<Props> {
             this.props.options,
           )}
         </View>
-      </RNDrawer>
+
+        {/* Drawer Overlay */}
+        {this.state.isOpen && (
+          <View style={styles.overlay}>
+            {/* Drawer Content */}
+            <View style={styles.drawer}>
+              {Hyperview.renderElement(
+                drawerContent,
+                this.props.stylesheets,
+                this.props.onUpdate,
+                this.props.options,
+              )}
+            </View>
+          </View>
+        )}
+      </View>
     )
   }
 }
 
 const styles = StyleSheet.create({
-  drawerContent: {
+  container: {
     flex: 1,
-    backgroundColor: '#000',
   },
   mainContent: {
     flex: 1,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  drawer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: DRAWER_WIDTH,
+    backgroundColor: '#000',
   },
 })
