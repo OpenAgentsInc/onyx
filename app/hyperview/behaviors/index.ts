@@ -6,7 +6,7 @@ import WebSocketBehaviors from "./WebSocket"
 
 // Simple drawer behavior
 const DrawerBehavior = {
-  action: 'toggle-drawer',
+  action: 'set-drawer-state',
   callback: (element: Element, args: any, context: any) => {
     console.log("DrawerBehavior callback starting")
     console.log("Initial element:", {
@@ -40,8 +40,13 @@ const DrawerBehavior = {
     if (current && depth < 10) {
       console.log("Found drawer element at depth", depth)
       return {
-        action: 'toggle-drawer',
-        target: current
+        action: 'set-drawer-state',
+        options: {
+          behavior: {
+            action: 'set-drawer-state',
+            state: element.getAttribute('state')
+          }
+        }
       }
     } else {
       console.error("No drawer element found after checking", depth, "levels")
