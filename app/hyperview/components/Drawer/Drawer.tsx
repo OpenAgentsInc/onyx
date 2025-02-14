@@ -14,6 +14,16 @@ export class Drawer extends React.PureComponent<Props> {
   static namespaceURI = 'https://openagents.com/hyperview-local'
   static localName = 'drawer'
 
+  static behaviorRegistry = {
+    'set-drawer-state': (element: Element, args: any) => {
+      console.log("Drawer behaviorRegistry triggered", { element, args })
+      return {
+        action: 'set-drawer-state',
+        state: args.state || 'open'
+      }
+    },
+  }
+
   state = {
     open: false
   }
