@@ -13,7 +13,7 @@ export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
   private ws: WebSocket | null = null;
   private url: string;
   private retryCount = 0;
-  private maxRetries = 3;
+  private readonly maxRetries = 3;
 
   constructor(url: string) {
     super();
@@ -47,32 +47,21 @@ export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
 
       this.ws.onmessage = (event) => {
         const msg = event.data;
-        // Check if message length is unusually high or if it has many newlines
-        const newlineCount = (msg.match(/\n/g) || []).length;
-        if (msg.length > 500 || newlineCount > 10) {
-          console.warn(
-            "[WebSocket] Weird message detected (length:",
-            msg.length,
-            "newlines:",
-            newlineCount,
-            "):",
-            msg.slice(0, 200) + "..."
-          );
-        }
         console.log("[WebSocket] Message received");
         this.emit("message", msg);
       };
 
       this.ws.onclose = (event) => {
-        console.log("[WebSocket] Connection closed");
+        console.log("[WebSocket] Connection closed with code:", event.code);
         this.emit("close");
 
         if (event.code !== 4001 && this.retryCount < this.maxRetries) {
-          console.log(
-            `[WebSocket] Retrying connection (${this.retryCount + 1}/${this.maxRetries})`
-          );
           this.retryCount++;
-          setTimeout(() => this.connect(), 1000 * Math.pow(2, this.retryCount));
+          const delay = 1000 * Math.pow(2, this.retryCount);
+          console.log(
+            `[WebSocket] Retrying connection (${this.retryCount}/${this.maxRetries}) in ${delay} ms`
+          );
+          setTimeout(() => this.connect(), delay);
         } else if (event.code === 4001) {
           this.emit("auth_error", "Authentication failed");
         }
