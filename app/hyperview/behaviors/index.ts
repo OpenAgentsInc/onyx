@@ -4,15 +4,14 @@ import { AuthBehavior } from "./Auth"
 import { OpenUrlBehavior } from "./OpenUrl"
 import WebSocketBehaviors from "./WebSocket"
 
-// Convert drawer behavior registry to array format
+// Simple drawer behavior
 const DrawerBehavior = {
-  action: 'set-drawer-state',
+  action: 'toggle-drawer',
   callback: (element: Element, args: any, context: any) => {
     console.log("DrawerBehavior callback starting")
     console.log("Initial element:", {
       localName: element.localName,
       namespaceURI: element.namespaceURI,
-      state: element.getAttribute('state'),
       parentNode: element.parentNode
     })
 
@@ -41,15 +40,8 @@ const DrawerBehavior = {
     if (current && depth < 10) {
       console.log("Found drawer element at depth", depth)
       return {
-        type: 'behavior',
-        name: 'set-drawer-state',
-        trigger: 'press',
-        action: 'set-drawer-state',
-        state: element.getAttribute('state'),
-        target: current,
-        options: {
-          state: element.getAttribute('state')
-        }
+        action: 'toggle-drawer',
+        target: current
       }
     } else {
       console.error("No drawer element found after checking", depth, "levels")
