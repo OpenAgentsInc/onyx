@@ -8,6 +8,7 @@ export interface ConfigBaseProps {
   AIUR_API_URL?: string
   GROQ_API_KEY?: string | null
   NEXUS_URL: string
+  WS_URL?: string
 }
 
 export type PersistNavigationConfig = ConfigBaseProps["persistNavigation"]
@@ -47,6 +48,11 @@ const BaseConfig: ConfigBaseProps = {
    * Nexus API URL
    */
   NEXUS_URL: "http://localhost:3000",
+
+  /**
+   * WebSocket URL for real-time connections
+   */
+  WS_URL: process.env.WS_URL,
 }
 
 export default BaseConfig
