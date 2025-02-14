@@ -35,9 +35,11 @@ export class Drawer extends React.PureComponent<Props> {
 
     // Handle behavior
     const behavior = this.props.options?.behavior
-    if (behavior?.action === 'toggle-drawer') {
-      console.log("Toggling drawer", { behavior })
-      this.setState({ isOpen: !this.state.isOpen })
+    if (behavior?.action === 'set-drawer-state') {
+      console.log("Processing drawer behavior", behavior)
+      const newState = behavior.state === 'open'
+      console.log("Setting drawer state to:", newState)
+      this.setState({ isOpen: newState })
     }
   }
 
