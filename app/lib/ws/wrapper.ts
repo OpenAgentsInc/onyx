@@ -1,28 +1,47 @@
 import EventEmitter from "eventemitter3"
+import { githubAuth } from "../auth/githubAuth"
 
 interface WebSocketEvents {
   open: () => void;
   close: () => void;
   error: (error: Error) => void;
   message: (data: string) => void;
+  auth_error: (error: string) => void;
 }
 
 export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
   private ws: WebSocket | null = null;
   private url: string;
+  private retryCount = 0;
+  private maxRetries = 3;
 
   constructor(url: string) {
     super();
     this.url = url;
+    console.log('[WebSocket] Initializing with URL:', url);
     this.connect();
   }
 
-  private connect() {
+  private async connect() {
     try {
-      this.ws = new WebSocket(this.url);
+      // Get session token
+      const sessionToken = await githubAuth.getSession();
+      console.log('[WebSocket] Got session token:', sessionToken ? '(token exists)' : 'null');
+      if (!sessionToken) {
+        throw new Error('Not authenticated');
+      }
+
+      // Add session token to URL
+      const wsUrl = new URL(this.url);
+      wsUrl.searchParams.append('session', sessionToken);
+      console.log('[WebSocket] Connecting with URL:', wsUrl.toString());
+
+      // Create WebSocket connection
+      this.ws = new WebSocket(wsUrl.toString());
 
       this.ws.onopen = () => {
         console.log('[WebSocket] Connection opened');
+        this.retryCount = 0;
         this.emit('open');
       };
 
@@ -31,9 +50,18 @@ export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
         this.emit('message', event.data);
       };
 
-      this.ws.onclose = () => {
+      this.ws.onclose = (event) => {
         console.log('[WebSocket] Connection closed');
         this.emit('close');
+
+        // Retry connection if not auth error and within retry limit
+        if (event.code !== 4001 && this.retryCount < this.maxRetries) {
+          console.log(`[WebSocket] Retrying connection (${this.retryCount + 1}/${this.maxRetries})`);
+          this.retryCount++;
+          setTimeout(() => this.connect(), 1000 * Math.pow(2, this.retryCount));
+        } else if (event.code === 4001) {
+          this.emit('auth_error', 'Authentication failed');
+        }
       };
 
       this.ws.onerror = (error) => {
@@ -43,7 +71,11 @@ export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
 
     } catch (error) {
       console.error('[WebSocket] Connection error:', error);
-      this.emit('error', error instanceof Error ? error : new Error('Connection failed'));
+      if (error instanceof Error && error.message === 'Not authenticated') {
+        this.emit('auth_error', 'Not authenticated');
+      } else {
+        this.emit('error', error instanceof Error ? error : new Error('Connection failed'));
+      }
     }
   }
 

@@ -4,6 +4,7 @@ class WebSocketManager {
   private static instance: WebSocketManager;
   private ws: WebSocketWrapper | null = null;
   private messageHandlers: ((data: string) => void)[] = [];
+  private errorHandlers: ((error: string) => void)[] = [];
 
   private constructor() { }
 
@@ -36,6 +37,12 @@ class WebSocketManager {
 
       this.ws.on('error', (error: Error) => {
         console.error('[WSManager] WebSocket error:', error.message);
+        this.errorHandlers.forEach(handler => handler(error.message));
+      });
+
+      this.ws.on('auth_error', (error: string) => {
+        console.error('[WSManager] WebSocket auth error:', error);
+        this.errorHandlers.forEach(handler => handler(`Authentication error: ${error}`));
       });
     } else {
       console.log('[WSManager] Using existing WebSocket connection');
@@ -48,6 +55,16 @@ class WebSocketManager {
       const index = this.messageHandlers.indexOf(handler);
       if (index > -1) {
         this.messageHandlers.splice(index, 1);
+      }
+    };
+  }
+
+  onError(handler: (error: string) => void) {
+    this.errorHandlers.push(handler);
+    return () => {
+      const index = this.errorHandlers.indexOf(handler);
+      if (index > -1) {
+        this.errorHandlers.splice(index, 1);
       }
     };
   }
@@ -68,6 +85,7 @@ class WebSocketManager {
       this.ws = null;
     }
     this.messageHandlers = [];
+    this.errorHandlers = [];
   }
 }
 

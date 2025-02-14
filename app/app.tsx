@@ -1,39 +1,160 @@
 import { registerRootComponent } from "expo"
+import * as Linking from "expo-linking"
 import * as React from "react"
-import { StyleSheet, Text, View } from "react-native"
+import { Button, ScrollView, StyleSheet, Text, View } from "react-native"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
+import { githubAuth } from "./lib/auth/githubAuth"
 import { wsManager } from "./lib/ws/manager"
 
 export default function App() {
   useAutoUpdate()
-  const [lastMessage, setLastMessage] = React.useState<string>('')
+  const [messages, setMessages] = React.useState<string[]>([])
+  const [error, setError] = React.useState<string | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false)
+  const scrollViewRef = React.useRef<ScrollView>(null)
 
+  // Check authentication state and handle deep links
   React.useEffect(() => {
-    // Initialize WebSocket connection
+    checkAuthState()
+    setupDeepLinks()
+
+    return () => {
+      wsManager.cleanup()
+    }
+  }, [])
+
+  // Initialize WebSocket when authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      initializeWebSocket()
+    }
+  }, [isAuthenticated])
+
+  const checkAuthState = async () => {
+    const token = await githubAuth.getToken()
+    setIsAuthenticated(!!token)
+  }
+
+  const setupDeepLinks = () => {
+    // Handle initial URL
+    Linking.getInitialURL().then(handleDeepLink)
+
+    // Handle deep links when app is running
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      handleDeepLink(url)
+    })
+
+    return () => {
+      subscription.remove()
+    }
+  }
+
+  const handleDeepLink = async (url: string | null) => {
+    if (!url) return
+
+    console.log('[App] Handling deep link:', url)
+    const { queryParams } = Linking.parse(url)
+
+    // Handle direct token
+    if (queryParams?.token) {
+      try {
+        // Store the token directly
+        await githubAuth.setToken(queryParams.token as string)
+        setIsAuthenticated(true)
+        setError(null)
+      } catch (error) {
+        console.error('[App] Auth error:', error)
+        setError('Authentication failed. Please try again.')
+      }
+    }
+  }
+
+  const handleLogin = async () => {
+    try {
+      setError(null)
+      await githubAuth.login()
+    } catch (error) {
+      console.error('[App] Login error:', error)
+      setError('Failed to start login flow. Please try again.')
+    }
+  }
+
+  const initializeWebSocket = () => {
     if (Config.WS_URL) {
       wsManager.initialize(Config.WS_URL)
 
       // Set up message handler
-      const unsubscribe = wsManager.onMessage((data) => {
+      const unsubscribeMessage = wsManager.onMessage((data) => {
         console.log('Received message:', data)
-        setLastMessage(data)
+        setMessages(prev => [...prev, data])
+        // Scroll to bottom on new message
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true })
+        }, 100)
+        setError(null)
       })
 
-      // Cleanup on unmount
+      // Set up error handler
+      const unsubscribeError = wsManager.onError((error) => {
+        console.error('WebSocket error:', error)
+        setError(error)
+        if (error.includes('Authentication failed')) {
+          setIsAuthenticated(false)
+        }
+      })
+
+      // Return cleanup function
       return () => {
-        unsubscribe()
+        unsubscribeMessage()
+        unsubscribeError()
         wsManager.cleanup()
       }
     }
-  }, [])
+  }
+
+  const handleSolveDemo = () => {
+    const message = {
+      type: 'solve_demo_repo',
+      timestamp: new Date().toISOString()
+    };
+    console.log('[App] Sending solve demo message:', message);
+    wsManager.sendMessage(message);
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.text}>WebSocket App</Text>
-      {lastMessage ? (
-        <Text style={styles.message}>Last message: {lastMessage}</Text>
-      ) : null}
+
+      {error ? (
+        <Text style={styles.error}>{error}</Text>
+      ) : (
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.messageContainer}
+          contentContainerStyle={styles.messageContent}
+        >
+          {messages.map((msg, index) => (
+            <Text key={index} style={styles.message}>
+              {msg}
+            </Text>
+          ))}
+        </ScrollView>
+      )}
+
+      {!isAuthenticated ? (
+        <Button
+          title="Login with GitHub"
+          onPress={handleLogin}
+        />
+      ) : (
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Solve Demo"
+            onPress={handleSolveDemo}
+          />
+        </View>
+      )}
     </View>
   )
 }
@@ -41,21 +162,41 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: 'black',
+    paddingTop: 50, // Add padding for status bar
   },
   text: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
+    textAlign: 'center',
     marginBottom: 20,
+  },
+  messageContainer: {
+    flex: 1,
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  messageContent: {
+    paddingVertical: 10,
   },
   message: {
     fontSize: 16,
     color: 'white',
+    marginVertical: 5,
+    padding: 10,
+    backgroundColor: '#222',
+    borderRadius: 8,
+  },
+  error: {
+    fontSize: 16,
+    color: 'red',
     textAlign: 'center',
     paddingHorizontal: 20,
+  },
+  buttonContainer: {
+    width: '100%',
+    padding: 20,
   },
 })
 
