@@ -2,18 +2,18 @@ import "@/utils/ignore-warnings"
 import { registerRootComponent } from "expo"
 import * as Linking from "expo-linking"
 import * as React from "react"
-import { Button, ScrollView, StyleSheet, Text, View } from "react-native"
+import { Button, StyleSheet, Text, View } from "react-native"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { githubAuth } from "./lib/auth/githubAuth"
 import { wsManager } from "./lib/ws/manager"
+import MessageList from "./MessageList"
 
 export default function App() {
   useAutoUpdate();
   const [messages, setMessages] = React.useState<string[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const scrollViewRef = React.useRef<ScrollView>(null);
 
   React.useEffect(() => {
     checkAuthState();
@@ -76,15 +76,11 @@ export default function App() {
 
       const unsubscribeMessage = wsManager.onMessage((data: string) => {
         console.log("[App] Raw received message:", data);
-
-        // If the message appears unusually empty or with too many CHUNK markers, log a warning.
         if (!data.trim()) {
           console.warn("[App] Received an empty or whitespace-only message.");
         } else if ((data.match(/CHUNK\s*#/gi) || []).length > 2) {
           console.warn("[App] Received message with multiple CHUNK markers:", data);
         }
-
-        // Existing aggregation logic:
         const chunkRegex = /^CHUNK\s*#\d+:\s*/i;
         setMessages((prev) => {
           if (chunkRegex.test(data)) {
@@ -99,10 +95,6 @@ export default function App() {
             return [...prev, data];
           }
         });
-
-        setTimeout(() => {
-          scrollViewRef.current?.scrollToEnd({ animated: true });
-        }, 100);
         setError(null);
       });
 
@@ -136,17 +128,7 @@ export default function App() {
       {error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.messageContainer}
-          contentContainerStyle={styles.messageContent}
-        >
-          {messages.map((msg, index) => (
-            <Text key={index} style={styles.message}>
-              {msg}
-            </Text>
-          ))}
-        </ScrollView>
+        <MessageList messages={messages} />
       )}
       {!isAuthenticated ? (
         <Button title="Login with GitHub" onPress={handleLogin} />
@@ -164,29 +146,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "black",
     paddingTop: 50,
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  messageContainer: {
-    flex: 1,
-    width: "100%",
-    paddingHorizontal: 20,
-  },
-  messageContent: {
-    paddingVertical: 10,
-  },
-  message: {
-    fontSize: 16,
-    color: "white",
-    marginVertical: 5,
-    padding: 10,
-    backgroundColor: "#222",
-    borderRadius: 8,
   },
   error: {
     fontSize: 16,
