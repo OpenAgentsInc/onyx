@@ -9,4 +9,5 @@ export default {
   API_URL: "https://openagents.com",
   AIUR_API_URL: "https://openagents.com",
   NEXUS_URL: "https://nexus.openagents.com/chat",
+  WS_URL: "wss://openagents.com/hyperview/ws",
 }

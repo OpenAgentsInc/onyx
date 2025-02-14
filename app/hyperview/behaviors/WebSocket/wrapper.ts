@@ -1,4 +1,4 @@
-import { githubAuth } from '../../../services/auth';
+import { githubAuth } from "../../../services/auth"
 
 type WebSocketEventHandler = (data: any) => void;
 
@@ -7,7 +7,7 @@ export class WebSocketWrapper {
   private messageQueue: string[] = [];
   private retryCount = 0;
   private eventHandlers: Map<string, WebSocketEventHandler[]> = new Map();
-  
+
   constructor(
     private url: string,
     private protocols?: string[]
@@ -23,18 +23,18 @@ export class WebSocketWrapper {
         throw new Error('Not authenticated');
       }
 
-      // Create WebSocket with auth header
+      // Add session token to URL
       const wsUrl = new URL(this.url);
-      wsUrl.searchParams.append('token', sessionToken);
-      
+      wsUrl.searchParams.append('session', sessionToken);
+
       this.ws = new WebSocket(wsUrl.toString(), this.protocols);
-      
+
       this.ws.onopen = () => {
         this.retryCount = 0;
         this.emit('open');
         this.flushMessageQueue();
       };
-      
+
       this.ws.onclose = (event) => {
         this.emit('close', event);
         // Only reconnect if not closed due to auth error
@@ -45,18 +45,18 @@ export class WebSocketWrapper {
           this.emit('auth_error', 'Authentication failed');
         }
       };
-      
+
       this.ws.onmessage = (event) => {
         this.emit('message', event.data);
       };
-      
-      this.ws.onerror = (error) => {
+
+      this.ws.onerror = (error: Event) => {
         this.emit('error', error);
       };
-      
+
     } catch (error) {
       console.error('WebSocket connection error:', error);
-      if (error.message === 'Not authenticated') {
+      if (error instanceof Error && error.message === 'Not authenticated') {
         this.emit('auth_error', 'Not authenticated');
       } else {
         this.reconnect();
@@ -67,7 +67,7 @@ export class WebSocketWrapper {
   private reconnect() {
     const delay = Math.min(1000 * Math.pow(2, this.retryCount), 30000);
     this.retryCount++;
-    
+
     setTimeout(() => {
       this.connect();
     }, delay);
