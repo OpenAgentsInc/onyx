@@ -46,7 +46,10 @@ const DrawerBehavior = {
         trigger: 'press',
         action: 'set-drawer-state',
         state: element.getAttribute('state'),
-        target: current
+        target: current,
+        options: {
+          state: element.getAttribute('state')
+        }
       }
     } else {
       console.error("No drawer element found after checking", depth, "levels")
