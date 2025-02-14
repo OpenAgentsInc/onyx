@@ -1,8 +1,9 @@
 import "@/utils/ignore-warnings"
 import { registerRootComponent } from "expo"
+import * as Clipboard from "expo-clipboard"
 import * as Linking from "expo-linking"
 import * as React from "react"
-import { Button, StyleSheet, Text, View } from "react-native"
+import { Alert, Button, StyleSheet, Text, View } from "react-native"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { githubAuth } from "./lib/auth/githubAuth"
@@ -14,6 +15,8 @@ export default function App() {
   const [messages, setMessages] = React.useState<string[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const scrollViewRef = React.useRef<React.ElementRef<typeof MessageList>>(null);
+  const pendingMessageRef = React.useRef<string>("");
 
   React.useEffect(() => {
     checkAuthState();
@@ -76,25 +79,35 @@ export default function App() {
 
       const unsubscribeMessage = wsManager.onMessage((data: string) => {
         console.log("[App] Raw received message:", data);
-        if (!data.trim()) {
-          console.warn("[App] Received an empty or whitespace-only message.");
-        } else if ((data.match(/CHUNK\s*#/gi) || []).length > 2) {
-          console.warn("[App] Received message with multiple CHUNK markers:", data);
-        }
+
+        // Identify if this message is a chunk (starts with "CHUNK #")
         const chunkRegex = /^CHUNK\s*#\d+:\s*/i;
-        setMessages((prev) => {
-          if (chunkRegex.test(data)) {
-            const chunkText = data.replace(chunkRegex, "");
-            if (prev.length > 0) {
-              const lastMessage = prev[prev.length - 1];
-              return [...prev.slice(0, -1), lastMessage + chunkText];
+        const isChunk = chunkRegex.test(data);
+
+        if (isChunk) {
+          // Remove the chunk prefix and trim whitespace
+          const cleaned = data.replace(chunkRegex, "").trim();
+          pendingMessageRef.current = pendingMessageRef.current
+            ? pendingMessageRef.current + " " + cleaned
+            : cleaned;
+          setMessages((prev) => {
+            if (prev.length === 0) {
+              return [pendingMessageRef.current];
             } else {
-              return [chunkText];
+              const newArr = [...prev];
+              newArr[newArr.length - 1] = pendingMessageRef.current;
+              return newArr;
             }
-          } else {
-            return [...prev, data];
-          }
-        });
+          });
+        } else {
+          // When a non-chunk message arrives, flush any pending chunk aggregation
+          pendingMessageRef.current = "";
+          setMessages((prev) => [...prev, data]);
+        }
+        // Scroll to the end of the message list
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
         setError(null);
       });
 
@@ -123,13 +136,22 @@ export default function App() {
     wsManager.sendMessage(message);
   };
 
+  const copyAllMessages = () => {
+    const allMessages = messages.join("\n\n");
+    Clipboard.setString(allMessages);
+    Alert.alert("Copied", "All messages have been copied to the clipboard.");
+  };
+
   return (
     <View style={styles.container}>
       {error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
-        <MessageList messages={messages} />
+        <MessageList messages={messages} ref={scrollViewRef} />
       )}
+      <View style={styles.copyButtonContainer}>
+        <Button title="Copy All Messages" onPress={copyAllMessages} />
+      </View>
       {!isAuthenticated ? (
         <Button title="Login with GitHub" onPress={handleLogin} />
       ) : (
@@ -156,6 +178,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: "100%",
     padding: 20,
+  },
+  copyButtonContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
 });
 
