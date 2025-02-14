@@ -4,14 +4,13 @@ import { WebSocketWrapper } from "../WebSocket/wrapper"
 
 import type { HvGetRoot, HvUpdateRoot } from 'hyperview';
 
-// Singleton instance to manage the WebSocket connection
 class SolveDemoRepoWebSocket {
   private static instance: SolveDemoRepoWebSocket;
   private ws: WebSocketWrapper | null = null;
   private streamTarget: Element | null = null;
   private getRoot: HvGetRoot | null = null;
   private updateRoot: HvUpdateRoot | null = null;
-  private messageCounter: number = 0;  // Add counter for unique keys
+  private contentElement: Element | null = null;
 
   private constructor() { }
 
@@ -22,36 +21,37 @@ class SolveDemoRepoWebSocket {
     return SolveDemoRepoWebSocket.instance;
   }
 
-  private initializeListContainer(target: Element) {
-    console.log('[SolveDemoRepo] Initializing list container');
-    const listHxml = `
-      <list xmlns="https://hyperview.org/hyperview">
-        <section-list>
-          <section>
-            <items id="solve-demo-items">
-            </items>
-          </section>
-        </section-list>
-      </list>
+  private initializeContainer(target: Element) {
+    console.log('[SolveDemoRepo] Initializing container');
+    const containerHtml = `
+      <view xmlns="https://hyperview.org/hyperview" id="deepseek-output" style="deepseekOutput">
+        <text style="deepseekText">Analysis Progress:</text>
+        <text id="stream-content" style="deepseekChunk"></text>
+      </view>
     `;
     try {
-      parseHxmlFragment(listHxml, target, 'replace');
-      console.log('[SolveDemoRepo] List container initialized successfully');
+      parseHxmlFragment(containerHtml, target, 'replace');
+      console.log('[SolveDemoRepo] Container initialized successfully');
       return target;
     } catch (error) {
-      console.error('[SolveDemoRepo] Error initializing list container:', error);
+      console.error('[SolveDemoRepo] Error initializing container:', error);
       throw error;
     }
   }
 
-  private findItemsContainer(): Element | null {
+  private findOrCreateContentElement(): Element | null {
     if (!this.getRoot || !this.streamTarget) return null;
 
     const root = this.getRoot();
     if (!root) return null;
 
-    const items = Dom.getElementById(root, 'solve-demo-items');
-    return items || null;
+    let content = Dom.getElementById(root, 'stream-content');
+    if (!content) {
+      console.log('[SolveDemoRepo] Content element not found, initializing container');
+      this.initializeContainer(this.streamTarget);
+      content = Dom.getElementById(root, 'stream-content');
+    }
+    return content;
   }
 
   private ensureStreamTarget(): boolean {
@@ -74,20 +74,34 @@ class SolveDemoRepoWebSocket {
           return false;
         }
 
-        console.log('[SolveDemoRepo] Found stream target, initializing list container');
-        this.streamTarget = this.initializeListContainer(target);
-        console.log('[SolveDemoRepo] Stream target initialized:', !!this.streamTarget);
+        console.log('[SolveDemoRepo] Found stream target');
+        this.streamTarget = target;
+        this.contentElement = this.findOrCreateContentElement();
       }
 
-      return !!this.streamTarget;
+      return !!this.streamTarget && !!this.contentElement;
     } catch (error) {
       console.error('[SolveDemoRepo] Error in ensureStreamTarget:', error);
       return false;
     }
   }
 
-  private appendMessage(data: string) {
-    console.log('[SolveDemoRepo] Attempting to append message');
+  private extractContent(xmlString: string): string | null {
+    try {
+      // Look for content in stream-content element
+      const match = xmlString.match(/<text[^>]*id="stream-content"[^>]*>(.*?)<\/text>/s);
+      if (match && match[1]) {
+        return match[1];
+      }
+      return null;
+    } catch (error) {
+      console.error('[SolveDemoRepo] Error extracting content:', error);
+      return null;
+    }
+  }
+
+  private updateContent(data: string) {
+    console.log('[SolveDemoRepo] Attempting to update content');
 
     if (!this.ensureStreamTarget()) {
       console.error('[SolveDemoRepo] Failed to ensure stream target');
@@ -106,33 +120,24 @@ class SolveDemoRepoWebSocket {
     }
 
     try {
-      // Find the items container using getElementById instead of querySelector
-      const items = this.findItemsContainer();
-      if (!items) {
-        console.warn('[SolveDemoRepo] Items container not found, reinitializing');
-        if (this.streamTarget) {
-          this.streamTarget = this.initializeListContainer(this.streamTarget);
-          return this.appendMessage(data); // Try again after reinitializing
-        } else {
-          console.error('[SolveDemoRepo] Stream target is null during reinitialization');
-          return;
+      const content = this.extractContent(data);
+      if (content !== null) {
+        // Create update XML
+        const updateXml = `
+          <text xmlns="https://hyperview.org/hyperview"
+                id="stream-content"
+                style="deepseekChunk">${content}</text>
+        `;
+
+        // Update the content element
+        if (this.contentElement) {
+          parseHxmlFragment(updateXml, this.contentElement, 'replace');
+          this.updateRoot(root, true);
         }
       }
-
-      console.log('[SolveDemoRepo] Appending message to list');
-      // Increment counter and use it as a unique key
-      this.messageCounter++;
-      // Wrap incoming message in an item with a unique key
-      const wrappedData = `
-        <item xmlns="https://hyperview.org/hyperview" key="msg-${this.messageCounter}">
-          ${data}
-        </item>
-      `;
-      parseHxmlFragment(wrappedData, items, 'append');
-      this.updateRoot(root, true);
     } catch (error) {
-      console.error('[SolveDemoRepo] Error in appendMessage:', error);
-      this.showError(error instanceof Error ? error.message : 'Error appending message');
+      console.error('[SolveDemoRepo] Error updating content:', error);
+      this.showError(error instanceof Error ? error.message : 'Error updating content');
     }
   }
 
@@ -143,27 +148,23 @@ class SolveDemoRepoWebSocket {
     updateRoot: HvUpdateRoot
   ) {
     console.log('[SolveDemoRepo] Initializing WebSocket manager');
-    // Store root access functions
     this.getRoot = getRoot;
     this.updateRoot = updateRoot;
 
-    // Only initialize if not already connected
     if (!this.ws) {
       console.log('[SolveDemoRepo] Creating new WebSocket connection');
       this.ws = new WebSocketWrapper(wsUrl);
 
-      // Set up message handler for streaming updates
       this.ws.on('message', (data: string) => {
         console.log('[SolveDemoRepo] Received message:', data);
         try {
-          this.appendMessage(data);
+          this.updateContent(data);
         } catch (error) {
           console.error('[SolveDemoRepo] Error handling WebSocket message:', error);
           this.showError(error instanceof Error ? error.message : 'Unknown error');
         }
       });
 
-      // Handle connection events
       this.ws.on('open', () => {
         console.log('[SolveDemoRepo] WebSocket connection opened');
       });
@@ -172,7 +173,6 @@ class SolveDemoRepoWebSocket {
         console.log('[SolveDemoRepo] WebSocket connection closed');
       });
 
-      // Handle connection errors
       this.ws.on('auth_error', (error) => {
         console.error('[SolveDemoRepo] WebSocket auth error:', error);
         this.showError('Authentication failed. Please try again.');
@@ -190,13 +190,17 @@ class SolveDemoRepoWebSocket {
   private showError(message: string) {
     console.log('[SolveDemoRepo] Showing error:', message);
     try {
-      // Include unique key for error messages too
-      this.messageCounter++;
-      this.appendMessage(`
-        <view style="error-message" key="error-${this.messageCounter}">
-          <text style="error-text">${message}</text>
-        </view>
-      `);
+      if (this.contentElement) {
+        const errorXml = `
+          <text xmlns="https://hyperview.org/hyperview"
+                id="stream-content"
+                style="deepseekChunk">Error: ${message}</text>
+        `;
+        parseHxmlFragment(errorXml, this.contentElement, 'replace');
+        if (this.getRoot) {
+          this.updateRoot?.(this.getRoot(), true);
+        }
+      }
     } catch (error) {
       console.error('[SolveDemoRepo] Failed to show error:', error);
     }
@@ -205,12 +209,14 @@ class SolveDemoRepoWebSocket {
   sendSolveCommand() {
     console.log('[SolveDemoRepo] Sending solve command');
     if (this.ws) {
-      // Reset message counter when starting new solve command
-      this.messageCounter = 0;
-      // Ensure stream target is initialized
-      if (this.ensureStreamTarget()) {
-        // Clear the list by reinitializing
-        this.streamTarget = this.initializeListContainer(this.streamTarget!);
+      if (this.ensureStreamTarget() && this.contentElement) {
+        // Clear existing content
+        const clearXml = `
+          <text xmlns="https://hyperview.org/hyperview"
+                id="stream-content"
+                style="deepseekChunk"></text>
+        `;
+        parseHxmlFragment(clearXml, this.contentElement, 'replace');
       }
 
       const message = {
@@ -232,6 +238,7 @@ class SolveDemoRepoWebSocket {
       this.ws = null;
     }
     this.streamTarget = null;
+    this.contentElement = null;
     this.getRoot = null;
     this.updateRoot = null;
   }

@@ -13,6 +13,7 @@ type SvgData = {
 export class LocalSvg extends React.PureComponent<HvComponentProps> {
   static namespaceURI = 'https://openagents.com/hyperview-local';
   static localName = 'svg';
+  static localNames = ['svg'];
 
   render() {
     const src = this.props.element.getAttribute('src') || '';
