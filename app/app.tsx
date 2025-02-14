@@ -1,3 +1,4 @@
+import "@/utils/ignore-warnings"
 import { registerRootComponent } from "expo"
 import * as Linking from "expo-linking"
 import * as React from "react"
@@ -132,7 +133,6 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>WebSocket App</Text>
       {error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
