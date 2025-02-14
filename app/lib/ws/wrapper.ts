@@ -1,3 +1,4 @@
+// wrapper.ts
 import EventEmitter from "eventemitter3"
 import { githubAuth } from "../auth/githubAuth"
 
@@ -18,49 +19,45 @@ export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
   constructor(url: string) {
     super();
     this.url = url;
-    console.log("[WebSocket] Initializing with URL:", url);
+    this.logInfo("Initializing with URL", { url });
     this.connect();
   }
 
   private async connect() {
     try {
       const sessionToken = await githubAuth.getSession();
-      console.log(
-        "[WebSocket] Got session token:",
-        sessionToken ? "(token exists)" : "null"
-      );
+      // Log only existence of token, not the token value
+      this.logInfo("Got session token", { exists: !!sessionToken });
       if (!sessionToken) {
         throw new Error("Not authenticated");
       }
 
       const wsUrl = new URL(this.url);
       wsUrl.searchParams.append("session", sessionToken);
-      console.log("[WebSocket] Connecting with URL:", wsUrl.toString());
+      this.logInfo("Connecting with URL", { wsUrl: wsUrl.toString() });
 
       this.ws = new WebSocket(wsUrl.toString());
 
       this.ws.onopen = () => {
-        console.log("[WebSocket] Connection opened");
+        this.logInfo("Connection opened");
         this.retryCount = 0;
         this.emit("open");
       };
 
       this.ws.onmessage = (event) => {
         const msg = event.data;
-        console.log("[WebSocket] Message received");
+        this.logInfo("Message received");
         this.emit("message", msg);
       };
 
       this.ws.onclose = (event) => {
-        console.log("[WebSocket] Connection closed with code:", event.code);
+        this.logInfo("Connection closed", { code: event.code });
         this.emit("close");
 
         if (event.code !== 4001 && this.retryCount < this.maxRetries) {
           this.retryCount++;
           const delay = 1000 * Math.pow(2, this.retryCount);
-          console.log(
-            `[WebSocket] Retrying connection (${this.retryCount}/${this.maxRetries}) in ${delay} ms`
-          );
+          this.logInfo("Retrying connection", { retryCount: this.retryCount, maxRetries: this.maxRetries, delay });
           setTimeout(() => this.connect(), delay);
         } else if (event.code === 4001) {
           this.emit("auth_error", "Authentication failed");
@@ -68,11 +65,11 @@ export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
       };
 
       this.ws.onerror = (error) => {
-        console.error("[WebSocket] Error:", error);
+        this.logError("WebSocket error occurred", { error });
         this.emit("error", new Error("WebSocket error occurred"));
       };
     } catch (error) {
-      console.error("[WebSocket] Connection error:", error);
+      this.logError("Connection error", { error });
       if (error instanceof Error && error.message === "Not authenticated") {
         this.emit("auth_error", "Not authenticated");
       } else {
@@ -88,7 +85,7 @@ export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(data);
     } else {
-      console.error("[WebSocket] Cannot send message - connection not open");
+      this.logError("Cannot send message - connection not open");
       this.emit("error", new Error("Connection not open"));
     }
   }
@@ -98,5 +95,13 @@ export class WebSocketWrapper extends EventEmitter<WebSocketEvents> {
       this.ws.close();
       this.ws = null;
     }
+  }
+
+  private logInfo(msg: string, extra?: Record<string, any>) {
+    console.log(JSON.stringify({ level: "info", source: "WebSocketWrapper", msg, ...extra }));
+  }
+
+  private logError(msg: string, extra?: Record<string, any>) {
+    console.error(JSON.stringify({ level: "error", source: "WebSocketWrapper", msg, ...extra }));
   }
 }

@@ -36,22 +36,23 @@ const styles = StyleSheet.create({
 
 const markdownStyles = {
   body: {
-    fontSize: 16,
+    fontSize: 12,
     color: "white",
     backgroundColor: "black",
-    marginVertical: 5,
-    padding: 10,
-    borderRadius: 8,
+    marginVertical: 0,
+    padding: 4,
   },
   code_inline: {
-    backgroundColor: "#333",
-    color: "white",
+    fontSize: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    color: "rgba(255, 255, 255, 0.9)",
     paddingHorizontal: 4,
     paddingVertical: 2,
     borderRadius: 4,
   },
   fence: {
-    backgroundColor: "#333",
+    fontSize: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     padding: 10,
     borderRadius: 4,
   },

@@ -1,9 +1,10 @@
+// App.tsx
 import "@/utils/ignore-warnings"
 import { registerRootComponent } from "expo"
 import * as Clipboard from "expo-clipboard"
 import * as Linking from "expo-linking"
-import * as React from "react"
-import { Alert, Button, StyleSheet, Text, View } from "react-native"
+import React from "react"
+import { Alert, Button, ScrollView, StyleSheet, Text, View } from "react-native"
 import Config from "./config"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 import { githubAuth } from "./lib/auth/githubAuth"
@@ -15,7 +16,7 @@ export default function App() {
   const [messages, setMessages] = React.useState<string[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const scrollViewRef = React.useRef<React.ElementRef<typeof MessageList>>(null);
+  const scrollViewRef = React.useRef<ScrollView>(null);
   const pendingMessageRef = React.useRef<string>("");
 
   React.useEffect(() => {
@@ -28,13 +29,21 @@ export default function App() {
 
   React.useEffect(() => {
     if (isAuthenticated) {
-      initializeWebSocket();
+      const cleanupWS = initializeWebSocket();
+      return () => {
+        cleanupWS && cleanupWS();
+      };
     }
   }, [isAuthenticated]);
 
   const checkAuthState = async () => {
-    const token = await githubAuth.getToken();
-    setIsAuthenticated(!!token);
+    try {
+      const token = await githubAuth.getToken();
+      setIsAuthenticated(!!token);
+    } catch (err) {
+      console.error("[App] Error checking auth state:", err);
+      setIsAuthenticated(false);
+    }
   };
 
   const setupDeepLinks = () => {
@@ -49,7 +58,7 @@ export default function App() {
 
   const handleDeepLink = async (url: string | null) => {
     if (!url) return;
-    console.log("[App] Handling deep link:", url);
+    console.log(JSON.stringify({ level: "info", source: "App", msg: "Handling deep link", url }));
     const { queryParams } = Linking.parse(url);
     if (queryParams?.token) {
       try {
@@ -78,17 +87,14 @@ export default function App() {
       wsManager.initialize(Config.WS_URL);
 
       const unsubscribeMessage = wsManager.onMessage((data: string) => {
-        console.log("[App] Raw received message:", data);
-
-        // Identify if this message is a chunk (starts with "CHUNK #")
+        console.log(JSON.stringify({ level: "info", source: "App", msg: "Raw received message", data }));
         const chunkRegex = /^CHUNK\s*#\d+:\s*/i;
         const isChunk = chunkRegex.test(data);
 
         if (isChunk) {
-          // Remove the chunk prefix and trim whitespace
           const cleaned = data.replace(chunkRegex, "").trim();
           pendingMessageRef.current = pendingMessageRef.current
-            ? pendingMessageRef.current + " " + cleaned
+            ? `${pendingMessageRef.current} ${cleaned}`
             : cleaned;
           setMessages((prev) => {
             if (prev.length === 0) {
@@ -100,11 +106,9 @@ export default function App() {
             }
           });
         } else {
-          // When a non-chunk message arrives, flush any pending chunk aggregation
           pendingMessageRef.current = "";
           setMessages((prev) => [...prev, data]);
         }
-        // Scroll to the end of the message list
         setTimeout(() => {
           scrollViewRef.current?.scrollToEnd({ animated: true });
         }, 100);
@@ -112,7 +116,7 @@ export default function App() {
       });
 
       const unsubscribeError = wsManager.onError((error: string) => {
-        console.error("[App] WebSocket error:", error);
+        console.error(JSON.stringify({ level: "error", source: "App", msg: "WebSocket error", error }));
         setError(error);
         if (error.includes("Authentication failed")) {
           setIsAuthenticated(false);
@@ -132,7 +136,7 @@ export default function App() {
       type: "solve_demo_repo",
       timestamp: new Date().toISOString(),
     };
-    console.log("[App] Sending solve demo message:", message);
+    console.log(JSON.stringify({ level: "info", source: "App", msg: "Sending solve demo message", message }));
     wsManager.sendMessage(message);
   };
 
@@ -170,8 +174,8 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   error: {
-    fontSize: 16,
-    color: "red",
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.6)",
     textAlign: "center",
     paddingHorizontal: 20,
   },
