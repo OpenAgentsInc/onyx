@@ -18,7 +18,7 @@ class WebSocketManager {
     console.log('[WSManager] Initializing WebSocket connection');
 
     if (!this.ws) {
-      console.log('[WSManager] Creating new WebSocket connection');
+      console.log('[WSManager] Creating new WebSocket connection to', wsUrl);
       this.ws = new WebSocketWrapper(wsUrl);
 
       this.ws.on('message', (data: string) => {
