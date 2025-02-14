@@ -41,14 +41,12 @@ const DrawerBehavior = {
     if (current && depth < 10) {
       console.log("Found drawer element at depth", depth)
       return {
-        action: 'update',
-        behaviorElement: current,
-        options: {
-          behavior: {
-            action: 'set-drawer-state',
-            state: element.getAttribute('state')
-          }
-        }
+        type: 'behavior',
+        name: 'set-drawer-state',
+        trigger: 'press',
+        action: 'set-drawer-state',
+        state: element.getAttribute('state'),
+        target: current
       }
     } else {
       console.error("No drawer element found after checking", depth, "levels")
