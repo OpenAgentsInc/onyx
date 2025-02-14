@@ -1,13 +1,6 @@
-import Hyperview from "hyperview"
+import Hyperview, { HvComponentProps } from "hyperview"
 import React from "react"
 import { Image, ImageStyle } from "react-native"
-
-interface Props {
-  element: Element;
-  stylesheets: any;
-  onUpdate: (opts: any) => void;
-  options: any;
-}
 
 // Add a mapping of image paths to their require statements
 const imageMapping: { [key: string]: any } = {
@@ -17,9 +10,10 @@ const imageMapping: { [key: string]: any } = {
   'spacer': require('../../../../assets/images/design/Spacer.png'),
 };
 
-export class LocalImage extends React.PureComponent<Props> {
+export class LocalImage extends React.PureComponent<HvComponentProps> {
   static namespaceURI = 'https://openagents.com/hyperview-local';
   static localName = 'image';
+  static localNames = ['image'];
 
   render() {
     // Get props from HXML attributes and stylesheets

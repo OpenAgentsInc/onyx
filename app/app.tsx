@@ -6,23 +6,26 @@ import "react-native-gesture-handler"
 import "@/utils/ignore-warnings"
 import "@/utils/polyfills"
 import { useFonts } from "expo-font"
+import * as Linking from "expo-linking"
+import Hyperview from "hyperview"
 import * as React from "react"
 import { ActivityIndicator, AppRegistry, View } from "react-native"
 import { KeyboardProvider } from "react-native-keyboard-controller"
-import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
+import {
+    initialWindowMetrics, SafeAreaInsetsContext, SafeAreaProvider
+} from "react-native-safe-area-context"
 import { customFontsToLoad } from "@/theme/typography"
+import { NavigationContainer } from "@react-navigation/native"
 import Config from "./config"
+import { AuthProvider, useAuth } from "./contexts/AuthContext"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
+import Behaviors from "./hyperview/behaviors"
+import Components from "./hyperview/components/"
+import { fetchWrapper, Logger } from "./hyperview/helpers"
 import { useInitialRootStore } from "./models"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
+import { events } from "./services/events"
 import NotificationService from "./services/notifications"
-import Hyperview from "hyperview"
-import { Logger, fetchWrapper } from "./hyperview/helpers"
-import Behaviors from './hyperview/behaviors'
-import Components from './hyperview/components/'
-import { AuthProvider, useAuth } from './contexts/AuthContext'
-import * as Linking from 'expo-linking'
-import { events } from './services/events'
 
 interface AppProps {
   hideSplashScreen: () => Promise<void>
@@ -32,7 +35,7 @@ function AppContent() {
   const { isAuthenticated, handleAuthCallback } = useAuth()
   const { config } = useInitialRootStore()
   const [entrypointUrl, setEntrypointUrl] = React.useState<string>('')
-  
+
   // Get the API URL from config
   const apiUrl = config?.API_URL || "http://localhost:8000"
   console.log("[App] API URL:", apiUrl)
@@ -40,7 +43,7 @@ function AppContent() {
 
   // Update entrypoint when auth state changes
   React.useEffect(() => {
-    const url = isAuthenticated 
+    const url = isAuthenticated
       ? `${apiUrl}/hyperview/main`
       : `${apiUrl}/templates/pages/auth/login.xml`
     console.log('[App] Setting entrypoint:', url)
@@ -50,7 +53,7 @@ function AppContent() {
   // Handle deep links
   React.useEffect(() => {
     console.log("[App] Setting up deep link handlers")
-    
+
     // Handle initial URL
     Linking.getInitialURL().then((url) => {
       if (url) {
@@ -80,7 +83,7 @@ function AppContent() {
     // Handle auth success
     if (path === 'auth/success' && queryParams?.token) {
       console.log('[App] Processing auth success with token:', queryParams.token)
-      
+
       try {
         await handleAuthCallback(queryParams.token)
         console.log('[App] Auth callback handled successfully')
@@ -102,16 +105,30 @@ function AppContent() {
   console.log('[App] Current auth state:', { isAuthenticated })
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'black' }}>
-      <Hyperview
-        behaviors={Behaviors}
-        components={Components}
-        entrypointUrl={entrypointUrl}
-        fetch={fetchWrapper}
-        formatDate={(date, format) => date?.toLocaleDateString()}
-        logger={new Logger(Logger.Level.log)}
-      />
-    </View>
+    <NavigationContainer>
+      <SafeAreaInsetsContext.Consumer>
+        {insets => (
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'black',
+              paddingBottom: insets?.bottom,
+              paddingLeft: insets?.left,
+              paddingRight: insets?.right,
+            }}
+          >
+            <Hyperview
+              behaviors={Behaviors}
+              components={Components}
+              entrypointUrl={entrypointUrl}
+              fetch={fetchWrapper}
+              formatDate={(date, format) => date?.toLocaleDateString()}
+              logger={new Logger(Logger.Level.log)}
+            />
+          </View>
+        )}
+      </SafeAreaInsetsContext.Consumer>
+    </NavigationContainer>
   )
 }
 
