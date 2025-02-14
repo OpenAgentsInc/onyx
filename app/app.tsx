@@ -1,14 +1,27 @@
 import { registerRootComponent } from "expo"
-import { Text, View } from "react-native"
+import { StyleSheet, Text, View } from "react-native"
 import { useAutoUpdate } from "./hooks/useAutoUpdate"
 
 export default function App() {
   useAutoUpdate()
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'white' }}>Hello</Text>
+    <View style={styles.container}>
+      <Text style={styles.text}>Hello</Text>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+})
 
 registerRootComponent(App);
