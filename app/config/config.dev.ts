@@ -9,5 +9,5 @@ export default {
   API_URL: "http://localhost:8000",
   AIUR_API_URL: "http://localhost:8000",
   NEXUS_URL: "http://localhost:3000/chat",
-  WS_URL: "ws://localhost:8000/hyperview/ws",
+  WS_URL: "ws://localhost:8000/ws",
 }
